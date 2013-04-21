@@ -3,7 +3,7 @@ var camera = null;
 var renderer = null;
 var geometry = null;
 var material = null;
-var sphere = null;
+var mesh = null;
 var dom = null;
 
 var divHeader = null;
@@ -17,14 +17,20 @@ var reductionWidth = widthScrollBar;
 var glWidth = window.innerWidth - reductionWidth;
 var glHeight = window.innerHeight - reductionHeight;
 
-function initPreGL() {
+var loader = new THREE.ColladaLoader();
+loader.options.convertUpAxis = true;
+loader.load( '../models/monster.dae', function ( collada ) {
+	mesh = collada.scene;
+	
+	initAll();
+} );
+
+function initAll() {
 	divKaijs = document.getElementById("kaiWebGL");
 	divKaijs.style.width = glWidth + "px";
 	divKaijs.style.height = glHeight + "px";
 	divHeader = document.getElementById("headline");
-}
 
-function initGL() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(new THREE.Color(0, 0, 0), 255);
 	renderer.setSize(glWidth, glHeight);
@@ -32,20 +38,14 @@ function initGL() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(75, (glWidth) / (glHeight), 0.1, 1000);
-	camera.position.set( 0, 0, 2 );
+	camera.position.set( 0, 0, 100 );
 
 	var light = new THREE.DirectionalLight( 0xaaaaaa, 1.0);
 	light.position.set(0, 1, 1);
 	scene.add( light );
+	
+	scene.add( mesh );
 
-	geometry = new THREE.SphereGeometry(1,64,64);
-	//material = new THREE.MeshBasicMaterial({color: 0x00ff00});
-	material = new THREE.MeshPhongMaterial({color: 0x00ff00});
-	sphere = new THREE.Mesh(geometry, material);
-	scene.add(sphere);
-}
-
-function initPostGL() {	
 	dom = renderer.domElement;
 	divKaijs.appendChild(dom);
 	
@@ -57,8 +57,8 @@ function initPostGL() {
 function render() {
 	requestAnimationFrame(render);
 
-	//sphere.rotation.x += 0.1;
-	sphere.rotation.y += 0.1;
+	//mesh.rotation.x += 0.1;
+//	mesh.rotation.y += 0.1;
 
 	renderer.render(scene, camera);
 }

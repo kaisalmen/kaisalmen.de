@@ -10,18 +10,20 @@ python3 build.py --include math --output ../../build/three-math.js
 cd ../../../kaijs
 
 rm ./libs/three.js
-rm ./libs/three.min.js
+if [ -e ./libs/three.min.js ]; then
+	rm ./libs/three.min.js
+fi
 rm ./libs/three-canvas.js
 rm ./libs/three-css3d.js
 rm ./libs/three-webgl.js
 rm ./libs/three-extras.js
 rm ./libs/three-math.js
 cp ../three.js/build/three.js ./libs
-cp ../three.js/build/three-canvas.js ./libs
-cp ../three.js/build/three-css3d.js ./libs
-cp ../three.js/build/three-webgl.js ./libs
-cp ../three.js/build/three-extras.js ./libs
-cp ../three.js/build/three-math.js ./libs
+#cp ../three.js/build/three-canvas.js ./libs
+#cp ../three.js/build/three-css3d.js ./libs
+#cp ../three.js/build/three-webgl.js ./libs
+#cp ../three.js/build/three-extras.js ./libs
+#cp ../three.js/build/three-math.js ./libs
 
 rm ../three.js/build/three-canvas.js
 rm ../three.js/build/three-css3d.js
