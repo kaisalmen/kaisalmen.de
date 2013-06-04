@@ -1,0 +1,21 @@
+<html>
+	<head>
+		<title>My first Three.js app</title>
+		<link rel="stylesheet" href="../css/kaijs.css" />
+		<script src="../libs/three.js"></script>
+		<script src="../libs/jquery-2.0.2.js"></script>
+		<script src="ShaderOnImage.js"></script>
+	</head>
+	<body>
+		<div id="headline">Shader on image</div>
+		<div id="kaiWebGL"></div>
+		<div id="debug"></div>
+		<script>
+			initPreGL();
+			initGL();
+			initPostGL();
+			createDebugOutput();
+			render();
+		</script>
+	</body>
+</html>
