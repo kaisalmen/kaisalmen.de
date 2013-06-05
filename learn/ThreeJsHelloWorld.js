@@ -3,7 +3,7 @@ var camera = null;
 var renderer = null;
 var geometry = null;
 var material = null;
-var sphere = null;
+var mesh = null;
 var dom = null;
 
 var divHeader = null;
@@ -41,8 +41,8 @@ function initGL() {
 	geometry = new THREE.SphereGeometry(1,64,64);
 	//material = new THREE.MeshBasicMaterial({color: 0x00ff00});
 	material = new THREE.MeshPhongMaterial({color: 0x00ff00});
-	sphere = new THREE.Mesh(geometry, material);
-	scene.add(sphere);
+	mesh = new THREE.Mesh(geometry, material);
+	scene.add(mesh);
 }
 
 function initPostGL() {	
@@ -57,8 +57,8 @@ function initPostGL() {
 function render() {
 	requestAnimationFrame(render);
 
-	//sphere.rotation.x += 0.1;
-	sphere.rotation.y += 0.1;
+	//mesh.rotation.x += 0.1;
+	mesh.rotation.y += 0.1;
 
 	renderer.render(scene, camera);
 }

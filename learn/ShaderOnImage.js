@@ -3,7 +3,7 @@ var camera = null;
 var renderer = null;
 var geometry = null;
 var material = null;
-var plane = null;
+var mesh = null;
 var dom = null;
 
 var divHeader = null;
@@ -26,14 +26,42 @@ function initPreGL() {
 	divKaijs.style.width = glWidth + "px";
 	divKaijs.style.height = glHeight + "px";
 	divHeader = document.getElementById("headline");
-	
-	jQuery.get('./shader/passThrough.vs', function(data) {
-		vertexShaderText = data;	    
-	});
-	jQuery.get('./shader/staticColor.fs', function(data) {
-		fragmentShaderText = data;	    
+	console.log("initPreGL is completed!");
+}
+
+function loadVertexShader() {
+	return $.get("shader/passThrough.vs", function(data) {
+		console.log(data);
 	});
 }
+
+function loadFragmentShader() {
+	return $.get("shader/staticColor.fs", function(data) {
+		console.log(data);
+	});
+}
+
+$(document).ready(
+	function() {
+	    $.when(
+	    	loadVertexShader(),
+	    	loadFragmentShader()
+	    ).done(
+	    	function(vert, frag) {
+	    		console.log("Shader loading from file is completed!");
+	    		vertexShaderText = vert[0];
+	    		fragmentShaderText = frag[0];
+	    		
+				initPreGL();
+				initGL();
+				initPostGL();
+				createDebugOutput();
+				render();
+	    	}
+	    );	    	
+	}
+);
+
 
 function initGL() {
 	renderer = new THREE.WebGLRenderer();
@@ -41,37 +69,58 @@ function initGL() {
 	renderer.setSize(glWidth, glHeight);
 	
 	scene = new THREE.Scene();
-	camera = new THREE.Camera();
-	camera.position.z = 1;
 	
+	camera = new THREE.PerspectiveCamera(75, (glWidth) / (glHeight), 0.1, 1000);
+	camera.position.set( 0, 0, 2 );
+	
+	var light = new THREE.DirectionalLight( 0xaaaaaa, 1.0);
+	light.position.set(0, 1, 1);
+	scene.add( light );
+	
+//	uniforms = {
+//	time: { type: "f", value: 1.0 },
+//	resolution: { type: "v2", value: new THREE.Vector2() }
+//};
+	geometry = new THREE.PlaneGeometry( 2, 2 );
 	uniforms = {
 	};
-	
-	geometry = new THREE.PlaneGeometry( 2, 2 );
 	material = new THREE.ShaderMaterial( {
 		uniforms: uniforms,
 		vertexShader: vertexShaderText,
 		fragmentShader: fragmentShaderText
 	} );
-	plane = new THREE.Mesh(geometry, material);
-	scene.add(plane);
+//	geometry = new THREE.SphereGeometry(1,64,64);
+//	material = new THREE.MeshPhongMaterial({color: 0x00ff00});
+
+	// vertex shader does not apply geometry transform => screen is filled with pixel
+	mesh = new THREE.Mesh(geometry, material);
+	scene.add(mesh);
 }
 
 function initPostGL() {	
+	addEventHandlers();
+	
 	dom = renderer.domElement;
 	divKaijs.appendChild(dom);
 }
 
 function createDebugOutput() {
 	divDebug = document.getElementById("debug");
-	divDebug.innerHTML = vertexShaderText;
-	divDebug.innerHTML = fragmentShaderText;
+	divDebug.innerHTML = "Vertex Shader: " + vertexShaderText;
+	divDebug.innerHTML = divDebug.innerHTML + " Fragment Shader: " + fragmentShaderText;
 }
 
 function render() {
 	requestAnimationFrame(render);
 
+	mesh.rotation.x += 0.1;
+	mesh.rotation.y += 0.1;
+
 	renderer.render(scene, camera);
+}
+
+function addEventHandlers() {
+	window.addEventListener('resize', onWindowResize, false);
 }
 
 function onWindowResize(event) {
