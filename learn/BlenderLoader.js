@@ -18,8 +18,8 @@ var dae = null;
 var loader = null;
 
 var outputExtra = "";
-//var loadDae = "../models/cylinder.dae";
-var loadDae = "../models/multiObjects.dae";
+//var loadDae = "../resource/models/cylinder.dae";
+var loadDae = "../resource/models/multiObjects.dae";
 
 function initCollada() {
 	var loader = new THREE.ColladaLoader();
