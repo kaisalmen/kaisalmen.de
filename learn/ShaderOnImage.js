@@ -5,6 +5,8 @@ var geometry;
 var material;
 var mesh;
 
+var animate = true;
+
 var myTexture;
 var uniforms;
 
@@ -22,7 +24,8 @@ var vertexShaderText;
 var fragmentShaderText;
 
 var text;
-var controller;
+var controllerBlend;
+var controllerAnimate;
 
 $(document).ready(
 	function() {
@@ -41,7 +44,8 @@ $(document).ready(
 
                 text = new DatGuiText();
                 var gui = new dat.GUI();
-                controller = gui.add(text, 'blend', 0.0, 1.0);
+                controllerBlend = gui.add(text, 'blend', 0.0, 1.0);
+                controllerAnimate = gui.add(text, 'animate');
 
                 myTexture = THREE.ImageUtils.loadTexture("../resource/images/ready01.jpg", null, updateTextures);
                 uniforms = {
@@ -73,6 +77,7 @@ function loadFragmentShader() {
 
 var DatGuiText = function() {
     this.blend = 0.75;
+    this.animate = true;
 };
 
 function initGL() {
@@ -112,7 +117,9 @@ function initPostGL() {
 function render() {
 	requestAnimationFrame(render);
 
-	mesh.rotation.z += 0.001;
+    if (animate) {
+	    mesh.rotation.z += 0.001;
+    }
 
 	renderer.render(scene, camera);
 }
@@ -126,9 +133,12 @@ function updateTextures() {
 function addEventHandlers() {
 	window.addEventListener('resize', onWindowResize, false);
 	
-	controller.onChange(function(value) {
+	controllerBlend.onChange(function(value) {
 		uniforms.blendFactor.value = value;
 	});
+    controllerAnimate.onChange(function(value) {
+        animate = value;
+    });
 }
 
 function onWindowResize(event) {
