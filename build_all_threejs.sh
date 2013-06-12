@@ -22,7 +22,7 @@ cp ../three.js/build/three.js ./libs
 #cp ../three.js/build/three-canvas.js ./libs
 #cp ../three.js/build/three-css3d.js ./libs
 #cp ../three.js/build/three-webgl.js ./libs
-#cp ../three.js/build/three-extras.js ./libs
+cp ../three.js/build/three-extras.js ./libs
 #cp ../three.js/build/three-math.js ./libs
 
 rm ../three.js/build/three-canvas.js

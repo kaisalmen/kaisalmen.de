@@ -1,31 +1,51 @@
-var scene;
-var camera;
-var renderer;
-var geometry;
-var material;
-var mesh;
+// WebGL check first
+if (!Detector.webgl) {
+    Detector.addGetWebGLMessage();
+}
+else {
+    console.log("WebGL is available!")
+}
 
-var animate = true;
-
-var myTexture;
-var uniforms;
-
-var dom;
+// dom related
 var divKaiJs;
-
 var widthScrollBar = 12;
 var reductionHeight = widthScrollBar + widthScrollBar;
 var reductionWidth = widthScrollBar;
-
 var glWidth = window.innerWidth - reductionWidth;
 var glHeight = window.innerHeight - reductionHeight;
+
+// scene, animation, rendering related
+var scene;
+var camera;
+var renderer;
+var trackballControls;
+
+var geometry;
+var material;
+var mesh;
+var animate = true;
+
+// shader related
+var imageUrl = "../resource/images/house02.jpg";
+var myTexture;
+var uniforms;
 
 var vertexShaderText;
 var fragmentShaderText;
 
+// dat gui related
 var text;
-var controllerBlend;
-var controllerAnimate;
+var controllerBlend, controllerLevelR, controllerLevelG, controllerLevelB, controllerAnimate;
+
+var DatGuiText = function() {
+    this.blend = 0.75;
+    this.colorLevelR = 1.0;
+    this.colorLevelG = 1.0;
+    this.colorLevelB = 1.0;
+    this.animate = true;
+    this.resetAnimation = resetGeometry;
+    this.resetCamera = resetTrackballControls;
+};
 
 $(document).ready(
 	function() {
@@ -45,19 +65,24 @@ $(document).ready(
                 text = new DatGuiText();
                 var gui = new dat.GUI();
                 controllerBlend = gui.add(text, 'blend', 0.0, 1.0);
+                controllerLevelR = gui.add(text, 'colorLevelR', 0.0, 1.0);
+                controllerLevelG = gui.add(text, 'colorLevelG', 0.0, 1.0);
+                controllerLevelB = gui.add(text, 'colorLevelB', 0.0, 1.0);
                 controllerAnimate = gui.add(text, 'animate');
+                gui.add(text, 'resetAnimation');
+                gui.add(text, 'resetCamera');
 
-                myTexture = THREE.ImageUtils.loadTexture("../resource/images/ready01.jpg", null, updateTextures);
+                myTexture = THREE.ImageUtils.loadTexture(imageUrl, null, updateTextures);
                 uniforms = {
                     blendFactor : { type: "f", value: 0.75 },
+                    colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
                     texture1: { type: "t", texture: null }
                 };
 
                 console.log("initPreGL is completed!");
 
 				initGL();
-				initPostGL();
-				render();
+                animateFrame();
 	    	}
 	    );	    	
 	}
@@ -75,21 +100,16 @@ function loadFragmentShader() {
 	});
 }
 
-var DatGuiText = function() {
-    this.blend = 0.75;
-    this.animate = true;
-};
-
 function initGL() {
 	renderer = new THREE.WebGLRenderer();
 	renderer.setClearColor(new THREE.Color(0, 0, 0), 255);
 	renderer.setSize(glWidth, glHeight, false);
-	
+
 	scene = new THREE.Scene();
 	
 	camera = new THREE.PerspectiveCamera(75, (glWidth) / (glHeight), 0.1, 1000);
 	camera.position.set(0, 0, 2);
-	
+
 	var light = new THREE.DirectionalLight( 0xaaaaaa, 1.0);
 	light.position.set(0, 1, 1);
 	scene.add( light );
@@ -100,33 +120,51 @@ function initGL() {
 		uniforms: uniforms,
 		vertexShader: vertexShaderText,
 		fragmentShader: fragmentShaderText,
-        transparent: true
+        transparent: true,
+        side: THREE.DoubleSide
 	} );
 
 	mesh = new THREE.Mesh(geometry, material);
 	scene.add(mesh);
-}
 
-function initPostGL() {	
 	addEventHandlers();
-	
-	dom = renderer.domElement;
-    divKaiJs.appendChild(dom);
+
+    divKaiJs.appendChild(renderer.domElement);
 }
 
-function render() {
-	requestAnimationFrame(render);
+function animateFrame() {
+	requestAnimationFrame(animateFrame);
 
     if (animate) {
 	    mesh.rotation.z += 0.001;
     }
+    trackballControls.update();
+    render();
+}
 
-	renderer.render(scene, camera);
+function render() {
+    renderer.render(scene, camera);
+}
+
+function resetGeometry() {
+    console.log("resetGeometry");
+    mesh.rotation.z = 0;
+}
+
+function resetTrackballControls() {
+    console.log("resetTrackballControls");
+    camera.position.set(0, 0, 2);
+    trackballControls.reset();
+    render();
 }
 
 function updateTextures() {
     console.log("Texture loading was completed successfully!");
     myTexture.wrapS = myTexture.wrapT = THREE.RepeatWrapping;
+    var aspectRatio = myTexture.image.width / myTexture.image.height;
+    console.log("Adjusting aspectRatio to: " + aspectRatio + " Image Props: width: " + myTexture.image.width + " height: " + myTexture.image.height);
+    mesh.scale.x *= aspectRatio;
+    console.log(mesh.scale.x, mesh.scale.y);
     uniforms.texture1.value = myTexture;
 }
 
@@ -136,9 +174,22 @@ function addEventHandlers() {
 	controllerBlend.onChange(function(value) {
 		uniforms.blendFactor.value = value;
 	});
+    controllerLevelR.onChange(function(value) {
+        uniforms.colorFactor.value[0] = value;
+    });
+    controllerLevelG.onChange(function(value) {
+        uniforms.colorFactor.value[1] = value;
+    });
+    controllerLevelB.onChange(function(value) {
+        uniforms.colorFactor.value[2] = value;
+    });
     controllerAnimate.onChange(function(value) {
         animate = value;
     });
+
+    trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
+    trackballControls.rotateSpeed = 0.5;
+    trackballControls.addEventListener( 'change', render );
 }
 
 function onWindowResize(event) {
