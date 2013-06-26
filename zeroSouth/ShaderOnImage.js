@@ -7,6 +7,7 @@ else {
 }
 
 // dom related
+var dom;
 var divKaiJs;
 var widthScrollBar = 12;
 var reductionHeight = widthScrollBar + widthScrollBar;
@@ -125,11 +126,13 @@ function initGL() {
 	} );
 
 	mesh = new THREE.Mesh(geometry, material);
+
 	scene.add(mesh);
 
-	addEventHandlers();
+    dom = renderer.domElement;
+    addEventHandlers();
 
-    divKaiJs.appendChild(renderer.domElement);
+    divKaiJs.appendChild(dom);
 }
 
 function animateFrame() {
