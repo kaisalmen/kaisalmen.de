@@ -9,6 +9,8 @@ else {
 // dom related
 var dom;
 var divKaiJs;
+var divText;
+
 var widthScrollBar = 12;
 var reductionHeight = widthScrollBar + widthScrollBar;
 var reductionWidth = widthScrollBar;
@@ -23,6 +25,7 @@ var trackballControls;
 
 var materialMaster;
 var animate = true;
+var loadingComplete = false;
 
 var daeRoot;
 var colladaLoader;
@@ -35,6 +38,7 @@ var fileDae = "../resource/models/Ambulance.dae";
 var fileObj = "../resource/models/Ambulance.obj";
 //var fileObjMat = "../resource/models/Ambulance.mtl";
 
+var text;
 var controllerAnimate;
 var DatGuiText = function() {
     this.animate = true;
@@ -45,6 +49,11 @@ var DatGuiText = function() {
 $(document).ready(
     function() {
         console.log("Document loaded! Starting main init!");
+
+        divText = document.getElementById('textOverlay');
+        divText.style.visibility = "visible";
+        divText.style.left = (glWidth - 400) / 2 + "px";
+        divText.style.top = 48 + "px";
 
         divKaiJs = document.getElementById("kaiWebGL");
         divKaiJs.style.width = glWidth + "px";
@@ -89,8 +98,17 @@ function initObjLoader() {
         objRoot.scale.z = 0.01;
         scene.add(objRoot);
         console.log("Loading OBJ objects is completed!");
+        postLoad();
     });
     objLoader.load(fileObj);
+}
+
+function postLoad() {
+    divText.style.left = -1000;
+    divText.style.top = -1000;
+    divText.style.visibility = "hidden";
+    console.log("Post load completed.");
+    render();
 }
 
 function initGL() {
@@ -184,8 +202,7 @@ function onWindowResize(event) {
 	event.preventDefault();
 	glWidth = window.innerWidth - reductionWidth;
 	glHeight = window.innerHeight - reductionHeight;
-	printStats();
-	
+
 	camera.aspect = (glWidth / glHeight);
 	camera.updateProjectionMatrix();
 	renderer.setSize(glWidth, glHeight);

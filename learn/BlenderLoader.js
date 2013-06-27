@@ -21,9 +21,9 @@ var animate = true;
 
 var outputExtra = "";
 //var loadDae = "../resource/models/cylinder.dae";
-//var loadDae = "../resource/models/multiObjects.dae";
+var loadDae = "../resource/models/multiObjects.dae";
 //var loadDae = "../resource/models/Alaska.dae";
-var loadDae = "../resource/models/Ambulance.dae";
+//var loadDae = "../resource/models/Ambulance.dae";
 
 function initLoader() {
 	var loader = new THREE.ColladaLoader();
@@ -68,7 +68,7 @@ function init() {
 	materialDae = new THREE.MeshPhongMaterial( {color: 0x00ff00, shading: THREE.SmoothShading, blending: THREE.NormalBlending} );
 	if ( dae.children.length > 0 ) {
 		for ( var i = 0; i < dae.children.length; i ++ ) {
-			//outputExtra += " " + dae.children[i].name;
+			outputExtra += " " + dae.children[i].name;
 			var daeGeometry = dae.children[i].geometry;
 			var matrix = dae.children[i].matrix;
 		
@@ -97,9 +97,9 @@ function render() {
 	
 	var timer = Date.now() * 0.0005;
 
-	camera.position.x = Math.cos( timer ) * 150;
-	camera.position.y = 100;
-	camera.position.z = Math.sin( timer ) * 150;
+	camera.position.x = Math.cos( timer ) * 10;
+	camera.position.y = 5;
+	camera.position.z = Math.sin( timer ) * 10;
 	
 	camera.lookAt( scene.position );
 	renderer.render(scene, camera);
