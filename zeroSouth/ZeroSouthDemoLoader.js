@@ -24,26 +24,27 @@ var renderer;
 var trackballControls;
 
 var materialMaster;
-var animate = true;
+var animate = false;
+var wireframe = false;
 var loadingComplete = false;
 
 var daeRoot;
 var colladaLoader;
-var objRoot;
+var objRoot = null;
 var objLoader;
-//var loadDae = "../resource/models/cylinder.dae";
-//var loadDae = "../resource/models/multiObjects.dae";
-//var loadDae = "../resource/models/Alaska.dae";
-var fileDae = "../resource/models/Ambulance.dae";
-var fileObj = "../resource/models/Ambulance.obj";
-//var fileObjMat = "../resource/models/Ambulance.mtl";
+
+//var loadDae = "resource/models/Alaska.dae";
+var fileDae = "resource/models/Ambulance.dae";
+var fileObj = "resource/models/Ambulance.obj";
+//var fileObjMat = "resource/models/Ambulance.mtl";
 
 var text;
-var controllerAnimate;
+var controllerAnimate, controllerWirefram;
 var DatGuiText = function() {
-    this.animate = true;
+    this.animate = animate;
     this.resetAnimation = resetGeometry;
     this.resetCamera = resetTrackballControls;
+    this.wireframe = wireframe;
 };
 
 $(document).ready(
@@ -64,6 +65,7 @@ $(document).ready(
         controllerAnimate = gui.add(text, 'animate');
         gui.add(text, 'resetAnimation');
         gui.add(text, 'resetCamera');
+        controllerWirefram = gui.add(text, 'wireframe');
 
         console.log("initPreGL is completed!");
 
@@ -93,9 +95,19 @@ function initObjLoader() {
 
     objLoader.addEventListener( 'load', function ( event ) {
         objRoot = event.content;
-        objRoot.scale.x = 0.01;
-        objRoot.scale.y = 0.01;
-        objRoot.scale.z = 0.01;
+
+        objRoot.traverse( function (child) {
+            if (child instanceof THREE.Mesh) {
+                child.material = materialMaster;
+            }
+        });
+
+        objRoot.scale.x = 0.05;
+        objRoot.scale.y = 0.05;
+        objRoot.scale.z = 0.05;
+        objRoot.rotation.x = - Math.PI / 2;
+        objRoot.position.z = 5;
+        console.log(objRoot.material);
         scene.add(objRoot);
         console.log("Loading OBJ objects is completed!");
         postLoad();
@@ -119,21 +131,21 @@ function initGL() {
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(75, (glWidth) / (glHeight), 0.1, 1000);
-	camera.position.set(0, 0, 10);
+	camera.position.set(5, 5, 5);
 
-	var light = new THREE.DirectionalLight( 0xbbbbbb, 1.0);
+	var light = new THREE.DirectionalLight( 0xffff99, 1.0);
 	light.position.set(100, -100, -100);
 	scene.add(light);
 
-    var light2 = new THREE.DirectionalLight( 0x0000dd, 1.0);
-    light2.position.set(200, 200, 200);
+    var light2 = new THREE.DirectionalLight( 0x5555dd, 1.0);
+    light2.position.set(100, 200, 200);
     scene.add(light2);
 	
 	// Grid (from three.js example)
     var size = 24, step = 1;
 	var geometry = new THREE.Geometry();
 	var material = new THREE.LineBasicMaterial({ color: 0x303030 });
-    materialMaster = new THREE.MeshPhongMaterial( {color: 0x00ff00, shading: THREE.SmoothShading, blending: THREE.NormalBlending} );
+    materialMaster = new THREE.MeshPhongMaterial( {color: 0x5555dd, shading: THREE.SmoothShading, blending: THREE.NormalBlending} );
 
 	for ( var i = - size; i <= size; i += step ) {
 		geometry.vertices.push(new THREE.Vector3(- size, - 0.04, i));
@@ -156,10 +168,11 @@ function animateFrame() {
 	requestAnimationFrame(animateFrame);
 	
     if (animate && objRoot !== null) {
-//        objRoot.rotation.z += 0.001;
+        objRoot.rotation.z += 0.001;
     }
 
     trackballControls.update();
+    render();
 }
 
 function render() {
@@ -169,23 +182,27 @@ function render() {
 function resetGeometry() {
     console.log("resetGeometry");
     if (objRoot !== null) {
-//        objRoot.rotation.z = 0;
+        objRoot.rotation.z = 0;
     }
 }
 
 function resetTrackballControls() {
     console.log("resetTrackballControls");
-    camera.position.set(0, 0, 10);
+    camera.position.set(0, 0, 5);
     trackballControls.reset();
     render();
 }
 
 function addEventHandlers() {
-	dom.addEventListener('mousedown', onMouseDown, false);
+//	dom.addEventListener('mousedown', onMouseDown, false);
 	window.addEventListener('resize', onWindowResize, false);
 
     controllerAnimate.onChange(function(value) {
         animate = value;
+    });
+
+    controllerWirefram.onChange(function(value) {
+        materialMaster.wireframe = value;
     });
 
     trackballControls = new THREE.TrackballControls(camera, renderer.domElement);

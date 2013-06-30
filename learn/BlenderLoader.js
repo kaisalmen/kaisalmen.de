@@ -21,9 +21,7 @@ var animate = true;
 
 var outputExtra = "";
 //var loadDae = "../resource/models/cylinder.dae";
-var loadDae = "../resource/models/multiObjects.dae";
-//var loadDae = "../resource/models/Alaska.dae";
-//var loadDae = "../resource/models/Ambulance.dae";
+var loadDae = "resource/models/multiObjects.dae";
 
 function initLoader() {
 	var loader = new THREE.ColladaLoader();
