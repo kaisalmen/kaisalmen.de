@@ -31,15 +31,20 @@ var loadingComplete = false;
 var daeRoot;
 var colladaLoader;
 var objRoot = null;
+var loadingManager;
 var objLoader;
 
-//var loadDae = "resource/models/Alaska.dae";
-var fileDae = "resource/models/Ambulance.dae";
-var fileObj = "resource/models/Ambulance.obj";
+var fileDae = "resource/models/snowtracks.DAE";
+var fileObj = "resource/models/snowtracks.obj";
+var fileObjMat = "resource/models/snowtracks.mtl";
+//var fileDae = "resource/models/Ambulance.dae";
+//var fileObj = "resource/models/Ambulance.obj";
 //var fileObjMat = "resource/models/Ambulance.mtl";
 
 var text;
-var controllerAnimate, controllerWirefram;
+var controllerAnimate;
+var controllerWireframe;
+
 var DatGuiText = function() {
     this.animate = animate;
     this.resetAnimation = resetGeometry;
@@ -62,10 +67,10 @@ $(document).ready(
 
         text = new DatGuiText();
         var gui = new dat.GUI();
-        controllerAnimate = gui.add(text, 'animate');
-        gui.add(text, 'resetAnimation');
+//        controllerAnimate = gui.add(text, 'animate');
+//        gui.add(text, 'resetAnimation');
         gui.add(text, 'resetCamera');
-        controllerWirefram = gui.add(text, 'wireframe');
+//        controllerWireframe = gui.add(text, 'wireframe');
 
         console.log("initPreGL is completed!");
 
@@ -76,6 +81,8 @@ $(document).ready(
 
         initObjLoader();
         //initColladaLoader();
+
+        //postLoad();
     }
 );
 
@@ -84,35 +91,52 @@ function initColladaLoader() {
 	colladaLoader = new THREE.ColladaLoader();
     colladaLoader.options.convertUpAxis = true;
 
-    colladaLoader.load(fileDae, function ( collada ) {
-        daeRoot = collada.scene;
+    colladaLoader.load(fileDae, function ( object ) {
+        daeRoot = object.scene;
+
+        if ( daeRoot.children.length > 0 ) {
+            for ( var i = 0; i < daeRoot.children.length; i ++ ) {
+                var daeGeometry = daeRoot.children[i].geometry;
+                var matrix = daeRoot.children[i].matrix;
+
+                var daeMesh = new THREE.Mesh(daeGeometry, materialMaster);
+                daeMesh.applyMatrix(matrix);
+                scene.add(daeMesh);
+            }
+        }
+
         console.log("Loading Collada objects is completed!");
+
+        postLoad();
 	} );
 }
 
 function initObjLoader() {
-    objLoader = new THREE.OBJLoader();
+    loadingManager = new THREE.LoadingManager();
+    loadingManager.onProgress = function ( item, loaded, total ) {
+        console.log( item, loaded, total );
+    };
 
-    objLoader.addEventListener( 'load', function ( event ) {
-        objRoot = event.content;
+    //objLoader = new THREE.OBJLoader( loadingManager );
+    objLoader = new THREE.OBJMTLLoader();
+
+    objLoader.load( fileObj, fileObjMat, function ( objRoot ) {
 
         objRoot.traverse( function (child) {
             if (child instanceof THREE.Mesh) {
-                child.material = materialMaster;
+//                child.material = materialMaster;
             }
         });
 
         objRoot.scale.x = 0.05;
         objRoot.scale.y = 0.05;
         objRoot.scale.z = 0.05;
-        objRoot.rotation.x = - Math.PI / 2;
-        objRoot.position.z = 5;
-        console.log(objRoot.material);
+//        objRoot.rotation.x = - Math.PI / 2;
+        objRoot.position.y = 5;
         scene.add(objRoot);
         console.log("Loading OBJ objects is completed!");
         postLoad();
     });
-    objLoader.load(fileObj);
 }
 
 function postLoad() {
@@ -123,26 +147,41 @@ function postLoad() {
     render();
 }
 
+function resetCamera() {
+    camera.position.set(-35, 35, -35);
+    camera.updateProjectionMatrix();
+}
+
 function initGL() {
     renderer = new THREE.WebGLRenderer();
-    renderer.setClearColor(0x000000, 1.0);
+    renderer.setClearColor(0xaaaaaa, 1.0);
     renderer.setSize(glWidth, glHeight, false);
 
 	scene = new THREE.Scene();
 
 	camera = new THREE.PerspectiveCamera(75, (glWidth) / (glHeight), 0.1, 1000);
-	camera.position.set(5, 5, 5);
+    resetCamera();
 
-	var light = new THREE.DirectionalLight( 0xffff99, 1.0);
-	light.position.set(100, -100, -100);
-	scene.add(light);
+	var light1 = new THREE.DirectionalLight( 0xffff99, 1.0);
+    var light1Sphere = new THREE.SphereGeometry(0.25, 12, 12);
+    var light1Material = new THREE.MeshPhongMaterial({color: 0xffff99, emissive: 0xffff99});
+	light1.position.set(-50, 0, 20);
+    var meshSphereLight1 = new THREE.Mesh(light1Sphere, light1Material);
+    meshSphereLight1.position.set(-50, 0, 20);
+	scene.add(meshSphereLight1);
+    scene.add(light1);
 
-    var light2 = new THREE.DirectionalLight( 0x5555dd, 1.0);
-    light2.position.set(100, 200, 200);
+    var light2 = new THREE.DirectionalLight( 0xffff99, 1.0);
+    var light2Sphere = new THREE.SphereGeometry(0.25, 12, 12);
+    var light2Material = new THREE.MeshPhongMaterial({color: 0xffff99, emissive: 0xffff99});
+    light2.position.set(50, 50, 50);
+    var meshSphereLight2 = new THREE.Mesh(light2Sphere, light2Material);
+    meshSphereLight2.position.set(50, 50, 50);
+    scene.add(meshSphereLight2);
     scene.add(light2);
-	
+
 	// Grid (from three.js example)
-    var size = 24, step = 1;
+    var size = 48, step = 1;
 	var geometry = new THREE.Geometry();
 	var material = new THREE.LineBasicMaterial({ color: 0x303030 });
     materialMaster = new THREE.MeshPhongMaterial( {color: 0x5555dd, shading: THREE.SmoothShading, blending: THREE.NormalBlending} );
@@ -188,7 +227,7 @@ function resetGeometry() {
 
 function resetTrackballControls() {
     console.log("resetTrackballControls");
-    camera.position.set(0, 0, 5);
+    resetCamera();
     trackballControls.reset();
     render();
 }
@@ -196,17 +235,19 @@ function resetTrackballControls() {
 function addEventHandlers() {
 //	dom.addEventListener('mousedown', onMouseDown, false);
 	window.addEventListener('resize', onWindowResize, false);
-
+/*
     controllerAnimate.onChange(function(value) {
         animate = value;
     });
 
-    controllerWirefram.onChange(function(value) {
+    controllerWireframe.onChange(function(value) {
         materialMaster.wireframe = value;
     });
-
-    trackballControls = new THREE.TrackballControls(camera, renderer.domElement);
+*/
+    trackballControls = new THREE.TrackballControls(camera);
     trackballControls.rotateSpeed = 0.5;
+    trackballControls.rotateSpeed = 1.0;
+    trackballControls.panSpeed = 0.5;
     trackballControls.addEventListener( 'change', render );
 }
 
