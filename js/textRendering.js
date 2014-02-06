@@ -19,7 +19,7 @@ APPTR.objectText = {
     material : null
 }
 APPTR.textParams = {
-    name : "Magnificent void",
+    name : "Testing the magnificent void!",
     height : 20,
     size : 70,
     hover : 30,
@@ -49,8 +49,8 @@ function initGL() {
     APPTR.scene = new THREE.Scene();
 
     APPTR.camera = new THREE.PerspectiveCamera(75, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 1000);
-    APPTR.camera.position.set( 0, 200, 700 );
-    APPTR.cameraTarget = new THREE.Vector3( 0, 150, 0 );
+    APPTR.camera.position.set( 0, 0, 500 );
+    APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
 
     var light = new THREE.DirectionalLight( 0xaaaaaa, 1.0);
     light.position.set(0, 1, 1);
@@ -60,15 +60,19 @@ function initGL() {
     APPTR.objectText.geometry.computeBoundingBox();
     APPTR.objectText.geometry.computeVertexNormals();
 
+    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.x + "|" + APPTR.objectText.geometry.boundingBox.min.x);
+    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.y + "|" + APPTR.objectText.geometry.boundingBox.min.y);
+    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.z + "|" + APPTR.objectText.geometry.boundingBox.min.z);
+
     APPTR.objectText.material = new THREE.MeshFaceMaterial( [
         new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
         new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
     ] );
 
     APPTR.objectText.mesh = new THREE.Mesh( APPTR.objectText.geometry, APPTR.objectText.material );
-    APPTR.objectText.mesh.position.x = -100;
-    APPTR.objectText.mesh.position.y = 0;
-    APPTR.objectText.mesh.position.z = 0;
+    APPTR.objectText.mesh.position.x = -(APPTR.objectText.geometry.boundingBox.max.x - APPTR.objectText.geometry.boundingBox.min.x) / 2;
+    APPTR.objectText.mesh.position.y = -(APPTR.objectText.geometry.boundingBox.max.y - APPTR.objectText.geometry.boundingBox.min.y) / 2;
+    APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
     APPTR.scene.add(APPTR.objectText.mesh);
 }
 
