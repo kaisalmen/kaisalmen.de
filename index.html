@@ -1,29 +1,24 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Testing the magnificent void!</title>
-</head>
-<body>
+    <head>
+        <title>WebGL Void</title>
+    </head>
+    <body id="ksaBodyIndex">
+        <script src="libs/three.js"></script>
+        <script src="libs/three.min.js"></script>
+        <script src="libs/jquery-2.1.0.js"></script>
+        <script src="libs/jquery-2.1.0.min.js"></script>
+        <script src="libs/dat.gui.js"></script>
+        <script src="libs/dat.gui.min.js"></script>
+        <script src="libs/ext/Detector.js"></script>
 
-</body>
-</html>
+        <script src="resource/fonts/optimer_regular.typeface.js"></script>
+        <link href="resource/css/ksaStyles.css" type="text/css" rel="stylesheet">
 
-<html>
-<head>
-    <title>Magnificent void!</title>
-    <script src="libs/three.js"></script>
-    <script src="js/textRendering.js"></script>
-    <script src="resource/fonts/optimer_bold.typeface.js"></script>
-    <script src="resource/fonts/optimer_regular.typeface.js"></script>
-    <link href="resource/css/ksaStyles.css" type="text/css" rel="stylesheet">
-</head>
-<body id="ksaBodyIndex">
-<div id="kaiWebGL"></div>
-<script>
-    initPreGL();
-    initGL();
-    initPostGL();
-    render();
-</script>
-</body>
+        <script src="js/textRendering.js"></script>
+        <script>
+            if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+        </script>
+        <div id="kaiWebGL"></div>
+    </body>
 </html>

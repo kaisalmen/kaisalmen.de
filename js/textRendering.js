@@ -1,11 +1,22 @@
 /**
- * Created by Kai on 24.01.14.
+ * Created by Kai Salmen on 2014.02.08
  */
-
 var APPTR = {};
 
 APPTR.dom = {
     canvasDiv : null
+}
+APPTR.shader = {
+    vertexShaderText : null,
+    fragmentShaderText : null
+}
+APPTR.DatGuiText = function() {
+    this.resetCamera = false;
+}
+APPTR.datGui = {
+    handler : null,
+    text : null,
+    controllerResetCamera : null
 }
 APPTR.renderer = null;
 APPTR.glWidth = 1280;
@@ -19,7 +30,7 @@ APPTR.objectText = {
     material : null
 }
 APPTR.textParams = {
-    name : "Testing the magnificent void!",
+    name : "Magnificent void!",
     height : 20,
     size : 70,
     hover : 30,
@@ -35,10 +46,45 @@ APPTR.textParams = {
     extrudeMaterial : 1
 }
 
+$(document).ready(
+    $.when(
+        loadVertexShader(),
+        loadFragmentShader()
+    ).done(
+        function(vert, frag) {
+            console.log("Shader and texture loading from file is completed!");
+            APPTR.shader.fragmentShaderText = vert[0];
+            APPTR.shader.fragmentShaderText = frag[0];
+
+            initPreGL();
+            initGL();
+            initPostGL();
+
+            animateFrame();
+        }
+    )
+);
+
+function loadVertexShader() {
+    return $.get("../resource/shader/passThrough.vs", function(data) {
+        console.log(data);
+    });
+}
+
+function loadFragmentShader() {
+    return $.get("../resource/shader/simpleTextureEffect.fs", function(data) {
+        console.log(data);
+    });
+}
+
 function initPreGL() {
     APPTR.dom.canvasDiv = document.getElementById("kaiWebGL");
     APPTR.dom.canvasDiv.style.width = APPTR.glWidth + "px";
     APPTR.dom.canvasDiv.style.height = APPTR.glHeight + "px";
+
+    APPTR.datGui.handler = new dat.GUI();
+    APPTR.datGui.text = new APPTR.DatGuiText();
+    APPTR.datGui.controllerResetCamera = APPTR.datGui.handler.add(APPTR.datGui.text, 'resetCamera');
 }
 
 function initGL() {
@@ -52,7 +98,7 @@ function initGL() {
     APPTR.camera.position.set( 0, 0, 500 );
     APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
 
-    var light = new THREE.DirectionalLight( 0xaaaaaa, 1.0);
+    var light = new THREE.DirectionalLight( 0x00aaff, 1.0);
     light.position.set(0, 1, 1);
     APPTR.scene.add( light );
 
@@ -80,8 +126,8 @@ function initPostGL() {
     APPTR.dom.canvasDiv.appendChild(APPTR.renderer.domElement);
 }
 
-function animate() {
-    requestAnimationFrame(animate);
+function animateFrame() {
+    requestAnimationFrame(animateFrame);
     render();
 }
 
