@@ -6,6 +6,11 @@ var APPTR = {};
 APPTR.dom = {
     canvasDiv : null
 }
+APPTR.glWidth = 1280;
+APPTR.glHeight = 720;
+APPTR.widthScrollBar = 12;
+APPTR.reductionHeight = APPTR.widthScrollBar + APPTR.widthScrollBar;
+APPTR.reductionWidth = APPTR.widthScrollBar;
 APPTR.shader = {
     vertexShaderText : null,
     fragmentShaderText : null
@@ -19,8 +24,6 @@ APPTR.datGui = {
     controllerResetCamera : null
 }
 APPTR.renderer = null;
-APPTR.glWidth = 1280;
-APPTR.glHeight = 720;
 APPTR.scene = null;
 APPTR.camera = null;
 APPTR.cameraTarget = null;
@@ -120,10 +123,17 @@ function initGL() {
     APPTR.objectText.mesh.position.y = -(APPTR.objectText.geometry.boundingBox.max.y - APPTR.objectText.geometry.boundingBox.min.y) / 2;
     APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
     APPTR.scene.add(APPTR.objectText.mesh);
+
+    calcResize();
 }
 
 function initPostGL() {
+    addEventHandlers();
     APPTR.dom.canvasDiv.appendChild(APPTR.renderer.domElement);
+}
+
+function addEventHandlers() {
+    window.addEventListener('resize', onWindowResize, false);
 }
 
 function animateFrame() {
@@ -135,4 +145,18 @@ function render() {
     APPTR.camera.lookAt( APPTR.cameraTarget );
 
     APPTR.renderer.render(APPTR.scene, APPTR.camera);
+}
+
+function onWindowResize(event) {
+    event.preventDefault();
+    calcResize();
+}
+
+function calcResize() {
+    APPTR.glWidth  = window.innerWidth - APPTR.reductionWidth;
+    APPTR.glHeight = window.innerHeight - APPTR.reductionHeight;
+
+    APPTR.camera.aspect = (APPTR.glWidth / APPTR.glHeight);
+    APPTR.camera.updateProjectionMatrix();
+    APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
 }
