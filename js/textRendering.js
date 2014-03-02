@@ -4,7 +4,8 @@
 var APPTR = {};
 
 APPTR.dom = {
-    canvasDiv : null
+    canvasDiv : null,
+    canvasText : null
 }
 APPTR.glWidth = 1280;
 APPTR.glHeight = 720;
@@ -15,14 +16,10 @@ APPTR.shader = {
     vertexShaderText : null,
     fragmentShaderText : null
 }
-APPTR.DatGuiText = function() {
-    this.resetCamera = false;
+APPTR.datGuiText = function() {
+    this.resetCamera = resetTrackballControls;
 }
-APPTR.datGui = {
-    handler : null,
-    text : null,
-    controllerResetCamera : null
-}
+APPTR.trackballControls = null;
 APPTR.renderer = null;
 APPTR.scene = null;
 APPTR.camera = null;
@@ -81,13 +78,23 @@ function loadFragmentShader() {
 }
 
 function initPreGL() {
-    APPTR.dom.canvasDiv = document.getElementById("kaiWebGL");
+    APPTR.dom.canvasDiv = document.getElementById("APPTRWebGL");
+//    APPTR.dom.canvasDiv = document.createElement( 'div' );
     APPTR.dom.canvasDiv.style.width = APPTR.glWidth + "px";
     APPTR.dom.canvasDiv.style.height = APPTR.glHeight + "px";
+    document.body.appendChild(APPTR.dom.canvasDiv);
 
-    APPTR.datGui.handler = new dat.GUI();
-    APPTR.datGui.text = new APPTR.DatGuiText();
-    APPTR.datGui.controllerResetCamera = APPTR.datGui.handler.add(APPTR.datGui.text, 'resetCamera');
+    var text = new APPTR.datGuiText();
+    var gui = new dat.GUI(
+        {
+            autoPlace: false
+        }
+    );
+    gui.add(text, 'resetCamera');
+    gui.close();
+
+    APPTR.dom.canvasText = document.getElementById("APPTRFloat");
+    APPTR.dom.canvasText.appendChild(gui.domElement);
 }
 
 function initGL() {
@@ -98,8 +105,7 @@ function initGL() {
     APPTR.scene = new THREE.Scene();
 
     APPTR.camera = new THREE.PerspectiveCamera(75, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 1000);
-    APPTR.camera.position.set( 0, 0, 500 );
-    APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
+    resetCamera();
 
     var light = new THREE.DirectionalLight( 0x00aaff, 1.0);
     light.position.set(0, 1, 1);
@@ -124,27 +130,52 @@ function initGL() {
     APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
     APPTR.scene.add(APPTR.objectText.mesh);
 
+    addEventHandlers();
+
     calcResize();
 }
 
 function initPostGL() {
-    addEventHandlers();
     APPTR.dom.canvasDiv.appendChild(APPTR.renderer.domElement);
 }
 
 function addEventHandlers() {
     window.addEventListener('resize', onWindowResize, false);
+
+    APPTR.trackballControls = new THREE.TrackballControls(APPTR.camera);
+    APPTR.trackballControls.rotateSpeed = 0.5;
+    APPTR.trackballControls.rotateSpeed = 1.0;
+    APPTR.trackballControls.panSpeed = 0.5;
+    APPTR.trackballControls.noPan = false;
+    APPTR.trackballControls.noZoom = false;
+    APPTR.trackballControls.addEventListener( 'change', render );
 }
 
 function animateFrame() {
     requestAnimationFrame(animateFrame);
+
+    APPTR.trackballControls.update();
     render();
 }
 
 function render() {
-    APPTR.camera.lookAt( APPTR.cameraTarget );
+    //APPTR.camera.lookAt( APPTR.cameraTarget );
 
     APPTR.renderer.render(APPTR.scene, APPTR.camera);
+}
+
+function resetTrackballControls() {
+    console.log("resetTrackballControls");
+    resetCamera();
+    APPTR.trackballControls.reset();
+    render();
+}
+
+function resetCamera() {
+    APPTR.camera.position.set( 0, 0, 500 );
+    APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
+    APPTR.camera.lookAt( APPTR.cameraTarget );
+    APPTR.camera.updateProjectionMatrix();
 }
 
 function onWindowResize(event) {
@@ -153,6 +184,8 @@ function onWindowResize(event) {
 }
 
 function calcResize() {
+    APPTR.trackballControls.handleResize();
+
     APPTR.glWidth  = window.innerWidth - APPTR.reductionWidth;
     APPTR.glHeight = window.innerHeight - APPTR.reductionHeight;
 
