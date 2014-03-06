@@ -5,25 +5,39 @@ var APPTR = {};
 
 APPTR.dom = {
     canvasDiv : null,
-    canvasText : null
+    canvasAPPTRFloat : null,
+    datGui : null
 }
 APPTR.glWidth = 1280;
-APPTR.glHeight = 720;
-APPTR.widthScrollBar = 12;
+APPTR.glHeight = APPTR.glWidth / 2.35;
+APPTR.widthScrollBar = 2;
 APPTR.reductionHeight = APPTR.widthScrollBar + APPTR.widthScrollBar;
 APPTR.reductionWidth = APPTR.widthScrollBar;
 APPTR.shader = {
     vertexShaderText : null,
     fragmentShaderText : null
 }
-APPTR.datGuiText = function() {
-    this.resetCamera = resetTrackballControls;
+APPTR.datGui = {
+    objFunction : function() {
+        this.resetCamera = resetTrackballControls;
+        this.blend = 0.75;
+        this.colorLevelR = 0.0;
+        this.colorLevelG = 2 / 3;
+        this.colorLevelB = 1.0;
+    },
+    selfRef : null,
+    controllerBlend : null,
+    controllerLevelR : null,
+    controllerLevelG : null,
+    controllerLevelB : null
 }
+APPTR.datGuiDomElement = null;
 APPTR.trackballControls = null;
 APPTR.renderer = null;
 APPTR.scene = null;
 APPTR.camera = null;
 APPTR.cameraTarget = null;
+APPTR.light = null;
 APPTR.objectText = {
     mesh : null,
     geometry : null,
@@ -79,37 +93,42 @@ function loadFragmentShader() {
 
 function initPreGL() {
     APPTR.dom.canvasDiv = document.getElementById("APPTRWebGL");
-//    APPTR.dom.canvasDiv = document.createElement( 'div' );
-    APPTR.dom.canvasDiv.style.width = APPTR.glWidth + "px";
-    APPTR.dom.canvasDiv.style.height = APPTR.glHeight + "px";
-    document.body.appendChild(APPTR.dom.canvasDiv);
 
-    var text = new APPTR.datGuiText();
+    var text = new APPTR.datGui.objFunction();
     var gui = new dat.GUI(
         {
             autoPlace: false
         }
     );
     gui.add(text, 'resetCamera');
+//    APPTR.datGui.controllerBlend = gui.add(text, 'blend', 0.0, 1.0);
+    APPTR.datGui.controllerLevelR = gui.add(text, 'colorLevelR', 0.0, 1.0);
+    APPTR.datGui.controllerLevelG = gui.add(text, 'colorLevelG', 0.0, 1.0);
+    APPTR.datGui.controllerLevelB = gui.add(text, 'colorLevelB', 0.0, 1.0);
     gui.close();
+    APPTR.datGui.selfRef = text;
 
-    APPTR.dom.canvasText = document.getElementById("APPTRFloat");
-    APPTR.dom.canvasText.appendChild(gui.domElement);
+    APPTR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
+    APPTR.dom.datGui = gui.domElement;
+    APPTR.dom.canvasAPPTRFloat.appendChild(APPTR.dom.datGui);
+
+    calcResizeHtml();
 }
 
 function initGL() {
     APPTR.renderer = new THREE.WebGLRenderer();
-    APPTR.renderer.setClearColor(new THREE.Color(0, 0, 0), 255);
+    APPTR.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
     APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
 
     APPTR.scene = new THREE.Scene();
 
-    APPTR.camera = new THREE.PerspectiveCamera(75, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 1000);
+    APPTR.camera = new THREE.PerspectiveCamera(70, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 10000);
     resetCamera();
 
-    var light = new THREE.DirectionalLight( 0x00aaff, 1.0);
-    light.position.set(0, 1, 1);
-    APPTR.scene.add( light );
+    APPTR.light = new THREE.DirectionalLight( 0x000000, 1.0);
+    APPTR.light.position.set(0, 1, 1);
+    updateLight();
+    APPTR.scene.add( APPTR.light );
 
     APPTR.objectText.geometry = new THREE.TextGeometry(APPTR.textParams.name, APPTR.textParams);
     APPTR.objectText.geometry.computeBoundingBox();
@@ -148,19 +167,37 @@ function addEventHandlers() {
     APPTR.trackballControls.panSpeed = 0.5;
     APPTR.trackballControls.noPan = false;
     APPTR.trackballControls.noZoom = false;
-    APPTR.trackballControls.addEventListener( 'change', render );
+    APPTR.trackballControls.addEventListener( 'change', requestRender );
+
+    APPTR.datGui.controllerLevelR.onChange(function(value) {
+        APPTR.datGui.selfRef.colorLevelR = value;
+        updateLight();
+    });
+    APPTR.datGui.controllerLevelG.onChange(function(value) {
+        APPTR.datGui.selfRef.colorLevelG = value;
+        updateLight();
+    });
+    APPTR.datGui.controllerLevelB.onChange(function(value) {
+        APPTR.datGui.selfRef.colorLevelB = value;
+        updateLight();
+    });
+}
+
+function updateLight() {
+    APPTR.light.color.setRGB( APPTR.datGui.selfRef.colorLevelR, APPTR.datGui.selfRef.colorLevelG, APPTR.datGui.selfRef.colorLevelB );
 }
 
 function animateFrame() {
     requestAnimationFrame(animateFrame);
+    render();
+}
 
+function requestRender() {
     APPTR.trackballControls.update();
     render();
 }
 
 function render() {
-    //APPTR.camera.lookAt( APPTR.cameraTarget );
-
     APPTR.renderer.render(APPTR.scene, APPTR.camera);
 }
 
@@ -168,11 +205,11 @@ function resetTrackballControls() {
     console.log("resetTrackballControls");
     resetCamera();
     APPTR.trackballControls.reset();
-    render();
+    requestRender();
 }
 
 function resetCamera() {
-    APPTR.camera.position.set( 0, 0, 500 );
+    APPTR.camera.position.set( 0, 0, 250 );
     APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
     APPTR.camera.lookAt( APPTR.cameraTarget );
     APPTR.camera.updateProjectionMatrix();
@@ -183,11 +220,21 @@ function onWindowResize(event) {
     calcResize();
 }
 
+function calcResizeHtml() {
+    APPTR.glWidth  = window.innerWidth - APPTR.reductionWidth;
+    APPTR.glHeight = window.innerWidth / 2.35 - APPTR.reductionHeight;
+
+    APPTR.dom.canvasDiv.style.width = APPTR.glWidth + "px";
+    APPTR.dom.canvasDiv.style.height = APPTR.glHeight + "px";
+
+    APPTR.dom.canvasAPPTRFloat.style.top = 0 + "px";
+    APPTR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(APPTR.dom.datGui.style.width)) + "px";
+}
+
 function calcResize() {
     APPTR.trackballControls.handleResize();
 
-    APPTR.glWidth  = window.innerWidth - APPTR.reductionWidth;
-    APPTR.glHeight = window.innerHeight - APPTR.reductionHeight;
+    calcResizeHtml();
 
     APPTR.camera.aspect = (APPTR.glWidth / APPTR.glHeight);
     APPTR.camera.updateProjectionMatrix();

@@ -1,3 +1,11 @@
+#APPTRTextIndex, #ksaTextIndex, #APPTRThreejsFooter  {
+    text-align: left;
+    font-family: Tahoma;
+    font-size: 12px;
+    padding-left: 5px;
+    z-index: 1;
+}
+
 #APPTRWebGL,
 #ksaBodyIndex {
 	margin-left: 0px;
@@ -14,33 +22,34 @@
     z-index: 1;
 }
 
-#APPTRTextIndex,
-#ksaTextIndex {
-    text-align: center;
-	font-family: Tahoma;
-	font-size: 12px;
-    color: #dddddd;
-    align-self: center;
-    z-index: 1;
-}
-
 #APPTRFloat {
     position: absolute;
     margin-top: 0px;
+    margin-left: 0px;
     padding-top: 0px;
     top: 0px;
-    left: 0px;
-    #top: 100px;
-    #left: 100px;
     z-index: 2;
     background-color: white;
 }
 
+#APPTRTextIndex,
+#ksaTextIndex ,
 #APPTRThreejsFooter {
-    text-align: left;
-    font-family: Tahoma;
-    font-size: 12px;
-    color: #dddddd;
-    align-self: center;
-    z-index: 1;
+    color: #bbbbbb;
+}
+
+/* General Hyperlink Colors */
+a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #00ccff;
+    text-decoration: underline;
 }
