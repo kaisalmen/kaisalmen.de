@@ -20,10 +20,10 @@ APPTR.shader = {
 APPTR.datGui = {
     objFunction : function() {
         this.resetCamera = resetTrackballControls;
-        this.blend = 0.75;
-        this.colorLevelR = 0.0;
-        this.colorLevelG = 2 / 3;
-        this.colorLevelB = 1.0;
+        this.opacity = 1.0;
+        this.red = 0;
+        this.green = 170;
+        this.blue = 255;
     },
     selfRef : null,
     controllerBlend : null,
@@ -77,7 +77,22 @@ $(document).ready(
             animateFrame();
         }
     )
-);
+)
+.on({
+    mouseenter: function() {
+        APPTR.trackballControls.enabled = false;
+    },
+    mouseleave: function() {
+        APPTR.trackballControls.enabled = true;
+    }
+}, "#APPTRFloat")
+
+$(window).resize(function() {
+    event.preventDefault();
+    console.log("Window Resize called!");
+    calcResize();
+});
+
 
 function loadVertexShader() {
     return $.get("../resource/shader/passThrough.vs", function(data) {
@@ -95,18 +110,18 @@ function initPreGL() {
     APPTR.dom.canvasDiv = document.getElementById("APPTRWebGL");
 
     var text = new APPTR.datGui.objFunction();
+    APPTR.datGui.selfRef = text;
     var gui = new dat.GUI(
         {
             autoPlace: false
         }
     );
     gui.add(text, 'resetCamera');
-//    APPTR.datGui.controllerBlend = gui.add(text, 'blend', 0.0, 1.0);
-    APPTR.datGui.controllerLevelR = gui.add(text, 'colorLevelR', 0.0, 1.0);
-    APPTR.datGui.controllerLevelG = gui.add(text, 'colorLevelG', 0.0, 1.0);
-    APPTR.datGui.controllerLevelB = gui.add(text, 'colorLevelB', 0.0, 1.0);
+    APPTR.datGui.controllerBlend =  gui.add(text, 'opacity', 0.0, 1.0);
+    APPTR.datGui.controllerLevelR = gui.add(text, 'red', 0, 255);
+    APPTR.datGui.controllerLevelG = gui.add(text, 'green', 0, 255);
+    APPTR.datGui.controllerLevelB = gui.add(text, 'blue', 0, 255);
     gui.close();
-    APPTR.datGui.selfRef = text;
 
     APPTR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
     APPTR.dom.datGui = gui.domElement;
@@ -125,9 +140,8 @@ function initGL() {
     APPTR.camera = new THREE.PerspectiveCamera(70, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 10000);
     resetCamera();
 
-    APPTR.light = new THREE.DirectionalLight( 0x000000, 1.0);
+    APPTR.light = new THREE.DirectionalLight( 0xffffff, 1.0);
     APPTR.light.position.set(0, 1, 1);
-    updateLight();
     APPTR.scene.add( APPTR.light );
 
     APPTR.objectText.geometry = new THREE.TextGeometry(APPTR.textParams.name, APPTR.textParams);
@@ -139,15 +153,38 @@ function initGL() {
     console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.z + "|" + APPTR.objectText.geometry.boundingBox.min.z);
 
     APPTR.objectText.material = new THREE.MeshFaceMaterial( [
-        new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.FlatShading } ), // front
-        new THREE.MeshPhongMaterial( { color: 0xffffff, shading: THREE.SmoothShading } ) // side
+        // front
+        new THREE.MeshPhongMaterial( {
+            color: 0xffffff,
+            shading: THREE.FlatShading,
+            transparent: true,
+            opacity: APPTR.datGui.selfRef.colorBlend,
+            side: THREE.DoubleSide
+        } ),
+        // side
+        new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            shading: THREE.SmoothShading,
+            transparent: true,
+            opacity: APPTR.datGui.selfRef.colorBlend,
+            side: THREE.DoubleSide
+        } )
     ] );
+    updateMaterials();
 
     APPTR.objectText.mesh = new THREE.Mesh( APPTR.objectText.geometry, APPTR.objectText.material );
     APPTR.objectText.mesh.position.x = -(APPTR.objectText.geometry.boundingBox.max.x - APPTR.objectText.geometry.boundingBox.min.x) / 2;
     APPTR.objectText.mesh.position.y = -(APPTR.objectText.geometry.boundingBox.max.y - APPTR.objectText.geometry.boundingBox.min.y) / 2;
     APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
     APPTR.scene.add(APPTR.objectText.mesh);
+
+    // init trackball controls
+    APPTR.trackballControls = new THREE.TrackballControls(APPTR.camera);
+    APPTR.trackballControls.rotateSpeed = 0.5;
+    APPTR.trackballControls.rotateSpeed = 1.0;
+    APPTR.trackballControls.panSpeed = 0.5;
+    APPTR.trackballControls.noPan = false;
+    APPTR.trackballControls.noZoom = false;
 
     addEventHandlers();
 
@@ -159,40 +196,40 @@ function initPostGL() {
 }
 
 function addEventHandlers() {
-    window.addEventListener('resize', onWindowResize, false);
+    APPTR.datGui.controllerBlend.onChange(function(value) {
+        APPTR.datGui.selfRef.opacity = value;
+        for (var i in APPTR.objectText.material.materials) {
+            var mat = APPTR.objectText.material.materials[i];
+            mat.opacity = value;
+        }
 
-    APPTR.trackballControls = new THREE.TrackballControls(APPTR.camera);
-    APPTR.trackballControls.rotateSpeed = 0.5;
-    APPTR.trackballControls.rotateSpeed = 1.0;
-    APPTR.trackballControls.panSpeed = 0.5;
-    APPTR.trackballControls.noPan = false;
-    APPTR.trackballControls.noZoom = false;
-    APPTR.trackballControls.addEventListener( 'change', requestRender );
-
+    });
     APPTR.datGui.controllerLevelR.onChange(function(value) {
-        APPTR.datGui.selfRef.colorLevelR = value;
-        updateLight();
+        APPTR.datGui.selfRef.red = value;
+        updateMaterials();
     });
     APPTR.datGui.controllerLevelG.onChange(function(value) {
-        APPTR.datGui.selfRef.colorLevelG = value;
-        updateLight();
+        APPTR.datGui.selfRef.green = value;
+        updateMaterials();
     });
     APPTR.datGui.controllerLevelB.onChange(function(value) {
-        APPTR.datGui.selfRef.colorLevelB = value;
-        updateLight();
+        APPTR.datGui.selfRef.blue = value;
+        updateMaterials();
     });
 }
 
-function updateLight() {
-    APPTR.light.color.setRGB( APPTR.datGui.selfRef.colorLevelR, APPTR.datGui.selfRef.colorLevelG, APPTR.datGui.selfRef.colorLevelB );
+function updateMaterials() {
+    for (var i in APPTR.objectText.material.materials) {
+        var mat = APPTR.objectText.material.materials[i];
+        mat.color.setRGB(
+            APPTR.datGui.selfRef.red / 255,
+            APPTR.datGui.selfRef.green / 255,
+            APPTR.datGui.selfRef.blue / 255);
+    }
 }
 
 function animateFrame() {
     requestAnimationFrame(animateFrame);
-    render();
-}
-
-function requestRender() {
     APPTR.trackballControls.update();
     render();
 }
@@ -205,7 +242,7 @@ function resetTrackballControls() {
     console.log("resetTrackballControls");
     resetCamera();
     APPTR.trackballControls.reset();
-    requestRender();
+    render();
 }
 
 function resetCamera() {
@@ -213,11 +250,6 @@ function resetCamera() {
     APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
     APPTR.camera.lookAt( APPTR.cameraTarget );
     APPTR.camera.updateProjectionMatrix();
-}
-
-function onWindowResize(event) {
-    event.preventDefault();
-    calcResize();
 }
 
 function calcResizeHtml() {
