@@ -81,16 +81,32 @@ $(document).ready(
 .on({
     mouseenter: function() {
         APPTR.trackballControls.enabled = false;
+        APPTR.trackballControls.noPan = true;
     },
     mouseleave: function() {
         APPTR.trackballControls.enabled = true;
+        APPTR.trackballControls.noPan = false;
     }
 }, "#APPTRFloat")
+.on({
+    mouseenter: function() {
+        APPTR.trackballControls.enabled = true;
+        APPTR.trackballControls.noPan = false;
+    },
+    mouseleave: function() {
+        APPTR.trackballControls.enabled = false;
+        APPTR.trackballControls.noPan = true;
+    }
+}, "#APPTRWebGL");
 
 $(window).resize(function() {
-    event.preventDefault();
     console.log("Window Resize called!");
     calcResize();
+})
+.on({
+    mousedown: function( event ) {
+        console.log("Default? " + event.isDefaultPrevented());
+    }
 });
 
 
@@ -158,7 +174,7 @@ function initGL() {
             color: 0xffffff,
             shading: THREE.FlatShading,
             transparent: true,
-            opacity: APPTR.datGui.selfRef.colorBlend,
+            opacity: APPTR.datGui.selfRef.opacity,
             side: THREE.DoubleSide
         } ),
         // side
@@ -166,7 +182,7 @@ function initGL() {
             color: 0xffffff,
             shading: THREE.SmoothShading,
             transparent: true,
-            opacity: APPTR.datGui.selfRef.colorBlend,
+            opacity: APPTR.datGui.selfRef.opacity,
             side: THREE.DoubleSide
         } )
     ] );
@@ -202,7 +218,6 @@ function addEventHandlers() {
             var mat = APPTR.objectText.material.materials[i];
             mat.opacity = value;
         }
-
     });
     APPTR.datGui.controllerLevelR.onChange(function(value) {
         APPTR.datGui.selfRef.red = value;
