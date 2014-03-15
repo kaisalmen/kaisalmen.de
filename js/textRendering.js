@@ -62,13 +62,17 @@ APPTR.textParams = {
 
 $(document).ready(
     $.when(
-        loadVertexShader(),
-        loadFragmentShader()
+        loadShader("../resource/shader/noise2D.glsl"),
+        loadShader("../resource/shader/passThrough.glsl"),
+        loadShader("../resource/shader/simpleTextureEffect.glsl")
     ).done(
-        function(vert, frag) {
+        function(base, vert, frag) {
             console.log("Shader and texture loading from file is completed!");
-            APPTR.shader.fragmentShaderText = vert[0];
-            APPTR.shader.fragmentShaderText = frag[0];
+
+            APPTR.shader.vertexShaderText = vert[0];
+            console.log("Vertex Shader: " + APPTR.shader.vertexShaderText);
+            APPTR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
+            console.log("Fragment Shader: " + APPTR.shader.fragmentShaderText);
 
             initPreGL();
             initGL();
@@ -104,15 +108,8 @@ $(window).resize(function() {
     calcResize();
 });
 
-function loadVertexShader() {
-    return $.get("../resource/shader/passThrough.glsl", function(data) {
-        console.log(data);
-    });
-}
-
-function loadFragmentShader() {
-    return $.get("../resource/shader/simpleTextureEffect.glsl", function(data) {
-        console.log(data);
+function loadShader(path) {
+    return $.get(path, function(data) {
     });
 }
 
@@ -187,6 +184,11 @@ function initGL() {
     APPTR.objectText.mesh.position.y = -(APPTR.objectText.geometry.boundingBox.max.y - APPTR.objectText.geometry.boundingBox.min.y) / 2;
     APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
     APPTR.scene.add(APPTR.objectText.mesh);
+
+    var map = THREE.ImageUtils.loadTexture("../../resource/images/house02.jpg");
+    var material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true } );
+    var sprite = new THREE.Sprite( material );
+    APPTR.scene.add( sprite );
 
     // init trackball controls
     APPTR.trackballControls = new THREE.TrackballControls(APPTR.camera);
