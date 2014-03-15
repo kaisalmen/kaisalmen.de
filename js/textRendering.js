@@ -105,13 +105,13 @@ $(window).resize(function() {
 });
 
 function loadVertexShader() {
-    return $.get("../learn/shader/passThrough.vs", function(data) {
+    return $.get("../resource/shader/passThrough.vs", function(data) {
         console.log(data);
     });
 }
 
 function loadFragmentShader() {
-    return $.get("../learn/shader/simpleTextureEffect.fs", function(data) {
+    return $.get("../resource/shader/simpleTextureEffect.fs", function(data) {
         console.log(data);
     });
 }
