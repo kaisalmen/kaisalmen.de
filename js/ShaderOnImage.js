@@ -27,7 +27,7 @@ var mesh;
 var animate = true;
 
 // shader related
-var imageUrl = "resource/images/house02.jpg";
+var imageUrl = "../../resource/images/house02.jpg";
 var myTexture;
 var uniforms;
 
@@ -90,13 +90,13 @@ $(document).ready(
 );
 
 function loadVertexShader() {
-	return $.get("../resource/shader/passThrough.vs", function(data) {
+	return $.get("../../resource/shader/passThrough.vs", function(data) {
 		console.log(data);
 	});
 }
 
 function loadFragmentShader() {
-	return $.get("../resource/shader/simpleTextureEffect.fs", function(data) {
+	return $.get("../../resource/shader/simpleTextureEffect.fs", function(data) {
 		console.log(data);
 	});
 }

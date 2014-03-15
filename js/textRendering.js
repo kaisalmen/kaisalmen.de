@@ -102,22 +102,16 @@ $(document).ready(
 $(window).resize(function() {
     console.log("Window Resize called!");
     calcResize();
-})
-.on({
-    mousedown: function( event ) {
-        console.log("Default? " + event.isDefaultPrevented());
-    }
 });
 
-
 function loadVertexShader() {
-    return $.get("../resource/shader/passThrough.vs", function(data) {
+    return $.get("../learn/shader/passThrough.vs", function(data) {
         console.log(data);
     });
 }
 
 function loadFragmentShader() {
-    return $.get("../resource/shader/simpleTextureEffect.fs", function(data) {
+    return $.get("../learn/shader/simpleTextureEffect.fs", function(data) {
         console.log(data);
     });
 }

@@ -2,7 +2,7 @@ images
 .settings
 .checkstyle
 .project
-libs
+libs/ext
 models
 mongoose.conf
 mongoose-3.7.exe

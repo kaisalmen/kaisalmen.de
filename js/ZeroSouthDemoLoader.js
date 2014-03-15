@@ -34,12 +34,9 @@ var objRoot = null;
 var loadingManager;
 var objLoader;
 
-var fileDae = "resource/models/snowtracks.DAE";
-var fileObj = "resource/models/snowtracks.obj";
-var fileObjMat = "resource/models/snowtracks.mtl";
-//var fileDae = "resource/models/Ambulance.dae";
-//var fileObj = "resource/models/Ambulance.obj";
-//var fileObjMat = "resource/models/Ambulance.mtl";
+var fileDae = "../../resource/models/snowtracks.DAE";
+var fileObj = "../../resource/models/snowtracks.obj";
+var fileObjMat = "../../resource/models/snowtracks.mtl";
 
 var text;
 var controllerAnimate;
