@@ -8,14 +8,21 @@ APPTR.dom = {
     canvasAPPTRFloat : null,
     datGui : null
 }
-APPTR.glWidth = 1280;
+APPTR.glWidth = 1280.0;
 APPTR.glHeight = APPTR.glWidth / 2.35;
 APPTR.widthScrollBar = 2;
 APPTR.reductionHeight = APPTR.widthScrollBar + APPTR.widthScrollBar;
 APPTR.reductionWidth = APPTR.widthScrollBar;
 APPTR.shader = {
     vertexShaderText : null,
-    fragmentShaderText : null
+    fragmentShaderText : null,
+    uniforms : {
+        blendFactor : { type: "f", value: 0.15 },
+        interlaceFactor : { type: "f", value: APPTR.glHeight },
+        colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
+        texture1: { type: "t", texture: null }
+    },
+    texture : null
 }
 APPTR.datGui = {
     objFunction : function() {
@@ -34,9 +41,21 @@ APPTR.datGui = {
 APPTR.datGuiDomElement = null;
 APPTR.trackballControls = null;
 APPTR.renderer = null;
-APPTR.scene = null;
-APPTR.camera = null;
-APPTR.cameraTarget = null;
+APPTR.scenes = {};
+APPTR.scenes.perspective = {
+    camera : null,
+    cameraTarget : null,
+    scene : null
+}
+APPTR.scenes.ortho = {
+    camera : null,
+    scene : null,
+    Billboard : {
+        geometry : null,
+        material : null,
+        mesh : null
+    }
+}
 APPTR.light = null;
 APPTR.objectText = {
     mesh : null,
@@ -62,17 +81,19 @@ APPTR.textParams = {
 
 $(document).ready(
     $.when(
-        loadShader("../resource/shader/noise2D.glsl"),
-        loadShader("../resource/shader/passThrough.glsl"),
-        loadShader("../resource/shader/simpleTextureEffect.glsl")
+        ShaderTools.FileUtils.loadShader("../resource/shader/passThrough.glsl"),
+        ShaderTools.FileUtils.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
     ).done(
-        function(base, vert, frag) {
+        function(vert, frag) {
             console.log("Shader and texture loading from file is completed!");
 
             APPTR.shader.vertexShaderText = vert[0];
             console.log("Vertex Shader: " + APPTR.shader.vertexShaderText);
-            APPTR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
+            //APPTR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
+            APPTR.shader.fragmentShaderText = frag[0];
             console.log("Fragment Shader: " + APPTR.shader.fragmentShaderText);
+
+            APPTR.shader.texture = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", null, updateTextures);
 
             initPreGL();
             initGL();
@@ -108,9 +129,10 @@ $(window).resize(function() {
     calcResize();
 });
 
-function loadShader(path) {
-    return $.get(path, function(data) {
-    });
+function updateTextures() {
+    console.log("Texture loading was completed successfully!");
+    APPTR.shader.texture.wrapS = APPTR.shader.texture.wrapT = THREE.RepeatWrapping;
+    APPTR.shader.uniforms.texture1.value = APPTR.shader.texture;
 }
 
 function initPreGL() {
@@ -141,15 +163,18 @@ function initGL() {
     APPTR.renderer = new THREE.WebGLRenderer();
     APPTR.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
     APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
+    APPTR.renderer.autoClear = false;
 
-    APPTR.scene = new THREE.Scene();
+    APPTR.scenes.perspective.scene = new THREE.Scene();
+    APPTR.scenes.perspective.camera = new THREE.PerspectiveCamera(70, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 10000);
 
-    APPTR.camera = new THREE.PerspectiveCamera(70, (APPTR.glWidth) / (APPTR.glHeight), 0.1, 10000);
+    APPTR.scenes.ortho.scene = new THREE.Scene();
+    APPTR.scenes.ortho.camera = new THREE.OrthographicCamera( - APPTR.glWidth / 2, APPTR.glWidth / 2, APPTR.glHeight / 2, - APPTR.glHeight / 2, 1, 10 );
     resetCamera();
 
     APPTR.light = new THREE.DirectionalLight( 0xffffff, 1.0);
     APPTR.light.position.set(0, 1, 1);
-    APPTR.scene.add( APPTR.light );
+    APPTR.scenes.perspective.scene.add( APPTR.light );
 
     APPTR.objectText.geometry = new THREE.TextGeometry(APPTR.textParams.name, APPTR.textParams);
     APPTR.objectText.geometry.computeBoundingBox();
@@ -183,15 +208,21 @@ function initGL() {
     APPTR.objectText.mesh.position.x = -(APPTR.objectText.geometry.boundingBox.max.x - APPTR.objectText.geometry.boundingBox.min.x) / 2;
     APPTR.objectText.mesh.position.y = -(APPTR.objectText.geometry.boundingBox.max.y - APPTR.objectText.geometry.boundingBox.min.y) / 2;
     APPTR.objectText.mesh.position.z = -(APPTR.objectText.geometry.boundingBox.max.z - APPTR.objectText.geometry.boundingBox.min.z) / 2;
-    APPTR.scene.add(APPTR.objectText.mesh);
+    APPTR.scenes.perspective.scene.add(APPTR.objectText.mesh);
 
-    var map = THREE.ImageUtils.loadTexture("../../resource/images/house02.jpg");
-    var material = new THREE.SpriteMaterial( { map: map, color: 0xffffff, fog: true } );
-    var sprite = new THREE.Sprite( material );
-    APPTR.scene.add( sprite );
+    APPTR.scenes.ortho.Billboard.material = new THREE.ShaderMaterial( {
+        uniforms: APPTR.shader.uniforms,
+        vertexShader: APPTR.shader.vertexShaderText,
+        fragmentShader: APPTR.shader.fragmentShaderText,
+        transparent: true,
+        side: THREE.DoubleSide
+    } );
+    APPTR.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(APPTR.glWidth, APPTR.glHeight);
+    APPTR.scenes.ortho.Billboard.mesh = new THREE.Mesh(APPTR.scenes.ortho.Billboard.geometry, APPTR.scenes.ortho.Billboard.material);
+    APPTR.scenes.ortho.scene.add(APPTR.scenes.ortho.Billboard.mesh);
 
     // init trackball controls
-    APPTR.trackballControls = new THREE.TrackballControls(APPTR.camera);
+    APPTR.trackballControls = new THREE.TrackballControls(APPTR.scenes.perspective.camera);
     APPTR.trackballControls.rotateSpeed = 0.5;
     APPTR.trackballControls.rotateSpeed = 1.0;
     APPTR.trackballControls.panSpeed = 0.5;
@@ -246,7 +277,10 @@ function animateFrame() {
 }
 
 function render() {
-    APPTR.renderer.render(APPTR.scene, APPTR.camera);
+    APPTR.renderer.clear();
+    APPTR.renderer.render(APPTR.scenes.perspective.scene, APPTR.scenes.perspective.camera);
+    APPTR.renderer.clearDepth();
+    APPTR.renderer.render(APPTR.scenes.ortho.scene, APPTR.scenes.ortho.camera )
 }
 
 function resetTrackballControls() {
@@ -257,10 +291,11 @@ function resetTrackballControls() {
 }
 
 function resetCamera() {
-    APPTR.camera.position.set( 0, 0, 250 );
-    APPTR.cameraTarget = new THREE.Vector3( 0, 0, 0 );
-    APPTR.camera.lookAt( APPTR.cameraTarget );
-    APPTR.camera.updateProjectionMatrix();
+    APPTR.scenes.perspective.camera.position.set( 0, 0, 250 );
+    APPTR.scenes.perspective.cameraTarget = new THREE.Vector3( 0, 0, 0 );
+    APPTR.scenes.perspective.camera.lookAt( APPTR.scenes.perspective.cameraTarget );
+    APPTR.scenes.perspective.camera.updateProjectionMatrix();
+    APPTR.scenes.ortho.camera.position.set( 0, 0, 10 );
 }
 
 function calcResizeHtml() {
@@ -279,7 +314,19 @@ function calcResize() {
 
     calcResizeHtml();
 
-    APPTR.camera.aspect = (APPTR.glWidth / APPTR.glHeight);
-    APPTR.camera.updateProjectionMatrix();
+    APPTR.scenes.perspective.camera.aspect = (APPTR.glWidth / APPTR.glHeight);
+    APPTR.scenes.perspective.camera.updateProjectionMatrix();
+
+    APPTR.scenes.ortho.camera.left = - APPTR.glWidth / 2;
+    APPTR.scenes.ortho.camera.right = APPTR.glWidth / 2;
+    APPTR.scenes.ortho.camera.top = APPTR.glHeight / 2;
+    APPTR.scenes.ortho.camera.bottom = - APPTR.glHeight / 2;
+    APPTR.scenes.ortho.camera.updateProjectionMatrix();
+
+    //var aspectRatio = APPTR.glWidth / APPTR.glHeight;
+    APPTR.scenes.ortho.Billboard.mesh.width = APPTR.glWidth;
+    APPTR.scenes.ortho.Billboard.mesh.height = APPTR.glHeight;
+    APPTR.shader.uniforms.interlaceFactor = APPTR.glHeight;
+
     APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
 }
