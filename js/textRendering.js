@@ -93,7 +93,7 @@ $(document).ready(
             APPTR.shader.fragmentShaderText = frag[0];
             console.log("Fragment Shader: " + APPTR.shader.fragmentShaderText);
 
-            APPTR.shader.texture = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", null, updateTextures);
+            APPTR.shader.texture = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping, updateTextures);
 
             initPreGL();
             initGL();
@@ -179,10 +179,6 @@ function initGL() {
     APPTR.objectText.geometry = new THREE.TextGeometry(APPTR.textParams.name, APPTR.textParams);
     APPTR.objectText.geometry.computeBoundingBox();
     APPTR.objectText.geometry.computeVertexNormals();
-
-    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.x + "|" + APPTR.objectText.geometry.boundingBox.min.x);
-    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.y + "|" + APPTR.objectText.geometry.boundingBox.min.y);
-    console.log("BB: " + APPTR.objectText.geometry.boundingBox.max.z + "|" + APPTR.objectText.geometry.boundingBox.min.z);
 
     APPTR.objectText.material = new THREE.MeshFaceMaterial( [
         // front
@@ -299,11 +295,11 @@ function resetCamera() {
 }
 
 function calcResizeHtml() {
-    APPTR.glWidth  = window.innerWidth - APPTR.reductionWidth;
-    APPTR.glHeight = window.innerWidth / 2.35 - APPTR.reductionHeight;
+    APPTR.glWidth  = window.innerWidth;
+    APPTR.glHeight = window.innerWidth / 2.35;
 
-    APPTR.dom.canvasDiv.style.width = APPTR.glWidth + "px";
-    APPTR.dom.canvasDiv.style.height = APPTR.glHeight + "px";
+    APPTR.dom.canvasDiv.style.width = APPTR.glWidth - APPTR.reductionWidth + "px";
+    APPTR.dom.canvasDiv.style.height = APPTR.glHeight  - APPTR.reductionHeight + "px";
 
     APPTR.dom.canvasAPPTRFloat.style.top = 0 + "px";
     APPTR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(APPTR.dom.datGui.style.width)) + "px";
@@ -323,9 +319,13 @@ function calcResize() {
     APPTR.scenes.ortho.camera.bottom = - APPTR.glHeight / 2;
     APPTR.scenes.ortho.camera.updateProjectionMatrix();
 
-    //var aspectRatio = APPTR.glWidth / APPTR.glHeight;
-    APPTR.scenes.ortho.Billboard.mesh.width = APPTR.glWidth;
-    APPTR.scenes.ortho.Billboard.mesh.height = APPTR.glHeight;
+    if (APPTR.glWidth > APPTR.shader.texture.image.width && APPTR.shader.texture.image.width > 0) {
+        APPTR.scenes.ortho.Billboard.mesh.scale.x = (APPTR.glWidth) / APPTR.shader.texture.image.width;
+    }
+    if (APPTR.glHeight > APPTR.shader.texture.image.height && APPTR.shader.texture.image.height > 0) {
+        APPTR.scenes.ortho.Billboard.mesh.scale.y = (APPTR.glHeight) / APPTR.shader.texture.image.height;
+    }
+
     APPTR.shader.uniforms.interlaceFactor = APPTR.glHeight;
 
     APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
