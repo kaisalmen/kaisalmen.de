@@ -1,6 +1,6 @@
 uniform sampler2D texture1;
 uniform float blendFactor;
-uniform float interlaceFactor;
+uniform float ilFactor;
 uniform float colorFactor[3];
 
 varying vec2 vUv;
@@ -10,6 +10,6 @@ void main()	{
 	texValue.r = texValue.r * colorFactor[0];
 	texValue.g = texValue.g * colorFactor[1];
 	texValue.b = texValue.b * colorFactor[2];
-	texValue.a = blendFactor * sin(vUv.y * 1024.0);
+	texValue.a = blendFactor * sin(vUv.y * ilFactor);
 	gl_FragColor = texValue;
 }

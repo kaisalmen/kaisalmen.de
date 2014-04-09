@@ -18,7 +18,7 @@ APPTR.shader = {
     fragmentShaderText : null,
     uniforms : {
         blendFactor : { type: "f", value: 0.15 },
-        interlaceFactor : { type: "f", value: APPTR.glHeight },
+        ilFactor : { type: "f", value: APPTR.glHeight * 2 },
         colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
         texture1: { type: "t", value: null }
     }
@@ -26,14 +26,16 @@ APPTR.shader = {
 APPTR.datGui = {
     objFunction : function() {
         this.resetCamera = resetTrackballControls;
-        this.opacity = 1.0;
+        this.opacityText = 1.0;
+        this.opacityShader = 0.15;
         this.red = 0;
         this.green = 170;
         this.blue = 255;
         this.enableShader = true;
     },
     selfRef : null,
-    controllerBlend : null,
+    controllerBlendText : null,
+    controllerBlendShader : null,
     controllerLevelR : null,
     controllerLevelG : null,
     controllerLevelB : null
@@ -145,11 +147,12 @@ function initPreGL() {
         }
     );
     gui.add(text, 'resetCamera');
-    APPTR.datGui.controllerBlend =  gui.add(text, 'opacity', 0.0, 1.0);
+    APPTR.datGui.controllerBlendText =  gui.add(text, 'opacityText', 0.0, 1.0);
     APPTR.datGui.controllerLevelR = gui.add(text, 'red', 0, 255);
     APPTR.datGui.controllerLevelG = gui.add(text, 'green', 0, 255);
     APPTR.datGui.controllerLevelB = gui.add(text, 'blue', 0, 255);
     gui.add(text, 'enableShader');
+    APPTR.datGui.controllerBlendShader =  gui.add(text, 'opacityShader', 0.0, 1.0);
     gui.close();
 
     APPTR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
@@ -186,7 +189,7 @@ function initGL() {
             color: 0xffffff,
             shading: THREE.FlatShading,
             transparent: true,
-            opacity: APPTR.datGui.selfRef.opacity,
+            opacity: APPTR.datGui.selfRef.opacityText,
             side: THREE.DoubleSide
         } ),
         // side
@@ -194,7 +197,7 @@ function initGL() {
             color: 0xffffff,
             shading: THREE.SmoothShading,
             transparent: true,
-            opacity: APPTR.datGui.selfRef.opacity,
+            opacity: APPTR.datGui.selfRef.opacityText,
             side: THREE.DoubleSide
         } )
     ] );
@@ -235,12 +238,16 @@ function initPostGL() {
 }
 
 function addEventHandlers() {
-    APPTR.datGui.controllerBlend.onChange(function(value) {
-        APPTR.datGui.selfRef.opacity = value;
+    APPTR.datGui.controllerBlendText.onChange(function(value) {
+        APPTR.datGui.selfRef.opacityText = value;
         for (var i in APPTR.objectText.material.materials) {
             var mat = APPTR.objectText.material.materials[i];
             mat.opacity = value;
         }
+    });
+    APPTR.datGui.controllerBlendShader.onChange(function(value) {
+        APPTR.datGui.selfRef.opacityShader = value;
+        APPTR.shader.uniforms.blendFactor.value = value;
     });
     APPTR.datGui.controllerLevelR.onChange(function(value) {
         APPTR.datGui.selfRef.red = value;
@@ -257,13 +264,16 @@ function addEventHandlers() {
 }
 
 function updateMaterials() {
+    var red = APPTR.datGui.selfRef.red / 255;
+    var green = APPTR.datGui.selfRef.green / 255;
+    var blue = APPTR.datGui.selfRef.blue / 255;
     for (var i in APPTR.objectText.material.materials) {
         var mat = APPTR.objectText.material.materials[i];
-        mat.color.setRGB(
-            APPTR.datGui.selfRef.red / 255,
-            APPTR.datGui.selfRef.green / 255,
-            APPTR.datGui.selfRef.blue / 255);
+        mat.color.setRGB(red, green, blue);
     }
+    APPTR.shader.uniforms.colorFactor.value[0] = red;
+    APPTR.shader.uniforms.colorFactor.value[1] = green;
+    APPTR.shader.uniforms.colorFactor.value[2] = blue;
 }
 
 function animateFrame() {
@@ -326,13 +336,12 @@ function calcResize() {
 
         var textureWidth = APPTR.shader.uniforms.texture1.value.image.width;
         var textureHeight = APPTR.shader.uniforms.texture1.value.image.height;
-        console.log(textureWidth);
-        console.log(textureHeight);
         if (APPTR.glWidth > textureWidth && textureWidth > 0) {
             APPTR.scenes.ortho.Billboard.mesh.scale.x = (APPTR.glWidth) / textureWidth;
         }
         if (APPTR.glHeight > textureHeight && textureHeight > 0) {
             APPTR.scenes.ortho.Billboard.mesh.scale.y = (APPTR.glHeight) / textureHeight;
+            APPTR.shader.uniforms.ilFactor = APPTR.glHeight * 2;
         }
 
         APPTR.shader.uniforms.interlaceFactor = APPTR.glHeight;
