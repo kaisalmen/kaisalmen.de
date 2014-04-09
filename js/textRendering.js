@@ -20,7 +20,7 @@ APPTR.shader = {
         blendFactor : { type: "f", value: 0.15 },
         interlaceFactor : { type: "f", value: APPTR.glHeight },
         colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
-        texture1: { type: "t", texture: null }
+        texture1: { type: "t", value: null }
     }
 }
 APPTR.datGui = {
@@ -324,8 +324,10 @@ function calcResize() {
         APPTR.scenes.ortho.camera.bottom = -APPTR.glHeight / 2;
         APPTR.scenes.ortho.camera.updateProjectionMatrix();
 
-        var textureWidth = APPTR.shader.uniforms.texture1.value.width;
-        var textureHeight = APPTR.shader.uniforms.texture1.value.height;
+        var textureWidth = APPTR.shader.uniforms.texture1.value.image.width;
+        var textureHeight = APPTR.shader.uniforms.texture1.value.image.height;
+        console.log(textureWidth);
+        console.log(textureHeight);
         if (APPTR.glWidth > textureWidth && textureWidth > 0) {
             APPTR.scenes.ortho.Billboard.mesh.scale.x = (APPTR.glWidth) / textureWidth;
         }
