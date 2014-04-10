@@ -127,13 +127,14 @@ $(document).ready(
 }, "#APPTRWebGL");
 
 $(window).resize(function() {
-    console.log("Window Resize called!");
     calcResize();
 });
 
 function updateTextures() {
     console.log("Texture loading was completed successfully!");
-    APPTR.shader.uniforms.texture1.value.wrapS = APPTR.shader.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
+    APPTR.shader.uniforms.texture1.value.wrapS = THREE.RepeatWrapping;
+    APPTR.shader.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
+    APPTR.shader.uniforms.texture1.value.repeat.set( 2, 2 );
 }
 
 function initPreGL() {
@@ -336,15 +337,15 @@ function calcResize() {
 
         var textureWidth = APPTR.shader.uniforms.texture1.value.image.width;
         var textureHeight = APPTR.shader.uniforms.texture1.value.image.height;
+
+        // TODO: need last and current size
         if (APPTR.glWidth > textureWidth && textureWidth > 0) {
-            APPTR.scenes.ortho.Billboard.mesh.scale.x = (APPTR.glWidth) / textureWidth;
+            APPTR.scenes.ortho.Billboard.mesh.scale.x = APPTR.scenes.perspective.camera.aspect;
         }
         if (APPTR.glHeight > textureHeight && textureHeight > 0) {
-            APPTR.scenes.ortho.Billboard.mesh.scale.y = (APPTR.glHeight) / textureHeight;
+            APPTR.scenes.ortho.Billboard.mesh.scale.y = APPTR.scenes.perspective.camera.aspect;
             APPTR.shader.uniforms.ilFactor = APPTR.glHeight * 2;
         }
-
-        APPTR.shader.uniforms.interlaceFactor = APPTR.glHeight;
     }
 
     APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
