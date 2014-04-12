@@ -56,7 +56,11 @@ APPTR.scenes.ortho = {
         geometry : null,
         material : null,
         mesh : null
-    }
+    },
+    pixelLeft : null,
+    pixelRight : null,
+    pixelTop : null,
+    pixelBottom : null
 }
 APPTR.light = null;
 APPTR.objectText = {
@@ -144,7 +148,7 @@ function initPreGL() {
     APPTR.datGui.selfRef = text;
     var gui = new dat.GUI(
         {
-            autoPlace: false
+            autoPlace : false,
         }
     );
     gui.add(text, 'resetCamera');
@@ -154,7 +158,6 @@ function initPreGL() {
     APPTR.datGui.controllerLevelB = gui.add(text, 'blue', 0, 255);
     gui.add(text, 'enableShader');
     APPTR.datGui.controllerBlendShader =  gui.add(text, 'opacityShader', 0.0, 1.0);
-    gui.close();
 
     APPTR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
     APPTR.dom.datGui = gui.domElement;
@@ -322,31 +325,42 @@ function calcResizeHtml() {
 
 function calcResize() {
     APPTR.trackballControls.handleResize();
-
     calcResizeHtml();
+    calcResizePerspectiveCamera();
+    if (APPTR.datGui.selfRef.enableShader) {
+        calcResizeBillboardCamera();
+    }
+    APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
+}
 
+function calcResizePerspectiveCamera() {
     APPTR.scenes.perspective.camera.aspect = (APPTR.glWidth / APPTR.glHeight);
     APPTR.scenes.perspective.camera.updateProjectionMatrix();
+}
 
-    if (APPTR.datGui.selfRef.enableShader) {
-        APPTR.scenes.ortho.camera.left = -APPTR.glWidth / 2;
-        APPTR.scenes.ortho.camera.right = APPTR.glWidth / 2;
-        APPTR.scenes.ortho.camera.top = APPTR.glHeight / 2;
-        APPTR.scenes.ortho.camera.bottom = -APPTR.glHeight / 2;
-        APPTR.scenes.ortho.camera.updateProjectionMatrix();
+function calcResizeBillboardCamera() {
+    // calc screen dimension halfs
+    APPTR.scenes.ortho.pixelLeft = -APPTR.glWidth / 2;
+    APPTR.scenes.ortho.pixelRight = APPTR.glWidth / 2;
+    APPTR.scenes.ortho.pixelTop = APPTR.glHeight / 2;
+    APPTR.scenes.ortho.pixelBottom = -APPTR.glHeight / 2;
 
-        var textureWidth = APPTR.shader.uniforms.texture1.value.image.width;
-        var textureHeight = APPTR.shader.uniforms.texture1.value.image.height;
+    // update camera
+    APPTR.scenes.ortho.camera.left = APPTR.scenes.ortho.pixelLeft;
+    APPTR.scenes.ortho.camera.right = APPTR.scenes.ortho.pixelRight;
+    APPTR.scenes.ortho.camera.top = APPTR.scenes.ortho.pixelTop;
+    APPTR.scenes.ortho.camera.bottom = APPTR.scenes.ortho.pixelBottom;
+    APPTR.scenes.ortho.camera.updateProjectionMatrix();
 
-        // TODO: need last and current size
-        if (APPTR.glWidth > textureWidth && textureWidth > 0) {
-            APPTR.scenes.ortho.Billboard.mesh.scale.x = APPTR.scenes.perspective.camera.aspect;
-        }
-        if (APPTR.glHeight > textureHeight && textureHeight > 0) {
-            APPTR.scenes.ortho.Billboard.mesh.scale.y = APPTR.scenes.perspective.camera.aspect;
-            APPTR.shader.uniforms.ilFactor = APPTR.glHeight * 2;
-        }
-    }
+    // update billboard geometries dimensions
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = APPTR.scenes.ortho.pixelLeft;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = APPTR.scenes.ortho.pixelTop;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = APPTR.scenes.ortho.pixelRight;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = APPTR.scenes.ortho.pixelTop;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = APPTR.scenes.ortho.pixelLeft;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = APPTR.scenes.ortho.pixelBottom;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = APPTR.scenes.ortho.pixelRight;
+    APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = APPTR.scenes.ortho.pixelBottom;
 
-    APPTR.renderer.setSize(APPTR.glWidth, APPTR.glHeight);
+    APPTR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
 }

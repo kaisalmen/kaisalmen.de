@@ -5,5 +5,5 @@ images
 libs/ext
 models
 mongoose.conf
-mongoose-3.7.exe
+mongoose-*.exe
 .idea
