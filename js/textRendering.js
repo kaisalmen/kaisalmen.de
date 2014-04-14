@@ -19,6 +19,7 @@ APPTR.shader = {
     uniforms : {
         blendFactor : { type: "f", value: 0.15 },
         ilFactor : { type: "f", value: APPTR.glHeight * 2 },
+        seed : { type: "f", value: Math.random() },
         colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
         texture1: { type: "t", value: null }
     }
@@ -148,7 +149,7 @@ function initPreGL() {
     APPTR.datGui.selfRef = text;
     var gui = new dat.GUI(
         {
-            autoPlace : false,
+            autoPlace : false
         }
     );
     gui.add(text, 'resetCamera');
@@ -290,6 +291,7 @@ function render() {
     APPTR.renderer.clear();
     APPTR.renderer.render(APPTR.scenes.perspective.scene, APPTR.scenes.perspective.camera);
     if (APPTR.datGui.selfRef.enableShader) {
+        APPTR.shader.uniforms.seed.value = Math.random();
         APPTR.renderer.clearDepth();
         APPTR.renderer.render(APPTR.scenes.ortho.scene, APPTR.scenes.ortho.camera);
     }
@@ -363,4 +365,6 @@ function calcResizeBillboardCamera() {
     APPTR.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = APPTR.scenes.ortho.pixelBottom;
 
     APPTR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
+
+    APPTR.shader.uniforms.ilFactor.value = APPTR.glHeight * 2;
 }
