@@ -19,6 +19,7 @@ rm ./libs/three-webgl.js
 rm ./libs/three-extras.js
 rm ./libs/three-math.js
 cp ../js/three.js/build/three.js ./libs/ext
+cp ../js/three.js/build/three.min.js ./libs/ext
 cp ../js/three.js/build/three-extras.js ./libs/ext
 
 rm ../three.js/build/three-canvas.js

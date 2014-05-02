@@ -5,8 +5,7 @@ var ATR = {};
 
 ATR.dom = {
     canvasDiv : null,
-    canvasAPPTRFloat : null,
-    datGui : null
+    canvasAPPTRFloat : null
 }
 ATR.glWidth = 1280.0;
 ATR.glHeight = ATR.glWidth / 2.35;
@@ -26,7 +25,7 @@ ATR.shader = {
     }
 }
 ATR.datGui = {
-    objFunction : function(defaultText) {
+    paramFunction : function(defaultText) {
         this.resetCamera = resetTrackballControls;
         this.content = defaultText;
         this.opacityText = 1.0;
@@ -35,10 +34,11 @@ ATR.datGui = {
         this.blue = 255;
         this.enableShader = true;
         this.opacityShader = 0.15;
-        //this.flickerShader = true;
+        this.flickerShader = true;
         this.colorShader = "#00AAFF";
     },
-    selfRef : null,
+    paramRef : null,
+    objRef : null,
     controllerTextContent : null,
     controllerBlendText : null,
     controllerLevelR : null,
@@ -92,7 +92,9 @@ ATR.text.textParams = {
     material : 0,
     extrudeMaterial : 1
 }
-ATR.text.possibleContent = ["Change me!", "Adjust me!", "Modify me!", "Magnificent void!", "Play with me!", "Reload Me!"];
+ATR.text.possibleContent = ["Change me!", "Adjust me!", "Modify me!", "Play with me!", "Reload me!"];
+ATR.text.update = true;
+ATR.text.lengthLimit = 50;
 
 $(document).ready(
     $.when(
@@ -101,12 +103,12 @@ $(document).ready(
     ).done(
         function(vert, frag) {
             console.log("Shader and texture loading from file is completed!");
+            ShaderTools.FileUtils.printShader(vert, "Vertex Shader");
+            ShaderTools.FileUtils.printShader(frag, "Fragment Shader");
 
             ATR.shader.vertexShaderText = vert[0];
-            console.log("Vertex Shader: " + ATR.shader.vertexShaderText);
             //ATR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
             ATR.shader.fragmentShaderText = frag[0];
-            console.log("Fragment Shader: " + ATR.shader.fragmentShaderText);
 
             ATR.shader.uniforms.texture1.value = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping, updateTextures);
 
@@ -153,32 +155,31 @@ function updateTextures() {
 function initPreGL() {
     ATR.dom.canvasDiv = document.getElementById("APPTRWebGL");
 
-    var text = new ATR.datGui.objFunction(selectRandomText());
-    ATR.datGui.selfRef = text;
-    var gui = new dat.GUI(
+    ATR.datGui.paramRef = new ATR.datGui.paramFunction(selectRandomText());
+    ATR.datGui.objRef = new dat.GUI(
         {
             autoPlace : false
         }
     );
-    gui.add(text, "resetCamera");
-    var textControls = gui.addFolder("Text Controls");
-    ATR.datGui.controllerTextContent = textControls.add(text, "content");
-    ATR.datGui.controllerBlendText = textControls.add(text, "opacityText", 0.0, 1.0);
-    ATR.datGui.controllerLevelR = textControls.add(text, "red", 0, 255);
-    ATR.datGui.controllerLevelG = textControls.add(text, "green", 0, 255);
-    ATR.datGui.controllerLevelB = textControls.add(text, "blue", 0, 255);
+    ATR.datGui.objRef.add(ATR.datGui.paramRef, "resetCamera").name("Reset camera!");
+    var textControls = ATR.datGui.objRef.addFolder("Text Controls");
+    var textText = "Text (length: " + ATR.text.lengthLimit + "):";
+    ATR.datGui.controllerTextContent = textControls.add(ATR.datGui.paramRef, "content").name(textText).listen();
+    ATR.datGui.controllerBlendText = textControls.add(ATR.datGui.paramRef, "opacityText", 0.0, 1.0).name("Opacity:");
+    ATR.datGui.controllerLevelR = textControls.add(ATR.datGui.paramRef, "red", 0, 255).name("Red:");
+    ATR.datGui.controllerLevelG = textControls.add(ATR.datGui.paramRef, "green", 0, 255).name("Green:");
+    ATR.datGui.controllerLevelB = textControls.add(ATR.datGui.paramRef, "blue", 0, 255).name("Blue:");
     textControls.open();
 
-    var shaderControls = gui.addFolder("Shader Controls");
-    shaderControls.add(text, "enableShader");
-    ATR.datGui.controllerBlendShader = shaderControls.add(text, "opacityShader", 0.0, 1.0);
-    //shaderControls.add(text, "flickerShader");
-    ATR.datGui.controllerColorShader = shaderControls.add(text, "colorShader");
+    var shaderControls = ATR.datGui.objRef.addFolder("Shader Controls");
+    shaderControls.add(ATR.datGui.paramRef, "enableShader").name("Enable:");
+    ATR.datGui.controllerBlendShader = shaderControls.add(ATR.datGui.paramRef, "opacityShader", 0.0, 1.0).name("Opacity:");
+    shaderControls.add(ATR.datGui.paramRef, "flickerShader").name("Flicker:");
+    ATR.datGui.controllerColorShader = shaderControls.addColor(ATR.datGui.paramRef, "colorShader").name("Color:");
     shaderControls.open();
 
     ATR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
-    ATR.dom.datGui = gui.domElement;
-    ATR.dom.canvasAPPTRFloat.appendChild(ATR.dom.datGui);
+    ATR.dom.canvasAPPTRFloat.appendChild(ATR.datGui.objRef.domElement);
 
     calcResizeHtml();
 }
@@ -246,7 +247,7 @@ function createText() {
             color: 0xffffff,
             shading: THREE.FlatShading,
             transparent: true,
-            opacity: ATR.datGui.selfRef.opacityText,
+            opacity: ATR.datGui.paramRef.opacityText,
             side: THREE.DoubleSide
         } ),
         // side
@@ -254,7 +255,7 @@ function createText() {
             color: 0xffffff,
             shading: THREE.SmoothShading,
             transparent: true,
-            opacity: ATR.datGui.selfRef.opacityText,
+            opacity: ATR.datGui.paramRef.opacityText,
             side: THREE.DoubleSide
         } )
     ] );
@@ -277,56 +278,56 @@ function initPostGL() {
 
 function addEventHandlers() {
     ATR.datGui.controllerTextContent.onChange(function(value) {
-        if (value.length < 25) {
-            removeText();
+        ATR.text.update = true;
+
+        if (ATR.datGui.paramRef.content.length < ATR.text.lengthLimit) {
             ATR.text.textParams.name = value;
-            ATR.datGui.selfRef.content = ATR.text.textParams.name;
-            createText();
+            ATR.datGui.paramRef.content = ATR.text.textParams.name;
         }
         else {
-            ATR.text.textParams.name = value.substring(1, 24);
-            ATR.datGui.selfRef.content = ATR.text.textParams.name;
+            ATR.text.textParams.name = value.substring(0, ATR.text.lengthLimit);
+            ATR.datGui.paramRef.content = ATR.text.textParams.name;
         }
     });
     ATR.datGui.controllerBlendText.onChange(function(value) {
-        ATR.datGui.selfRef.opacityText = value;
+        ATR.datGui.paramRef.opacityText = value;
         for (var i in ATR.objectText.material.materials) {
             var mat = ATR.objectText.material.materials[i];
             mat.opacity = value;
         }
     });
     ATR.datGui.controllerLevelR.onChange(function(value) {
-        ATR.datGui.selfRef.red = value;
+        ATR.datGui.paramRef.red = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerLevelG.onChange(function(value) {
-        ATR.datGui.selfRef.green = value;
+        ATR.datGui.paramRef.green = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerLevelB.onChange(function(value) {
-        ATR.datGui.selfRef.blue = value;
+        ATR.datGui.paramRef.blue = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerBlendShader.onChange(function(value) {
-        ATR.datGui.selfRef.opacityShader = value;
+        ATR.datGui.paramRef.opacityShader = value;
         ATR.shader.uniforms.blendFactor.value = value;
     });
     ATR.datGui.controllerColorShader.onChange(function(value) {
-        ATR.datGui.selfRef.colorShader = value;
+        ATR.datGui.paramRef.colorShader = value;
         updateTextMaterials();
     });
 
 }
 
 function updateTextMaterials() {
-    var red = ATR.datGui.selfRef.red / 255;
-    var green = ATR.datGui.selfRef.green / 255;
-    var blue = ATR.datGui.selfRef.blue / 255;
+    var red = ATR.datGui.paramRef.red / 255;
+    var green = ATR.datGui.paramRef.green / 255;
+    var blue = ATR.datGui.paramRef.blue / 255;
     for (var i in ATR.objectText.material.materials) {
         var mat = ATR.objectText.material.materials[i];
         mat.color.setRGB(red, green, blue);
     }
-    var rgb = hexToRGB(ATR.datGui.selfRef.colorShader);
+    var rgb = ShaderTools.hexToRGB(ATR.datGui.paramRef.colorShader, true);
     ATR.shader.uniforms.colorFactor.value[0] = rgb[0];
     ATR.shader.uniforms.colorFactor.value[1] = rgb[1];
     ATR.shader.uniforms.colorFactor.value[2] = rgb[2];
@@ -342,13 +343,19 @@ function render() {
     ATR.renderer.clear();
     ATR.renderer.render(ATR.scenes.perspective.scene, ATR.scenes.perspective.camera);
     ATR.frameNumber++;
-    if (ATR.datGui.selfRef.enableShader) {
-        if (ATR.datGui.selfRef.flickerShader) {
+
+    if (ATR.text.update && ATR.frameNumber % 60 === 0) {
+        ATR.text.update = false;
+        removeText();
+        createText();
+    }
+
+    if (ATR.datGui.paramRef.enableShader) {
+        if (ATR.datGui.paramRef.flickerShader) {
             var ranVal = Math.random();
             var range = 16 + parseInt(32 * ranVal);
             if (ATR.frameNumber % range === 0) {
                 ATR.shader.uniforms.seed.value = ranVal;
-                console.log(ranVal);
             }
         }
         ATR.renderer.clearDepth();
@@ -368,7 +375,7 @@ function resetCamera() {
     ATR.scenes.perspective.cameraTarget = new THREE.Vector3( 0, 0, 0 );
     ATR.scenes.perspective.camera.lookAt( ATR.scenes.perspective.cameraTarget );
     ATR.scenes.perspective.camera.updateProjectionMatrix();
-    if (ATR.datGui.selfRef.enableShader) {
+    if (ATR.datGui.paramRef.enableShader) {
         ATR.scenes.ortho.camera.position.set(0, 0, 10);
     }
 }
@@ -381,14 +388,14 @@ function calcResizeHtml() {
     ATR.dom.canvasDiv.style.height = ATR.glHeight  - ATR.reductionHeight + "px";
 
     ATR.dom.canvasAPPTRFloat.style.top = 0 + "px";
-    ATR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(ATR.dom.datGui.style.width)) + "px";
+    ATR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.objRef.domElement.style.width)) + "px";
 }
 
 function calcResize() {
     ATR.trackballControls.handleResize();
     calcResizeHtml();
     calcResizePerspectiveCamera();
-    if (ATR.datGui.selfRef.enableShader) {
+    if (ATR.datGui.paramRef.enableShader) {
         calcResizeBillboardCamera();
     }
     ATR.renderer.setSize(ATR.glWidth, ATR.glHeight);
