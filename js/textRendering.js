@@ -1,7 +1,16 @@
 /**
- * Created by Kai Salmen on 2014.02.08
+ * Updated by Kai Salmen on 2014.05.06
  */
 var ATR = {};
+
+var EXEC_FLOW = {}
+EXEC_FLOW =  {
+    initShaders : null,
+    initPreGL : null,
+    initGL : null,
+    initPostGL : null,
+    animateFrame : null
+}
 
 ATR.dom = {
     canvasDiv : null,
@@ -12,7 +21,7 @@ ATR.screen = {
     glWidth : 1280.0,
     glHeight : 1280.0 / 2.35,
     glMinWidth : 800,
-    glMinHeight : 800    / 2.35
+    glMinHeight : 800 / 2.35
 }
 
 ATR.widthScrollBar = 2;
@@ -24,10 +33,29 @@ ATR.shader = {
     fragmentShaderText : null,
     uniforms : {
         blendFactor : { type: "f", value: 0.15 },
-        ilFactor : { type: "f", value: ATR.glHeight * 2 },
+        ilFactor : { type: "f", value: ATR.screen.glHeight / 2.0 },
         seed : { type: "f", value: Math.random() },
         colorFactor : { type: "fv1", value: [0.0, 1.0, 0.0] },
         texture1: { type: "t", value: null }
+    },
+    updateTextureRef : null,
+    loadShaderFunc : function(vert, frag) {
+        console.log("Shader and texture loading from file is completed!");
+        ShaderTools.FileUtils.printShader(vert, "Vertex Shader");
+        ShaderTools.FileUtils.printShader(frag, "Fragment Shader");
+
+        ATR.shader.vertexShaderText = vert[0];
+        //ATR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
+        ATR.shader.fragmentShaderText = frag[0];
+
+        ATR.shader.uniforms.texture1.value = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping);
+        ATR.shader.uniforms.texture1.value.wrapS = THREE.RepeatWrapping;
+        ATR.shader.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
+        ATR.shader.uniforms.texture1.value.repeat.set(2, 2);
+        console.log("Textures were updated successfully!");
+    },
+    updateShaderFunc : function() {
+        ATR.shader.uniforms.ilFactor.value = ATR.screen.glHeight / 2.0;
     }
 }
 ATR.datGui = {
@@ -43,13 +71,14 @@ ATR.datGui = {
         this.flickerShader = true;
         this.colorShader = "#00AAFF";
     },
-    paramRef : null,
-    objRef : null,
+    paramFunctionRef : null,
+    datGuiRef : null,
     controllerTextContent : null,
     controllerBlendText : null,
     controllerLevelR : null,
     controllerLevelG : null,
     controllerLevelB : null,
+    controllerEnableShader : null,
     controllerBlendShader : null,
     controllerColorShader : null
 }
@@ -73,7 +102,37 @@ ATR.scenes.ortho = {
     pixelLeft : null,
     pixelRight : null,
     pixelTop : null,
-    pixelBottom : null
+    pixelBottom : null,
+    calcResizeBillboardFunc : function() {
+        if (ATR.datGui.paramFunctionRef.enableShader) {
+            // calc screen dimension
+            ATR.scenes.ortho.pixelLeft = -ATR.screen.glWidth / 2;
+            ATR.scenes.ortho.pixelRight = ATR.screen.glWidth / 2;
+            ATR.scenes.ortho.pixelTop = ATR.screen.glHeight / 2;
+            ATR.scenes.ortho.pixelBottom = -ATR.screen.glHeight / 2;
+
+            // update camera
+            ATR.scenes.ortho.camera.left = ATR.scenes.ortho.pixelLeft;
+            ATR.scenes.ortho.camera.right = ATR.scenes.ortho.pixelRight;
+            ATR.scenes.ortho.camera.top = ATR.scenes.ortho.pixelTop;
+            ATR.scenes.ortho.camera.bottom = ATR.scenes.ortho.pixelBottom;
+            ATR.scenes.ortho.camera.updateProjectionMatrix();
+
+            // update billboard geometries dimensions
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = ATR.scenes.ortho.pixelLeft;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = ATR.scenes.ortho.pixelTop;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = ATR.scenes.ortho.pixelRight;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = ATR.scenes.ortho.pixelTop;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = ATR.scenes.ortho.pixelLeft;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = ATR.scenes.ortho.pixelBottom;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = ATR.scenes.ortho.pixelRight;
+            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = ATR.scenes.ortho.pixelBottom;
+
+            ATR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
+
+            ATR.shader.updateShaderFunc();
+        }
+    }
 }
 ATR.light = null;
 ATR.objectText = {
@@ -108,21 +167,13 @@ $(document).ready(
         ShaderTools.FileUtils.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
     ).done(
         function(vert, frag) {
-            console.log("Shader and texture loading from file is completed!");
-            ShaderTools.FileUtils.printShader(vert, "Vertex Shader");
-            ShaderTools.FileUtils.printShader(frag, "Fragment Shader");
+            EXEC_FLOW.initShaders = ATR.shader.loadShaderFunc(vert, frag);
 
-            ATR.shader.vertexShaderText = vert[0];
-            //ATR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
-            ATR.shader.fragmentShaderText = frag[0];
+            EXEC_FLOW.initPreGL = initPreGL();
+            EXEC_FLOW.initGL = initGL();
+            EXEC_FLOW.initPostGL = initPostGL();
 
-            ATR.shader.uniforms.texture1.value = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping, updateTextures);
-
-            initPreGL();
-            initGL();
-            initPostGL();
-
-            animateFrame();
+            EXEC_FLOW.animateFrame = animateFrame();
         }
     )
 )
@@ -151,41 +202,34 @@ $(window).resize(function() {
     calcResize();
 });
 
-function updateTextures() {
-    console.log("Texture loading was completed successfully!");
-    ATR.shader.uniforms.texture1.value.wrapS = THREE.RepeatWrapping;
-    ATR.shader.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
-    ATR.shader.uniforms.texture1.value.repeat.set( 2, 2 );
-}
-
 function initPreGL() {
     ATR.dom.canvasDiv = document.getElementById("APPTRWebGL");
 
-    ATR.datGui.paramRef = new ATR.datGui.paramFunction(selectRandomText());
-    ATR.datGui.objRef = new dat.GUI(
+    ATR.datGui.paramFunctionRef = new ATR.datGui.paramFunction(selectRandomText());
+    ATR.datGui.datGuiRef = new dat.GUI(
         {
             autoPlace : false
         }
     );
-    ATR.datGui.objRef.add(ATR.datGui.paramRef, "resetCamera").name("Reset camera!");
-    var textControls = ATR.datGui.objRef.addFolder("Text Controls");
+    ATR.datGui.datGuiRef.add(ATR.datGui.paramFunctionRef, "resetCamera").name("Reset camera!");
+    var textControls = ATR.datGui.datGuiRef.addFolder("Text Controls");
     var textText = "Text (length: " + ATR.text.lengthLimit + "):";
-    ATR.datGui.controllerTextContent = textControls.add(ATR.datGui.paramRef, "content").name(textText).listen();
-    ATR.datGui.controllerBlendText = textControls.add(ATR.datGui.paramRef, "opacityText", 0.0, 1.0).name("Opacity:");
-    ATR.datGui.controllerLevelR = textControls.add(ATR.datGui.paramRef, "red", 0, 255).name("Red:");
-    ATR.datGui.controllerLevelG = textControls.add(ATR.datGui.paramRef, "green", 0, 255).name("Green:");
-    ATR.datGui.controllerLevelB = textControls.add(ATR.datGui.paramRef, "blue", 0, 255).name("Blue:");
+    ATR.datGui.controllerTextContent = textControls.add(ATR.datGui.paramFunctionRef, "content").name(textText).listen();
+    ATR.datGui.controllerBlendText = textControls.add(ATR.datGui.paramFunctionRef, "opacityText", 0.0, 1.0).name("Opacity:");
+    ATR.datGui.controllerLevelR = textControls.add(ATR.datGui.paramFunctionRef, "red", 0, 255).name("Red:");
+    ATR.datGui.controllerLevelG = textControls.add(ATR.datGui.paramFunctionRef, "green", 0, 255).name("Green:");
+    ATR.datGui.controllerLevelB = textControls.add(ATR.datGui.paramFunctionRef, "blue", 0, 255).name("Blue:");
     textControls.open();
 
-    var shaderControls = ATR.datGui.objRef.addFolder("Shader Controls");
-    shaderControls.add(ATR.datGui.paramRef, "enableShader").name("Enable:");
-    ATR.datGui.controllerBlendShader = shaderControls.add(ATR.datGui.paramRef, "opacityShader", 0.0, 1.0).name("Opacity:");
-    shaderControls.add(ATR.datGui.paramRef, "flickerShader").name("Flicker:");
-    ATR.datGui.controllerColorShader = shaderControls.addColor(ATR.datGui.paramRef, "colorShader").name("Color:");
+    var shaderControls = ATR.datGui.datGuiRef.addFolder("Shader Controls");
+    ATR.datGui.controllerEnableShader = shaderControls.add(ATR.datGui.paramFunctionRef, "enableShader").name("Enable:");
+    ATR.datGui.controllerBlendShader = shaderControls.add(ATR.datGui.paramFunctionRef, "opacityShader", 0.0, 1.0).name("Opacity:");
+    shaderControls.add(ATR.datGui.paramFunctionRef, "flickerShader").name("Flicker:");
+    ATR.datGui.controllerColorShader = shaderControls.addColor(ATR.datGui.paramFunctionRef, "colorShader").name("Color:");
     shaderControls.open();
 
     ATR.dom.canvasAPPTRFloat = document.getElementById("APPTRFloat");
-    ATR.dom.canvasAPPTRFloat.appendChild(ATR.datGui.objRef.domElement);
+    ATR.dom.canvasAPPTRFloat.appendChild(ATR.datGui.datGuiRef.domElement);
 
     calcResizeHtml();
 }
@@ -253,7 +297,7 @@ function createText() {
             color: 0xffffff,
             shading: THREE.FlatShading,
             transparent: true,
-            opacity: ATR.datGui.paramRef.opacityText,
+            opacity: ATR.datGui.paramFunctionRef.opacityText,
             side: THREE.DoubleSide
         } ),
         // side
@@ -261,7 +305,7 @@ function createText() {
             color: 0xffffff,
             shading: THREE.SmoothShading,
             transparent: true,
-            opacity: ATR.datGui.paramRef.opacityText,
+            opacity: ATR.datGui.paramFunctionRef.opacityText,
             side: THREE.DoubleSide
         } )
     ] );
@@ -286,54 +330,54 @@ function addEventHandlers() {
     ATR.datGui.controllerTextContent.onChange(function(value) {
         ATR.text.update = true;
 
-        if (ATR.datGui.paramRef.content.length < ATR.text.lengthLimit) {
+        if (ATR.datGui.paramFunctionRef.content.length < ATR.text.lengthLimit) {
             ATR.text.textParams.name = value;
-            ATR.datGui.paramRef.content = ATR.text.textParams.name;
+            ATR.datGui.paramFunctionRef.content = ATR.text.textParams.name;
         }
         else {
             ATR.text.textParams.name = value.substring(0, ATR.text.lengthLimit);
-            ATR.datGui.paramRef.content = ATR.text.textParams.name;
+            ATR.datGui.paramFunctionRef.content = ATR.text.textParams.name;
         }
     });
     ATR.datGui.controllerBlendText.onChange(function(value) {
-        ATR.datGui.paramRef.opacityText = value;
+        ATR.datGui.paramFunctionRef.opacityText = value;
         for (var i in ATR.objectText.material.materials) {
             var mat = ATR.objectText.material.materials[i];
             mat.opacity = value;
         }
     });
     ATR.datGui.controllerLevelR.onChange(function(value) {
-        ATR.datGui.paramRef.red = value;
+        ATR.datGui.paramFunctionRef.red = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerLevelG.onChange(function(value) {
-        ATR.datGui.paramRef.green = value;
+        ATR.datGui.paramFunctionRef.green = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerLevelB.onChange(function(value) {
-        ATR.datGui.paramRef.blue = value;
+        ATR.datGui.paramFunctionRef.blue = value;
         updateTextMaterials();
     });
     ATR.datGui.controllerBlendShader.onChange(function(value) {
-        ATR.datGui.paramRef.opacityShader = value;
+        ATR.datGui.paramFunctionRef.opacityShader = value;
         ATR.shader.uniforms.blendFactor.value = value;
     });
     ATR.datGui.controllerColorShader.onChange(function(value) {
-        ATR.datGui.paramRef.colorShader = value;
+        ATR.datGui.paramFunctionRef.colorShader = value;
         updateTextMaterials();
     });
 
 }
 
 function updateTextMaterials() {
-    var red = ATR.datGui.paramRef.red / 255;
-    var green = ATR.datGui.paramRef.green / 255;
-    var blue = ATR.datGui.paramRef.blue / 255;
+    var red = ATR.datGui.paramFunctionRef.red / 255;
+    var green = ATR.datGui.paramFunctionRef.green / 255;
+    var blue = ATR.datGui.paramFunctionRef.blue / 255;
     for (var i in ATR.objectText.material.materials) {
         var mat = ATR.objectText.material.materials[i];
         mat.color.setRGB(red, green, blue);
     }
-    var rgb = ShaderTools.hexToRGB(ATR.datGui.paramRef.colorShader, true);
+    var rgb = ShaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
     ATR.shader.uniforms.colorFactor.value[0] = rgb[0];
     ATR.shader.uniforms.colorFactor.value[1] = rgb[1];
     ATR.shader.uniforms.colorFactor.value[2] = rgb[2];
@@ -350,14 +394,14 @@ function render() {
     ATR.renderer.render(ATR.scenes.perspective.scene, ATR.scenes.perspective.camera);
     ATR.frameNumber++;
 
-    if (ATR.text.update && ATR.frameNumber % 60 === 0) {
+    if (ATR.text.update && ATR.frameNumber % 30 === 0) {
         ATR.text.update = false;
         removeText();
         createText();
     }
 
-    if (ATR.datGui.paramRef.enableShader) {
-        if (ATR.datGui.paramRef.flickerShader) {
+    if (ATR.datGui.paramFunctionRef.enableShader) {
+        if (ATR.datGui.paramFunctionRef.flickerShader) {
             var ranVal = Math.random();
             var range = 16 + parseInt(32 * ranVal);
             if (ATR.frameNumber % range === 0) {
@@ -381,7 +425,7 @@ function resetCamera() {
     ATR.scenes.perspective.cameraTarget = new THREE.Vector3( 0, 0, 0 );
     ATR.scenes.perspective.camera.lookAt( ATR.scenes.perspective.cameraTarget );
     ATR.scenes.perspective.camera.updateProjectionMatrix();
-    if (ATR.datGui.paramRef.enableShader) {
+    if (ATR.datGui.paramFunctionRef.enableShader) {
         ATR.scenes.ortho.camera.position.set(0, 0, 10);
     }
 }
@@ -395,49 +439,20 @@ function calcResizeHtml() {
     ATR.dom.canvasDiv.style.height = ATR.screen.glHeight  - ATR.reductionHeight + "px";
 
     ATR.dom.canvasAPPTRFloat.style.top = 0 + "px";
-    ATR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.objRef.domElement.style.width)) + "px";
+    ATR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.datGuiRef.domElement.style.width)) + "px";
 }
 
 function calcResize() {
     ATR.trackballControls.handleResize();
     calcResizeHtml();
     calcResizePerspectiveCamera();
-    if (ATR.datGui.paramRef.enableShader) {
-        calcResizeBillboardCamera();
-    }
+
+    ATR.scenes.ortho.calcResizeBillboardFunc();
+
     ATR.renderer.setSize(ATR.screen.glWidth, ATR.screen.glHeight);
 }
 
 function calcResizePerspectiveCamera() {
     ATR.scenes.perspective.camera.aspect = (ATR.screen.glWidth / ATR.screen.glHeight);
     ATR.scenes.perspective.camera.updateProjectionMatrix();
-}
-
-function calcResizeBillboardCamera() {
-    // calc screen dimension halfs
-    ATR.scenes.ortho.pixelLeft = -ATR.screen.glWidth / 2;
-    ATR.scenes.ortho.pixelRight = ATR.screen.glWidth / 2;
-    ATR.scenes.ortho.pixelTop = ATR.screen.glHeight / 2;
-    ATR.scenes.ortho.pixelBottom = -ATR.screen.glHeight / 2;
-
-    // update camera
-    ATR.scenes.ortho.camera.left = ATR.scenes.ortho.pixelLeft;
-    ATR.scenes.ortho.camera.right = ATR.scenes.ortho.pixelRight;
-    ATR.scenes.ortho.camera.top = ATR.scenes.ortho.pixelTop;
-    ATR.scenes.ortho.camera.bottom = ATR.scenes.ortho.pixelBottom;
-    ATR.scenes.ortho.camera.updateProjectionMatrix();
-
-    // update billboard geometries dimensions
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = ATR.scenes.ortho.pixelLeft;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = ATR.scenes.ortho.pixelTop;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = ATR.scenes.ortho.pixelRight;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = ATR.scenes.ortho.pixelTop;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = ATR.scenes.ortho.pixelLeft;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = ATR.scenes.ortho.pixelBottom;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = ATR.scenes.ortho.pixelRight;
-    ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = ATR.scenes.ortho.pixelBottom;
-
-    ATR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
-
-    ATR.shader.uniforms.ilFactor.value = ATR.screen.glHeight / 2.0;
 }
