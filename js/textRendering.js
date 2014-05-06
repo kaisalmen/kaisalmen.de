@@ -7,8 +7,14 @@ ATR.dom = {
     canvasDiv : null,
     canvasAPPTRFloat : null
 }
-ATR.glWidth = 1280.0;
-ATR.glHeight = ATR.glWidth / 2.35;
+ATR.screen = {
+    aspectRatio : 2.35,
+    glWidth : 1280.0,
+    glHeight : 1280.0 / 2.35,
+    glMinWidth : 800,
+    glMinHeight : 800    / 2.35
+}
+
 ATR.widthScrollBar = 2;
 ATR.frameNumber = 0;
 ATR.reductionHeight = ATR.widthScrollBar + ATR.widthScrollBar;
@@ -187,14 +193,14 @@ function initPreGL() {
 function initGL() {
     ATR.renderer = new THREE.WebGLRenderer();
     ATR.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
-    ATR.renderer.setSize(ATR.glWidth, ATR.glHeight);
+    ATR.renderer.setSize(ATR.screen.glWidth, ATR.screen.glHeight);
     ATR.renderer.autoClear = false;
 
     ATR.scenes.perspective.scene = new THREE.Scene();
-    ATR.scenes.perspective.camera = new THREE.PerspectiveCamera(70, (ATR.glWidth) / (ATR.glHeight), 0.1, 10000);
+    ATR.scenes.perspective.camera = new THREE.PerspectiveCamera(70, (ATR.screen.glWidth) / (ATR.screen.glHeight), 0.1, 10000);
 
     ATR.scenes.ortho.scene = new THREE.Scene();
-    ATR.scenes.ortho.camera = new THREE.OrthographicCamera( - ATR.glWidth / 2, ATR.glWidth / 2, ATR.glHeight / 2, - ATR.glHeight / 2, 1, 10 );
+    ATR.scenes.ortho.camera = new THREE.OrthographicCamera( - ATR.screen.glWidth / 2, ATR.screen.glWidth / 2, ATR.screen.glHeight / 2, - ATR.screen.glHeight / 2, 1, 10 );
     resetCamera();
 
     ATR.light = new THREE.DirectionalLight( 0xffffff, 1.0);
@@ -210,7 +216,7 @@ function initGL() {
         transparent: true,
         side: THREE.DoubleSide
     } );
-    ATR.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(ATR.glWidth, ATR.glHeight);
+    ATR.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(ATR.screen.glWidth, ATR.screen.glHeight);
     ATR.scenes.ortho.Billboard.mesh = new THREE.Mesh(ATR.scenes.ortho.Billboard.geometry, ATR.scenes.ortho.Billboard.material);
     ATR.scenes.ortho.scene.add(ATR.scenes.ortho.Billboard.mesh);
 
@@ -381,11 +387,12 @@ function resetCamera() {
 }
 
 function calcResizeHtml() {
-    ATR.glWidth  = window.innerWidth;
-    ATR.glHeight = window.innerWidth / 2.35;
+    ATR.screen.glWidth  = window.innerWidth > ATR.screen.glMinWidth ? window.innerWidth : ATR.screen.glMinWidth;
+    var heightTemp = window.innerWidth / ATR.screen.aspectRatio;
+    ATR.screen.glHeight = heightTemp > ATR.screen.glMinHeight ? heightTemp : ATR.screen.glMinHeight;
 
-    ATR.dom.canvasDiv.style.width = ATR.glWidth - ATR.reductionWidth + "px";
-    ATR.dom.canvasDiv.style.height = ATR.glHeight  - ATR.reductionHeight + "px";
+    ATR.dom.canvasDiv.style.width = ATR.screen.glWidth - ATR.reductionWidth + "px";
+    ATR.dom.canvasDiv.style.height = ATR.screen.glHeight  - ATR.reductionHeight + "px";
 
     ATR.dom.canvasAPPTRFloat.style.top = 0 + "px";
     ATR.dom.canvasAPPTRFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.objRef.domElement.style.width)) + "px";
@@ -398,20 +405,20 @@ function calcResize() {
     if (ATR.datGui.paramRef.enableShader) {
         calcResizeBillboardCamera();
     }
-    ATR.renderer.setSize(ATR.glWidth, ATR.glHeight);
+    ATR.renderer.setSize(ATR.screen.glWidth, ATR.screen.glHeight);
 }
 
 function calcResizePerspectiveCamera() {
-    ATR.scenes.perspective.camera.aspect = (ATR.glWidth / ATR.glHeight);
+    ATR.scenes.perspective.camera.aspect = (ATR.screen.glWidth / ATR.screen.glHeight);
     ATR.scenes.perspective.camera.updateProjectionMatrix();
 }
 
 function calcResizeBillboardCamera() {
     // calc screen dimension halfs
-    ATR.scenes.ortho.pixelLeft = -ATR.glWidth / 2;
-    ATR.scenes.ortho.pixelRight = ATR.glWidth / 2;
-    ATR.scenes.ortho.pixelTop = ATR.glHeight / 2;
-    ATR.scenes.ortho.pixelBottom = -ATR.glHeight / 2;
+    ATR.scenes.ortho.pixelLeft = -ATR.screen.glWidth / 2;
+    ATR.scenes.ortho.pixelRight = ATR.screen.glWidth / 2;
+    ATR.scenes.ortho.pixelTop = ATR.screen.glHeight / 2;
+    ATR.scenes.ortho.pixelBottom = -ATR.screen.glHeight / 2;
 
     // update camera
     ATR.scenes.ortho.camera.left = ATR.scenes.ortho.pixelLeft;
@@ -432,5 +439,5 @@ function calcResizeBillboardCamera() {
 
     ATR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
 
-    ATR.shader.uniforms.ilFactor.value = ATR.glHeight / 2.0;
+    ATR.shader.uniforms.ilFactor.value = ATR.screen.glHeight / 2.0;
 }
