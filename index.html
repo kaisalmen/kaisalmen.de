@@ -16,18 +16,19 @@
         <script src="libs/mod/TrackballControls.js"></script>
 
         <script src="resource/fonts/optimer_regular.typeface.js"></script>
-        <link href="resource/css/ksaStyles.css" type="text/css" rel="stylesheet">
+        <link href="resource/css/kaiAppStyles.css" type="text/css" rel="stylesheet">
 
+        <script src="js/AppBase.js"></script>
         <script src="js/ShaderTools.js"></script>
         <script src="js/TextRendering.js"></script>
-        <script>
-            if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-        </script>
-        <div id="APPTRRoot">
-            <div id="APPTRFloat"></div>
-            <div id="APPTRTextIndex">Welcome to Kai Salmen's WebGL Playground (V2). Lighting the magnificent void!</div>
-            <div id="APPTRWebGL"></div>
-            <div id="APPTRThreejsFooter">
+
+        <script>if ( ! Detector.webgl ) Detector.addGetWebGLMessage();</script>
+
+        <div id="AppRoot">
+            <div id="AppFloat"></div>
+            <div id="AppTextIndex">Welcome to Kai Salmen's WebGL Playground (V2). Lighting the magnificent void!</div>
+            <div id="AppWebGL"></div>
+            <div id="AppThreejsFooter">
                 This is a spare time activity. The aim is to write well-structured and easily maintainable Javascript code from the beginning.
                 </br>The content is mostly realized in Javascript with help of <a href="http://threejs.org/">three.js</a> and <a href="http://jquery.com/">jQuery</a>!
                 </br></br>Recommended Reads:

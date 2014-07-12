@@ -1,6 +1,9 @@
-#APPTRTextIndex,
-#ksaTextIndex,
-#APPTRThreejsFooter  {
+#AppRoot {
+
+}
+
+#AppTextIndex,
+#AppThreejsFooter  {
     text-align: left;
     font-family: Tahoma;
     font-size: 12px;
@@ -10,7 +13,7 @@
 }
 
 body,
-#APPTRWebGL {
+#AppWebGL {
 	margin-left: 0px;
 	margin-right: 0px;
 	margin-top: 0px;
@@ -25,7 +28,7 @@ body,
     z-index: 1;
 }
 
-#APPTRFloat {
+#AppFloat {
     position: absolute;
     margin-top: 0px;
     margin-left: 0px;
@@ -35,9 +38,8 @@ body,
     background-color: black;
 }
 
-#APPTRTextIndex,
-#ksaTextIndex ,
-#APPTRThreejsFooter {
+#AppTextIndex,
+#AppThreejsFooter {
     color: #bbbbbb;
 }
 
