@@ -6,42 +6,44 @@
  * Update 2014.05.06:
  * - Version 2 with shader manipulation
  * Update 2014.07.12:
- * - Moved common declarations and common code to APPGlobal
+ * - Moved common declarations and common code to APPG
  * - APPExecFlow was extended, share code with other applications
+ * Update 2014.07.22:
+ * - Moved further common definitions and functions to APPG
  */
 var ATR = {};
 
 ATR.dom = {
     canvasAppFloat : null
 }
-ATR.shader = {
+APPG.shaders.shaderFlicker = {
     vertexShaderText : null,
     fragmentShaderText : null,
     uniforms : {
         blendFactor : { type: "f", value: 0.15 },
-        ilFactor : { type: "f", value: APPGlobal.screen.glHeight / 2.0 },
+        ilFactor : { type: "f", value: APPG.screen.glHeight / 2.0 },
         seed : { type: "f", value: Math.random() },
         colorFactor : { type: "fv1", value: [0.0, 1.0, 0.0] },
         texture1: { type: "t", value: null }
     },
-    updateTextureRef : null,
-    loadShaderFunc : function(vert, frag) {
+    updateTextureRef : null
+}
+APPG.shaders.functions = {
+    loadShader : function() {
         console.log("Shader and texture loading from file is completed!");
-        ShaderTools.FileUtils.printShader(vert, "Vertex Shader");
-        ShaderTools.FileUtils.printShader(frag, "Fragment Shader");
+        ShaderTools.FileUtils.printShader(APPG.shaders.shaderFlicker.vertexShaderText, "Vertex Shader");
+        ShaderTools.FileUtils.printShader(APPG.shaders.shaderFlicker.fragmentShaderText, "Fragment Shader");
 
-        ATR.shader.vertexShaderText = vert[0];
-        //ATR.shader.fragmentShaderText = base[0] + "\n" + frag[0];
-        ATR.shader.fragmentShaderText = frag[0];
+        //APPG.shaders.shaderFlicker.fragmentShaderText = base[0] + "\n" + frag[0];
 
-        ATR.shader.uniforms.texture1.value = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping);
-        ATR.shader.uniforms.texture1.value.wrapS = THREE.RepeatWrapping;
-        ATR.shader.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
-        ATR.shader.uniforms.texture1.value.repeat.set(2, 2);
+        APPG.shaders.shaderFlicker.uniforms.texture1.value = THREE.ImageUtils.loadTexture("../../resource/images/noise.jpg", THREE.UVMapping);
+        APPG.shaders.shaderFlicker.uniforms.texture1.value.wrapS = THREE.RepeatWrapping;
+        APPG.shaders.shaderFlicker.uniforms.texture1.value.wrapT = THREE.RepeatWrapping;
+        APPG.shaders.shaderFlicker.uniforms.texture1.value.repeat.set(2, 2);
         console.log("Textures were updated successfully!");
     },
-    updateShaderFunc : function() {
-        ATR.shader.uniforms.ilFactor.value = APPGlobal.screen.glHeight / 2.0;
+    updateShader : function() {
+        APPG.shaders.shaderFlicker.uniforms.ilFactor.value = APPG.screen.glHeight / 2.0;
     }
 }
 ATR.datGui = {
@@ -70,14 +72,7 @@ ATR.datGui = {
 }
 ATR.datGuiDomElement = null;
 ATR.trackballControls = null;
-ATR.renderer = null;
-ATR.scenes = {};
-ATR.scenes.perspective = {
-    camera : null,
-    cameraTarget : null,
-    scene : null
-}
-ATR.scenes.ortho = {
+APPG.scenes.ortho = {
     camera : null,
     scene : null,
     Billboard : {
@@ -92,35 +87,34 @@ ATR.scenes.ortho = {
     resizeBillboardFunc : function() {
         if (ATR.datGui.paramFunctionRef.enableShader) {
             // calc screen dimension
-            ATR.scenes.ortho.pixelLeft = -APPGlobal.screen.glWidth / 2;
-            ATR.scenes.ortho.pixelRight = APPGlobal.screen.glWidth / 2;
-            ATR.scenes.ortho.pixelTop = APPGlobal.screen.glHeight / 2;
-            ATR.scenes.ortho.pixelBottom = -APPGlobal.screen.glHeight / 2;
+            APPG.scenes.ortho.pixelLeft = -APPG.screen.glWidth / 2;
+            APPG.scenes.ortho.pixelRight = APPG.screen.glWidth / 2;
+            APPG.scenes.ortho.pixelTop = APPG.screen.glHeight / 2;
+            APPG.scenes.ortho.pixelBottom = -APPG.screen.glHeight / 2;
 
             // update camera
-            ATR.scenes.ortho.camera.left = ATR.scenes.ortho.pixelLeft;
-            ATR.scenes.ortho.camera.right = ATR.scenes.ortho.pixelRight;
-            ATR.scenes.ortho.camera.top = ATR.scenes.ortho.pixelTop;
-            ATR.scenes.ortho.camera.bottom = ATR.scenes.ortho.pixelBottom;
-            ATR.scenes.ortho.camera.updateProjectionMatrix();
+            APPG.scenes.ortho.camera.left = APPG.scenes.ortho.pixelLeft;
+            APPG.scenes.ortho.camera.right = APPG.scenes.ortho.pixelRight;
+            APPG.scenes.ortho.camera.top = APPG.scenes.ortho.pixelTop;
+            APPG.scenes.ortho.camera.bottom = APPG.scenes.ortho.pixelBottom;
+            APPG.scenes.ortho.camera.updateProjectionMatrix();
 
             // update billboard geometries dimensions
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = ATR.scenes.ortho.pixelLeft;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = ATR.scenes.ortho.pixelTop;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = ATR.scenes.ortho.pixelRight;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = ATR.scenes.ortho.pixelTop;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = ATR.scenes.ortho.pixelLeft;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = ATR.scenes.ortho.pixelBottom;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = ATR.scenes.ortho.pixelRight;
-            ATR.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = ATR.scenes.ortho.pixelBottom;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = APPG.scenes.ortho.pixelLeft;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = APPG.scenes.ortho.pixelTop;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = APPG.scenes.ortho.pixelRight;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = APPG.scenes.ortho.pixelTop;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = APPG.scenes.ortho.pixelLeft;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = APPG.scenes.ortho.pixelBottom;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = APPG.scenes.ortho.pixelRight;
+            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = APPG.scenes.ortho.pixelBottom;
 
-            ATR.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
+            APPG.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
 
-            ATR.shader.updateShaderFunc();
+            APPG.shaders.functions.updateShader();
         }
     }
 }
-ATR.light = null;
 ATR.objectText = {
     mesh : null,
     geometry : null,
@@ -153,7 +147,10 @@ $(document).ready(
         ShaderTools.FileUtils.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
     ).done(
         function(vert, frag) {
-            APPExecFlow.initShaders = ATR.shader.loadShaderFunc(vert, frag);
+            APPG.shaders.shaderFlicker.vertexShaderText = vert[0];
+            APPG.shaders.shaderFlicker.fragmentShaderText = frag[0];
+
+            APPExecFlow.initShaders = initShaders();
 
             APPExecFlow.initPreGL = initPreGL();
             APPExecFlow.resizeDisplayHtml = resizeDisplayHtml();
@@ -197,8 +194,12 @@ $(window).resize(function() {
 /**
  * Life-cycle functions
  */
+function initShaders() {
+    APPG.shaders.functions.loadShader();
+}
+
 function initPreGL() {
-    APPGlobal.dom.canvasGL = document.getElementById("AppWebGL");
+    APPG.dom.canvasGL = document.getElementById("AppWebGL");
 
     ATR.datGui.paramFunctionRef = new ATR.datGui.paramFunction(selectRandomText());
     ATR.datGui.datGuiRef = new dat.GUI(
@@ -228,49 +229,38 @@ function initPreGL() {
 }
 
 function resizeDisplayHtml() {
-    APPGlobal.screen.glWidth  = window.innerWidth > APPGlobal.screen.glMinWidth ? window.innerWidth : APPGlobal.screen.glMinWidth;
-    var heightTemp = window.innerWidth / APPGlobal.screen.aspectRatio;
-    APPGlobal.screen.glHeight = heightTemp > APPGlobal.screen.glMinHeight ? heightTemp : APPGlobal.screen.glMinHeight;
-
-    APPGlobal.dom.canvasGL.style.width = APPGlobal.screen.glWidth - APPGlobal.dom.reductionWidth + "px";
-    APPGlobal.dom.canvasGL.style.height = APPGlobal.screen.glHeight  - APPGlobal.dom.reductionHeight + "px";
+    APPG.functions.resizeDisplayHtmlDefault();
 
     ATR.dom.canvasAppFloat.style.top = 0 + "px";
     ATR.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.datGuiRef.domElement.style.width)) + "px";
 }
 
 function initGL() {
-    ATR.renderer = new THREE.WebGLRenderer();
-    ATR.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
-    ATR.renderer.setSize(APPGlobal.screen.glWidth, APPGlobal.screen.glHeight);
-    ATR.renderer.autoClear = false;
+    APPG.renderer.functions.createDefault();
 
-    ATR.scenes.perspective.scene = new THREE.Scene();
-    ATR.scenes.perspective.camera = new THREE.PerspectiveCamera(70, (APPGlobal.screen.glWidth) / (APPGlobal.screen.glHeight), 0.1, 10000);
+    APPG.scenes.perspective.functions.createDefault();
 
-    ATR.scenes.ortho.scene = new THREE.Scene();
-    ATR.scenes.ortho.camera = new THREE.OrthographicCamera( - APPGlobal.screen.glWidth / 2, APPGlobal.screen.glWidth / 2, APPGlobal.screen.glHeight / 2, - APPGlobal.screen.glHeight / 2, 1, 10 );
+    APPG.scenes.ortho.scene = new THREE.Scene();
+    APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, 1, 10 );
     resetCamera();
 
-    ATR.light = new THREE.DirectionalLight( 0xffffff, 1.0);
-    ATR.light.position.set(0, 1, 1);
-    ATR.scenes.perspective.scene.add( ATR.light );
+    APPG.scenes.lights.functions.createDefault();
 
     createText();
 
-    ATR.scenes.ortho.Billboard.material = new THREE.ShaderMaterial( {
-        uniforms: ATR.shader.uniforms,
-        vertexShader: ATR.shader.vertexShaderText,
-        fragmentShader: ATR.shader.fragmentShaderText,
+    APPG.scenes.ortho.Billboard.material = new THREE.ShaderMaterial( {
+        uniforms: APPG.shaders.shaderFlicker.uniforms,
+        vertexShader: APPG.shaders.shaderFlicker.vertexShaderText,
+        fragmentShader: APPG.shaders.shaderFlicker.fragmentShaderText,
         transparent: true,
         side: THREE.DoubleSide
     } );
-    ATR.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(APPGlobal.screen.glWidth, APPGlobal.screen.glHeight);
-    ATR.scenes.ortho.Billboard.mesh = new THREE.Mesh(ATR.scenes.ortho.Billboard.geometry, ATR.scenes.ortho.Billboard.material);
-    ATR.scenes.ortho.scene.add(ATR.scenes.ortho.Billboard.mesh);
+    APPG.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(APPG.screen.glWidth, APPG.screen.glHeight);
+    APPG.scenes.ortho.Billboard.mesh = new THREE.Mesh(APPG.scenes.ortho.Billboard.geometry, APPG.scenes.ortho.Billboard.material);
+    APPG.scenes.ortho.scene.add(APPG.scenes.ortho.Billboard.mesh);
 
     // init trackball controls
-    ATR.trackballControls = new THREE.TrackballControls(ATR.scenes.perspective.camera);
+    ATR.trackballControls = new THREE.TrackballControls(APPG.scenes.perspective.camera);
     ATR.trackballControls.rotateSpeed = 0.5;
     ATR.trackballControls.rotateSpeed = 1.0;
     ATR.trackballControls.panSpeed = 0.5;
@@ -312,7 +302,7 @@ function addEventHandlers() {
     });
     ATR.datGui.controllerBlendShader.onChange(function(value) {
         ATR.datGui.paramFunctionRef.opacityShader = value;
-        ATR.shader.uniforms.blendFactor.value = value;
+        APPG.shaders.shaderFlicker.uniforms.blendFactor.value = value;
     });
     ATR.datGui.controllerColorShader.onChange(function(value) {
         ATR.datGui.paramFunctionRef.colorShader = value;
@@ -323,15 +313,15 @@ function addEventHandlers() {
 function resizeDisplayGL() {
     ATR.trackballControls.handleResize();
     resizeDisplayHtml();
-    resizePerspectiveCamera();
+    APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
 
-    ATR.scenes.ortho.resizeBillboardFunc();
+    APPG.scenes.ortho.resizeBillboardFunc();
 
-    ATR.renderer.setSize(APPGlobal.screen.glWidth, APPGlobal.screen.glHeight);
+    APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
 }
 
 function initPostGL() {
-    APPGlobal.dom.canvasGL.appendChild(ATR.renderer.domElement);
+    APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
 function animateFrame() {
@@ -341,11 +331,11 @@ function animateFrame() {
 }
 
 function render() {
-    ATR.renderer.clear();
-    ATR.renderer.render(ATR.scenes.perspective.scene, ATR.scenes.perspective.camera);
-    ATR.frameNumber++;
+    APPG.renderer.clear();
+    APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
+    APPG.frameNumber++;
 
-    if (ATR.text.update && APPGlobal.frameNumber % 30 === 0) {
+    if (ATR.text.update && APPG.frameNumber % 30 === 0) {
         ATR.text.update = false;
         removeText();
         createText();
@@ -355,12 +345,12 @@ function render() {
         if (ATR.datGui.paramFunctionRef.flickerShader) {
             var ranVal = Math.random();
             var range = 16 + parseInt(32 * ranVal);
-            if (APPGlobal.frameNumber % range === 0) {
-                ATR.shader.uniforms.seed.value = ranVal;
+            if (APPG.frameNumber % range === 0) {
+                APPG.shaders.shaderFlicker.uniforms.seed.value = ranVal;
             }
         }
-        ATR.renderer.clearDepth();
-        ATR.renderer.render(ATR.scenes.ortho.scene, ATR.scenes.ortho.camera);
+        APPG.renderer.clearDepth();
+        APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
     }
 }
 
@@ -406,11 +396,11 @@ function createText() {
     ATR.objectText.mesh.position.x = -(ATR.objectText.geometry.boundingBox.max.x - ATR.objectText.geometry.boundingBox.min.x) / 2;
     ATR.objectText.mesh.position.y = -(ATR.objectText.geometry.boundingBox.max.y - ATR.objectText.geometry.boundingBox.min.y) / 2;
     ATR.objectText.mesh.position.z = -(ATR.objectText.geometry.boundingBox.max.z - ATR.objectText.geometry.boundingBox.min.z) / 2;
-    ATR.scenes.perspective.scene.add(ATR.objectText.mesh);
+    APPG.scenes.perspective.scene.add(ATR.objectText.mesh);
 }
 
 function removeText() {
-    ATR.scenes.perspective.scene.remove(ATR.objectText.mesh);
+    APPG.scenes.perspective.scene.remove(ATR.objectText.mesh);
 }
 
 function updateTextMaterials() {
@@ -422,9 +412,9 @@ function updateTextMaterials() {
         mat.color.setRGB(red, green, blue);
     }
     var rgb = ShaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
-    ATR.shader.uniforms.colorFactor.value[0] = rgb[0];
-    ATR.shader.uniforms.colorFactor.value[1] = rgb[1];
-    ATR.shader.uniforms.colorFactor.value[2] = rgb[2];
+    APPG.shaders.shaderFlicker.uniforms.colorFactor.value[0] = rgb[0];
+    APPG.shaders.shaderFlicker.uniforms.colorFactor.value[1] = rgb[1];
+    APPG.shaders.shaderFlicker.uniforms.colorFactor.value[2] = rgb[2];
 }
 
 function resetTrackballControls() {
@@ -435,16 +425,8 @@ function resetTrackballControls() {
 }
 
 function resetCamera() {
-    ATR.scenes.perspective.camera.position.set( 0, 0, 250 );
-    ATR.scenes.perspective.cameraTarget = new THREE.Vector3( 0, 0, 0 );
-    ATR.scenes.perspective.camera.lookAt( ATR.scenes.perspective.cameraTarget );
-    ATR.scenes.perspective.camera.updateProjectionMatrix();
+    APPG.scenes.perspective.functions.resetCameraDefault();
     if (ATR.datGui.paramFunctionRef.enableShader) {
-        ATR.scenes.ortho.camera.position.set(0, 0, 10);
+        APPG.scenes.ortho.camera.position.set(0, 0, 10);
     }
-}
-
-function resizePerspectiveCamera() {
-    ATR.scenes.perspective.camera.aspect = (APPGlobal.screen.glWidth / APPGlobal.screen.glHeight);
-    ATR.scenes.perspective.camera.updateProjectionMatrix();
 }

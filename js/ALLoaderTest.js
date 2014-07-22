@@ -1,50 +1,42 @@
 /**
  * Created by Kai Salmen on 2014.07.12
+ *
+ * Update 2014.07.22:
+ * - Basic functionality implemented (render loop)
  */
 
 var AALT = {};
 
-AALT.shader = {
-    loadShaderFunc : function() {
-        console.log("Currently no shaders are used.");
-    }
-}
-
 $(document).ready(
     function() {
-        APPExecFlow.initShaders = AALT.shader.loadShaderFunc();
-
-        APPExecFlow.initPreGL = initPreGL();
-        APPExecFlow.resizeDisplayHtml = resizeDisplayHtml();
-
-        APPExecFlow.initGL = initGL();
-        APPExecFlow.addEventHandlers = addEventHandlers();
-        APPExecFlow.resizeDisplayGL = resizeDisplayGL();
-
-        APPExecFlow.initPostGL = initPostGL();
-
-        APPExecFlow.animateFrame = animateFrame();
+        APPExecFlow.functions.run();
     }
 )
 
 /**
  * Life-cycle functions
  */
+function initShaders() {
+    APPG.shaders.functions.loadShader();
+}
+
 function initPreGL() {
-    APPGlobal.dom.canvasGL = document.getElementById("AppWebGL");
+    APPG.dom.canvasGL = document.getElementById("AppWebGL");
 }
 
 function resizeDisplayHtml() {
-    APPGlobal.screen.glWidth  = window.innerWidth > APPGlobal.screen.glMinWidth ? window.innerWidth : APPGlobal.screen.glMinWidth;
-    var heightTemp = window.innerWidth / APPGlobal.screen.aspectRatio;
-    APPGlobal.screen.glHeight = heightTemp > APPGlobal.screen.glMinHeight ? heightTemp : APPGlobal.screen.glMinHeight;
-
-    APPGlobal.dom.canvasGL.style.width = APPGlobal.screen.glWidth - APPGlobal.dom.reductionWidth + "px";
-    APPGlobal.dom.canvasGL.style.height = APPGlobal.screen.glHeight  - APPGlobal.dom.reductionHeight + "px";
+    APPG.functions.resizeDisplayHtmlDefault();
 }
 
 function initGL() {
+    APPG.renderer.functions.createDefault();
 
+    APPG.scenes.perspective.functions.createDefault();
+    APPG.scenes.perspective.functions.resetCameraDefault();
+
+    APPG.scenes.lights.functions.createDefault();
+
+    //(new THREE.ALLoader).load("data/primitives.json", processMeshes);
 }
 
 function addEventHandlers() {
@@ -52,17 +44,30 @@ function addEventHandlers() {
 }
 
 function resizeDisplayGL() {
+    resizeDisplayHtml();
+    APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
 
+    APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
 }
 
 function initPostGL() {
-
+    APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
 function animateFrame() {
+    requestAnimationFrame(animateFrame);
+    render();
+}
 
+function render() {
+    APPG.renderer.clear();
+    APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
+    APPG.frameNumber++;
 }
 
 /**
  * Extra functions (helper, init, etc.)
  */
+function processMeshes(myObject3d) {
+    myObject3d.meshes.map(function(child){scene.add(child)})
+}

@@ -10,7 +10,7 @@ ShaderTools.FileUtils = {
     },
     printShader : function(shaderObj, shaderName) {
         console.log(shaderName + ":");
-        console.log(shaderObj[0]);
+        console.log(shaderObj);
     }
 }
 ShaderTools.hexToRGB = function(hexInput, floatUVSpace) {
