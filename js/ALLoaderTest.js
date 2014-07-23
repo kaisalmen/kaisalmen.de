@@ -3,15 +3,33 @@
  *
  * Update 2014.07.22:
  * - Basic functionality implemented (render loop)
+ * Update 2014.07.23:
+ * - Added trackball and loading of example file
  */
 
 var AALT = {};
+
+AALT.alloader = null;
 
 $(document).ready(
     function() {
         APPExecFlow.functions.run();
     }
 )
+.on({
+    mouseenter: function() {
+        APPG.controls.trackball.enabled = true;
+        APPG.controls.trackball.noPan = false;
+    },
+    mouseleave: function() {
+        APPG.controls.trackball.enabled = false;
+        APPG.controls.trackball.noPan = true;
+    }
+}, "#AppWebGL");
+
+$(window).resize(function() {
+    resizeDisplayGL();
+});
 
 /**
  * Life-cycle functions
@@ -36,7 +54,11 @@ function initGL() {
 
     APPG.scenes.lights.functions.createDefault();
 
-    //(new THREE.ALLoader).load("data/primitives.json", processMeshes);
+    // init trackball controls
+    APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
+
+    AALT.alloader = new THREE.ALLoader();
+    AALT.alloader.load("../../resource/models/maxSphereTest.json", processMeshes);
 }
 
 function addEventHandlers() {
@@ -44,6 +66,7 @@ function addEventHandlers() {
 }
 
 function resizeDisplayGL() {
+    APPG.controls.trackball.handleResize();
     resizeDisplayHtml();
     APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
 
@@ -56,6 +79,7 @@ function initPostGL() {
 
 function animateFrame() {
     requestAnimationFrame(animateFrame);
+    APPG.controls.trackball.update();
     render();
 }
 
@@ -69,5 +93,5 @@ function render() {
  * Extra functions (helper, init, etc.)
  */
 function processMeshes(myObject3d) {
-    myObject3d.meshes.map(function(child){scene.add(child)})
+    myObject3d.meshes.map(function(child){APPG.scenes.perspective.scene.add(child)})
 }

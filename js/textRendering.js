@@ -71,7 +71,6 @@ ATR.datGui = {
     controllerColorShader : null
 }
 ATR.datGuiDomElement = null;
-ATR.trackballControls = null;
 APPG.scenes.ortho = {
     camera : null,
     scene : null,
@@ -167,22 +166,22 @@ $(document).ready(
 )
 .on({
     mouseenter: function() {
-        ATR.trackballControls.enabled = false;
-        ATR.trackballControls.noPan = true;
+        APPG.controls.trackball.enabled = false;
+        APPG.controls.trackball.noPan = true;
     },
     mouseleave: function() {
-        ATR.trackballControls.enabled = true;
-        ATR.trackballControls.noPan = false;
+        APPG.controls.trackball.enabled = true;
+        APPG.controls.trackball.noPan = false;
     }
 }, "#AppFloat")
 .on({
     mouseenter: function() {
-        ATR.trackballControls.enabled = true;
-        ATR.trackballControls.noPan = false;
+        APPG.controls.trackball.enabled = true;
+        APPG.controls.trackball.noPan = false;
     },
     mouseleave: function() {
-        ATR.trackballControls.enabled = false;
-        ATR.trackballControls.noPan = true;
+        APPG.controls.trackball.enabled = false;
+        APPG.controls.trackball.noPan = true;
     }
 }, "#AppWebGL");
 
@@ -260,12 +259,7 @@ function initGL() {
     APPG.scenes.ortho.scene.add(APPG.scenes.ortho.Billboard.mesh);
 
     // init trackball controls
-    ATR.trackballControls = new THREE.TrackballControls(APPG.scenes.perspective.camera);
-    ATR.trackballControls.rotateSpeed = 0.5;
-    ATR.trackballControls.rotateSpeed = 1.0;
-    ATR.trackballControls.panSpeed = 0.5;
-    ATR.trackballControls.noPan = false;
-    ATR.trackballControls.noZoom = false;
+    APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
 }
 
 function addEventHandlers() {
@@ -311,7 +305,7 @@ function addEventHandlers() {
 }
 
 function resizeDisplayGL() {
-    ATR.trackballControls.handleResize();
+    APPG.controls.trackball.handleResize();
     resizeDisplayHtml();
     APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
 
@@ -326,7 +320,7 @@ function initPostGL() {
 
 function animateFrame() {
     requestAnimationFrame(animateFrame);
-    ATR.trackballControls.update();
+    APPG.controls.trackball.update();
     render();
 }
 
@@ -420,7 +414,7 @@ function updateTextMaterials() {
 function resetTrackballControls() {
     console.log("resetTrackballControls");
     resetCamera();
-    ATR.trackballControls.reset();
+    APPG.controls.trackball.reset();
     render();
 }
 

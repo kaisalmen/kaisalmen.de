@@ -118,3 +118,16 @@ APPG.scenes.lights.functions = {
         APPG.scenes.perspective.scene.add(APPG.scenes.lights.light1);
     }
 }
+APPG.controls = {
+    trackball : null
+}
+APPG.controls.functions = {
+    createDefault: function(camera) {
+        APPG.controls.trackball = new THREE.TrackballControls(camera);
+        APPG.controls.trackball.rotateSpeed = 0.5;
+        APPG.controls.trackball.rotateSpeed = 1.0;
+        APPG.controls.trackball.panSpeed = 0.5;
+        APPG.controls.trackball.noPan = false;
+        APPG.controls.trackball.noZoom = false;
+    }
+}
