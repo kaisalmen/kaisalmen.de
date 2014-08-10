@@ -2,11 +2,12 @@
  * Created by Kai Salmen on 2014.08.06
  *
  * Basic functionality implemented (render loop), trackball
+ *
+ * Updates
+ * 2014.08.10:
+ * Added three basic loading functions to AppLoaders and further simplified/unified loader code structure
  */
-
-var SEAT = {};
-
-SEAT.loader = null;
+var ALTS = {};
 
 $(document).ready(
     function() {
@@ -56,27 +57,12 @@ function initGL() {
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
 
-    var time = new Date().getTime();
-    SEAT.loader = new THREE.SEA3D();
-    SEAT.loader.onComplete = function( e ) {
-        // get camera from 3ds Max if exist
-/*
-        if (SEAT.loader.cameras) {
-            var cam = SEAT.loader.cameras[0];
-            APPG.scenes.perspective.camera.position = cam.position;
-            APPG.scenes.perspective.camera.rotation = cam.rotation;
-        }
-*/
-        // reset time for keyframe animation
-        SEA3D.AnimationHandler.setTime( 0 );
-
-        console.log( new Date().getTime() - time );
-    }
-    SEAT.loader.container = APPG.scenes.perspective.scene;
-
-    // compatible mode
-    SEAT.loader.parser = THREE.SEA3D.DEFAULT;
-    SEAT.loader.load("../../resource/models/snowtracks.sea");
+    APPL.loaders.obj.functions.init();
+    APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
+    //APPL.loaders.sea3d.functions.init();
+    //APPL.loaders.sea3d.functions.load("../../resource/models/snowtracks.sea");
+    //APPL.loaders.alloader.functions.init();
+    //APPL.loaders.alloader.functions.load("../../resource/models/maxSphereTest.json");
 }
 
 function addEventHandlers() {
@@ -105,11 +91,4 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.frameNumber++;
-}
-
-/**
- * Extra functions (helper, init, etc.)
- */
-function processMeshes(myObject3d) {
-    myObject3d.meshes.map(function(child){APPG.scenes.perspective.scene.add(child)})
 }
