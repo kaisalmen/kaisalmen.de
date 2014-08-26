@@ -5,6 +5,35 @@
  */
 var APPL = {};
 
+APPL.support = {
+    functions : null
+}
+APPL.support.functions = {
+    loadZip : function (zipFile, contentFiles, loaderCallBacks) {
+        var length = contentFiles.length;
+        if (contentFiles.length === loaderCallBacks.length) {
+            JSZipUtils.getBinaryContent(zipFile, function (err, data) {
+                if (err) {
+                    console.log(err);
+                    throw err; // or handle err
+                }
+                else {
+                    var zip = new JSZip(data);
+                    for (var i = 0; i < length; i++) {
+                        var file = zip.file(contentFiles[i]);
+                        console.log("Loading file: " + file.name);
+                        var fileContent = zip.file(file.name).asText();
+                        var json = JSON.parse(fileContent);
+                        loaderCallBacks[i](json);
+                    }
+                }
+            });
+        }
+        else {
+            console.log("Unable to load from zip as number of files and callback functions are different.");
+        }
+    }
+}
 APPL.loaders = {
     manager : null,
     obj : null,
@@ -52,12 +81,16 @@ APPL.loaders.obj.functions = {
             //objRoot.rotation.x = - Math.PI / 2;
             //objRoot.position.y = 5;
             APPG.scenes.perspective.scene.add(objRoot);
-            console.log("Loading OBJ objects is completed!");
             APPL.loaders.obj.functions.postLoad();
         });
     },
+    parse : function (data) {
+        APPL.loaders.functions.logStart();
+        APPL.loaders.obj.mtlLoader.parse(data);
+        APPL.loaders.obj.functions.postLoad();
+    },
     postLoad : function () {
-        console.log("Default post load completed.");
+        console.log("Loading OBJ objects is completed!");
         APPL.loaders.functions.logEnd();
     }
 }
@@ -98,8 +131,16 @@ APPL.loaders.alloader.functions = {
         APPL.loaders.functions.logStart();
         APPL.loaders.alloader.loader.load(fileJson, APPL.loaders.alloader.functions.postLoad);
     },
+    parse : function (data) {
+        APPL.loaders.functions.logStart();
+        APPL.loaders.alloader.loader.parse(data, APPL.loaders.alloader.functions.postLoad);
+    },
     postLoad: function (myObject3d) {
-        myObject3d.meshes.map(function(child){APPG.scenes.perspective.scene.add(child)})
+        myObject3d.meshes.map(
+            function (child) {
+                APPG.scenes.perspective.scene.add(child)
+            }
+        );
         APPL.loaders.functions.logEnd();
     }
 }

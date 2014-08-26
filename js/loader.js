@@ -40,6 +40,7 @@ function initPreGL() {
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
 }
 
+
 function resizeDisplayHtml() {
     APPG.functions.resizeDisplayHtmlDefault();
 }
@@ -57,12 +58,19 @@ function initGL() {
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
 
-    APPL.loaders.obj.functions.init();
-    APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
+    //APPL.loaders.obj.functions.init();
+    //APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
+    //APPL.loaders.obj.functions.load("../../resource/models/PTV1.obj", "../../resource/models/PTV1.mtl");
     //APPL.loaders.sea3d.functions.init();
     //APPL.loaders.sea3d.functions.load("../../resource/models/snowtracks.sea");
-    //APPL.loaders.alloader.functions.init();
+    
+    APPL.loaders.alloader.functions.init();
     //APPL.loaders.alloader.functions.load("../../resource/models/maxSphereTest.json");
+
+    var zipFile = "../../resource/models/multiContent.zip";
+    var files = ["maxSphereTest.json", "snowtracks.json"];
+    var callbacks = [APPL.loaders.alloader.functions.parse, APPL.loaders.alloader.functions.parse];
+    APPL.support.functions.loadZip(zipFile, files, callbacks);
 }
 
 function addEventHandlers() {
