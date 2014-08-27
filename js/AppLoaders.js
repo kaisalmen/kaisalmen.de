@@ -6,16 +6,18 @@
 var APPL = {};
 
 APPL.support = {
+    zip : null
+}
+APPL.support.zip = {
     functions : null
 }
-APPL.support.functions = {
-    loadZip : function (zipFile, contentFiles, loaderCallBacks) {
+APPL.support.zip.functions = {
+    loadZip : function (zipFile, contentFiles, callback) {
         var length = contentFiles.length;
-        if (contentFiles.length === loaderCallBacks.length) {
-            JSZipUtils.getBinaryContent(zipFile, function (err, data) {
+        JSZipUtils.getBinaryContent(zipFile,
+            function (err, data) {
                 if (err) {
                     console.log(err);
-                    throw err; // or handle err
                 }
                 else {
                     var zip = new JSZip(data);
@@ -23,15 +25,20 @@ APPL.support.functions = {
                         var file = zip.file(contentFiles[i]);
                         console.log("Loading file: " + file.name);
                         var fileContent = zip.file(file.name).asText();
-                        var json = JSON.parse(fileContent);
-                        loaderCallBacks[i](json);
+                        callback(fileContent);
+                        /*
+                        if (parseFunctions !== null) {
+                            var json = parseFunctions[i](fileContent);
+                            loaderCallBacks[i](json);
+                        }
+                        else {
+                            loaderCallBacks[i](fileContent);
+                        }
+                        */
                     }
                 }
-            });
-        }
-        else {
-            console.log("Unable to load from zip as number of files and callback functions are different.");
-        }
+            }
+        );
     }
 }
 APPL.loaders = {
@@ -47,9 +54,9 @@ APPL.loaders.functions = {
     logStart : function () {
         APPL.loaders.startTime = new Date().getTime();
     },
-    logEnd : function () {
+    logEnd : function (prefix) {
         APPL.loaders.endTime = new Date().getTime();
-        console.log("Load time: " + (APPL.loaders.endTime - APPL.loaders.startTime));
+        console.log(prefix + "Load time: " + (APPL.loaders.endTime - APPL.loaders.startTime));
     }
 }
 APPL.loaders.obj = {
@@ -81,17 +88,19 @@ APPL.loaders.obj.functions = {
             //objRoot.rotation.x = - Math.PI / 2;
             //objRoot.position.y = 5;
             APPG.scenes.perspective.scene.add(objRoot);
-            APPL.loaders.obj.functions.postLoad();
+            APPL.loaders.obj.functions.postLoad(null);
         });
     },
     parse : function (data) {
         APPL.loaders.functions.logStart();
-        APPL.loaders.obj.mtlLoader.parse(data);
-        APPL.loaders.obj.functions.postLoad();
+        var group = APPL.loaders.obj.mtlLoader.parse(data);
+        APPL.loaders.obj.functions.postLoad(group);
     },
-    postLoad : function () {
-        console.log("Loading OBJ objects is completed!");
-        APPL.loaders.functions.logEnd();
+    postLoad : function (child) {
+        if (child !== null) {
+            APPG.scenes.perspective.scene.add(child);
+        }
+        APPL.loaders.functions.logEnd("OBJ loader completed: ");
     }
 }
 APPL.loaders.sea3d = {
@@ -116,7 +125,7 @@ APPL.loaders.sea3d.functions = {
         // get camera from 3ds Max if exist
         // reset time for keyframe animation
         SEA3D.AnimationHandler.setTime( 0 );
-        APPL.loaders.functions.logEnd();
+        APPL.loaders.functions.logEnd("Sea3d loader completed: ");
     }
 }
 
@@ -132,8 +141,9 @@ APPL.loaders.alloader.functions = {
         APPL.loaders.alloader.loader.load(fileJson, APPL.loaders.alloader.functions.postLoad);
     },
     parse : function (data) {
+        var json = JSON.parse(data);
         APPL.loaders.functions.logStart();
-        APPL.loaders.alloader.loader.parse(data, APPL.loaders.alloader.functions.postLoad);
+        APPL.loaders.alloader.loader.parse(json, APPL.loaders.alloader.functions.postLoad);
     },
     postLoad: function (myObject3d) {
         myObject3d.meshes.map(
@@ -141,6 +151,6 @@ APPL.loaders.alloader.functions = {
                 APPG.scenes.perspective.scene.add(child)
             }
         );
-        APPL.loaders.functions.logEnd();
+        APPL.loaders.functions.logEnd("ALLoader json loader completed: ");
     }
 }
