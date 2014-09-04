@@ -11,12 +11,12 @@ APPL.loaders.alloader.functions = {
         APPL.loaders.alloader.loader = new THREE.ALLoader();
     },
     load : function (fileJson) {
-        APPL.loaders.functions.logStart();
+        APPL.loaders.functions.logStart("Started ALLoader json loading...");
         APPL.loaders.alloader.loader.load(fileJson, APPL.loaders.alloader.functions.postLoad);
     },
     parse : function (data) {
         var json = JSON.parse(data);
-        APPL.loaders.functions.logStart();
+        APPL.loaders.functions.logStart("Started ALLoader json parsing...");
         APPL.loaders.alloader.loader.parse(json, APPL.loaders.alloader.functions.postLoad);
     },
     postLoad: function (myObject3d) {

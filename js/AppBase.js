@@ -44,7 +44,7 @@ APPG.screen = {
     glMinHeight : 800 / 2.35
 }
 APPG.frameNumber = 0;
-APPG.widthScrollBar = 2;
+APPG.widthScrollBar = 12;
 APPG.dom = {
     canvasGL : null,
     reductionHeight : APPG.widthScrollBar + APPG.widthScrollBar,
@@ -131,103 +131,5 @@ APPG.controls.functions = {
         APPG.controls.trackball.panSpeed = 0.5;
         APPG.controls.trackball.noPan = false;
         APPG.controls.trackball.noZoom = false;
-    }
-}
-APPG.loaders = {
-    manager : null,
-    obj : null,
-    sea3d : null,
-    json : null,
-    alloader : null,
-    startTime : null,
-    endTime : null
-}
-APPG.loaders.functions = {
-    logStart : function () {
-        APPG.loaders.startTime = new Date().getTime();
-    },
-    logEnd : function () {
-        APPG.loaders.endTime = new Date().getTime();
-        console.log("Load time: " + (APPG.loaders.endTime - APPG.loaders.startTime));
-    }
-}
-APPG.loaders.obj = {
-    mtlLoader : null,
-    loadStart : null,
-    loadEnd : null
-}
-APPG.loaders.obj.functions = {
-    init : function () {
-        if (APPG.loaders.manager == null) {
-            APPG.loaders.manager = new THREE.LoadingManager();
-            APPG.loaders.manager.onProgress = function (item, loaded, total) {
-                console.log(item, loaded, total);
-            };
-        }
-        APPG.loaders.obj.mtlLoader = new THREE.OBJMTLLoader();
-    },
-    load : function (fileObj, fileObjMat) {
-        APPG.loaders.functions.logStart();
-        APPG.loaders.obj.mtlLoader.load(fileObj, fileObjMat, function (objRoot) {
-            objRoot.traverse(function (child) {
-                if (child instanceof THREE.Mesh) {
-                    // child.material = materialMaster;
-                }
-            });
-            //objRoot.scale.x = 0.05;
-            //objRoot.scale.y = 0.05;
-            //objRoot.scale.z = 0.05;
-            //objRoot.rotation.x = - Math.PI / 2;
-            //objRoot.position.y = 5;
-            APPG.scenes.perspective.scene.add(objRoot);
-            console.log("Loading OBJ objects is completed!");
-            APPG.loaders.obj.functions.postLoad();
-        });
-    },
-    postLoad : function () {
-        console.log("Default post load completed.");
-        APPG.loaders.functions.logEnd();
-    }
-}
-APPG.loaders.sea3d = {
-    loader : null
-}
-APPG.loaders.sea3d.functions = {
-     init: function () {
-         APPG.loaders.sea3d.loader = new THREE.SEA3D();
-     },
-     load : function (fileSea3d) {
-         APPG.loaders.functions.logStart();
-         APPG.loaders.sea3d.loader.onComplete = function( e ) {
-             APPG.loaders.sea3d.functions.postLoad();
-         }
-         APPG.loaders.sea3d.loader.container = APPG.scenes.perspective.scene;
-
-         // compatible mode
-         APPG.loaders.sea3d.loader.parser = THREE.SEA3D.DEFAULT;
-         APPG.loaders.sea3d.loader.load(fileSea3d);
-     },
-     postLoad: function () {
-         // get camera from 3ds Max if exist
-         // reset time for keyframe animation
-         SEA3D.AnimationHandler.setTime( 0 );
-         APPG.loaders.functions.logEnd();
-     }
-}
-
-APPG.loaders.alloader = {
-    loader : null
-}
-APPG.loaders.alloader.functions = {
-    init: function () {
-        APPG.loaders.alloader.loader = new THREE.ALLoader();
-    },
-    load : function (fileJson) {
-        APPG.loaders.functions.logStart();
-        APPG.loaders.alloader.loader.load(fileJson, APPG.loaders.alloader.functions.postLoad);
-    },
-    postLoad: function (myObject3d) {
-        myObject3d.meshes.map(function(child){APPG.scenes.perspective.scene.add(child)})
-        APPG.loaders.functions.logEnd();
     }
 }

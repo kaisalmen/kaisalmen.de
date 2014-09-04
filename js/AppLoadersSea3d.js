@@ -11,7 +11,7 @@ APPL.loaders.sea3d.functions = {
         APPL.loaders.sea3d.loader = new THREE.SEA3D();
     },
     load : function (fileSea3d) {
-        APPL.loaders.functions.logStart();
+        APPL.loaders.functions.logStart("Started Sead3d loading...");
         APPL.loaders.sea3d.loader.onComplete = function( e ) {
             APPL.loaders.sea3d.functions.postLoad();
         }

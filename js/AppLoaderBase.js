@@ -61,8 +61,9 @@ APPL.loaders = {
     endTime : null
 }
 APPL.loaders.functions = {
-    logStart : function () {
+    logStart : function (msg) {
         APPL.loaders.startTime = new Date().getTime();
+        console.log(msg);
     },
     logEnd : function (prefix) {
         APPL.loaders.endTime = new Date().getTime();

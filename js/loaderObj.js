@@ -35,6 +35,12 @@ function initPreGL() {
 }
 
 function resizeDisplayHtml() {
+    var ratio = 32/17;
+    APPG.screen.aspectRatio = ratio;
+    APPG.screen.glWidth = 1280.0;
+    APPG.screen.glHeight = 1280.0 / ratio;
+    APPG.screen.glMinWidth = 800;
+    APPG.screen.glMinHeight = 800 / ratio;
     APPG.functions.resizeDisplayHtmlDefault();
 }
 
@@ -56,11 +62,11 @@ function initGL() {
 
 function loadWithOBJLoader() {
     var zipFile = "../../resource/models/objs.zip";
-    var files = ["Airstream.obj", "Airstream.mtl"];
+    var files = ["Airstream.mtl", "Airstream.obj"];
     //APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
     //APPL.loaders.obj.functions.load("../../resource/models/snowtracks.obj", "../../resource/models/snowtracks.mtl");
 
-    var callbacks = [APPL.loaders.obj.functions.parse, APPL.loaders.obj.functions.parseMtl];
+    var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
     APPL.loaders.obj.functions.init();
     APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
 }

@@ -21,9 +21,10 @@ APPL.loaders.obj.functions = {
         APPL.loaders.obj.objLoader = new THREE.OBJLoader();
         APPL.loaders.obj.mtlLoader = new THREE.MTLLoader();
         APPL.loaders.obj.objMtlLoader = new THREE.OBJMTLLoader();
+        APPL.loaders.obj.materialCreator = null;
     },
     load : function (fileObj, fileObjMat) {
-        APPL.loaders.functions.logStart();
+        APPL.loaders.functions.logStart("Started OBJ loading...");
         APPL.loaders.obj.objMtlLoader.load(fileObj, fileObjMat, function (objRoot) {
             objRoot.traverse(function (child) {
                 if (child instanceof THREE.Mesh) {
@@ -40,14 +41,14 @@ APPL.loaders.obj.functions = {
         });
     },
     parse : function (data) {
-        APPL.loaders.functions.logStart();
+        APPL.loaders.functions.logStart("Started OBJ parsing...");
         var group = APPL.loaders.obj.objLoader.parse(data);
         APPL.loaders.obj.functions.postLoad(group);
     },
     parseMtl : function (data) {
-        APPL.loaders.functions.logStart();
-        var groupMtl = APPL.loaders.obj.mtlLoader.parse(data);
-        APPL.loaders.obj.functions.postLoadMtl(groupMtl);
+        APPL.loaders.functions.logStart("Started MTL parsing...");
+        APPL.loaders.obj.materialCreator = APPL.loaders.obj.mtlLoader.parse(data);
+        APPL.loaders.obj.functions.postLoadMtl();
     },
     postLoad : function (child) {
         if (child !== null) {
@@ -55,7 +56,7 @@ APPL.loaders.obj.functions = {
         }
         APPL.loaders.functions.logEnd("OBJ loader completed: ");
     },
-    postLoadMtl : function (child) {
+    postLoadMtl : function () {
         APPL.loaders.functions.logEnd("MTL loader completed: ");
     }
 }
