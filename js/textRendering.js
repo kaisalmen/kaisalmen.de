@@ -238,6 +238,7 @@ function initGL() {
     APPG.renderer.functions.createDefault();
 
     APPG.scenes.perspective.functions.createDefault();
+    APPG.scenes.perspective.camera.fov = 70;
 
     APPG.scenes.ortho.scene = new THREE.Scene();
     APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, 1, 10 );

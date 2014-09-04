@@ -90,7 +90,7 @@ APPG.scenes.perspective = {
 APPG.scenes.perspective.functions = {
     createDefault: function () {
         APPG.scenes.perspective.scene = new THREE.Scene();
-        APPG.scenes.perspective.camera = new THREE.PerspectiveCamera(70, (APPG.screen.glWidth) / (APPG.screen.glHeight), 0.1, 10000);
+        APPG.scenes.perspective.camera = new THREE.PerspectiveCamera(45, (APPG.screen.glWidth) / (APPG.screen.glHeight), 0.1, 10000);
     },
     resetCameraDefault: function () {
         APPG.scenes.perspective.camera.position.set(0, 0, 250);
