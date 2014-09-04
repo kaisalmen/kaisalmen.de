@@ -1,14 +1,8 @@
 /**
- * Created by Kai Salmen on 2014.08.06
+ * Created by Kai Salmen on 2014.09.04
  *
- * Basic functionality implemented (render loop), trackball
- *
- * Updates
- * 2014.08.10:
- * Added three basic loading functions to AppLoaders and further simplified/unified loader code structure
+ * Separate OBJ loader
  */
-var ALTS = {};
-
 $(document).ready(
     function() {
         APPExecFlow.functions.run();
@@ -40,7 +34,6 @@ function initPreGL() {
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
 }
 
-
 function resizeDisplayHtml() {
     APPG.functions.resizeDisplayHtmlDefault();
 }
@@ -58,40 +51,21 @@ function initGL() {
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
 
-    //loadWithOBJMTLLoader();
-    //loadWithSea3d();
-    loadWithALLoader();
+    loadWithOBJLoader();
 }
 
-function loadWithOBJMTLLoader() {
-    APPL.loaders.obj.functions.init();
+function loadWithOBJLoader() {
+    var zipFile = "../../resource/models/objs.zip";
+    var files = ["Airstream.obj", "Airstream.mtl"];
     //APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
     //APPL.loaders.obj.functions.load("../../resource/models/snowtracks.obj", "../../resource/models/snowtracks.mtl");
 
-    var zipFile = "../../resource/models/objs.zip";
-    var files = ["Airstream.obj", "snowtracks.obj", "Airstream.mtl", "snowtracks.mtl"];
-    APPL.support.zip.functions.loadZip(zipFile, files, APPL.loaders.obj.functions.parse);
+    var callbacks = [APPL.loaders.obj.functions.parse, APPL.loaders.obj.functions.parseMtl];
+    APPL.loaders.obj.functions.init();
+    APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
 }
 
-function loadWithSea3d() {
-    APPL.loaders.sea3d.functions.init();
-    APPL.loaders.sea3d.functions.load("../../resource/models/snowtracks.sea");
-}
-
-function loadWithALLoader() {
-    APPL.loaders.alloader.functions.init();
-    //APPL.loaders.alloader.functions.load("../../resource/models/maxSphereTest.json");
-
-    var zipFile = "../../resource/models/json.zip";
-    var files = ["maxSphereTest.json", "snowtracks.json"];
-    //var callbacks = [APPL.loaders.alloader.functions.parse, APPL.loaders.alloader.functions.parse];
-
-    APPL.support.zip.functions.loadZip(zipFile, files, APPL.loaders.alloader.functions.parse);
-}
-
-function addEventHandlers() {
-
-}
+function addEventHandlers() {}
 
 function resizeDisplayGL() {
     APPG.controls.trackball.handleResize();
