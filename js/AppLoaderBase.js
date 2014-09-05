@@ -7,7 +7,28 @@ var APPL = {};
 
 APPL.support = {
     zip : null,
-    filesystem : null
+    filesystem : null,
+    dom : null
+}
+APPL.support.dom = {
+    functions : null,
+    divText : null
+}
+APPL.support.dom.functions = {
+    initAndShow : function() {
+        APPL.support.dom.divText = document.getElementById('AppLoadOverlay');
+        APPL.support.dom.divText.style.visibility = "visible";
+        APPL.support.dom.divText.style.left = (APPG.screen.glWidth - 500) / 2 + "px";
+        APPL.support.dom.divText.style.top = 48 + "px";
+    },
+    hide : function() {
+        if (APPL.support.dom.divTex !== null) {
+            APPL.support.dom.divText.style.left = -1000;
+            APPL.support.dom.divText.style.top = -1000;
+            APPL.support.dom.divText.style.visibility = "hidden";
+            console.log("Post load completed.");
+        }
+    }
 }
 APPL.support.zip = {
     functions : null

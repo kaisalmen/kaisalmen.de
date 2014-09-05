@@ -54,6 +54,7 @@ APPL.loaders.obj.functions = {
         if (child !== null) {
             APPG.scenes.perspective.scene.add(child);
         }
+        APPL.support.dom.functions.hide();
         APPL.loaders.functions.logEnd("OBJ loader completed: ");
     },
     postLoadMtl : function () {

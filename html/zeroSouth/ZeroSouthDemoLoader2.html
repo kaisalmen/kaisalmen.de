@@ -1,8 +1,8 @@
 <html>
 	<head>
-		<title>Compressed OBJ loader</title>
-	</head>
-	<body>
+		<title>Zero South Demo Loader 2</title>
+    </head>
+    <body>
         <script src="../../libs/ext/three.js"></script>
         <script src="../../libs/ext/three.min.js"></script>
         <script src="../../libs/ext/jquery-2.1.0.js"></script>
@@ -16,18 +16,19 @@
         <script src="../../libs/ext/fso.js"></script>
         <script src="../../libs/ext/Detector.js"></script>
         <script src="../../libs/mod/TrackballControls.js"></script>
+        <script src="../../libs/ext/dat.gui.js"></script>
+        <script src="../../libs/ext/dat.gui.min.js"></script>
 
-        <link href="../../resource/css/kaiAppStyles.css" type="text/css" rel="stylesheet" />
+        <link rel="stylesheet" href="../../resource/css/zeroSouth.css" />
 
         <script src="../../js/AppBase.js"></script>
         <script src="../../js/AppLoaderBase.js"></script>
         <script src="../../js/AppLoadersObj.js"></script>
         <script src="../../js/ShaderTools.js"></script>
-        <script src="../../js/loaderObj.js"></script>
-
-        <script>if ( ! Detector.webgl ) Detector.addGetWebGLMessage();</script>
+        <script src="../../js/ZeroSouthDemoLoader2.js"></script>
 
         <div id="AppRoot">
+            <div id="AppFloat"></div>
             <div id="AppWebGL"></div>
             <div id="AppLoadOverlay" style="visibility: hidden; font-size: 32px; color: white; background-color: #aaaaaa; position: absolute;">Please wait while file is loading ...</div>
         </div>

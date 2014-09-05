@@ -70,7 +70,6 @@ ATR.datGui = {
     controllerBlendShader : null,
     controllerColorShader : null
 }
-ATR.datGuiDomElement = null;
 APPG.scenes.ortho = {
     camera : null,
     scene : null,
@@ -223,15 +222,15 @@ function initPreGL() {
     ATR.datGui.controllerColorShader = shaderControls.addColor(ATR.datGui.paramFunctionRef, "colorShader").name("Color:");
     shaderControls.open();
 
-    ATR.dom.canvasAppFloat = document.getElementById("AppFloat");
-    ATR.dom.canvasAppFloat.appendChild(ATR.datGui.datGuiRef.domElement);
+    APPG.dom.canvasAppFloat = document.getElementById("AppFloat");
+    APPG.dom.canvasAppFloat.appendChild(ATR.datGui.datGuiRef.domElement);
 }
 
 function resizeDisplayHtml() {
     APPG.functions.resizeDisplayHtmlDefault();
 
-    ATR.dom.canvasAppFloat.style.top = 0 + "px";
-    ATR.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.datGuiRef.domElement.style.width)) + "px";
+    APPG.dom.canvasAppFloat.style.top = 0 + "px";
+    APPG.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.datGuiRef.domElement.style.width)) + "px";
 }
 
 function initGL() {

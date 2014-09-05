@@ -47,6 +47,7 @@ APPG.frameNumber = 0;
 APPG.widthScrollBar = 12;
 APPG.dom = {
     canvasGL : null,
+    canvasAppFloat : null,
     reductionHeight : APPG.widthScrollBar + APPG.widthScrollBar,
     reductionWidth : APPG.widthScrollBar
 }
