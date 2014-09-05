@@ -57,7 +57,7 @@ function initGL() {
 
 function loadWithSea3d() {
     APPL.loaders.sea3d.functions.init();
-    APPL.loaders.sea3d.functions.load("../../resource/models/Airstream.sea");
+    APPL.loaders.sea3d.functions.load("Airstream.sea", "../../resource/models/Airstream.sea");
 }
 
 function addEventHandlers() {}

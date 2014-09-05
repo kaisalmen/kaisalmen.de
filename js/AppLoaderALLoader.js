@@ -14,9 +14,9 @@ APPL.loaders.alloader.functions = {
         APPL.loaders.functions.logStart("Started ALLoader json loading...");
         APPL.loaders.alloader.loader.load(fileJson, APPL.loaders.alloader.functions.postLoad);
     },
-    parse : function (data) {
+    parse : function (filename, data) {
         var json = JSON.parse(data);
-        APPL.loaders.functions.logStart("Started ALLoader json parsing...");
+        APPL.loaders.functions.logStart("Started ALLoader json parsing: " + filename);
         APPL.loaders.alloader.loader.parse(json, APPL.loaders.alloader.functions.postLoad);
     },
     postLoad: function (myObject3d) {

@@ -3,6 +3,11 @@
  *
  * Separate OBJ loader
  */
+var APPOBJ = {}
+APPOBJ = {
+    baseDir : "models"
+}
+
 $(document).ready(
     function() {
         APPExecFlow.functions.run();
@@ -63,12 +68,25 @@ function initGL() {
 function loadWithOBJLoader() {
     var zipFile = "../../resource/models/objs.zip";
     var files = ["Airstream.mtl", "Airstream.obj"];
-    //APPL.loaders.obj.functions.load("../../resource/models/Airstream.obj", "../../resource/models/Airstream.mtl");
-    //APPL.loaders.obj.functions.load("../../resource/models/snowtracks.obj", "../../resource/models/snowtracks.mtl");
 
-    var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
     APPL.loaders.obj.functions.init();
-    APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
+    //var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
+    //APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
+
+    APPL.support.filesystem.functions.createTempStorage(200);
+    queue = APPL.support.filesystem.functions.createQueue();
+    APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
+    APPL.support.filesystem.functions.execute(queue);
+    APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
+}
+
+function checkObjs() {
+    console.log("Checking objs...");
+    var urlObj = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.obj");
+    var urlMtl = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.mtl");
+    if (urlMtl !== undefined && urlObj !== undefined) {
+        APPL.loaders.obj.functions.load(urlObj, urlMtl);
+    }
 }
 
 function addEventHandlers() {}

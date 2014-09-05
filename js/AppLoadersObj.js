@@ -40,13 +40,13 @@ APPL.loaders.obj.functions = {
             APPL.loaders.obj.functions.postLoad(null);
         });
     },
-    parse : function (data) {
-        APPL.loaders.functions.logStart("Started OBJ parsing...");
+    parse : function (filename, data) {
+        APPL.loaders.functions.logStart("Started OBJ parsing: " + filename);
         var group = APPL.loaders.obj.objLoader.parse(data);
         APPL.loaders.obj.functions.postLoad(group);
     },
-    parseMtl : function (data) {
-        APPL.loaders.functions.logStart("Started MTL parsing...");
+    parseMtl : function (filename, data) {
+        APPL.loaders.functions.logStart("Started MTL parsing: " + filename);
         APPL.loaders.obj.materialCreator = APPL.loaders.obj.mtlLoader.parse(data);
         APPL.loaders.obj.functions.postLoadMtl();
     },
