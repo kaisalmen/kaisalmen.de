@@ -5,7 +5,8 @@
  */
 var APPOBJ = {}
 APPOBJ = {
-    baseDir : "models"
+    baseDir : "models",
+    loaded : false
 }
 
 $(document).ready(
@@ -73,19 +74,21 @@ function loadWithOBJLoader() {
     //var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
     //APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
 
-    APPL.support.filesystem.functions.createTempStorage(200);
-    queue = APPL.support.filesystem.functions.createQueue();
-    APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
-    APPL.support.filesystem.functions.execute(queue);
-    APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
+    if (APPL.support.filesystem.functions.createTempStorage(5)) {
+        var queue = APPL.support.filesystem.functions.createQueue();
+        APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
+        APPL.support.filesystem.functions.execute(queue);
+        APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
+    }
 }
 
 function checkObjs() {
     console.log("Checking objs...");
     var urlObj = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.obj");
     var urlMtl = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.mtl");
-    if (urlMtl !== undefined && urlObj !== undefined) {
+    if (urlMtl !== undefined && urlObj !== undefined && !APPOBJ.loaded) {
         APPL.loaders.obj.functions.load(urlObj, urlMtl);
+        APPOBJ.loaded = true;
     }
 }
 

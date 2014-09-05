@@ -79,7 +79,14 @@ APPL.support.filesystem.functions = {
         }
     },
     createTempStorage : function(sizeMb) {
-        APPL.support.filesystem.storage = new FSO(1024 * 1024 * sizeMb, false);
+        try {
+            APPL.support.filesystem.storage = new FSO(1024 * 1024 * sizeMb, false);
+        }
+        catch (e) {
+            alert("This browser does not support File System API! Please use Google Chrome");
+            return false;
+        }
+        return true;
     },
     createQueue : function() {
         return APPL.support.filesystem.storage.createQueue();
