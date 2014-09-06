@@ -72,15 +72,17 @@ function loadWithOBJLoader() {
     var files = ["Airstream.mtl", "Airstream.obj"];
 
     APPL.loaders.obj.functions.init();
-    //var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
-    //APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
+    var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
+    APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
 
+    /*
     if (APPL.support.filesystem.functions.createTempStorage(8)) {
         var queue = APPL.support.filesystem.functions.createQueue();
         APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
         APPL.support.filesystem.functions.execute(queue);
         APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
     }
+    */
 }
 
 function checkObjs() {
