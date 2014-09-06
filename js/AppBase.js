@@ -34,7 +34,15 @@ APPExecFlow.functions =  {
     }
 }
 
-var APPG = {}
+var APPG = {
+    screen : null,
+    dom : null,
+    functions : null,
+    shaders : null,
+    renderer : null,
+    scenes : null,
+    controls : null
+}
 
 APPG.screen = {
     aspectRatio : 2.35,
@@ -82,7 +90,11 @@ APPG.renderer.functions = {
         APPG.renderer.autoClear = false;
     }
 }
-APPG.scenes = {};
+APPG.scenes = {
+    perspective : null,
+    lights : null,
+    geometry : null
+};
 APPG.scenes.perspective = {
     camera : null,
     cameraTarget : null,
@@ -119,6 +131,26 @@ APPG.scenes.lights.functions = {
         APPG.scenes.lights.light1 = new THREE.DirectionalLight(0xffffff, 1.0);
         APPG.scenes.lights.light1.position.set(0, 1, 1);
         APPG.scenes.perspective.scene.add(APPG.scenes.lights.light1);
+    }
+}
+APPG.scenes.geometry = {
+    functions : null
+}
+APPG.scenes.geometry.functions = {
+    createGrid : function(size, steps, gridYOffset, colorValueHex) {
+        // Grid (from three.js example)
+        var geometry = new THREE.Geometry();
+        var material = new THREE.LineBasicMaterial({ color: colorValueHex });
+
+        for ( var i = - size; i <= size; i += steps ) {
+            geometry.vertices.push(new THREE.Vector3(-size, -gridYOffset, i));
+            geometry.vertices.push(new THREE.Vector3( size, -gridYOffset, i));
+
+            geometry.vertices.push(new THREE.Vector3(i, -gridYOffset, -size));
+            geometry.vertices.push(new THREE.Vector3(i, -gridYOffset,  size));
+        }
+        var line = new THREE.Line( geometry, material, THREE.LinePieces );
+        return line;
     }
 }
 APPG.controls = {

@@ -33,10 +33,12 @@ $(window).resize(function() {
  * Life-cycle functions
  */
 function initShaders() {
+    console.log("Starting initShaders...");
     APPG.shaders.functions.loadShader();
 }
 
 function initPreGL() {
+    console.log("Starting initPreGL...");
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
 }
 
@@ -51,10 +53,12 @@ function resizeDisplayHtml() {
 }
 
 function initGL() {
+    console.log("Starting initGL...");
     APPG.renderer.functions.createDefault();
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.functions.resetCameraDefault();
+    APPG.scenes.perspective.camera.position.set(100, 100, 250);
 
     APPG.scenes.lights.functions.createDefault();
 
@@ -62,6 +66,8 @@ function initGL() {
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
+
+    APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(256, 4, 100, 0x606060));
 
     APPL.support.dom.functions.initAndShow();
     loadWithOBJLoader();
@@ -75,14 +81,16 @@ function loadWithOBJLoader() {
     var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
     APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
 
-    /*
+    //loadViaFS();
+}
+
+function loadViaFS() {
     if (APPL.support.filesystem.functions.createTempStorage(8)) {
         var queue = APPL.support.filesystem.functions.createQueue();
         APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
         APPL.support.filesystem.functions.execute(queue);
         APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
     }
-    */
 }
 
 function checkObjs() {
@@ -95,7 +103,9 @@ function checkObjs() {
     }
 }
 
-function addEventHandlers() {}
+function addEventHandlers() {
+    console.log("Starting addEventHandlers...");
+}
 
 function resizeDisplayGL() {
     APPG.controls.trackball.handleResize();
@@ -106,6 +116,7 @@ function resizeDisplayGL() {
 }
 
 function initPostGL() {
+    console.log("Starting initPostGL...");
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
