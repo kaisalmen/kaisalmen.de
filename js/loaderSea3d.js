@@ -74,13 +74,17 @@ function initPostGL() {
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
+function startAnimation() {
+    animateFrame();
+}
+
 function animateFrame() {
-    requestAnimationFrame(animateFrame);
-    APPG.controls.trackball.update();
     render();
+    requestAnimationFrame(animateFrame);
 }
 
 function render() {
+    APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.frameNumber++;

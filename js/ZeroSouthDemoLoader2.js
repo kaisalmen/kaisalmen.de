@@ -4,7 +4,8 @@
  * Separate OBJ loader
  */
 var APPZSD = {
-    datGui : null
+    datGui : null,
+    basedir : null
 }
 APPZSD.datGui = {
     functions : null,
@@ -98,23 +99,14 @@ function loadWithOBJLoader() {
     APPL.loaders.obj.functions.init();
     var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
     APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
-/*
-    if (APPL.support.filesystem.functions.createTempStorage(32)) {
-        var queue = APPL.support.filesystem.functions.createQueue();
-        APPL.support.filesystem.functions.createDir(queue, APPOBJ.baseDir);
-        APPL.support.filesystem.functions.execute(queue);
-        APPL.support.zip.functions.storeFilesFromZip(zipFile, files, APPOBJ.baseDir, checkObjs);
-    }
-*/
 }
 
 function checkObjs() {
-    var urlObj = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "snowtracks.obj");
-    var urlMtl = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "snowtracks.mtl");
-    if (urlMtl !== undefined && urlObj !== undefined && !APPOBJ.loaded) {
+    var urlObj = APPL.support.filesystem.functions.toURL(APPZSD.baseDir, "snowtracks.obj");
+    var urlMtl = APPL.support.filesystem.functions.toURL(APPZSD.baseDir, "snowtracks.mtl");
+    if (urlMtl !== undefined && urlObj !== undefined) {
         console.log("All resources loaded!");
         APPL.loaders.obj.functions.load(urlObj, urlMtl);
-        APPOBJ.loaded = true;
     }
 }
 

@@ -8,6 +8,7 @@ APPL.loaders.alloader = {
 }
 APPL.loaders.alloader.functions = {
     init: function () {
+        APPL.loaders.functions.init();
         APPL.loaders.alloader.loader = new THREE.ALLoader();
     },
     load : function (fileJson) {

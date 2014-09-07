@@ -148,18 +148,7 @@ $(document).ready(
             APPG.shaders.shaderFlicker.vertexShaderText = vert[0];
             APPG.shaders.shaderFlicker.fragmentShaderText = frag[0];
 
-            APPExecFlow.initShaders = initShaders();
-
-            APPExecFlow.initPreGL = initPreGL();
-            APPExecFlow.resizeDisplayHtml = resizeDisplayHtml();
-
-            APPExecFlow.initGL = initGL();
-            APPExecFlow.addEventHandlers = addEventHandlers();
-            APPExecFlow.resizeDisplayGL = resizeDisplayGL();
-
-            APPExecFlow.initPostGL = initPostGL();
-
-            APPExecFlow.animateFrame = animateFrame();
+            APPExecFlow.run();
         }
     )
 )
@@ -318,13 +307,17 @@ function initPostGL() {
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
+function startAnimation() {
+    animateFrame();
+}
+
 function animateFrame() {
-    requestAnimationFrame(animateFrame);
-    APPG.controls.trackball.update();
     render();
+    requestAnimationFrame(animateFrame);
 }
 
 function render() {
+    APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.frameNumber++;

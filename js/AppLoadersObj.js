@@ -11,13 +11,8 @@ APPL.loaders.obj = {
     loadEnd : null
 }
 APPL.loaders.obj.functions = {
-    init : function () {
-        if (APPL.loaders.manager == null) {
-            APPL.loaders.manager = new THREE.LoadingManager();
-            APPL.loaders.manager.onProgress = function (item, loaded, total) {
-                console.log(item, loaded, total);
-            };
-        }
+    init : function (objAttachedPoint) {
+        APPL.loaders.functions.init();
         APPL.loaders.obj.mtlLoader = new THREE.MTLLoader();
         APPL.loaders.obj.objMtlLoader = new THREE.OBJMTLLoader();
         APPL.loaders.obj.materialCreator = null;
@@ -36,36 +31,45 @@ APPL.loaders.obj.functions = {
             //objRoot.rotation.x = - Math.PI / 2;
             //objRoot.position.y = 5;
             APPG.scenes.perspective.scene.add(objRoot);
-            APPL.loaders.obj.functions.postLoad(null);
+            APPL.loaders.obj.functions.postLoad();
         });
     },
-    parse : function (filename, data) {
-        APPL.loaders.functions.logStart("Started OBJ parsing: " + filename);
-        var objRoot = APPL.loaders.obj.objMtlLoader.parse(data);
-
-        objRoot.traverse(function (child) {
-            if (child instanceof THREE.Mesh && child.material !== null) {
-                var orgMaterial = APPL.loaders.obj.materialCreator.create(child.material.name);
-                child.material = orgMaterial;
-                console.log("Applying material: " + child.material.name + " to (name: " + child.name + " uuid: " + child.uuid);
-            }
-        });
-
-        APPL.loaders.obj.functions.postLoad(objRoot);
+    parseInit : function (objFile, objContent, mtlFile, mtlContent) {
+        APPL.loaders.obj.functions.parseMtl(APPOBJ.mtlFile, APPOBJ.mtlContent);
+        APPL.loaders.obj.objMtlLoader.init(objContent);
+        APPL.loaders.functions.logStart("Started OBJ parsing: " + objFile);
+        return true;
+    },
+    parseExec : function() {
+        var obj = APPL.loaders.obj.objMtlLoader.parse();
+        return obj;
     },
     parseMtl : function (filename, data) {
         APPL.loaders.functions.logStart("Started MTL parsing: " + filename);
         APPL.loaders.obj.materialCreator = APPL.loaders.obj.mtlLoader.parse(data);
-        APPL.loaders.obj.functions.postLoadMtl();
+        APPL.loaders.functions.logEnd("MTL loader completed: ");
     },
-    postLoad : function (objRoot) {
-        if (objRoot !== null) {
-            APPG.scenes.perspective.scene.add(objRoot);
-        }
+    postLoad : function () {
         APPL.support.dom.functions.hide();
         APPL.loaders.functions.logEnd("OBJ loader completed: ");
     },
-    postLoadMtl : function () {
-        APPL.loaders.functions.logEnd("MTL loader completed: ");
+    addToScene : function(attachTo, object) {
+        if (object instanceof THREE.Object3D && object.children !== null && object.children.length > 0) {
+            object.traverse(function (child) {
+                if (child instanceof THREE.Mesh) {
+                    attachTo.add(child);
+                    var extraString = "";
+                    if (child.material !== null) {
+                        var orgMaterial = APPL.loaders.obj.materialCreator.create(child.material.name);
+                        child.material = orgMaterial;
+                        if (child.material.name !== null && child.material.name !== "") {
+                            extraString = " Applying material: " + child.material.name;
+                        }
+                    }
+                    APPL.loaders.objectCount++;
+                    console.log("Object Count: " + APPL.loaders.objectCount + " (Name: " + child.name + " uuid: " + child.uuid + extraString);
+                }
+            });
+        }
     }
 }

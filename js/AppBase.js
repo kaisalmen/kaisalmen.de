@@ -15,22 +15,34 @@ APPExecFlow =  {
     addEventHandlers : null,
     resizeDisplayGL : null,
     initPostGL : null,
-    animateFrame : null
+    startAnimation : null
 }
 APPExecFlow.functions =  {
-    run: function() {
+    run : function() {
+        console.log("Starting global initialisation phase...");
+        console.log("Kicking initShaders...");
         APPExecFlow.initShaders = initShaders();
 
+        console.log("Kicking initPreGL...");
         APPExecFlow.initPreGL = initPreGL();
+
+        console.log("Kicking resizeDisplayHtml...");
         APPExecFlow.resizeDisplayHtml = resizeDisplayHtml();
 
+        console.log("Kicking initGL...");
         APPExecFlow.initGL = initGL();
+
+        console.log("Kicking addEventHandlers...");
         APPExecFlow.addEventHandlers = addEventHandlers();
+
+        console.log("Kicking resizeDisplayGL...");
         APPExecFlow.resizeDisplayGL = resizeDisplayGL();
 
+        console.log("Kicking initPostGL...");
         APPExecFlow.initPostGL = initPostGL();
 
-        APPExecFlow.animateFrame = animateFrame();
+        console.log("Kicking animateFrame...");
+        APPExecFlow.startAnimation = startAnimation();
     }
 }
 
@@ -87,7 +99,7 @@ APPG.renderer.functions = {
         APPG.renderer = new THREE.WebGLRenderer();
         APPG.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
         APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
-        APPG.renderer.autoClear = false;
+        APPG.renderer.autoClear = true;
     }
 }
 APPG.scenes = {
@@ -129,8 +141,12 @@ APPG.scenes.lights =  {
 APPG.scenes.lights.functions = {
     createDefault: function () {
         APPG.scenes.lights.light1 = new THREE.DirectionalLight(0xffffff, 1.0);
-        APPG.scenes.lights.light1.position.set(0, 1, 1);
+        APPG.scenes.lights.light1.position.set(100, 100, 100);
         APPG.scenes.perspective.scene.add(APPG.scenes.lights.light1);
+
+        APPG.scenes.lights.light2 = new THREE.DirectionalLight(0xeeeeff, 1.0);
+        APPG.scenes.lights.light2.position.set(-100, 0, -100);
+        APPG.scenes.perspective.scene.add(APPG.scenes.lights.light2);
     }
 }
 APPG.scenes.geometry = {

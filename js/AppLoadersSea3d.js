@@ -8,6 +8,7 @@ APPL.loaders.sea3d = {
 }
 APPL.loaders.sea3d.functions = {
     init: function () {
+        APPL.loaders.functions.init();
         APPL.loaders.sea3d.loader = new THREE.SEA3D();
     },
     load : function (filename, fileSea3d) {

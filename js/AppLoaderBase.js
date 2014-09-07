@@ -145,7 +145,8 @@ APPL.loaders = {
     json : null,
     alloader : null,
     startTime : null,
-    endTime : null
+    endTime : null,
+    objectCount : 0
 }
 APPL.loaders.functions = {
     logStart : function (msg) {
@@ -155,5 +156,13 @@ APPL.loaders.functions = {
     logEnd : function (prefix) {
         APPL.loaders.endTime = new Date().getTime();
         console.log(prefix + "Load time: " + (APPL.loaders.endTime - APPL.loaders.startTime));
+    },
+    init : function () {
+        if (APPL.loaders.manager === null) {
+            APPL.loaders.manager = new THREE.LoadingManager();
+            APPL.loaders.manager.onProgress = function (item, loaded, total) {
+                console.log(item, loaded, total);
+            };
+        }
     }
 }

@@ -6,7 +6,16 @@
 var APPOBJ = {}
 APPOBJ = {
     baseDir : "models",
-    loaded : false
+    dataAvailable : false,
+    parseInitComplete : false,
+    loadingComplete : false,
+    baseObjGroup : null,
+    zipFile : "../../resource/models/objs.zip",
+    mtlFile : "Airstream.mtl",
+    mtlContent : null,
+    objFile : "Airstream.obj",
+    objContent : null,
+    fps : 60
 }
 
 $(document).ready(
@@ -33,12 +42,10 @@ $(window).resize(function() {
  * Life-cycle functions
  */
 function initShaders() {
-    console.log("Starting initShaders...");
     APPG.shaders.functions.loadShader();
 }
 
 function initPreGL() {
-    console.log("Starting initPreGL...");
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
 }
 
@@ -53,35 +60,46 @@ function resizeDisplayHtml() {
 }
 
 function initGL() {
-    console.log("Starting initGL...");
     APPG.renderer.functions.createDefault();
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.functions.resetCameraDefault();
-    APPG.scenes.perspective.camera.position.set(100, 100, 250);
+    APPG.scenes.perspective.camera.position.set(400, 200, 450);
 
     APPG.scenes.lights.functions.createDefault();
-
     APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
-
-    APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(256, 4, 100, 0x606060));
+    APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(512, 12, 152, 0x606060));
 
     APPL.support.dom.functions.initAndShow();
+
     loadWithOBJLoader();
 }
 
 function loadWithOBJLoader() {
-    var zipFile = "../../resource/models/objs.zip";
-    var files = ["Airstream.mtl", "Airstream.obj"];
+    APPOBJ.baseObjGroup = new THREE.Object3D();
+    APPG.scenes.perspective.scene.add(APPOBJ.baseObjGroup);
 
+    var files = [APPOBJ.mtlFile, APPOBJ.objFile];
     APPL.loaders.obj.functions.init();
-    var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
-    APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
+    var callbacks = [storeData, storeData];
+    APPL.support.zip.functions.loadZipCallbacks(APPOBJ.zipFile, files, callbacks);
 
     //loadViaFS();
+}
+
+function storeData(filename, fileContent) {
+    if (filename === APPOBJ.mtlFile) {
+        APPOBJ.mtlContent = fileContent;
+    }
+    if (filename === APPOBJ.objFile) {
+        APPOBJ.objContent = fileContent;
+    }
+    if (APPOBJ.objContent !== null && APPOBJ.mtlContent !== null) {
+        APPOBJ.dataAvailable = true;
+    }
 }
 
 function loadViaFS() {
@@ -97,15 +115,12 @@ function checkObjs() {
     console.log("Checking objs...");
     var urlObj = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.obj");
     var urlMtl = APPL.support.filesystem.functions.toURL(APPOBJ.baseDir, "Airstream.mtl");
-    if (urlMtl !== undefined && urlObj !== undefined && !APPOBJ.loaded) {
+    if (urlMtl !== undefined && urlObj !== undefined) {
         APPL.loaders.obj.functions.load(urlObj, urlMtl);
-        APPOBJ.loaded = true;
     }
 }
 
-function addEventHandlers() {
-    console.log("Starting addEventHandlers...");
-}
+function addEventHandlers() {}
 
 function resizeDisplayGL() {
     APPG.controls.trackball.handleResize();
@@ -116,18 +131,38 @@ function resizeDisplayGL() {
 }
 
 function initPostGL() {
-    console.log("Starting initPostGL...");
+    APPG.renderer.domElement.id = "AppWebGLCanvas";
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
+function startAnimation() {
+    animateFrame();
+}
+
 function animateFrame() {
-    requestAnimationFrame(animateFrame);
-    APPG.controls.trackball.update();
+    if (APPOBJ.dataAvailable && !APPOBJ.loadingComplete) {
+        if (!APPOBJ.parseInitComplete) {
+            APPOBJ.parseInitComplete = APPL.loaders.obj.functions.parseInit(APPOBJ.objFile, APPOBJ.objContent, APPOBJ.mtlFile, APPOBJ.mtlContent);
+        }
+        var obj = APPL.loaders.obj.functions.parseExec();
+        if (obj !== null) {
+            APPL.loaders.obj.functions.addToScene(APPOBJ.baseObjGroup, obj);
+
+            APPL.support.dom.divText.innerHTML = "Please wait while file is loading ... Object count: " + APPL.loaders.objectCount;
+        }
+        else {
+            APPOBJ.loadingComplete = true;
+            APPL.loaders.obj.functions.postLoad();
+        }
+    }
     render();
+    requestAnimationFrame(animateFrame);
 }
 
 function render() {
+    APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.frameNumber++;
+    //console.log("Render call: Frame: " + APPG.frameNumber);
 }
