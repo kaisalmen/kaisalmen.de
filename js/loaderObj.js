@@ -14,8 +14,7 @@ APPOBJ = {
     mtlFile : "Airstream.mtl",
     mtlContent : null,
     objFile : "Airstream.obj",
-    objContent : null,
-    fps : 60
+    objContent : null
 }
 
 $(document).ready(

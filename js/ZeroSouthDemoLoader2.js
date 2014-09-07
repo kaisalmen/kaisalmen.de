@@ -5,7 +5,15 @@
  */
 var APPZSD = {
     datGui : null,
-    basedir : null
+    dataAvailable : false,
+    parseInitComplete : false,
+    loadingComplete : false,
+    baseObjGroup : null,
+    zipFile : "../../resource/models/snowtracks.zip",
+    mtlFile : "snowtracks.mtl",
+    mtlContent : null,
+    objFile : "snowtracks.obj",
+    objContent : null
 }
 APPZSD.datGui = {
     functions : null,
@@ -80,33 +88,39 @@ function initGL() {
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.functions.resetCameraDefault();
+    APPG.scenes.perspective.camera.position.set(600, 600, 1050);
 
     APPG.scenes.lights.functions.createDefault();
-
     APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
+    APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(1024, 24, 152, 0x606060));
 
     APPL.support.dom.functions.initAndShow();
+
     loadWithOBJLoader();
 }
 
 function loadWithOBJLoader() {
-    var zipFile = "../../resource/models/snowtracks.zip";
-    var files = ["snowtracks.mtl", "snowtracks.obj"];
+    APPZSD.baseObjGroup = new THREE.Object3D();
+    APPG.scenes.perspective.scene.add(APPZSD.baseObjGroup);
 
+    var files = [APPZSD.mtlFile, APPZSD.objFile];
     APPL.loaders.obj.functions.init();
-    var callbacks = [APPL.loaders.obj.functions.parseMtl, APPL.loaders.obj.functions.parse];
-    APPL.support.zip.functions.loadZipCallbacks(zipFile, files, callbacks);
+    var callbacks = [storeData, storeData];
+    APPL.support.zip.functions.loadZipCallbacks(APPZSD.zipFile, files, callbacks);
 }
 
-function checkObjs() {
-    var urlObj = APPL.support.filesystem.functions.toURL(APPZSD.baseDir, "snowtracks.obj");
-    var urlMtl = APPL.support.filesystem.functions.toURL(APPZSD.baseDir, "snowtracks.mtl");
-    if (urlMtl !== undefined && urlObj !== undefined) {
-        console.log("All resources loaded!");
-        APPL.loaders.obj.functions.load(urlObj, urlMtl);
+function storeData(filename, fileContent) {
+    if (filename === APPZSD.mtlFile) {
+        APPZSD.mtlContent = fileContent;
+    }
+    if (filename === APPZSD.objFile) {
+        APPZSD.objContent = fileContent;
+    }
+    if (APPZSD.objContent !== null && APPZSD.mtlContent !== null) {
+        APPZSD.dataAvailable = true;
     }
 }
 
@@ -121,16 +135,33 @@ function resizeDisplayGL() {
 }
 
 function initPostGL() {
+    APPG.renderer.domElement.id = "AppWebGLCanvas";
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
 function animateFrame() {
-    requestAnimationFrame(animateFrame);
-    APPG.controls.trackball.update();
+    if (APPZSD.dataAvailable && !APPZSD.loadingComplete) {
+        if (!APPZSD.parseInitComplete) {
+            APPZSD.parseInitComplete = APPL.loaders.obj.functions.parseInit(APPZSD.objFile, APPZSD.objContent, APPZSD.mtlFile, APPZSD.mtlContent);
+        }
+        var obj = APPL.loaders.obj.functions.parseExec();
+        if (obj !== null) {
+            APPL.loaders.obj.functions.addToScene(APPZSD.baseObjGroup, obj);
+
+            APPL.support.dom.divText.innerHTML = "Please wait while file is loading ... Object count: " + APPL.loaders.objectCount;
+        }
+        else {
+            APPZSD.loadingComplete = true;
+            APPL.loaders.obj.functions.postLoad();
+        }
+    }
     render();
+    requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));
+    //requestAnimationFrame(animateFrame);
 }
 
 function render() {
+    APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.frameNumber++;

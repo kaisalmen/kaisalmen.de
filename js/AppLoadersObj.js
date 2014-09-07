@@ -35,7 +35,7 @@ APPL.loaders.obj.functions = {
         });
     },
     parseInit : function (objFile, objContent, mtlFile, mtlContent) {
-        APPL.loaders.obj.functions.parseMtl(APPOBJ.mtlFile, APPOBJ.mtlContent);
+        APPL.loaders.obj.functions.parseMtl(mtlFile, mtlContent);
         APPL.loaders.obj.objMtlLoader.init(objContent);
         APPL.loaders.functions.logStart("Started OBJ parsing: " + objFile);
         return true;

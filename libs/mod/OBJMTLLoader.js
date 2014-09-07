@@ -309,7 +309,6 @@ THREE.OBJMTLLoader.prototype = {
 			}
 
             if (createdMesh) {
-                console.log("Reached created mesh!");
                 break;
             }
 		}
