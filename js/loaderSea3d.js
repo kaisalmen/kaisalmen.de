@@ -71,16 +71,13 @@ function resizeDisplayGL() {
 }
 
 function initPostGL() {
+    APPG.renderer.domElement.id = "AppWebGLCanvas";
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
-}
-
-function startAnimation() {
-    animateFrame();
 }
 
 function animateFrame() {
     render();
-    requestAnimationFrame(animateFrame);
+    requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));
 }
 
 function render() {

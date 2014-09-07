@@ -135,10 +135,6 @@ function initPostGL() {
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
-function startAnimation() {
-    animateFrame();
-}
-
 function animateFrame() {
     if (APPOBJ.dataAvailable && !APPOBJ.loadingComplete) {
         if (!APPOBJ.parseInitComplete) {
@@ -156,7 +152,7 @@ function animateFrame() {
         }
     }
     render();
-    requestAnimationFrame(animateFrame);
+    requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));
 }
 
 function render() {

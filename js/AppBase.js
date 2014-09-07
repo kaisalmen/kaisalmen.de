@@ -42,7 +42,7 @@ APPExecFlow.functions =  {
         APPExecFlow.initPostGL = initPostGL();
 
         console.log("Kicking animateFrame...");
-        APPExecFlow.startAnimation = startAnimation();
+        APPExecFlow.startAnimation = animateFrame();
     }
 }
 
@@ -99,7 +99,7 @@ APPG.renderer.functions = {
         APPG.renderer = new THREE.WebGLRenderer();
         APPG.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
         APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
-        APPG.renderer.autoClear = true;
+        APPG.renderer.autoClear = false;
     }
 }
 APPG.scenes = {

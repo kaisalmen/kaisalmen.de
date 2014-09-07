@@ -148,7 +148,7 @@ $(document).ready(
             APPG.shaders.shaderFlicker.vertexShaderText = vert[0];
             APPG.shaders.shaderFlicker.fragmentShaderText = frag[0];
 
-            APPExecFlow.run();
+            APPExecFlow.functions.run();
         }
     )
 )
@@ -304,16 +304,13 @@ function resizeDisplayGL() {
 }
 
 function initPostGL() {
+    APPG.renderer.domElement.id = "AppWebGLCanvas";
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
-}
-
-function startAnimation() {
-    animateFrame();
 }
 
 function animateFrame() {
     render();
-    requestAnimationFrame(animateFrame);
+    requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));
 }
 
 function render() {
