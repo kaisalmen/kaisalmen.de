@@ -55,7 +55,7 @@ function resizeDisplayHtml() {
     APPG.screen.glHeight = 1280.0 / ratio;
     APPG.screen.glMinWidth = 800;
     APPG.screen.glMinHeight = 800 / ratio;
-    APPG.functions.resizeDisplayHtmlDefault();
+    APPG.functions.resizeDisplayHtmlDefault(12);
 }
 
 function initGL() {

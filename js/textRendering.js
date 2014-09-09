@@ -216,7 +216,7 @@ function initPreGL() {
 }
 
 function resizeDisplayHtml() {
-    APPG.functions.resizeDisplayHtmlDefault();
+    APPG.functions.resizeDisplayHtmlDefault(2);
 
     APPG.dom.canvasAppFloat.style.top = 0 + "px";
     APPG.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(ATR.datGui.datGuiRef.domElement.style.width)) + "px";

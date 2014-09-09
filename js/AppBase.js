@@ -64,15 +64,18 @@ APPG.screen = {
     glMinHeight : 800 / 2.35
 }
 APPG.frameNumber = 0;
-APPG.widthScrollBar = 12;
 APPG.dom = {
+    widthScrollBar : 2,
     canvasGL : null,
     canvasAppFloat : null,
-    reductionHeight : APPG.widthScrollBar + APPG.widthScrollBar,
-    reductionWidth : APPG.widthScrollBar
+    reductionHeight : null,
+    reductionWidth : null
 }
 APPG.functions = {
-    resizeDisplayHtmlDefault: function() {
+    resizeDisplayHtmlDefault: function(widthScrollBar) {
+        APPG.dom.widthScrollBar = widthScrollBar;
+        APPG.dom.reductionHeight = APPG.dom.widthScrollBar + APPG.dom.widthScrollBar;
+        APPG.dom.reductionWidth = APPG.dom.widthScrollBar;
         APPG.screen.glWidth = window.innerWidth > APPG.screen.glMinWidth ? window.innerWidth : APPG.screen.glMinWidth;
         var heightTemp = window.innerWidth / APPG.screen.aspectRatio;
         APPG.screen.glHeight = heightTemp > APPG.screen.glMinHeight ? heightTemp : APPG.screen.glMinHeight;

@@ -36,7 +36,7 @@ function initPreGL() {
 
 
 function resizeDisplayHtml() {
-    APPG.functions.resizeDisplayHtmlDefault();
+    APPG.functions.resizeDisplayHtmlDefault(12);
 }
 
 function initGL() {

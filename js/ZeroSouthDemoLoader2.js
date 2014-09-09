@@ -77,7 +77,7 @@ function resizeDisplayHtml() {
     APPG.screen.glHeight = 1280.0 / ratio;
     APPG.screen.glMinWidth = 800;
     APPG.screen.glMinHeight = 800 / ratio;
-    APPG.functions.resizeDisplayHtmlDefault();
+    APPG.functions.resizeDisplayHtmlDefault(2);
 
     APPG.dom.canvasAppFloat.style.top = 0 + "px";
     APPG.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(APPZSD.datGui.datGuiRef.domElement.style.width)) + "px";
