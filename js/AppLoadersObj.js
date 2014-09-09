@@ -7,8 +7,7 @@ APPL.loaders.obj = {
     objLoader : null,
     mtlLoader : null,
     objMtlLoader : null,
-    loadStart : null,
-    loadEnd : null
+    loadingCompleted : false
 }
 APPL.loaders.obj.functions = {
     init : function (objAttachedPoint) {
@@ -40,6 +39,13 @@ APPL.loaders.obj.functions = {
         APPL.loaders.functions.logStart("Started OBJ parsing: " + objFile);
         return true;
     },
+    getObjectCount : function() {
+        return APPL.loaders.obj.objMtlLoader.getObjectCount();
+    },
+
+    isLoadingComplete : function() {
+        return APPL.loaders.obj.objMtlLoader.isLoadingComplete();
+    },
     parseExec : function() {
         var obj = APPL.loaders.obj.objMtlLoader.parse();
         return obj;
@@ -50,8 +56,11 @@ APPL.loaders.obj.functions = {
         APPL.loaders.functions.logEnd("MTL loader completed: ");
     },
     postLoad : function () {
-        APPL.support.dom.functions.hide();
-        APPL.loaders.functions.logEnd("OBJ loader completed: ");
+        if (!APPL.loaders.obj.loadingCompleted) {
+            APPL.support.dom.divLoad.functions.hide();
+            APPL.loaders.functions.logEnd("OBJ loader completed: ");
+            APPL.loaders.obj.loadingCompleted = true;
+        }
     },
     addToScene : function(attachTo, object) {
         if (object instanceof THREE.Object3D && object.children !== null && object.children.length > 0) {

@@ -8,7 +8,6 @@ APPOBJ = {
     baseDir : "models",
     dataAvailable : false,
     parseInitComplete : false,
-    loadingComplete : false,
     baseObjGroup : null,
     zipFile : "../../resource/models/objs.zip",
     mtlFile : "Airstream.mtl",
@@ -72,7 +71,7 @@ function initGL() {
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
     APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(512, 12, 152, 0x606060));
 
-    APPL.support.dom.functions.initAndShow();
+    APPL.support.dom.divLoad.functions.initAndShow();
 
     loadWithOBJLoader();
 }
@@ -135,18 +134,19 @@ function initPostGL() {
 }
 
 function animateFrame() {
-    if (APPOBJ.dataAvailable && !APPOBJ.loadingComplete) {
-        if (!APPOBJ.parseInitComplete) {
-            APPOBJ.parseInitComplete = APPL.loaders.obj.functions.parseInit(APPOBJ.objFile, APPOBJ.objContent, APPOBJ.mtlFile, APPOBJ.mtlContent);
-        }
-        var obj = APPL.loaders.obj.functions.parseExec();
-        if (obj !== null) {
-            APPL.loaders.obj.functions.addToScene(APPOBJ.baseObjGroup, obj);
-
-            APPL.support.dom.divText.innerHTML = "Please wait while file is loading ... Object count: " + APPL.loaders.objectCount;
+    if (APPOBJ.dataAvailable) {
+        if (!APPL.loaders.obj.functions.isLoadingComplete()) {
+            if (!APPOBJ.parseInitComplete) {
+                APPOBJ.parseInitComplete = APPL.loaders.obj.functions.parseInit(APPOBJ.objFile, APPOBJ.objContent, APPOBJ.mtlFile, APPOBJ.mtlContent);
+                APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.functions.getObjectCount());
+            }
+            var obj = APPL.loaders.obj.functions.parseExec();
+            if (obj !== null) {
+                APPL.loaders.obj.functions.addToScene(APPOBJ.baseObjGroup, obj);
+                APPL.support.dom.divLoad.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
+            }
         }
         else {
-            APPOBJ.loadingComplete = true;
             APPL.loaders.obj.functions.postLoad();
         }
     }

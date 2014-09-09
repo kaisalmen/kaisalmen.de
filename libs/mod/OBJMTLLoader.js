@@ -68,6 +68,8 @@ THREE.OBJMTLLoader.prototype = {
 
     lines : null,
     linesPos : 0,
+    objectCount : 0,
+    loadingComplete : false,
 
     /**
      * @param data - content of .obj file
@@ -110,10 +112,32 @@ THREE.OBJMTLLoader.prototype = {
         scope.face_pattern4 = /f( +(\d+)\/\/(\d+))( +(\d+)\/\/(\d+))( +(\d+)\/\/(\d+))( +(\d+)\/\/(\d+))?/
 
         scope.data = data;
-        scope.lines = data.split( "\n" );
+        scope.lines = data.split("\n");
         scope.linesPos = 0;
 
         scope.mtllibCallback = mtllibCallback;
+
+        var lines = scope.lines;
+        for (var i = 0; i < scope.lines.length; i++) {
+            var line = scope.lines[i];
+            if (line.length > 0) {
+                if (/^g /.test(line) || /# object /.test(line)) {
+                    scope.objectCount++;
+                }
+            }
+        }
+        console.log("Total object count: " + scope.objectCount);
+    },
+
+    getObjectCount : function () {
+        var scope = this;
+        return scope.objectCount;
+    },
+
+
+    isLoadingComplete : function () {
+        var scope = this;
+        return scope.loadingComplete;
     },
 
 	/**
@@ -212,7 +236,8 @@ THREE.OBJMTLLoader.prototype = {
 			}
 		}
 
-        var createdMesh = false;
+        var createdGroup = false;
+        var createdMaterial = false;
 		while (scope.linesPos < scope.lines.length) {
 			var line = scope.lines[scope.linesPos];
 			line = line.trim();
@@ -280,18 +305,16 @@ THREE.OBJMTLLoader.prototype = {
 				scope.object = new THREE.Object3D();
 				scope.object.name = line.substring( 2 ).trim();
 				scope.group.add( scope.object );
-
-                createdMesh = true;
 			}
             else if ( /^g /.test( line ) ) {
 				// group
 				meshN( line.substring( 2 ).trim(), undefined );
-                createdMesh = true;
+                createdGroup = true;
 			}
             else if ( /^usemtl /.test( line ) ) {
 				// material
 				meshN( undefined, line.substring( 7 ).trim() );
-                createdMesh = true;
+                createdMaterial = true;
 			}
             else if ( /^mtllib /.test( line ) ) {
 				// mtl file
@@ -308,15 +331,20 @@ THREE.OBJMTLLoader.prototype = {
 				console.log( "THREE.OBJMTLLoader: Unhandled line " + line );
 			}
 
-            if (createdMesh) {
+            if (createdGroup || createdMaterial) {
                 break;
             }
 		}
 
         //Add last object
+        var output = scope.object;
+        if (createdMaterial) {
+            output = null;
+        }
         if (scope.linesPos >= scope.lines.length) {
             meshN(undefined, undefined);
-            scope.object = null;
+            output = null;
+            scope.loadingComplete = true;
         }
 
         return scope.object;

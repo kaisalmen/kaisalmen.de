@@ -11,21 +11,37 @@ APPL.support = {
     dom : null
 }
 APPL.support.dom = {
-    functions : null,
-    divText : null
+    divLoad : null
 }
-APPL.support.dom.functions = {
+APPL.support.dom.divLoad = {
+    functions : null,
+    div : null,
+    textBase : "Please wait while file is loading ...",
+    textCurrent : null,
+    countTotal: null,
+    countCurrent: null
+}
+APPL.support.dom.divLoad.functions = {
     initAndShow : function() {
-        APPL.support.dom.divText = document.getElementById('AppLoadOverlay');
-        APPL.support.dom.divText.style.visibility = "visible";
-        APPL.support.dom.divText.style.left = (APPG.screen.glWidth - 500) / 2 + "px";
-        APPL.support.dom.divText.style.top = 48 + "px";
+        APPL.support.dom.divLoad.div = document.getElementById('AppLoadOverlay');
+        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase;
+        APPL.support.dom.divLoad.div.style.visibility = "visible";
+        APPL.support.dom.divLoad.div.style.left = (APPG.screen.glWidth - 700) / 2 + "px";
+        APPL.support.dom.divLoad.div.style.top = 48 + "px";
+    },
+    setTotalObjectCount : function(countTotal) {
+        APPL.support.dom.divLoad.countTotal = countTotal;
+        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase + " Object count: 0 of " + countTotal;
+    },
+    updateCurrentObjectCount : function(countCurrent) {
+        APPL.support.dom.divLoad.countCurrent = countCurrent;
+        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase + " Object count: " + countCurrent + " of " + APPL.support.dom.divLoad.countTotal;
     },
     hide : function() {
-        if (APPL.support.dom.divTex !== null) {
-            APPL.support.dom.divText.style.left = -1000;
-            APPL.support.dom.divText.style.top = -1000;
-            APPL.support.dom.divText.style.visibility = "hidden";
+        if (APPL.support.dom.divLoad.div !== null) {
+            APPL.support.dom.divLoad.div.style.left = -1000;
+            APPL.support.dom.divLoad.div.style.top = -1000;
+            APPL.support.dom.divLoad.div.style.visibility = "hidden";
             console.log("Post load completed.");
         }
     }
