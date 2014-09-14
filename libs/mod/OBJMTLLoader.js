@@ -9,7 +9,7 @@ THREE.OBJMTLLoader = function () {};
 
 THREE.OBJMTLLoader.prototype = {
 
-	constructor : THREE.OBJMTLLoader,
+    constructor : THREE.OBJMTLLoader,
 
     load: function ( url, mtlurl, onLoad, onProgress, onError ) {
 
@@ -68,7 +68,9 @@ THREE.OBJMTLLoader.prototype = {
 
     lines : null,
     linesPos : 0,
+
     objectCount : 0,
+    ocLinesPos : 0,
     loadingComplete : false,
 
     /**
@@ -113,20 +115,34 @@ THREE.OBJMTLLoader.prototype = {
 
         scope.data = data;
         scope.lines = data.split("\n");
-        scope.linesPos = 0;
 
         scope.mtllibCallback = mtllibCallback;
+    },
 
+    calcObjectCount : function(ocLinesPerFrame) {
+        var scope = this;
         var lines = scope.lines;
-        for (var i = 0; i < scope.lines.length; i++) {
-            var line = scope.lines[i];
+        var linesCount = lines.length;
+
+        var currentLength = scope.ocLinesPos + ocLinesPerFrame;
+        currentLength = currentLength > linesCount ? linesCount : currentLength;
+        for (scope.ocLinesPos; scope.ocLinesPos < currentLength; scope.ocLinesPos++) {
+            var line = scope.lines[scope.ocLinesPos];
             if (line.length > 0) {
                 if (/^g /.test(line) || /# object /.test(line)) {
                     scope.objectCount++;
                 }
             }
         }
-        console.log("Total object count: " + scope.objectCount);
+        var done = false;
+        if (currentLength === linesCount) {
+            console.log("Total object count: " + scope.objectCount);
+            done = true;
+        }
+        else {
+            console.log("Current object count: " + scope.objectCount);
+        }
+        return done;
     },
 
     getObjectCount : function () {
@@ -140,11 +156,15 @@ THREE.OBJMTLLoader.prototype = {
         return scope.loadingComplete;
     },
 
-	/**
-	 * Parses loaded .obj file
-	 */
-	parse: function () {
+    /**
+     * Parses loaded .obj file
+     */
+    parse: function (linesPerFrame) {
         var scope = this;
+        var createdGroup = false;
+        var createdMaterial = false;
+        var output = null;
+
 		function vector( x, y, z ) {
 			return new THREE.Vector3( x, y, z );
 		}
@@ -236,9 +256,10 @@ THREE.OBJMTLLoader.prototype = {
 			}
 		}
 
-        var createdGroup = false;
-        var createdMaterial = false;
-		while (scope.linesPos < scope.lines.length) {
+        var linesCount = scope.lines.length;
+        var currentLength = scope.linesPos + linesPerFrame;
+        currentLength = currentLength > linesCount ? linesCount : currentLength;
+		while (scope.linesPos < currentLength) {
 			var line = scope.lines[scope.linesPos];
 			line = line.trim();
 			var result;
@@ -334,7 +355,7 @@ THREE.OBJMTLLoader.prototype = {
             if (createdGroup || createdMaterial) {
                 break;
             }
-		}
+        }
 
         //Add last object
         var output = scope.object;
@@ -348,7 +369,8 @@ THREE.OBJMTLLoader.prototype = {
         }
 
         return scope.object;
-	}
+    }
+
 };
 
 THREE.EventDispatcher.prototype.apply( THREE.OBJMTLLoader.prototype );

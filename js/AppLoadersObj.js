@@ -37,18 +37,18 @@ APPL.loaders.obj.functions = {
         APPL.loaders.obj.functions.parseMtl(mtlFile, mtlContent);
         APPL.loaders.obj.objMtlLoader.init(objContent);
         APPL.loaders.functions.logStart("Started OBJ parsing: " + objFile);
-        return true;
+    },
+    calcObjectCount : function(ocLinesPerFrame) {
+        return APPL.loaders.obj.objMtlLoader.calcObjectCount(ocLinesPerFrame);
     },
     getObjectCount : function() {
         return APPL.loaders.obj.objMtlLoader.getObjectCount();
     },
-
     isLoadingComplete : function() {
         return APPL.loaders.obj.objMtlLoader.isLoadingComplete();
     },
-    parseExec : function() {
-        var obj = APPL.loaders.obj.objMtlLoader.parse();
-        return obj;
+    parseExec : function(linesPerFrame) {
+        return APPL.loaders.obj.objMtlLoader.parse(linesPerFrame);
     },
     parseMtl : function (filename, data) {
         APPL.loaders.functions.logStart("Started MTL parsing: " + filename);
@@ -76,7 +76,7 @@ APPL.loaders.obj.functions = {
                         }
                     }
                     APPL.loaders.objectCount++;
-                    console.log("Object Count: " + APPL.loaders.objectCount + " (Name: " + child.name + " uuid: " + child.uuid + extraString);
+//                    console.log("Object Count: " + APPL.loaders.objectCount + " (Name: " + child.name + " uuid: " + child.uuid + extraString);
                 }
             });
         }

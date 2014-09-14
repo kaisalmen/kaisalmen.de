@@ -164,7 +164,7 @@ function render() {
     APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
-    APPG.frameNumber++;
+    APPG.functions.addFrameNumber();
 }
 
 function resetCamera() {

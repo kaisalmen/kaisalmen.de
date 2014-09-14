@@ -82,6 +82,9 @@ APPG.functions = {
 
         APPG.dom.canvasGL.style.width = APPG.screen.glWidth - APPG.dom.reductionWidth + "px";
         APPG.dom.canvasGL.style.height = APPG.screen.glHeight - APPG.dom.reductionHeight + "px";
+    },
+    addFrameNumber : function() {
+        APPG.frameNumber++;
     }
 }
 

@@ -317,7 +317,7 @@ function render() {
     APPG.controls.trackball.update();
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
-    APPG.frameNumber++;
+    APPG.functions.addFrameNumber();
 
     if (ATR.text.update && APPG.frameNumber % 30 === 0) {
         ATR.text.update = false;
