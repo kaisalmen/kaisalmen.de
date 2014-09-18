@@ -4,15 +4,13 @@
  * Separate OBJ loader
  */
 var APPZSD = {
-    datGui : null,
-    dataAvailable : false,
-    parseInitComplete : false,
-    baseObjGroup : null,
     zipFile : "../../resource/models/snowtracks.zip",
     mtlFile : "snowtracks.mtl",
     mtlContent : null,
     objFile : "snowtracks.obj",
-    objContent : null
+    objContent : null,
+    datGui : null,
+    baseObjGroup : null
 }
 APPZSD.datGui = {
     functions : null,
@@ -67,6 +65,8 @@ function initPreGL() {
 
     APPG.dom.canvasAppFloat = document.getElementById("AppFloat");
     APPG.dom.canvasAppFloat.appendChild(APPZSD.datGui.datGuiRef.domElement);
+
+    APPL.loaders.obj.fpsCheckTime = new Date().getTime();
 }
 
 function resizeDisplayHtml() {
@@ -119,7 +119,8 @@ function storeData(filename, fileContent) {
         APPZSD.objContent = fileContent;
     }
     if (APPZSD.objContent !== null && APPZSD.mtlContent !== null) {
-        APPZSD.dataAvailable = true;
+        APPL.loaders.obj.dataAvailable = true;
+        APPL.loaders.obj.functions.parseInit(APPZSD.objFile, APPZSD.objContent, APPZSD.mtlFile, APPZSD.mtlContent);
     }
 }
 
@@ -139,21 +140,8 @@ function initPostGL() {
 }
 
 function animateFrame() {
-    if (APPZSD.dataAvailable) {
-        if (!APPL.loaders.obj.functions.isLoadingComplete()) {
-            if (!APPZSD.parseInitComplete) {
-                APPZSD.parseInitComplete = APPL.loaders.obj.functions.parseInit(APPZSD.objFile, APPZSD.objContent, APPZSD.mtlFile, APPZSD.mtlContent);
-                APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.functions.getObjectCount());
-            }
-            var obj = APPL.loaders.obj.functions.parseExec();
-            if (obj !== null) {
-                APPL.loaders.obj.functions.addToScene(APPZSD.baseObjGroup, obj);
-                APPL.support.dom.divLoad.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
-            }
-        }
-        else {
-            APPL.loaders.obj.functions.postLoad();
-        }
+    if (APPL.loaders.obj.dataAvailable && APPG.frameNumber % 2 === 0) {
+        APPL.loaders.obj.functions.handleObjLoading(APPZSD.baseObjGroup);
     }
     render();
     requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));

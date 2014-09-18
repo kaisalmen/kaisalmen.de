@@ -4,23 +4,15 @@
  * Separate OBJ loader
  */
 var APPOBJ = {}
+
 APPOBJ = {
     baseDir : "models",
-    dataAvailable : false,
-    updateTotalObjCount : true,
-    readLinesPerFrame : 500,
-    minReadLinesPerFrame : 75,
-    maxReadLinesPerFrame : 5000,
-    fpsCheckTime : 0,
-    fpsRef : 0,
-    minFps : 25,
-    baseObjGroup : null,
     zipFile : "../../resource/models/objs.zip",
     mtlFile : "Airstream.mtl",
     mtlContent : null,
     objFile : "Airstream.obj",
     objContent : null,
-    worker : null
+    baseObjGroup : null
 }
 
 $(document).ready(
@@ -52,19 +44,7 @@ function initShaders() {
 
 function initPreGL() {
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
-    APPOBJ.fpsCheckTime = new Date().getTime();
-/*
-    APPOBJ.worker = new Worker("../../js/webWorker.js");
-    APPOBJ.worker.addEventListener('message', function(e) {
-        var data = e.data;
-        if (data.blob) {
-            console.log("Worker has blob" + data.blob.type + " " + data.blob.size);
-        }
-        else if (data.msg) {
-            console.log(data.msg);
-        };
-    }, false);
-*/
+    APPL.loaders.obj.fpsCheckTime = new Date().getTime();
 }
 
 function resizeDisplayHtml() {
@@ -104,7 +84,6 @@ function loadWithOBJLoader() {
     APPL.loaders.obj.functions.init();
     var callbacks = [storeData, storeData];
     APPL.support.zip.functions.loadZipCallbacks(APPOBJ.zipFile, files, callbacks);
-
     //loadViaFS();
 }
 
@@ -116,12 +95,8 @@ function storeData(filename, fileContent) {
         APPOBJ.objContent = fileContent;
     }
     if (APPOBJ.objContent !== null && APPOBJ.mtlContent !== null) {
-        APPOBJ.dataAvailable = true;
+        APPL.loaders.obj.dataAvailable = true;
         APPL.loaders.obj.functions.parseInit(APPOBJ.objFile, APPOBJ.objContent, APPOBJ.mtlFile, APPOBJ.mtlContent);
-/*
-        APPOBJ.worker.postMessage({"cmd": "init", "obj" : APPOBJ.objContent, "objName" : APPOBJ.objFile, "mtl" : APPOBJ.mtlContent, "mtlName" : APPOBJ.mtlFile});
-        APPOBJ.worker.postMessage({"cmd": "loadObj"});
-*/
     }
 }
 
@@ -158,62 +133,9 @@ function initPostGL() {
     APPG.dom.canvasGL.appendChild(APPG.renderer.domElement);
 }
 
-function handleObjLoading() {
-    if (APPOBJ.updateTotalObjCount && APPL.loaders.obj.functions.calcObjectCount(10000)) {
-        // final update
-        APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.functions.getObjectCount());
-        APPOBJ.updateTotalObjCount = false;
-    }
-
-    if (APPOBJ.updateTotalObjCount) {
-        APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.functions.getObjectCount());
-    }
-    var now = new Date().getTime();
-    if (now > APPOBJ.fpsCheckTime + 1000) {
-
-        APPOBJ.fpsCheckTime = now;
-        var reference = APPG.frameNumber - APPOBJ.fpsRef;
-        var old = APPOBJ.readLinesPerFrame;
-
-        if (reference < APPOBJ.minFps) {
-            APPOBJ.readLinesPerFrame = parseInt(APPOBJ.readLinesPerFrame / 2);
-            if (APPOBJ.readLinesPerFrame < APPOBJ.minReadLinesPerFrame) {
-                APPOBJ.readLinesPerFrame = APPOBJ.minReadLinesPerFrame;
-            }
-            if (APPOBJ.readLinesPerFrame !== APPOBJ.minReadLinesPerFrame || old !== APPOBJ.readLinesPerFrame) {
-                console.log("New lines per frame: " + APPOBJ.readLinesPerFrame);
-            }
-        }
-        else {
-            APPOBJ.readLinesPerFrame *= 2;
-            if (APPOBJ.readLinesPerFrame > APPOBJ.maxReadLinesPerFrame) {
-                APPOBJ.readLinesPerFrame = APPOBJ.maxReadLinesPerFrame;
-            }
-            if (APPOBJ.readLinesPerFrame !== APPOBJ.maxReadLinesPerFrame || old !== APPOBJ.readLinesPerFrame) {
-                console.log("New lines per frame: " + APPOBJ.readLinesPerFrame);
-            }
-        }
-        console.log("Frames per second in last interval: " + reference + " (Frames: " + APPG.frameNumber + ")");
-        APPOBJ.fpsRef = APPG.frameNumber;
-    }
-
-    if (!APPL.loaders.obj.functions.isLoadingComplete()) {
-        var obj = APPL.loaders.obj.functions.parseExec(APPOBJ.readLinesPerFrame);
-        if (obj !== null) {
-            APPL.loaders.obj.functions.addToScene(APPOBJ.baseObjGroup, obj);
-            APPL.support.dom.divLoad.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
-        }
-    }
-    else {
-        APPL.loaders.obj.functions.postLoad();
-        // everything was loaded
-        APPOBJ.dataAvailable = false;
-    }
-}
-
 function animateFrame() {
-    if (APPOBJ.dataAvailable && APPG.frameNumber % 2 === 0) {
-        handleObjLoading();
+    if (APPL.loaders.obj.dataAvailable && APPG.frameNumber % 2 === 0) {
+        APPL.loaders.obj.functions.handleObjLoading(APPOBJ.baseObjGroup);
     }
     render();
     requestAnimationFrame(animateFrame, $("AppWebGLCanvas"));

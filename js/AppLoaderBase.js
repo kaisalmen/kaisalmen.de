@@ -19,7 +19,8 @@ APPL.support.dom.divLoad = {
     textBase : "Please wait while file is loading ...",
     textCurrent : null,
     countTotal: null,
-    countCurrent: null
+    countCurrent: null,
+    updateTotalObjCount : true
 }
 APPL.support.dom.divLoad.functions = {
     initAndShow : function() {

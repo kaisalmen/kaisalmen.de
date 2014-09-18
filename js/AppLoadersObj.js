@@ -7,7 +7,14 @@ APPL.loaders.obj = {
     objLoader : null,
     mtlLoader : null,
     objMtlLoader : null,
-    loadingCompleted : false
+    loadingCompleted : false,
+    dataAvailable : false,
+    readLinesPerFrame : 500,
+    minReadLinesPerFrame : 75,
+    maxReadLinesPerFrame : 5000,
+    fpsCheckTime : 0,
+    fpsRef : 0,
+    minFps : 25
 }
 APPL.loaders.obj.functions = {
     init : function (objAttachedPoint) {
@@ -24,11 +31,6 @@ APPL.loaders.obj.functions = {
                     // child.material = materialMaster;
                 }
             });
-            //objRoot.scale.x = 0.05;
-            //objRoot.scale.y = 0.05;
-            //objRoot.scale.z = 0.05;
-            //objRoot.rotation.x = - Math.PI / 2;
-            //objRoot.position.y = 5;
             APPG.scenes.perspective.scene.add(objRoot);
             APPL.loaders.obj.functions.postLoad();
         });
@@ -40,12 +42,6 @@ APPL.loaders.obj.functions = {
     },
     calcObjectCount : function(ocLinesPerFrame) {
         return APPL.loaders.obj.objMtlLoader.calcObjectCount(ocLinesPerFrame);
-    },
-    getObjectCount : function() {
-        return APPL.loaders.obj.objMtlLoader.getObjectCount();
-    },
-    isLoadingComplete : function() {
-        return APPL.loaders.obj.objMtlLoader.isLoadingComplete();
     },
     parseExec : function(linesPerFrame) {
         return APPL.loaders.obj.objMtlLoader.parse(linesPerFrame);
@@ -60,6 +56,58 @@ APPL.loaders.obj.functions = {
             APPL.support.dom.divLoad.functions.hide();
             APPL.loaders.functions.logEnd("OBJ loader completed: ");
             APPL.loaders.obj.loadingCompleted = true;
+        }
+    },
+    handleObjLoading : function (baseObjGroup) {
+        if (APPL.support.dom.divLoad.updateTotalObjCount && APPL.loaders.obj.functions.calcObjectCount(10000)) {
+            // final update
+            APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
+            APPL.support.dom.divLoad.updateTotalObjCount = false;
+        }
+
+        if (APPL.support.dom.divLoad.updateTotalObjCount) {
+            APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
+        }
+        var now = new Date().getTime();
+        if (now > APPL.loaders.obj.fpsCheckTime + 1000) {
+
+            APPL.loaders.obj.fpsCheckTime = now;
+            var reference = APPG.frameNumber - APPL.loaders.obj.fpsRef;
+            var old = APPL.loaders.obj.readLinesPerFrame;
+
+            if (reference < APPL.loaders.obj.minFps) {
+                APPL.loaders.obj.readLinesPerFrame = parseInt(APPL.loaders.obj.readLinesPerFrame / 2);
+                if (APPL.loaders.obj.readLinesPerFrame < APPL.loaders.obj.minReadLinesPerFrame) {
+                    APPL.loaders.obj.readLinesPerFrame = APPL.loaders.obj.minReadLinesPerFrame;
+                }
+                if (APPL.loaders.obj.readLinesPerFrame !== APPL.loaders.obj.minReadLinesPerFrame || old !== APPL.loaders.obj.readLinesPerFrame) {
+                    console.log("New lines per frame: " + APPL.loaders.obj.readLinesPerFrame);
+                }
+            }
+            else {
+                APPL.loaders.obj.readLinesPerFrame *= 2;
+                if (APPL.loaders.obj.readLinesPerFrame > APPL.loaders.obj.maxReadLinesPerFrame) {
+                    APPL.loaders.obj.readLinesPerFrame = APPL.loaders.obj.maxReadLinesPerFrame;
+                }
+                if (APPL.loaders.obj.readLinesPerFrame !== APPL.loaders.obj.maxReadLinesPerFrame || old !== APPL.loaders.obj.readLinesPerFrame) {
+                    console.log("New lines per frame: " + APPL.loaders.obj.readLinesPerFrame);
+                }
+            }
+            console.log("Frames per second in last interval: " + reference + " (Frames: " + APPG.frameNumber + ")");
+            APPL.loaders.obj.fpsRef = APPG.frameNumber;
+        }
+
+        if (!APPL.loaders.obj.objMtlLoader.isLoadingComplete()) {
+            var obj = APPL.loaders.obj.functions.parseExec(APPL.loaders.obj.readLinesPerFrame);
+            if (obj !== null) {
+                APPL.loaders.obj.functions.addToScene(baseObjGroup, obj);
+                APPL.support.dom.divLoad.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
+            }
+        }
+        else {
+            APPL.loaders.obj.functions.postLoad();
+            // everything was loaded
+            APPL.loaders.obj.dataAvailable = false;
         }
     },
     addToScene : function(attachTo, object) {
