@@ -15,6 +15,8 @@
         <script src="../../libs/ext/fso.js"></script>
         <script src="../../libs/ext/Detector.js"></script>
         <script src="../../libs/mod/TrackballControls.js"></script>
+        <script src="../../libs/ext/dat.gui.js"></script>
+        <script src="../../libs/ext/dat.gui.min.js"></script>
 
         <link href="../../resource/css/kaiAppStyles.css" type="text/css" rel="stylesheet" />
 
@@ -27,6 +29,7 @@
         <script>if ( ! Detector.webgl ) Detector.addGetWebGLMessage();</script>
 
         <div id="AppRoot">
+            <div id="AppFloat"></div>
             <div id="AppWebGL"></div>
             <div id="AppLoadOverlay" style="visibility: hidden; font-size: 32px; color: white; background-color: #aaaaaa; position: absolute;"></div>
         </div>

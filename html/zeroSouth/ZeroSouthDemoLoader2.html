@@ -18,13 +18,15 @@
         <script src="../../libs/ext/dat.gui.js"></script>
         <script src="../../libs/ext/dat.gui.min.js"></script>
 
-        <link rel="stylesheet" href="../../resource/css/kaiAppStyles.css" />
+        <link href="../../resource/css/kaiAppStyles.css" type="text/css" rel="stylesheet" />
 
         <script src="../../js/AppBase.js"></script>
         <script src="../../js/AppLoaderBase.js"></script>
         <script src="../../js/AppLoadersObj.js"></script>
         <script src="../../js/ShaderTools.js"></script>
         <script src="../../js/ZeroSouthDemoLoader2.js"></script>
+
+        <script>if ( ! Detector.webgl ) Detector.addGetWebGLMessage();</script>
 
         <div id="AppRoot">
             <div id="AppFloat"></div>

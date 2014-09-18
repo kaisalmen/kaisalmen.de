@@ -14,6 +14,19 @@ APPOBJ = {
     objContent : null,
     baseObjGroup : null
 }
+APPOBJ.datGui = {
+    functions : null,
+    datGuiRef : null,
+    params : null
+}
+APPOBJ.datGui.functions = {
+    init: function () {
+        this.resetCamera = resetTrackballControls;
+    }
+}
+APPOBJ.datGui.params = {
+    paramFunctionRef : null
+}
 
 $(document).ready(
     function() {
@@ -44,6 +57,18 @@ function initShaders() {
 
 function initPreGL() {
     APPG.dom.canvasGL = document.getElementById("AppWebGL");
+
+    APPOBJ.datGui.paramFunctionRef = new APPOBJ.datGui.functions.init();
+    APPOBJ.datGui.datGuiRef = new dat.GUI(
+        {
+            autoPlace : false
+        }
+    );
+    APPOBJ.datGui.datGuiRef.add(APPOBJ.datGui.paramFunctionRef, "resetCamera").name("Reset camera!");
+
+    APPG.dom.canvasAppFloat = document.getElementById("AppFloat");
+    APPG.dom.canvasAppFloat.appendChild(APPOBJ.datGui.datGuiRef.domElement);
+
     APPL.loaders.obj.fpsCheckTime = new Date().getTime();
 }
 
@@ -146,4 +171,16 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
+}
+
+function resetCamera() {
+    APPG.scenes.perspective.camera.position.set(400, 200, 450);
+    APPG.scenes.perspective.camera.updateProjectionMatrix();
+}
+
+function resetTrackballControls() {
+    console.log("resetTrackballControls");
+    resetCamera();
+    APPG.controls.trackball.reset();
+    render();
 }
