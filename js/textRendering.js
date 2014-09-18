@@ -13,9 +13,6 @@
  */
 var ATR = {};
 
-ATR.dom = {
-    canvasAppFloat : null
-}
 APPG.shaders.shaderFlicker = {
     vertexShaderText : null,
     fragmentShaderText : null,

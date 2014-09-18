@@ -30,16 +30,26 @@ $(document).ready(
         APPExecFlow.functions.run();
     }
 )
-    .on({
-        mouseenter: function() {
-            APPG.controls.trackball.enabled = true;
-            APPG.controls.trackball.noPan = false;
-        },
-        mouseleave: function() {
-            APPG.controls.trackball.enabled = false;
-            APPG.controls.trackball.noPan = true;
-        }
-    }, "#AppWebGL");
+.on({
+    mouseenter: function() {
+        APPG.controls.trackball.enabled = false;
+        APPG.controls.trackball.noPan = true;
+    },
+    mouseleave: function() {
+        APPG.controls.trackball.enabled = true;
+        APPG.controls.trackball.noPan = false;
+    }
+}, "#AppFloat")
+.on({
+    mouseenter: function() {
+        APPG.controls.trackball.enabled = true;
+        APPG.controls.trackball.noPan = false;
+    },
+    mouseleave: function() {
+        APPG.controls.trackball.enabled = false;
+        APPG.controls.trackball.noPan = true;
+    }
+}, "#AppWebGL");
 
 $(window).resize(function() {
     resizeDisplayGL();
@@ -79,7 +89,7 @@ function resizeDisplayHtml() {
     APPG.functions.resizeDisplayHtmlDefault(2);
 
     APPG.dom.canvasAppFloat.style.top = 0 + "px";
-    APPG.dom.canvasAppFloat.style.left = (window.innerWidth - parseInt(APPZSD.datGui.datGuiRef.domElement.style.width)) + "px";
+    APPG.dom.canvasAppFloat.style.left = 0 + "px";
 }
 
 function initGL() {
