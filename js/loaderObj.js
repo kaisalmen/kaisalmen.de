@@ -27,6 +27,27 @@ APPOBJ.datGui.functions = {
 APPOBJ.datGui.params = {
     paramFunctionRef : null
 }
+APPOBJ.text = {
+    object : null,
+    params : null
+}
+APPOBJ.text.object = {
+    mesh : null,
+    geometry : null,
+    material : null
+}
+APPOBJ.text.params = {
+    name : "Tester",
+    size : 40,
+    amount : 0,
+    curveSegments : 3,
+    bevelEnabled : false,
+    font : "optimer",
+    weight : "normal",
+    style : "normal",
+    material : 0,
+    extrudeMaterial : 0
+}
 
 $(document).ready(
     function() {
@@ -86,11 +107,26 @@ function initGL() {
     APPG.renderer.functions.createDefault();
 
     APPG.scenes.perspective.functions.createDefault();
-    APPG.scenes.perspective.functions.resetCameraDefault();
-    APPG.scenes.perspective.camera.position.set(400, 200, 450);
+    APPG.scenes.ortho.functions.createDefault(-1000, 1000);
+    resetCamera(null, null, null);
 
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
+
+    APPG.textBuffer.functions.createAll();
+
+    var material = new THREE.MeshPhongMaterial( {
+        emissive: 0xdddddd,
+        transparent : true,
+        opacity : 0.75,
+        shading: THREE.FlatShading,
+        side : THREE.DoubleSide
+    } );
+    var geometry = new THREE.SphereGeometry(100, 32, 32);
+    var mesh = new THREE.Mesh(geometry, material);
+    APPG.scenes.ortho.Billboard.functions.addMesh(mesh);
+
+    createText();
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
@@ -99,6 +135,29 @@ function initGL() {
     APPL.support.dom.divLoad.functions.initAndShow();
 
     loadWithOBJLoader();
+}
+
+function removeText() {
+    APPG.scenes.perspective.scene.remove(ATR.objectText.mesh);
+}
+
+function createText() {
+    APPOBJ.text.object.geometry = new THREE.TextGeometry(APPOBJ.text.params.name, APPOBJ.text.params);
+    APPOBJ.text.object.geometry.computeBoundingBox();
+    APPOBJ.text.object.geometry.computeVertexNormals();
+
+    APPOBJ.text.object.material = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0xdddddd,
+            transparent : true,
+            opacity : 0.75,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    APPOBJ.text.object.mesh = new THREE.Mesh(APPOBJ.text.object.geometry, APPOBJ.text.object.material);
+    //APPG.scenes.ortho.Billboard.functions.addMesh(APPOBJ.text.object.mesh);
+    APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.t0);
 }
 
 function loadWithOBJLoader() {
@@ -171,11 +230,15 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
+
+    APPG.renderer.clearDepth();
+    APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
 }
 
 function resetCamera() {
     APPG.scenes.perspective.camera.position.set(400, 200, 450);
     APPG.scenes.perspective.camera.updateProjectionMatrix();
+    APPG.scenes.ortho.camera.position.set(0, 0, 10);
 }
 
 function resetTrackballControls() {

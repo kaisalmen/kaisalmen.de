@@ -53,7 +53,83 @@ var APPG = {
     shaders : null,
     renderer : null,
     scenes : null,
-    controls : null
+    controls : null,
+    textBuffer : null
+}
+
+APPG.textBuffer = {
+    params: {
+        size: 40,
+        amount: 0,
+        curveSegments: 3,
+        bevelEnabled: false,
+        font: "optimer",
+        weight: "normal",
+        style: "normal",
+        material: 0,
+        extrudeMaterial: 0
+    },
+    t0 : null,
+    t1 : null,
+    t2 : null,
+    t3 : null,
+    t4 : null,
+    t5 : null,
+    t6 : null,
+    t7 : null,
+    t8 : null,
+    t9 : null,
+    ta : null,
+    tb : null,
+    tc : null,
+    td : null,
+    te : null,
+    tf : null,
+    tg : null,
+    th : null,
+    ti : null,
+    tj : null
+}
+APPG.textBuffer.functions = {
+    createSingle : function(text) {
+        var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
+        textGeometry.computeBoundingBox();
+        textGeometry.computeVertexNormals();
+
+        var textMaterial = new THREE.MeshFaceMaterial( [
+            new THREE.MeshPhongMaterial( {
+                emissive: 0xdddddd,
+                transparent : true,
+                opacity : 0.75,
+                shading: THREE.FlatShading,
+                side : THREE.DoubleSide
+            } )
+        ] );
+        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        return textMesh;
+    },
+    createAll : function() {
+        APPG.textBuffer.t0 = APPG.textBuffer.functions.createSingle("0"),
+        APPG.textBuffer.t1 = APPG.textBuffer.functions.createSingle("1"),
+        APPG.textBuffer.t2 = APPG.textBuffer.functions.createSingle("2"),
+        APPG.textBuffer.t3 = APPG.textBuffer.functions.createSingle("3"),
+        APPG.textBuffer.t4 = APPG.textBuffer.functions.createSingle("4"),
+        APPG.textBuffer.t5 = APPG.textBuffer.functions.createSingle("5"),
+        APPG.textBuffer.t6 = APPG.textBuffer.functions.createSingle("6"),
+        APPG.textBuffer.t7 = APPG.textBuffer.functions.createSingle("7"),
+        APPG.textBuffer.t8 = APPG.textBuffer.functions.createSingle("8"),
+        APPG.textBuffer.t9 = APPG.textBuffer.functions.createSingle("9"),
+        APPG.textBuffer.ta = APPG.textBuffer.functions.createSingle("a"),
+        APPG.textBuffer.tb = APPG.textBuffer.functions.createSingle("b"),
+        APPG.textBuffer.tc = APPG.textBuffer.functions.createSingle("c"),
+        APPG.textBuffer.td = APPG.textBuffer.functions.createSingle("d"),
+        APPG.textBuffer.te = APPG.textBuffer.functions.createSingle("e"),
+        APPG.textBuffer.tf = APPG.textBuffer.functions.createSingle("f"),
+        APPG.textBuffer.tg = APPG.textBuffer.functions.createSingle("g"),
+        APPG.textBuffer.th = APPG.textBuffer.functions.createSingle("h"),
+        APPG.textBuffer.ti = APPG.textBuffer.functions.createSingle("i"),
+        APPG.textBuffer.tj = APPG.textBuffer.functions.createSingle("j")
+    }
 }
 
 APPG.screen = {
@@ -132,6 +208,64 @@ APPG.scenes.perspective.functions = {
     resizePerspectiveCameraDefault: function () {
         APPG.scenes.perspective.camera.aspect = (APPG.screen.glWidth / APPG.screen.glHeight);
         APPG.scenes.perspective.camera.updateProjectionMatrix();
+    }
+}
+APPG.scenes.ortho = {
+    camera : null,
+    scene : null,
+    pixelLeft : null,
+    pixelRight : null,
+    pixelTop : null,
+    pixelBottom : null,
+    Billboard : null
+}
+APPG.scenes.ortho.functions = {
+    createDefault : function(near, far) {
+        APPG.scenes.ortho.scene = new THREE.Scene();
+        APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, near, far);
+    }
+}
+APPG.scenes.ortho.Billboard = {
+    shaderMesh : null
+}
+APPG.scenes.ortho.Billboard.functions = {
+    addShaderMesh : function (shaderMesh) {
+        APPG.scenes.ortho.Billboard.shaderMesh = shaderMesh;
+        APPG.scenes.ortho.scene.add(shaderMesh);
+    },
+    addMesh : function (mesh) {
+        APPG.scenes.ortho.scene.add(mesh);
+    },
+    removeMesh : function (mesh) {
+        APPG.scenes.ortho.scene.remove(mesh);
+    },
+    resizeBillboard : function () {
+        // calc screen dimension
+        APPG.scenes.ortho.pixelLeft = -APPG.screen.glWidth / 2;
+        APPG.scenes.ortho.pixelRight = APPG.screen.glWidth / 2;
+        APPG.scenes.ortho.pixelTop = APPG.screen.glHeight / 2;
+        APPG.scenes.ortho.pixelBottom = -APPG.screen.glHeight / 2;
+
+        // update camera
+        APPG.scenes.ortho.camera.left = APPG.scenes.ortho.pixelLeft;
+        APPG.scenes.ortho.camera.right = APPG.scenes.ortho.pixelRight;
+        APPG.scenes.ortho.camera.top = APPG.scenes.ortho.pixelTop;
+        APPG.scenes.ortho.camera.bottom = APPG.scenes.ortho.pixelBottom;
+        APPG.scenes.ortho.camera.updateProjectionMatrix();
+
+        // update billboard geometries dimensions
+        if (APPG.scenes.ortho.Billboard.shaderMesh.geometry !== null) {
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[0].x = APPG.scenes.ortho.pixelLeft;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[0].y = APPG.scenes.ortho.pixelTop;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[1].x = APPG.scenes.ortho.pixelRight;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[1].y = APPG.scenes.ortho.pixelTop;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[2].x = APPG.scenes.ortho.pixelLeft;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[2].y = APPG.scenes.ortho.pixelBottom;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[3].x = APPG.scenes.ortho.pixelRight;
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.vertices[3].y = APPG.scenes.ortho.pixelBottom;
+
+            APPG.scenes.ortho.Billboard.shaderMesh.geometry.verticesNeedUpdate = true;
+        }
     }
 }
 APPG.scenes.lights =  {

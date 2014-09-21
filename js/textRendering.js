@@ -67,49 +67,6 @@ ATR.datGui = {
     controllerBlendShader : null,
     controllerColorShader : null
 }
-APPG.scenes.ortho = {
-    camera : null,
-    scene : null,
-    Billboard : {
-        geometry : null,
-        material : null,
-        mesh : null
-    },
-    pixelLeft : null,
-    pixelRight : null,
-    pixelTop : null,
-    pixelBottom : null,
-    resizeBillboardFunc : function() {
-        if (ATR.datGui.paramFunctionRef.enableShader) {
-            // calc screen dimension
-            APPG.scenes.ortho.pixelLeft = -APPG.screen.glWidth / 2;
-            APPG.scenes.ortho.pixelRight = APPG.screen.glWidth / 2;
-            APPG.scenes.ortho.pixelTop = APPG.screen.glHeight / 2;
-            APPG.scenes.ortho.pixelBottom = -APPG.screen.glHeight / 2;
-
-            // update camera
-            APPG.scenes.ortho.camera.left = APPG.scenes.ortho.pixelLeft;
-            APPG.scenes.ortho.camera.right = APPG.scenes.ortho.pixelRight;
-            APPG.scenes.ortho.camera.top = APPG.scenes.ortho.pixelTop;
-            APPG.scenes.ortho.camera.bottom = APPG.scenes.ortho.pixelBottom;
-            APPG.scenes.ortho.camera.updateProjectionMatrix();
-
-            // update billboard geometries dimensions
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[0].x = APPG.scenes.ortho.pixelLeft;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[0].y = APPG.scenes.ortho.pixelTop;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[1].x = APPG.scenes.ortho.pixelRight;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[1].y = APPG.scenes.ortho.pixelTop;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[2].x = APPG.scenes.ortho.pixelLeft;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[2].y = APPG.scenes.ortho.pixelBottom;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[3].x = APPG.scenes.ortho.pixelRight;
-            APPG.scenes.ortho.Billboard.mesh.geometry.vertices[3].y = APPG.scenes.ortho.pixelBottom;
-
-            APPG.scenes.ortho.Billboard.mesh.geometry.verticesNeedUpdate = true;
-
-            APPG.shaders.functions.updateShader();
-        }
-    }
-}
 ATR.objectText = {
     mesh : null,
     geometry : null,
@@ -224,25 +181,23 @@ function initGL() {
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.camera.fov = 70;
-
-    APPG.scenes.ortho.scene = new THREE.Scene();
-    APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, 1, 10 );
+    APPG.scenes.ortho.functions.createDefault(1, 10);
     resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
 
     createText();
 
-    APPG.scenes.ortho.Billboard.material = new THREE.ShaderMaterial( {
-        uniforms: APPG.shaders.shaderFlicker.uniforms,
-        vertexShader: APPG.shaders.shaderFlicker.vertexShaderText,
-        fragmentShader: APPG.shaders.shaderFlicker.fragmentShaderText,
-        transparent: true,
-        side: THREE.DoubleSide
+    var material = new THREE.ShaderMaterial( {
+        uniforms : APPG.shaders.shaderFlicker.uniforms,
+        vertexShader : APPG.shaders.shaderFlicker.vertexShaderText,
+        fragmentShader : APPG.shaders.shaderFlicker.fragmentShaderText,
+        transparent : true,
+        side : THREE.DoubleSide
     } );
-    APPG.scenes.ortho.Billboard.geometry = new THREE.PlaneGeometry(APPG.screen.glWidth, APPG.screen.glHeight);
-    APPG.scenes.ortho.Billboard.mesh = new THREE.Mesh(APPG.scenes.ortho.Billboard.geometry, APPG.scenes.ortho.Billboard.material);
-    APPG.scenes.ortho.scene.add(APPG.scenes.ortho.Billboard.mesh);
+    var geometry = new THREE.PlaneGeometry(APPG.screen.glWidth, APPG.screen.glHeight);
+    var mesh = new THREE.Mesh(geometry, material);
+    APPG.scenes.ortho.Billboard.functions.addShaderMesh(mesh);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
@@ -295,7 +250,10 @@ function resizeDisplayGL() {
     resizeDisplayHtml();
     APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
 
-    APPG.scenes.ortho.resizeBillboardFunc();
+    if (ATR.datGui.paramFunctionRef.enableShader) {
+        APPG.scenes.ortho.Billboard.functions.resizeBillboard();
+        APPG.shaders.functions.updateShader();
+    }
 
     APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
 }
