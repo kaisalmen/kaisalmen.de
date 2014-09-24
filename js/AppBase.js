@@ -56,80 +56,70 @@ var APPG = {
     controls : null,
     textBuffer : null
 }
-
 APPG.textBuffer = {
-    params: {
-        size: 40,
-        amount: 0,
-        curveSegments: 3,
-        bevelEnabled: false,
-        font: "optimer",
-        weight: "normal",
-        style: "normal",
-        material: 0,
-        extrudeMaterial: 0
-    },
-    t0 : null,
-    t1 : null,
-    t2 : null,
-    t3 : null,
-    t4 : null,
-    t5 : null,
-    t6 : null,
-    t7 : null,
-    t8 : null,
-    t9 : null,
-    ta : null,
-    tb : null,
-    tc : null,
-    td : null,
-    te : null,
-    tf : null,
-    tg : null,
-    th : null,
-    ti : null,
-    tj : null
+    params : null,
+    objects : null,
+    functions : null,
+    material : null
 }
+APPG.textBuffer.params = {
+    name : "blah",
+    size: 40,
+    amount: 0,
+    curveSegments: 3,
+    bevelEnabled: false,
+    font: "optimer",
+    weight: "normal",
+    style: "normal",
+    material: 0,
+    extrudeMaterial: 0
+}
+APPG.textBuffer.objects = new Array(256),
 APPG.textBuffer.functions = {
     createSingle : function(text) {
         var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
         textGeometry.computeBoundingBox();
         textGeometry.computeVertexNormals();
 
-        var textMaterial = new THREE.MeshFaceMaterial( [
+        return new THREE.Mesh(textGeometry, APPG.textBuffer.material);
+    },
+    createAll : function() {
+        APPG.textBuffer.material = new THREE.MeshFaceMaterial( [
             new THREE.MeshPhongMaterial( {
-                emissive: 0xdddddd,
+                emissive: 0xff0000,
                 transparent : true,
-                opacity : 0.75,
+                opacity : 1.0,
                 shading: THREE.FlatShading,
                 side : THREE.DoubleSide
             } )
         ] );
-        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        return textMesh;
+        for (var i = 0; i < APPG.textBuffer.objects.length; i++) {
+            var character = String.fromCharCode(i);
+            APPG.textBuffer.objects[i] = APPG.textBuffer.functions.createSingle(character);
+        }
     },
-    createAll : function() {
-        APPG.textBuffer.t0 = APPG.textBuffer.functions.createSingle("0"),
-        APPG.textBuffer.t1 = APPG.textBuffer.functions.createSingle("1"),
-        APPG.textBuffer.t2 = APPG.textBuffer.functions.createSingle("2"),
-        APPG.textBuffer.t3 = APPG.textBuffer.functions.createSingle("3"),
-        APPG.textBuffer.t4 = APPG.textBuffer.functions.createSingle("4"),
-        APPG.textBuffer.t5 = APPG.textBuffer.functions.createSingle("5"),
-        APPG.textBuffer.t6 = APPG.textBuffer.functions.createSingle("6"),
-        APPG.textBuffer.t7 = APPG.textBuffer.functions.createSingle("7"),
-        APPG.textBuffer.t8 = APPG.textBuffer.functions.createSingle("8"),
-        APPG.textBuffer.t9 = APPG.textBuffer.functions.createSingle("9"),
-        APPG.textBuffer.ta = APPG.textBuffer.functions.createSingle("a"),
-        APPG.textBuffer.tb = APPG.textBuffer.functions.createSingle("b"),
-        APPG.textBuffer.tc = APPG.textBuffer.functions.createSingle("c"),
-        APPG.textBuffer.td = APPG.textBuffer.functions.createSingle("d"),
-        APPG.textBuffer.te = APPG.textBuffer.functions.createSingle("e"),
-        APPG.textBuffer.tf = APPG.textBuffer.functions.createSingle("f"),
-        APPG.textBuffer.tg = APPG.textBuffer.functions.createSingle("g"),
-        APPG.textBuffer.th = APPG.textBuffer.functions.createSingle("h"),
-        APPG.textBuffer.ti = APPG.textBuffer.functions.createSingle("i"),
-        APPG.textBuffer.tj = APPG.textBuffer.functions.createSingle("j")
+    renderText : function (providedText, spacing) {
+        var group = new THREE.Object3D();
+        var posx = 0;
+        for (var i = 0; i < providedText.length; i++) {
+            var mesh = APPG.textBuffer.objects[providedText.charCodeAt(i)];
+            var meshClone = mesh.clone();
+            meshClone.position.set(posx, 0, 0);
+            meshClone.geometry.computeBoundingBox();
+            var sFac = 0;
+            if (meshClone.geometry.boundingBox.max.x !== Infinity && meshClone.geometry.boundingBox.min.x !== Infinity) {
+                sFac = meshClone.geometry.boundingBox.max.x - meshClone.geometry.boundingBox.min.x;
+            }
+            else {
+                sFac = 10;
+            }
+            console.log(sFac);
+            posx += sFac + spacing;
+            group.add(meshClone);
+        }
+        return group;
     }
+
 }
 
 APPG.screen = {

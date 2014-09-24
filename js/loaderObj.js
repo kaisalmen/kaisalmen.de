@@ -27,27 +27,6 @@ APPOBJ.datGui.functions = {
 APPOBJ.datGui.params = {
     paramFunctionRef : null
 }
-APPOBJ.text = {
-    object : null,
-    params : null
-}
-APPOBJ.text.object = {
-    mesh : null,
-    geometry : null,
-    material : null
-}
-APPOBJ.text.params = {
-    name : "Tester",
-    size : 40,
-    amount : 0,
-    curveSegments : 3,
-    bevelEnabled : false,
-    font : "optimer",
-    weight : "normal",
-    style : "normal",
-    material : 0,
-    extrudeMaterial : 0
-}
 
 $(document).ready(
     function() {
@@ -108,23 +87,10 @@ function initGL() {
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.ortho.functions.createDefault(-1000, 1000);
-    resetCamera(null, null, null);
+    resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
-
-    APPG.textBuffer.functions.createAll();
-
-    var material = new THREE.MeshPhongMaterial( {
-        emissive: 0xdddddd,
-        transparent : true,
-        opacity : 0.75,
-        shading: THREE.FlatShading,
-        side : THREE.DoubleSide
-    } );
-    var geometry = new THREE.SphereGeometry(100, 32, 32);
-    var mesh = new THREE.Mesh(geometry, material);
-    APPG.scenes.ortho.Billboard.functions.addMesh(mesh);
 
     createText();
 
@@ -137,28 +103,26 @@ function initGL() {
     loadWithOBJLoader();
 }
 
-function removeText() {
-    APPG.scenes.perspective.scene.remove(ATR.objectText.mesh);
-}
-
 function createText() {
-    APPOBJ.text.object.geometry = new THREE.TextGeometry(APPOBJ.text.params.name, APPOBJ.text.params);
-    APPOBJ.text.object.geometry.computeBoundingBox();
-    APPOBJ.text.object.geometry.computeVertexNormals();
+    APPG.textBuffer.functions.createAll();
 
-    APPOBJ.text.object.material = new THREE.MeshFaceMaterial( [
-        new THREE.MeshPhongMaterial( {
-            emissive: 0xdddddd,
-            transparent : true,
-            opacity : 0.75,
-            shading: THREE.FlatShading,
-            side : THREE.DoubleSide
-        } )
-    ] );
-    APPOBJ.text.object.mesh = new THREE.Mesh(APPOBJ.text.object.geometry, APPOBJ.text.object.material);
-    //APPG.scenes.ortho.Billboard.functions.addMesh(APPOBJ.text.object.mesh);
-    APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.t0);
+    var material = new THREE.MeshPhongMaterial( {
+        emissive: 0xdddddd,
+        transparent : true,
+        opacity : 0.75,
+        shading: THREE.FlatShading,
+        side : THREE.DoubleSide
+    } );
+    var geometry = new THREE.SphereGeometry(100, 32, 32);
+    var mesh = new THREE.Mesh(geometry, material);
+    mesh.position.set(0,0,100);
+    APPG.scenes.ortho.Billboard.functions.addMesh(mesh);
+
+    var group = APPG.textBuffer.functions.renderText("This is a test?!", 20);
+    APPG.scenes.ortho.Billboard.functions.addMesh(group);
 }
+
+function removeText() {}
 
 function loadWithOBJLoader() {
     APPOBJ.baseObjGroup = new THREE.Object3D();
