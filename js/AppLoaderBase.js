@@ -9,10 +9,10 @@ APPL.support = {
     zip : null,
     filesystem : null,
     dom : null
-}
+};
 APPL.support.dom = {
     divLoad : null
-}
+};
 APPL.support.dom.divLoad = {
     functions : null,
     div : null,
@@ -21,7 +21,7 @@ APPL.support.dom.divLoad = {
     countTotal: null,
     countCurrent: null,
     updateTotalObjCount : true
-}
+};
 APPL.support.dom.divLoad.functions = {
     initAndShow : function() {
         APPL.support.dom.divLoad.div = document.getElementById('AppLoadOverlay');
@@ -46,10 +46,10 @@ APPL.support.dom.divLoad.functions = {
             console.log("Post load completed.");
         }
     }
-}
+};
 APPL.support.zip = {
     functions : null
-}
+};
 APPL.support.zip.functions = {
     loadSingle : function (zip, filename, callback) {
         var file = zip.file(filename);
@@ -102,11 +102,11 @@ APPL.support.zip.functions = {
             }
         );
     }
-}
+};
 APPL.support.filesystem = {
     functions : null,
     storage : null
-}
+};
 APPL.support.filesystem.functions = {
     ready: function() {
         if (APPL.support.filesystem.storage !== null) {
@@ -154,7 +154,7 @@ APPL.support.filesystem.functions = {
     toURL : function(path, filename) {
         return APPL.support.filesystem.storage.toURL(path + '/' + filename);
     }
-}
+};
 APPL.loaders = {
     manager : null,
     obj : null,
@@ -164,7 +164,7 @@ APPL.loaders = {
     startTime : null,
     endTime : null,
     objectCount : 0
-}
+};
 APPL.loaders.functions = {
     logStart : function (msg) {
         APPL.loaders.startTime = new Date().getTime();
@@ -182,4 +182,4 @@ APPL.loaders.functions = {
             };
         }
     }
-}
+};

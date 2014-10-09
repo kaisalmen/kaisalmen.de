@@ -5,7 +5,7 @@
  */
 APPL.loaders.alloader = {
     loader : null
-}
+};
 APPL.loaders.alloader.functions = {
     init: function () {
         APPL.loaders.functions.init();
@@ -28,4 +28,4 @@ APPL.loaders.alloader.functions = {
         );
         APPL.loaders.functions.logEnd("ALLoader json loader completed: ");
     }
-}
+};

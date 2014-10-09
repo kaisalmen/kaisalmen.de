@@ -15,9 +15,9 @@ APPL.loaders.obj = {
     fpsCheckTime : 0,
     fpsRef : 0,
     minFps : 25
-}
+};
 APPL.loaders.obj.functions = {
-    init : function (objAttachedPoint) {
+    init : function () {
         APPL.loaders.functions.init();
         APPL.loaders.obj.mtlLoader = new THREE.MTLLoader();
         APPL.loaders.obj.objMtlLoader = new THREE.OBJMTLLoader();
@@ -129,4 +129,4 @@ APPL.loaders.obj.functions = {
             });
         }
     }
-}
+};

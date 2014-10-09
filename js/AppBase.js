@@ -5,7 +5,7 @@
  * 2014.08.10:
  * Added three basic loading functions to AppBase
  */
-var APPExecFlow = {}
+var APPExecFlow = {};
 
 APPExecFlow =  {
     initShaders : null,
@@ -16,7 +16,7 @@ APPExecFlow =  {
     resizeDisplayGL : null,
     initPostGL : null,
     startAnimation : null
-}
+};
 APPExecFlow.functions =  {
     run : function() {
         console.log("Starting global initialisation phase...");
@@ -44,7 +44,7 @@ APPExecFlow.functions =  {
         console.log("Kicking animateFrame...");
         APPExecFlow.startAnimation = animateFrame();
     }
-}
+};
 
 var APPG = {
     screen : null,
@@ -55,13 +55,13 @@ var APPG = {
     scenes : null,
     controls : null,
     textBuffer : null
-}
+};
 APPG.textBuffer = {
     params : null,
     objects : null,
     functions : null,
     material : null
-}
+};
 APPG.textBuffer.params = {
     name : "blah",
     size: 40,
@@ -73,8 +73,8 @@ APPG.textBuffer.params = {
     style: "normal",
     material: 0,
     extrudeMaterial: 0
-}
-APPG.textBuffer.objects = new Array(256),
+};
+APPG.textBuffer.objects = new Array(256);
 APPG.textBuffer.functions = {
     createSingle : function(text) {
         var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
@@ -98,7 +98,7 @@ APPG.textBuffer.functions = {
             APPG.textBuffer.objects[i] = APPG.textBuffer.functions.createSingle(character);
         }
     },
-    renderText : function (providedText, spacing) {
+    renderText : function (providedText, spacing, minSpacing, maxSpacing) {
         var group = new THREE.Object3D();
         var posx = 0;
         for (var i = 0; i < providedText.length; i++) {
@@ -108,19 +108,25 @@ APPG.textBuffer.functions = {
             meshClone.geometry.computeBoundingBox();
             var sFac = 0;
             if (meshClone.geometry.boundingBox.max.x !== Infinity && meshClone.geometry.boundingBox.min.x !== Infinity) {
-                sFac = meshClone.geometry.boundingBox.max.x - meshClone.geometry.boundingBox.min.x;
+                sFac = meshClone.geometry.boundingBox.max.x - meshClone.geometry.boundingBox.min.x + spacing;
+                if (sFac < minSpacing) {
+                    sFac = minSpacing;
+                }
+                else if (sFac > maxSpacing) {
+                    sFac = maxSpacing;
+                }
             }
             else {
                 sFac = 10;
             }
-            console.log(sFac);
-            posx += sFac + spacing;
+            console.log(providedText[i] + ": " + sFac);
+            posx += sFac;
             group.add(meshClone);
         }
         return group;
     }
 
-}
+};
 
 APPG.screen = {
     aspectRatio : 2.35,
@@ -128,7 +134,7 @@ APPG.screen = {
     glHeight : 1280.0 / 2.35,
     glMinWidth : 800,
     glMinHeight : 800 / 2.35
-}
+};
 APPG.frameNumber = 0;
 APPG.dom = {
     widthScrollBar : 2,
@@ -136,7 +142,7 @@ APPG.dom = {
     canvasAppFloat : null,
     reductionHeight : null,
     reductionWidth : null
-}
+};
 APPG.functions = {
     resizeDisplayHtmlDefault: function(widthScrollBar) {
         APPG.dom.widthScrollBar = widthScrollBar;
@@ -152,7 +158,7 @@ APPG.functions = {
     addFrameNumber : function() {
         APPG.frameNumber++;
     }
-}
+};
 
 APPG.shaders = {};
 APPG.shaders.functions = {
@@ -162,18 +168,21 @@ APPG.shaders.functions = {
     updateShader : function() {
         console.log("Currently no shaders are used.");
     }
-}
+};
 APPG.renderer = {
     domElement : null
-}
+};
 APPG.renderer.functions = {
-    createDefault: function () {
-        APPG.renderer = new THREE.WebGLRenderer();
+    createDefault: function (antialiasValue) {
+        if (antialiasValue === undefined || antialiasValue === null) {
+            antialiasValue = true;
+        }
+        APPG.renderer = new THREE.WebGLRenderer( {antialias : antialiasValue});
         APPG.renderer.setClearColor(new THREE.Color(0.02, 0.02, 0.02), 255);
         APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
         APPG.renderer.autoClear = false;
     }
-}
+};
 APPG.scenes = {
     perspective : null,
     lights : null,
@@ -183,7 +192,7 @@ APPG.scenes.perspective = {
     camera : null,
     cameraTarget : null,
     scene : null
-}
+};
 APPG.scenes.perspective.functions = {
     createDefault: function () {
         APPG.scenes.perspective.scene = new THREE.Scene();
@@ -199,7 +208,7 @@ APPG.scenes.perspective.functions = {
         APPG.scenes.perspective.camera.aspect = (APPG.screen.glWidth / APPG.screen.glHeight);
         APPG.scenes.perspective.camera.updateProjectionMatrix();
     }
-}
+};
 APPG.scenes.ortho = {
     camera : null,
     scene : null,
@@ -208,16 +217,16 @@ APPG.scenes.ortho = {
     pixelTop : null,
     pixelBottom : null,
     Billboard : null
-}
+};
 APPG.scenes.ortho.functions = {
     createDefault : function(near, far) {
         APPG.scenes.ortho.scene = new THREE.Scene();
         APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, near, far);
     }
-}
+};
 APPG.scenes.ortho.Billboard = {
     shaderMesh : null
-}
+};
 APPG.scenes.ortho.Billboard.functions = {
     addShaderMesh : function (shaderMesh) {
         APPG.scenes.ortho.Billboard.shaderMesh = shaderMesh;
@@ -257,7 +266,7 @@ APPG.scenes.ortho.Billboard.functions = {
             APPG.scenes.ortho.Billboard.shaderMesh.geometry.verticesNeedUpdate = true;
         }
     }
-}
+};
 APPG.scenes.lights =  {
     light1 : null,
     light2 : null,
@@ -267,7 +276,7 @@ APPG.scenes.lights =  {
     light6 : null,
     light7 : null,
     light8 : null
-}
+};
 APPG.scenes.lights.functions = {
     createDefault: function () {
         APPG.scenes.lights.light1 = new THREE.DirectionalLight(0xffffff, 1.0);
@@ -278,10 +287,10 @@ APPG.scenes.lights.functions = {
         APPG.scenes.lights.light2.position.set(-100, 0, -100);
         APPG.scenes.perspective.scene.add(APPG.scenes.lights.light2);
     }
-}
+};
 APPG.scenes.geometry = {
     functions : null
-}
+};
 APPG.scenes.geometry.functions = {
     createGrid : function(size, steps, gridYOffset, colorValueHex) {
         // Grid (from three.js example)
@@ -295,13 +304,12 @@ APPG.scenes.geometry.functions = {
             geometry.vertices.push(new THREE.Vector3(i, -gridYOffset, -size));
             geometry.vertices.push(new THREE.Vector3(i, -gridYOffset,  size));
         }
-        var line = new THREE.Line( geometry, material, THREE.LinePieces );
-        return line;
+        return new THREE.Line( geometry, material, THREE.LinePieces );
     }
-}
+};
 APPG.controls = {
     trackball : null
-}
+};
 APPG.controls.functions = {
     createDefault: function(camera) {
         APPG.controls.trackball = new THREE.TrackballControls(camera);
@@ -311,4 +319,4 @@ APPG.controls.functions = {
         APPG.controls.trackball.noPan = false;
         APPG.controls.trackball.noZoom = false;
     }
-}
+};

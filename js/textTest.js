@@ -51,14 +51,14 @@ function resizeDisplayHtml() {
 }
 
 function initGL() {
-    APPG.renderer.functions.createDefault();
+    APPG.renderer.functions.createDefault(true);
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.ortho.functions.createDefault(-1000, 1000);
     resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
-    APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
+    APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
     createText();
 
@@ -70,7 +70,7 @@ function initGL() {
 function createText() {
     APPG.textBuffer.functions.createAll();
     //APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.objects.t0);
-    var group = APPG.textBuffer.functions.renderText("A text with +-...?!", 20);
+    var group = APPG.textBuffer.functions.renderText("A text with +-...?!", 8, 16, 44);
     APPG.scenes.ortho.Billboard.functions.addMesh(group);
 }
 

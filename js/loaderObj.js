@@ -90,7 +90,7 @@ function initGL() {
     resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
-    APPG.renderer.setClearColor(new THREE.Color(0.25, 0.25, 0.25), 255);
+    APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
     createText();
 
