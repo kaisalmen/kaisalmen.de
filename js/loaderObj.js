@@ -12,7 +12,11 @@ APPOBJ = {
     mtlContent : null,
     objFile : "Airstream.obj",
     objContent : null,
-    baseObjGroup : null
+    baseObjGroup : null,
+    textNode : null,
+    textNodeContent : "This is a test?!",
+    textFrameNode : null,
+    textFrameNodeContent : "None"
 }
 APPOBJ.datGui = {
     functions : null,
@@ -92,7 +96,9 @@ function initGL() {
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
-    createText();
+    APPOBJ.textNode = new THREE.Object3D();
+    APPOBJ.textFrameNode = new THREE.Object3D();
+    APPG.textBuffer.functions.init([APPOBJ.textNode, APPOBJ.textFrameNode]);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
@@ -102,27 +108,6 @@ function initGL() {
 
     loadWithOBJLoader();
 }
-
-function createText() {
-    APPG.textBuffer.functions.createAll();
-
-    var material = new THREE.MeshPhongMaterial( {
-        emissive: 0xdddddd,
-        transparent : true,
-        opacity : 0.75,
-        shading: THREE.FlatShading,
-        side : THREE.DoubleSide
-    } );
-    var geometry = new THREE.SphereGeometry(100, 32, 32);
-    var mesh = new THREE.Mesh(geometry, material);
-    mesh.position.set(0,0,100);
-    APPG.scenes.ortho.Billboard.functions.addMesh(mesh);
-
-    var group = APPG.textBuffer.functions.renderText("This is a test?!", 20);
-    APPG.scenes.ortho.Billboard.functions.addMesh(group);
-}
-
-function removeText() {}
 
 function loadWithOBJLoader() {
     APPOBJ.baseObjGroup = new THREE.Object3D();
@@ -194,6 +179,11 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
+
+    APPOBJ.textFrameNodeContent = "Current Frame is: " + APPG.frameNumber;
+    APPG.textBuffer.functions.verifyTextGeometries([APPOBJ.textNodeContent, APPOBJ.textFrameNodeContent]);
+    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textNode, APPOBJ.textNodeContent , -900, 360, 8, 16, 44);
+    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textFrameNode, APPOBJ.textFrameNodeContent , 200, -300, 8, 16, 44);
 
     APPG.renderer.clearDepth();
     APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);

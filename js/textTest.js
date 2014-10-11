@@ -3,10 +3,16 @@
  *
  * Separate OBJ loader
  */
-var APPTXT = {}
+var APPTXT = {};
 
 APPTXT = {
-}
+    textNode1 : null,
+    textNode1Content : "Each character is a single geometry in ortho view.",
+    textNode2 : null,
+    textNode2Content : "They are created once and are only re-instantiated if required (mesh cache)!",
+    textFrameNode : null,
+    textFrameNodeContent : "None"
+};
 
 $(document).ready(
     function() {
@@ -60,21 +66,16 @@ function initGL() {
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
-    createText();
+    // Text init
+    APPTXT.textNode1 = new THREE.Object3D();
+    APPTXT.textNode2 = new THREE.Object3D();
+    APPTXT.textFrameNode = new THREE.Object3D();
+    APPG.textBuffer.functions.init([APPTXT.textNode1, APPTXT.textNode2, APPTXT.textFrameNode]);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
     APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(512, 12, 152, 0x606060));
 }
-
-function createText() {
-    APPG.textBuffer.functions.createAll();
-    //APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.objects.t0);
-    var group = APPG.textBuffer.functions.renderText("A text with +-...?!", 8, 16, 44);
-    APPG.scenes.ortho.Billboard.functions.addMesh(group);
-}
-
-function removeText() {}
 
 function addEventHandlers() {}
 
@@ -101,6 +102,13 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
+
+    // Text updates
+    APPTXT.textFrameNodeContent = "Frame: " + APPG.frameNumber;
+    APPG.textBuffer.functions.verifyTextGeometries([APPTXT.textNode1Content, APPTXT.textNode2Content, APPTXT.textFrameNodeContent]);
+    APPG.textBuffer.functions.updateTextGroup(APPTXT.textNode1, APPTXT.textNode1Content , -900, 360, 8, 16, 44);
+    APPG.textBuffer.functions.updateTextGroup(APPTXT.textNode2, APPTXT.textNode2Content , -900, 300, 8, 16, 44);
+    APPG.textBuffer.functions.updateTextGroup(APPTXT.textFrameNode, APPTXT.textFrameNodeContent , 200, -300, 8, 16, 44);
 
     APPG.renderer.clearDepth();
     APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);

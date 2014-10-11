@@ -58,15 +58,15 @@ var APPG = {
 };
 APPG.textBuffer = {
     params : null,
-    objects : null,
+    textBaseNode : null,
     functions : null,
     material : null
 };
 APPG.textBuffer.params = {
     name : "blah",
-    size: 40,
+    size: 32,
     amount: 0,
-    curveSegments: 3,
+    curveSegments: 2,
     bevelEnabled: false,
     font: "optimer",
     weight: "normal",
@@ -74,7 +74,8 @@ APPG.textBuffer.params = {
     material: 0,
     extrudeMaterial: 0
 };
-APPG.textBuffer.objects = new Array(256);
+APPG.textBuffer.characterCache = new Map();
+APPG.textBuffer.characterCountsRender = new Array(256);
 APPG.textBuffer.functions = {
     createSingle : function(text) {
         var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
@@ -83,7 +84,7 @@ APPG.textBuffer.functions = {
 
         return new THREE.Mesh(textGeometry, APPG.textBuffer.material);
     },
-    createAll : function() {
+    init : function(textNodes) {
         APPG.textBuffer.material = new THREE.MeshFaceMaterial( [
             new THREE.MeshPhongMaterial( {
                 emissive: 0xff0000,
@@ -93,22 +94,89 @@ APPG.textBuffer.functions = {
                 side : THREE.DoubleSide
             } )
         ] );
-        for (var i = 0; i < APPG.textBuffer.objects.length; i++) {
-            var character = String.fromCharCode(i);
-            APPG.textBuffer.objects[i] = APPG.textBuffer.functions.createSingle(character);
+
+        var character = "";
+        var characterMesh = null;
+        var characterMeshes = null;
+
+        for (var i = 0; i < 256; i++) {
+            character = String.fromCharCode(i);
+            characterMesh = APPG.textBuffer.functions.createSingle(character);
+            characterMeshes = new Set();
+            characterMeshes.add(characterMesh);
+            APPG.textBuffer.characterCache.set(character, characterMeshes);
+        }
+
+        APPG.textBuffer.textBaseNode = new THREE.Object3D();
+        for (var i = 0; i < textNodes.length; i++) {
+            APPG.textBuffer.textBaseNode.add(textNodes[i]);
+        }
+        APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.textBaseNode);
+    },
+    verifyTextGeometries : function(texts) {
+        var characterCountsRef = new Array(APPG.textBuffer.characterCountsRender.length);
+        for (var i = 0; i < characterCountsRef.length; i++) {
+            characterCountsRef[i] = 0;
+            APPG.textBuffer.characterCountsRender[i] = 0;
+        }
+
+        var character = "";
+        var characterMeshes = null;
+        var characterCount = 0;
+
+        var countsPos = 0;
+        var text = "";
+        var meshClone = null;
+
+        for (var i = 0; i < texts.length; i++) {
+            text = texts[i];
+
+            for (var j = 0; j < text.length; j++) {
+                character = text[j];
+                characterMeshes = APPG.textBuffer.characterCache.get(character);
+                countsPos = text.charCodeAt(j);
+
+                characterCount = characterCountsRef[countsPos];
+                if (characterCount > 0 && characterMeshes.length === characterCount) {
+                    meshClone = characterMeshes.toArray()[0].clone();
+                    characterMeshes.add(meshClone);
+                    APPG.textBuffer.characterCache.set(character, characterMeshes);
+                }
+                characterCountsRef[countsPos] = characterCount + 1;
+            }
         }
     },
-    renderText : function (providedText, spacing, minSpacing, maxSpacing) {
-        var group = new THREE.Object3D();
-        var posx = 0;
-        for (var i = 0; i < providedText.length; i++) {
-            var mesh = APPG.textBuffer.objects[providedText.charCodeAt(i)];
-            var meshClone = mesh.clone();
-            meshClone.position.set(posx, 0, 0);
-            meshClone.geometry.computeBoundingBox();
+    updateTextGroup : function (textNode, text, baseX, baseY, spacing, minSpacing, maxSpacing) {
+        if (textNode === null || textNode === undefined) {
+            console.log("Illegal textNode provided for: " + text);
+            return;
+        }
+        textNode.children = [];
+
+        var posx = baseX;
+        var posY = baseY;
+
+        var character = "";
+        var characterMeshes = null;
+        var characterCount = 0;
+
+        var mesh = null;
+        var countsPos = 0;
+
+        for (var i = 0; i < text.length; i++) {
+            character = text[i];
+            countsPos = text.charCodeAt(i);
+
+            characterMeshes = APPG.textBuffer.characterCache.get(character);
+            characterCount = APPG.textBuffer.characterCountsRender[countsPos];
+            mesh = characterMeshes.toArray()[characterCount];
+            APPG.textBuffer.characterCountsRender[countsPos] = characterCount + 1;
+
+            mesh.position.set(posx, posY, 0);
+            mesh.geometry.computeBoundingBox();
             var sFac = 0;
-            if (meshClone.geometry.boundingBox.max.x !== Infinity && meshClone.geometry.boundingBox.min.x !== Infinity) {
-                sFac = meshClone.geometry.boundingBox.max.x - meshClone.geometry.boundingBox.min.x + spacing;
+            if (mesh.geometry.boundingBox.max.x !== Infinity && mesh.geometry.boundingBox.min.x !== Infinity) {
+                sFac = mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x + spacing;
                 if (sFac < minSpacing) {
                     sFac = minSpacing;
                 }
@@ -119,13 +187,12 @@ APPG.textBuffer.functions = {
             else {
                 sFac = 10;
             }
-            console.log(providedText[i] + ": " + sFac);
+//            console.log(providedText[i] + ": " + sFac);
             posx += sFac;
-            group.add(meshClone);
+            textNode.add(mesh);
         }
-        return group;
+        APPG.textBuffer.textBaseNode.add(textNode);
     }
-
 };
 
 APPG.screen = {
