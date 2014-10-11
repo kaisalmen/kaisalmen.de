@@ -53,20 +53,20 @@ APPL.loaders.obj.functions = {
     },
     postLoad : function () {
         if (!APPL.loaders.obj.loadingCompleted) {
-            APPL.support.dom.divLoad.functions.hide();
+            APPL.support.load.functions.hide();
             APPL.loaders.functions.logEnd("OBJ loader completed: ");
             APPL.loaders.obj.loadingCompleted = true;
         }
     },
     handleObjLoading : function (baseObjGroup) {
-        if (APPL.support.dom.divLoad.updateTotalObjCount && APPL.loaders.obj.functions.calcObjectCount(10000)) {
+        if (APPL.support.load.params.updateTotalObjCount && APPL.loaders.obj.functions.calcObjectCount(10000)) {
             // final update
-            APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
-            APPL.support.dom.divLoad.updateTotalObjCount = false;
+            APPL.support.load.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
+            APPL.support.load.params.updateTotalObjCount = false;
         }
 
-        if (APPL.support.dom.divLoad.updateTotalObjCount) {
-            APPL.support.dom.divLoad.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
+        if (APPL.support.load.params.updateTotalObjCount) {
+            APPL.support.load.functions.setTotalObjectCount(APPL.loaders.obj.objMtlLoader.getObjectCount());
         }
         var now = new Date().getTime();
         if (now > APPL.loaders.obj.fpsCheckTime + 1000) {
@@ -101,7 +101,7 @@ APPL.loaders.obj.functions = {
             var obj = APPL.loaders.obj.functions.parseExec(APPL.loaders.obj.readLinesPerFrame);
             if (obj !== null) {
                 APPL.loaders.obj.functions.addToScene(baseObjGroup, obj);
-                APPL.support.dom.divLoad.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
+                APPL.support.load.functions.updateCurrentObjectCount(APPL.loaders.objectCount);
             }
         }
         else {

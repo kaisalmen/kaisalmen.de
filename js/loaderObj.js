@@ -13,8 +13,6 @@ APPOBJ = {
     objFile : "Airstream.obj",
     objContent : null,
     baseObjGroup : null,
-    textNode : null,
-    textNodeContent : "This is a test?!",
     textFrameNode : null,
     textFrameNodeContent : "None"
 }
@@ -96,15 +94,13 @@ function initGL() {
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
-    APPOBJ.textNode = new THREE.Object3D();
     APPOBJ.textFrameNode = new THREE.Object3D();
-    APPG.textBuffer.functions.init([APPOBJ.textNode, APPOBJ.textFrameNode]);
+    APPL.support.load.functions.init();
+    APPG.textBuffer.functions.init([APPOBJ.textFrameNode, APPL.support.load.functions.getTextNode()]);
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
     APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(512, 12, 152, 0x606060));
-
-    APPL.support.dom.divLoad.functions.initAndShow();
 
     loadWithOBJLoader();
 }
@@ -181,9 +177,9 @@ function render() {
     APPG.functions.addFrameNumber();
 
     APPOBJ.textFrameNodeContent = "Current Frame is: " + APPG.frameNumber;
-    APPG.textBuffer.functions.verifyTextGeometries([APPOBJ.textNodeContent, APPOBJ.textFrameNodeContent]);
-    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textNode, APPOBJ.textNodeContent , -900, 360, 8, 16, 44);
-    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textFrameNode, APPOBJ.textFrameNodeContent , 200, -300, 8, 16, 44);
+    APPG.textBuffer.functions.verifyTextGeometries([APPOBJ.textFrameNodeContent, APPL.support.load.functions.getTextNodeContent()]);
+    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textFrameNode, APPOBJ.textFrameNodeContent, 200, -260, 8, 16, 44);
+    APPL.support.load.functions.render();
 
     APPG.renderer.clearDepth();
     APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);

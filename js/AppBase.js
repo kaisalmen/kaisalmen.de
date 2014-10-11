@@ -170,26 +170,28 @@ APPG.textBuffer.functions = {
             characterMeshes = APPG.textBuffer.characterCache.get(character);
             characterCount = APPG.textBuffer.characterCountsRender[countsPos];
             mesh = characterMeshes.toArray()[characterCount];
-            APPG.textBuffer.characterCountsRender[countsPos] = characterCount + 1;
+            if (mesh !== null && mesh !== undefined) {
+                APPG.textBuffer.characterCountsRender[countsPos] = characterCount + 1;
 
-            mesh.position.set(posx, posY, 0);
-            mesh.geometry.computeBoundingBox();
-            var sFac = 0;
-            if (mesh.geometry.boundingBox.max.x !== Infinity && mesh.geometry.boundingBox.min.x !== Infinity) {
-                sFac = mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x + spacing;
-                if (sFac < minSpacing) {
-                    sFac = minSpacing;
+                mesh.position.set(posx, posY, 0);
+                mesh.geometry.computeBoundingBox();
+                var sFac = 0;
+                if (mesh.geometry.boundingBox.max.x !== Infinity && mesh.geometry.boundingBox.min.x !== Infinity) {
+                    sFac = mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x + spacing;
+                    if (sFac < minSpacing) {
+                        sFac = minSpacing;
+                    }
+                    else if (sFac > maxSpacing) {
+                        sFac = maxSpacing;
+                    }
                 }
-                else if (sFac > maxSpacing) {
-                    sFac = maxSpacing;
+                else {
+                    sFac = 10;
                 }
+                //            console.log(providedText[i] + ": " + sFac);
+                posx += sFac;
+                textNode.add(mesh);
             }
-            else {
-                sFac = 10;
-            }
-//            console.log(providedText[i] + ": " + sFac);
-            posx += sFac;
-            textNode.add(mesh);
         }
         APPG.textBuffer.textBaseNode.add(textNode);
     }

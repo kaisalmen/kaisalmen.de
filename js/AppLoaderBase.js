@@ -8,43 +8,58 @@ var APPL = {};
 APPL.support = {
     zip : null,
     filesystem : null,
-    dom : null
+    dom : null,
+    load : null
 };
 APPL.support.dom = {
     divLoad : null
 };
-APPL.support.dom.divLoad = {
-    functions : null,
-    div : null,
-    textBase : "Please wait while file is loading ...",
-    textCurrent : null,
-    countTotal: null,
-    countCurrent: null,
-    updateTotalObjCount : true
+APPL.support.load = {
+    params : null,
+    functions : null
 };
-APPL.support.dom.divLoad.functions = {
-    initAndShow : function() {
-        APPL.support.dom.divLoad.div = document.getElementById('AppLoadOverlay');
-        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase;
-        APPL.support.dom.divLoad.div.style.visibility = "visible";
-        APPL.support.dom.divLoad.div.style.left = (APPG.screen.glWidth - 700) / 2 + "px";
-        APPL.support.dom.divLoad.div.style.top = 48 + "px";
+APPL.support.load.params = {
+    visible : true,
+    updateTotalObjCount : true,
+    countTotal: 0,
+    countCurrent: 0,
+    textNode: null,
+    textNodeContent: "Please wait while file is loading..."
+};
+APPL.support.load.functions = {
+    init : function() {
+        APPL.support.load.params.textNode = new THREE.Object3D();
+        APPL.support.load.params.textFrameNode = new THREE.Object3D();
+    },
+    getTextNode : function() {
+        var output = APPL.support.load.params.textNode;
+        if (!APPL.support.load.params.visible) {
+            output.children = [];
+        }
+        return output;
+    },
+    getTextNodeContent : function() {
+        var output = "";
+        if (APPL.support.load.params.visible) {
+            output = APPL.support.load.params.textNodeContent;
+        }
+        return output;
     },
     setTotalObjectCount : function(countTotal) {
-        APPL.support.dom.divLoad.countTotal = countTotal;
-        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase + " Object count: 0 of " + countTotal;
+        APPL.support.load.params.countTotal = countTotal;
+        APPL.support.load.params.textNodeContent = "Please wait while file is loading... Object count: 0 of " + countTotal;
     },
     updateCurrentObjectCount : function(countCurrent) {
-        APPL.support.dom.divLoad.countCurrent = countCurrent;
-        APPL.support.dom.divLoad.div.innerHTML = APPL.support.dom.divLoad.textBase + " Object count: " + countCurrent + " of " + APPL.support.dom.divLoad.countTotal;
+        APPL.support.load.params.countCurrent = countCurrent;
+        APPL.support.load.params.textNodeContent = "Please wait while file is loading... Object count: " + countCurrent + " of " + APPL.support.load.params.countTotal;
+    },
+    render : function () {
+        if (APPL.support.load.params.visible) {
+            APPG.textBuffer.functions.updateTextGroup(APPL.support.load.params.textNode, APPL.support.load.params.textNodeContent, -700, 400, 8, 16, 44);
+        }
     },
     hide : function() {
-        if (APPL.support.dom.divLoad.div !== null) {
-            APPL.support.dom.divLoad.div.style.left = -1000;
-            APPL.support.dom.divLoad.div.style.top = -1000;
-            APPL.support.dom.divLoad.div.style.visibility = "hidden";
-            console.log("Post load completed.");
-        }
+        APPL.support.load.params.visible = false;
     }
 };
 APPL.support.zip = {
