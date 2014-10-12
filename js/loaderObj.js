@@ -12,9 +12,7 @@ APPOBJ = {
     mtlContent : null,
     objFile : "Airstream.obj",
     objContent : null,
-    baseObjGroup : null,
-    textFrameNode : null,
-    textFrameNodeContent : "None"
+    baseObjGroup : null
 }
 APPOBJ.datGui = {
     functions : null,
@@ -94,15 +92,19 @@ function initGL() {
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
-    APPOBJ.textFrameNode = new THREE.Object3D();
-    APPL.support.load.functions.init();
-    APPG.textBuffer.functions.init([APPOBJ.textFrameNode, APPL.support.load.functions.getTextNode()]);
+    initText();
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
     APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(512, 12, 152, 0x606060));
 
     loadWithOBJLoader();
+}
+
+function initText() {
+    APPG.textBuffer.functions.addNode("textFrameNode", "None");
+    APPL.support.load.functions.init();
+    APPG.textBuffer.functions.completeInit();
 }
 
 function loadWithOBJLoader() {
@@ -176,13 +178,27 @@ function render() {
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
 
-    APPOBJ.textFrameNodeContent = "Current Frame is: " + APPG.frameNumber;
-    APPG.textBuffer.functions.verifyTextGeometries([APPOBJ.textFrameNodeContent, APPL.support.load.functions.getTextNodeContent()]);
-    APPG.textBuffer.functions.updateTextGroup(APPOBJ.textFrameNode, APPOBJ.textFrameNodeContent, 200, -260, 8, 16, 44);
-    APPL.support.load.functions.render();
+    updateText();
 
     APPG.renderer.clearDepth();
     APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
+}
+
+function updateText () {
+    APPG.textBuffer.functions.updateContent("textFrameNode", "Frame: " + APPG.frameNumber + "(FPS:" + APPG.fps.toFixed(2) + ")");
+    APPL.support.load.functions.updateTextContent();
+    APPG.textBuffer.functions.verifyTextGeometries();
+    var materialOverride = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0x00ff00,
+            transparent : true,
+            opacity : 1.0,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    APPG.textBuffer.functions.processTextGroups("textFrameNode", 200, -300, 18, materialOverride, new THREE.Vector3(0.75, 0.75, 0.75));
+    APPL.support.load.functions.render();
 }
 
 function resetCamera() {

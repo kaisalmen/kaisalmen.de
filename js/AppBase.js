@@ -64,11 +64,11 @@ APPG.textBuffer = {
 };
 APPG.textBuffer.params = {
     name : "blah",
-    size: 32,
+    size: 18,
     amount: 0,
     curveSegments: 2,
     bevelEnabled: false,
-    font: "optimer",
+    font: "ubuntu mono",
     weight: "normal",
     style: "normal",
     material: 0,
@@ -76,15 +76,29 @@ APPG.textBuffer.params = {
 };
 APPG.textBuffer.characterCache = new Map();
 APPG.textBuffer.characterCountsRender = new Array(256);
+APPG.textBuffer.textNodes = new Map();
+APPG.textBuffer.textContents = new Map();
 APPG.textBuffer.functions = {
-    createSingle : function(text) {
+    createSingleCharacter : function(text) {
         var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
         textGeometry.computeBoundingBox();
         textGeometry.computeVertexNormals();
 
         return new THREE.Mesh(textGeometry, APPG.textBuffer.material);
     },
-    init : function(textNodes) {
+    addNode : function (name, textContent) {
+        console.log("Adding node with the following name to textBuffer: " + name);
+        APPG.textBuffer.textNodes.set(name, new THREE.Object3D());
+        APPG.textBuffer.textContents.set(name, textContent);
+    },
+    updateContent : function (name, textContent) {
+        APPG.textBuffer.textContents.set(name, textContent);
+    },
+    removeNode : function (name) {
+        APPG.textBuffer.textNodes.delete(name);
+        APPG.textBuffer.textContents.delete(name);
+    },
+    completeInit : function() {
         APPG.textBuffer.material = new THREE.MeshFaceMaterial( [
             new THREE.MeshPhongMaterial( {
                 emissive: 0xff0000,
@@ -101,19 +115,24 @@ APPG.textBuffer.functions = {
 
         for (var i = 0; i < 256; i++) {
             character = String.fromCharCode(i);
-            characterMesh = APPG.textBuffer.functions.createSingle(character);
+            characterMesh = APPG.textBuffer.functions.createSingleCharacter(character);
             characterMeshes = new Set();
             characterMeshes.add(characterMesh);
             APPG.textBuffer.characterCache.set(character, characterMeshes);
         }
 
         APPG.textBuffer.textBaseNode = new THREE.Object3D();
-        for (var i = 0; i < textNodes.length; i++) {
-            APPG.textBuffer.textBaseNode.add(textNodes[i]);
-        }
+        APPG.textBuffer.functions.updateBaseNode();
         APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.textBaseNode);
     },
-    verifyTextGeometries : function(texts) {
+    updateBaseNode : function() {
+        APPG.textBuffer.textBaseNode.children = [];
+        var allValues = APPG.textBuffer.textNodes.values();
+        for (var i = 0; i < allValues.length; i++) {
+            APPG.textBuffer.textBaseNode.add(allValues[i]);
+        }
+    },
+    verifyTextGeometries : function() {
         var characterCountsRef = new Array(APPG.textBuffer.characterCountsRender.length);
         for (var i = 0; i < characterCountsRef.length; i++) {
             characterCountsRef[i] = 0;
@@ -128,6 +147,7 @@ APPG.textBuffer.functions = {
         var text = "";
         var meshClone = null;
 
+        var texts = APPG.textBuffer.textContents.values();
         for (var i = 0; i < texts.length; i++) {
             text = texts[i];
 
@@ -146,15 +166,13 @@ APPG.textBuffer.functions = {
             }
         }
     },
-    updateTextGroup : function (textNode, text, baseX, baseY, spacing, minSpacing, maxSpacing) {
-        if (textNode === null || textNode === undefined) {
-            console.log("Illegal textNode provided for: " + text);
-            return;
-        }
+    processTextGroups : function (textNodeName, baseX, baseY, defaultSpacing, materialOverride, scaleVector) {
+        var textNode = APPG.textBuffer.textNodes.get(textNodeName);
+        var text = APPG.textBuffer.textContents.get(textNodeName);
         textNode.children = [];
 
-        var posx = baseX;
-        var posY = baseY;
+        var posx = 0;
+        var posY = 0;
 
         var character = "";
         var characterMeshes = null;
@@ -171,28 +189,24 @@ APPG.textBuffer.functions = {
             characterCount = APPG.textBuffer.characterCountsRender[countsPos];
             mesh = characterMeshes.toArray()[characterCount];
             if (mesh !== null && mesh !== undefined) {
+                if (materialOverride !== null && materialOverride !== undefined) {
+                    mesh.material = materialOverride;
+                }
+                else {
+                    mesh.material = APPG.textBuffer.material;
+                }
                 APPG.textBuffer.characterCountsRender[countsPos] = characterCount + 1;
 
                 mesh.position.set(posx, posY, 0);
-                mesh.geometry.computeBoundingBox();
-                var sFac = 0;
-                if (mesh.geometry.boundingBox.max.x !== Infinity && mesh.geometry.boundingBox.min.x !== Infinity) {
-                    sFac = mesh.geometry.boundingBox.max.x - mesh.geometry.boundingBox.min.x + spacing;
-                    if (sFac < minSpacing) {
-                        sFac = minSpacing;
-                    }
-                    else if (sFac > maxSpacing) {
-                        sFac = maxSpacing;
-                    }
-                }
-                else {
-                    sFac = 10;
-                }
-                //            console.log(providedText[i] + ": " + sFac);
-                posx += sFac;
+                posx += defaultSpacing;
+
                 textNode.add(mesh);
             }
         }
+        if (scaleVector !== null && scaleVector !== undefined) {
+            textNode.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
+        }
+        textNode.position.set(baseX, baseY, 0);
         APPG.textBuffer.textBaseNode.add(textNode);
     }
 };
@@ -205,6 +219,9 @@ APPG.screen = {
     glMinHeight : 800 / 2.35
 };
 APPG.frameNumber = 0;
+APPG.fpsFrameRef = 0;
+APPG.fpsCheckTime = new Date().getTime();
+APPG.fps = 0;
 APPG.dom = {
     widthScrollBar : 2,
     canvasGL : null,
@@ -226,6 +243,12 @@ APPG.functions = {
     },
     addFrameNumber : function() {
         APPG.frameNumber++;
+        var now = new Date().getTime();
+        if (now > (APPG.fpsCheckTime + 1000)) {
+            APPG.fps = 1000 * (APPG.frameNumber - APPG.fpsFrameRef) / (now - APPG.fpsCheckTime);
+            APPG.fpsCheckTime = now;
+            APPG.fpsFrameRef = APPG.frameNumber;
+        }
     }
 };
 

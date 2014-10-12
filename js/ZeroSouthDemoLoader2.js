@@ -96,19 +96,29 @@ function initGL() {
     APPG.renderer.functions.createDefault();
 
     APPG.scenes.perspective.functions.createDefault();
+    APPG.scenes.ortho.functions.createDefault(-1000, 1000);
+    resetCamera();
+
+    APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.functions.resetCameraDefault();
     APPG.scenes.perspective.camera.position.set(600, 600, 1050);
 
     APPG.scenes.lights.functions.createDefault();
     APPG.renderer.setClearColor(new THREE.Color(0.075, 0.075, 0.075), 255);
 
+    initText();
+
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
     APPG.scenes.perspective.scene.add(APPG.scenes.geometry.functions.createGrid(1024, 24, 152, 0x606060));
 
-    APPL.support.dom.divLoad.functions.initAndShow();
-
     loadWithOBJLoader();
+}
+
+function initText() {
+    APPG.textBuffer.functions.addNode("textFrameNode", "None");
+    APPL.support.load.functions.init();
+    APPG.textBuffer.functions.completeInit();
 }
 
 function loadWithOBJLoader() {
@@ -163,6 +173,28 @@ function render() {
     APPG.renderer.clear();
     APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
     APPG.functions.addFrameNumber();
+
+    updateText();
+
+    APPG.renderer.clearDepth();
+    APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
+}
+
+function updateText () {
+    APPG.textBuffer.functions.updateContent("textFrameNode", "Frame: " + APPG.frameNumber + "(FPS:" + APPG.fps.toFixed(2) + ")");
+    APPL.support.load.functions.updateTextContent();
+    APPG.textBuffer.functions.verifyTextGeometries();
+    var materialOverride = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0x00ff00,
+            transparent : true,
+            opacity : 1.0,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    APPG.textBuffer.functions.processTextGroups("textFrameNode", 200, -300, 18, materialOverride, new THREE.Vector3(0.75, 0.75, 0.75));
+    APPL.support.load.functions.render();
 }
 
 function resetCamera() {

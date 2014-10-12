@@ -23,43 +23,32 @@ APPL.support.load.params = {
     updateTotalObjCount : true,
     countTotal: 0,
     countCurrent: 0,
-    textNode: null,
-    textNodeContent: "Please wait while file is loading..."
+    textContent: "Please wait while file is loading..."
 };
 APPL.support.load.functions = {
     init : function() {
-        APPL.support.load.params.textNode = new THREE.Object3D();
-        APPL.support.load.params.textFrameNode = new THREE.Object3D();
+        APPG.textBuffer.functions.addNode("loadCounter", APPL.support.load.params.textContent);
     },
-    getTextNode : function() {
-        var output = APPL.support.load.params.textNode;
-        if (!APPL.support.load.params.visible) {
-            output.children = [];
-        }
-        return output;
-    },
-    getTextNodeContent : function() {
-        var output = "";
-        if (APPL.support.load.params.visible) {
-            output = APPL.support.load.params.textNodeContent;
-        }
-        return output;
+    updateTextContent : function() {
+        APPG.textBuffer.functions.updateContent("loadCounter", APPL.support.load.params.textContent);
     },
     setTotalObjectCount : function(countTotal) {
         APPL.support.load.params.countTotal = countTotal;
-        APPL.support.load.params.textNodeContent = "Please wait while file is loading... Object count: 0 of " + countTotal;
+        APPL.support.load.params.textContent = "Please wait while file is loading... Object count: 0 of " + countTotal;
     },
     updateCurrentObjectCount : function(countCurrent) {
         APPL.support.load.params.countCurrent = countCurrent;
-        APPL.support.load.params.textNodeContent = "Please wait while file is loading... Object count: " + countCurrent + " of " + APPL.support.load.params.countTotal;
+        APPL.support.load.params.textContent = "Please wait while file is loading... Object count: " + countCurrent + " of " + APPL.support.load.params.countTotal;
     },
     render : function () {
         if (APPL.support.load.params.visible) {
-            APPG.textBuffer.functions.updateTextGroup(APPL.support.load.params.textNode, APPL.support.load.params.textNodeContent, -700, 400, 8, 16, 44);
+            APPG.textBuffer.functions.processTextGroups("loadCounter", -500, 400, 18, null, new THREE.Vector3(0.75, 0.75, 0.75));
         }
     },
     hide : function() {
         APPL.support.load.params.visible = false;
+        APPG.textBuffer.functions.removeNode("loadCounter");
+        APPG.textBuffer.functions.updateBaseNode();
     }
 };
 APPL.support.zip = {
