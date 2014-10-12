@@ -83,7 +83,7 @@ ATR.text.textParams = {
     bevelSize : 1.0,
     bevelSegments : 3,
     bevelEnabled : true,
-    font : "optimer",
+    font : "ubuntu mono",
     weight : "normal",
     style : "normal",
     material : 0,
