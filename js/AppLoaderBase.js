@@ -42,7 +42,7 @@ APPL.support.load.functions = {
     },
     render : function () {
         if (APPL.support.load.params.visible) {
-            APPG.textBuffer.functions.processTextGroups("loadCounter", -500, 400, 18, null, new THREE.Vector3(0.75, 0.75, 0.75));
+            APPG.textBuffer.functions.processTextGroups("loadCounter", 300 - APPG.screen.glWidth / 2, -24 + APPG.screen.glHeight / 2, 18, null, new THREE.Vector3(0.75, 0.75, 0.75));
         }
     },
     hide : function() {

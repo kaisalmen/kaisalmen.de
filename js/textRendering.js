@@ -181,12 +181,13 @@ function initGL() {
 
     APPG.scenes.perspective.functions.createDefault();
     APPG.scenes.perspective.camera.fov = 70;
-    APPG.scenes.ortho.functions.createDefault(1, 10);
+    APPG.scenes.ortho.functions.createDefault(-10, 10);
     resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
 
     createText();
+    initText2d();
 
     var material = new THREE.ShaderMaterial( {
         uniforms : APPG.shaders.shaderFlicker.uniforms,
@@ -201,6 +202,11 @@ function initGL() {
 
     // init trackball controls
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
+}
+
+function initText2d() {
+    APPG.textBuffer.functions.addNode("textFrameNode", "None");
+    APPG.textBuffer.functions.completeInit();
 }
 
 function addEventHandlers() {
@@ -288,9 +294,32 @@ function render() {
                 APPG.shaders.shaderFlicker.uniforms.seed.value = ranVal;
             }
         }
+
+        updateText2d();
+
         APPG.renderer.clearDepth();
         APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
     }
+}
+
+function updateText2d() {
+    var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
+    APPG.textBuffer.functions.updateContent("textFrameNode", text);
+    APPG.textBuffer.functions.verifyTextGeometries();
+    var materialOverride = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0x00ff00,
+            transparent : true,
+            opacity : 1.0,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    var spacing = 18;
+    var scale = new THREE.Vector3(0.75, 0.75, 0.75);
+    var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
+    var textPosY = 24 - APPG.screen.glHeight / 2;
+    APPG.textBuffer.functions.processTextGroups("textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
 }
 
 /**
@@ -346,10 +375,9 @@ function updateTextMaterials() {
     var red = ATR.datGui.paramFunctionRef.red / 255;
     var green = ATR.datGui.paramFunctionRef.green / 255;
     var blue = ATR.datGui.paramFunctionRef.blue / 255;
-    for (var i in ATR.objectText.material.materials) {
-        var mat = ATR.objectText.material.materials[i];
+    ATR.objectText.material.materials.forEach(function (mat) {
         mat.color.setRGB(red, green, blue);
-    }
+    });
     var rgb = ShaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[0] = rgb[0];
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[1] = rgb[1];

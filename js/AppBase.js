@@ -314,6 +314,20 @@ APPG.scenes.ortho.functions = {
     createDefault : function(near, far) {
         APPG.scenes.ortho.scene = new THREE.Scene();
         APPG.scenes.ortho.camera = new THREE.OrthographicCamera( - APPG.screen.glWidth / 2, APPG.screen.glWidth / 2, APPG.screen.glHeight / 2, - APPG.screen.glHeight / 2, near, far);
+    },
+    resizeOrthoCameraDefault : function() {
+        // calc screen dimension
+        APPG.scenes.ortho.pixelLeft = -APPG.screen.glWidth / 2;
+        APPG.scenes.ortho.pixelRight = APPG.screen.glWidth / 2;
+        APPG.scenes.ortho.pixelTop = APPG.screen.glHeight / 2;
+        APPG.scenes.ortho.pixelBottom = -APPG.screen.glHeight / 2;
+
+        // update camera
+        APPG.scenes.ortho.camera.left = APPG.scenes.ortho.pixelLeft;
+        APPG.scenes.ortho.camera.right = APPG.scenes.ortho.pixelRight;
+        APPG.scenes.ortho.camera.top = APPG.scenes.ortho.pixelTop;
+        APPG.scenes.ortho.camera.bottom = APPG.scenes.ortho.pixelBottom;
+        APPG.scenes.ortho.camera.updateProjectionMatrix();
     }
 };
 APPG.scenes.ortho.Billboard = {
@@ -331,18 +345,7 @@ APPG.scenes.ortho.Billboard.functions = {
         APPG.scenes.ortho.scene.remove(mesh);
     },
     resizeBillboard : function () {
-        // calc screen dimension
-        APPG.scenes.ortho.pixelLeft = -APPG.screen.glWidth / 2;
-        APPG.scenes.ortho.pixelRight = APPG.screen.glWidth / 2;
-        APPG.scenes.ortho.pixelTop = APPG.screen.glHeight / 2;
-        APPG.scenes.ortho.pixelBottom = -APPG.screen.glHeight / 2;
-
-        // update camera
-        APPG.scenes.ortho.camera.left = APPG.scenes.ortho.pixelLeft;
-        APPG.scenes.ortho.camera.right = APPG.scenes.ortho.pixelRight;
-        APPG.scenes.ortho.camera.top = APPG.scenes.ortho.pixelTop;
-        APPG.scenes.ortho.camera.bottom = APPG.scenes.ortho.pixelBottom;
-        APPG.scenes.ortho.camera.updateProjectionMatrix();
+        APPG.scenes.ortho.functions.resizeOrthoCameraDefault();
 
         // update billboard geometries dimensions
         if (APPG.scenes.ortho.Billboard.shaderMesh.geometry !== null) {

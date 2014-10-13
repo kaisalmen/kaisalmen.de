@@ -51,7 +51,7 @@ function initGL() {
     APPG.renderer.functions.createDefault(true);
 
     APPG.scenes.perspective.functions.createDefault();
-    APPG.scenes.ortho.functions.createDefault(-1000, 1000);
+    APPG.scenes.ortho.functions.createDefault(-10, 10);
     resetCamera();
 
     APPG.scenes.lights.functions.createDefault();
@@ -77,6 +77,7 @@ function resizeDisplayGL() {
     APPG.controls.trackball.handleResize();
     resizeDisplayHtml();
     APPG.scenes.perspective.functions.resizePerspectiveCameraDefault();
+    APPG.scenes.ortho.functions.resizeOrthoCameraDefault();
 
     APPG.renderer.setSize(APPG.screen.glWidth, APPG.screen.glHeight);
 }
@@ -104,7 +105,8 @@ function render() {
 }
 
 function updateText() {
-    APPG.textBuffer.functions.updateContent("textFrameNode", "Frame: " + APPG.frameNumber + "(FPS:" + APPG.fps.toFixed(2) + ")");
+    var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
+    APPG.textBuffer.functions.updateContent("textFrameNode", text);
     APPG.textBuffer.functions.verifyTextGeometries();
     APPG.textBuffer.functions.processTextGroups("textNode1", -800, 327, 18);
     APPG.textBuffer.functions.processTextGroups("textNode2", -800, 300, 18);
@@ -117,7 +119,11 @@ function updateText() {
             side : THREE.DoubleSide
         } )
     ] );
-    APPG.textBuffer.functions.processTextGroups("textFrameNode", 200, -300, 18, materialOverride, new THREE.Vector3(1.1, 1.1, 1.1));
+    var spacing = 18;
+    var scale = new THREE.Vector3(0.75, 0.75, 0.75);
+    var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
+    var textPosY = 24 - APPG.screen.glHeight / 2;
+    APPG.textBuffer.functions.processTextGroups("textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
 }
 
 function resetCamera() {
