@@ -65,10 +65,37 @@ function initGL() {
 }
 
 function initText() {
-    APPG.textBuffer.functions.addNode("textNode1", "Each character is a single geometry in ortho view.");
-    APPG.textBuffer.functions.addNode("textNode2", "They are created once and are only re-instantiated if required (mesh cache)!");
-    APPG.textBuffer.functions.addNode("textFrameNode", "None");
-    APPG.textBuffer.functions.completeInit();
+    APPG.textBuffer.functions.addTextNode2d("textNode1", "Each character is a single geometry in ortho view.");
+    APPG.textBuffer.functions.addTextNode2d("textNode2", "They are created once and are only re-instantiated if required (mesh cache)!");
+    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
+    var material2d = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0x00ff00,
+            transparent : true,
+            opacity : 1.0,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    var material2dParams = {
+        name: "blah",
+        height : 20,
+        size: 18,
+        amount: 0,
+        hover : 0,
+        curveSegments: 2,
+        bevelEnabled: false,
+        bevelSegments : 2,
+        bevelThickness : 2,
+        bevelSize : 1.0,
+        font: "ubuntu mono",
+        weight: "normal",
+        style: "normal",
+        material: 0,
+        extrudeMaterial: 0
+    };
+
+    APPG.textBuffer.functions.completeInit(material2d, material2dParams, null, null);
 }
 
 function addEventHandlers() {}
@@ -106,24 +133,15 @@ function render() {
 
 function updateText() {
     var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
-    APPG.textBuffer.functions.updateContent("textFrameNode", text);
+    APPG.textBuffer.functions.updateTextNode2d("textFrameNode", text);
     APPG.textBuffer.functions.verifyTextGeometries();
-    APPG.textBuffer.functions.processTextGroups("textNode1", -800, 327, 18);
-    APPG.textBuffer.functions.processTextGroups("textNode2", -800, 300, 18);
-    var materialOverride = new THREE.MeshFaceMaterial( [
-        new THREE.MeshPhongMaterial( {
-            emissive: 0x00ff00,
-            transparent : true,
-            opacity : 1.0,
-            shading: THREE.FlatShading,
-            side : THREE.DoubleSide
-        } )
-    ] );
+    APPG.textBuffer.functions.processTextNode(true, "textNode1", -800, 327, 18);
+    APPG.textBuffer.functions.processTextNode(true, "textNode2", -800, 300, 18);
     var spacing = 18;
     var scale = new THREE.Vector3(0.75, 0.75, 0.75);
     var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
     var textPosY = 24 - APPG.screen.glHeight / 2;
-    APPG.textBuffer.functions.processTextGroups("textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
+    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, scale);
 }
 
 function resetCamera() {

@@ -27,10 +27,10 @@ APPL.support.load.params = {
 };
 APPL.support.load.functions = {
     init : function() {
-        APPG.textBuffer.functions.addNode("loadCounter", APPL.support.load.params.textContent);
+        APPG.textBuffer.functions.addTextNode2d("loadCounter", APPL.support.load.params.textContent);
     },
     updateTextContent : function() {
-        APPG.textBuffer.functions.updateContent("loadCounter", APPL.support.load.params.textContent);
+        APPG.textBuffer.functions.updateTextNode2d("loadCounter", APPL.support.load.params.textContent);
     },
     setTotalObjectCount : function(countTotal) {
         APPL.support.load.params.countTotal = countTotal;
@@ -42,12 +42,12 @@ APPL.support.load.functions = {
     },
     render : function () {
         if (APPL.support.load.params.visible) {
-            APPG.textBuffer.functions.processTextGroups("loadCounter", 300 - APPG.screen.glWidth / 2, -24 + APPG.screen.glHeight / 2, 18, null, new THREE.Vector3(0.75, 0.75, 0.75));
+            APPG.textBuffer.functions.processTextNode(true, "loadCounter", 300 - APPG.screen.glWidth / 2, -24 + APPG.screen.glHeight / 2, 18, null, new THREE.Vector3(0.75, 0.75, 0.75));
         }
     },
     hide : function() {
         APPL.support.load.params.visible = false;
-        APPG.textBuffer.functions.removeNode("loadCounter");
+        APPG.textBuffer.functions.removeNode2d("loadCounter");
         APPG.textBuffer.functions.updateBaseNode();
     }
 };

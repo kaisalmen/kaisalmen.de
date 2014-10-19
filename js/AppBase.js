@@ -60,65 +60,80 @@ APPG.textBuffer = {
     params : null,
     textBaseNode : null,
     functions : null,
-    material : null
+    material2d : null,
+    material2dParams : null,
+    material3d : null,
+    material3dParams : null
 };
-APPG.textBuffer.params = {
-    name : "blah",
-    size: 18,
-    amount: 0,
-    curveSegments: 2,
-    bevelEnabled: false,
-    font: "ubuntu mono",
-    weight: "normal",
-    style: "normal",
-    material: 0,
-    extrudeMaterial: 0
-};
-APPG.textBuffer.characterCache = new Map();
-APPG.textBuffer.characterCountsRender = new Array(256);
-APPG.textBuffer.textNodes = new Map();
-APPG.textBuffer.textContents = new Map();
+APPG.textBuffer.characterCache2d = new Map();
+APPG.textBuffer.characterCache3d = new Map();
+APPG.textBuffer.characterCountsRender2d = new Array(256);
+APPG.textBuffer.characterCountsRender3d = new Array(256);
+APPG.textBuffer.textNodes2d = new Map();
+APPG.textBuffer.textContents2d = new Map();
+APPG.textBuffer.textNodes3d = new Map();
+APPG.textBuffer.textContents3d = new Map();
 APPG.textBuffer.functions = {
-    createSingleCharacter : function(text) {
-        var textGeometry = new THREE.TextGeometry(text, APPG.textBuffer.params);
-        textGeometry.computeBoundingBox();
-        textGeometry.computeVertexNormals();
-
-        return new THREE.Mesh(textGeometry, APPG.textBuffer.material);
+    addTextNode2d : function (name, textContent) {
+        console.log("Adding node with the following name to textBuffer (2d): " + name);
+        APPG.textBuffer.textNodes2d.set(name, new THREE.Object3D());
+        APPG.textBuffer.textContents2d.set(name, textContent);
     },
-    addNode : function (name, textContent) {
-        console.log("Adding node with the following name to textBuffer: " + name);
-        APPG.textBuffer.textNodes.set(name, new THREE.Object3D());
-        APPG.textBuffer.textContents.set(name, textContent);
+    addTextNode3d : function (name, textContent) {
+        console.log("Adding node with the following name to textBuffer (3d): " + name);
+        APPG.textBuffer.textNodes3d.set(name, new THREE.Object3D());
+        APPG.textBuffer.textContents3d.set(name, textContent);
     },
-    updateContent : function (name, textContent) {
-        APPG.textBuffer.textContents.set(name, textContent);
+    updateTextNode2d : function (name, textContent) {
+        APPG.textBuffer.textContents2d.set(name, textContent);
     },
-    removeNode : function (name) {
-        APPG.textBuffer.textNodes.delete(name);
-        APPG.textBuffer.textContents.delete(name);
+    updateTextNode3d : function (name, textContent) {
+        APPG.textBuffer.textContents3d.set(name, textContent);
     },
-    completeInit : function() {
-        APPG.textBuffer.material = new THREE.MeshFaceMaterial( [
-            new THREE.MeshPhongMaterial( {
-                emissive: 0xff0000,
-                transparent : true,
-                opacity : 1.0,
-                shading: THREE.FlatShading,
-                side : THREE.DoubleSide
-            } )
-        ] );
-
+    removeNode2d : function (name) {
+        APPG.textBuffer.textNodes2d.delete(name);
+        APPG.textBuffer.textContents2d.delete(name);
+    },
+    removeNode3d : function (name) {
+        APPG.textBuffer.textNodes3d.delete(name);
+        APPG.textBuffer.textContents3d.delete(name);
+    },
+    completeInit : function(material2d, material2dParams, material3d, material3dParams) {
+        APPG.textBuffer.material2d = material2d;
+        APPG.textBuffer.material2dParams = material2dParams;
+        APPG.textBuffer.material3d = material3d;
+        APPG.textBuffer.material3dParams = material3dParams;
         var character = "";
-        var characterMesh = null;
-        var characterMeshes = null;
+        var textGeometry2d = null;
+        var textGeometry3d = null;
+        var characterMesh2d = null;
+        var characterMeshes2d = null;
+        var characterMesh3d = null;
+        var characterMeshes3d = null;
 
-        for (var i = 0; i < 256; i++) {
-            character = String.fromCharCode(i);
-            characterMesh = APPG.textBuffer.functions.createSingleCharacter(character);
-            characterMeshes = new Set();
-            characterMeshes.add(characterMesh);
-            APPG.textBuffer.characterCache.set(character, characterMeshes);
+        if (material2d !== null && material2dParams !== null) {
+            for (var i = 0; i < 256; i++) {
+                character = String.fromCharCode(i);
+                textGeometry2d = new THREE.TextGeometry(character, material2dParams);
+                textGeometry2d.computeBoundingBox();
+                textGeometry2d.computeVertexNormals();
+                characterMesh2d = new THREE.Mesh(textGeometry2d, material2d);
+                characterMeshes2d = new Set();
+                characterMeshes2d.add(characterMesh2d);
+                APPG.textBuffer.characterCache2d.set(character, characterMeshes2d);
+            }
+        }
+
+        if (material3d !== null && material3dParams !== null) {
+            for (var i = 0; i < 256; i++) {
+                textGeometry3d = new THREE.TextGeometry(character, material3dParams);
+                textGeometry3d.computeBoundingBox();
+                textGeometry3d.computeVertexNormals();
+                characterMesh3d = new THREE.Mesh(textGeometry3d, material3d);
+                characterMeshes3d = new Set();
+                characterMeshes3d.add(characterMesh3d);
+                APPG.textBuffer.characterCache3d.set(character, characterMeshes3d);
+            }
         }
 
         APPG.textBuffer.textBaseNode = new THREE.Object3D();
@@ -127,16 +142,25 @@ APPG.textBuffer.functions = {
     },
     updateBaseNode : function() {
         APPG.textBuffer.textBaseNode.children = [];
-        var allValues = APPG.textBuffer.textNodes.values();
-        for (var i = 0; i < allValues.length; i++) {
-            APPG.textBuffer.textBaseNode.add(allValues[i]);
+        var allValues2d = APPG.textBuffer.textNodes2d.values();
+        for (var i = 0; i < allValues2d.length; i++) {
+            APPG.textBuffer.textBaseNode.add(allValues2d[i]);
+        }
+        var allValues3d = APPG.textBuffer.textNodes3d.values();
+        for (var i = 0; i < allValues3d.length; i++) {
+            APPG.textBuffer.textBaseNode.add(allValues3d[i]);
         }
     },
     verifyTextGeometries : function() {
-        var characterCountsRef = new Array(APPG.textBuffer.characterCountsRender.length);
-        for (var i = 0; i < characterCountsRef.length; i++) {
-            characterCountsRef[i] = 0;
-            APPG.textBuffer.characterCountsRender[i] = 0;
+        var characterCountsRef2d = new Array(APPG.textBuffer.characterCountsRender2d.length);
+        for (var i = 0; i < characterCountsRef2d.length; i++) {
+            characterCountsRef2d[i] = 0;
+            APPG.textBuffer.characterCountsRender2d[i] = 0;
+        }
+        var characterCountsRef3d = new Array(APPG.textBuffer.characterCountsRender3d.length);
+        for (var i = 0; i < characterCountsRef3d.length; i++) {
+            characterCountsRef3d[i] = 0;
+            APPG.textBuffer.characterCountsRender3d[i] = 0;
         }
 
         var character = "";
@@ -144,34 +168,65 @@ APPG.textBuffer.functions = {
         var characterCount = 0;
 
         var countsPos = 0;
-        var text = "";
         var meshClone = null;
 
-        var texts = APPG.textBuffer.textContents.values();
-        for (var i = 0; i < texts.length; i++) {
-            text = texts[i];
+        var text2d = "";
+        var texts2d = APPG.textBuffer.textContents2d.values();
+        for (var i = 0; i < texts2d.length; i++) {
+            text2d = texts2d[i];
 
-            for (var j = 0; j < text.length; j++) {
-                character = text[j];
-                characterMeshes = APPG.textBuffer.characterCache.get(character);
-                countsPos = text.charCodeAt(j);
+            for (var j = 0; j < text2d.length; j++) {
+                character = text2d[j];
+                characterMeshes = APPG.textBuffer.characterCache2d.get(character);
+                countsPos = text2d.charCodeAt(j);
 
-                characterCount = characterCountsRef[countsPos];
+                characterCount = characterCountsRef2d[countsPos];
                 if (characterCount > 0 && characterMeshes.length === characterCount) {
                     meshClone = characterMeshes.toArray()[0].clone();
                     characterMeshes.add(meshClone);
-                    APPG.textBuffer.characterCache.set(character, characterMeshes);
+                    APPG.textBuffer.characterCache2d.set(character, characterMeshes);
                 }
-                characterCountsRef[countsPos] = characterCount + 1;
+                characterCountsRef2d[countsPos] = characterCount + 1;
+            }
+        }
+
+        var text3d = "";
+        var texts3d = APPG.textBuffer.textContents3d.values();
+        for (var i = 0; i < texts3d.length; i++) {
+            text3d = texts3d[i];
+
+            for (var j = 0; j < text3d.length; j++) {
+                character = text3d[j];
+                characterMeshes = APPG.textBuffer.characterCache3d.get(character);
+                countsPos = text3d.charCodeAt(j);
+
+                characterCount = characterCountsRef3d[countsPos];
+                if (characterCount > 0 && characterMeshes.length === characterCount) {
+                    meshClone = characterMeshes.toArray()[0].clone();
+                    characterMeshes.add(meshClone);
+                    APPG.textBuffer.characterCache3d.set(character, characterMeshes);
+                }
+                characterCountsRef3d[countsPos] = characterCount + 1;
             }
         }
     },
-    processTextGroups : function (textNodeName, baseX, baseY, defaultSpacing, materialOverride, scaleVector) {
-        var textNode = APPG.textBuffer.textNodes.get(textNodeName);
-        var text = APPG.textBuffer.textContents.get(textNodeName);
-        textNode.children = [];
+    processTextNode : function (use2d, textNodeName, baseX, baseY, defaultSpacing, scaleVector) {
+        var textNode = null;
+        var text = null;
+        var characterCache = null;
+        if (use2d) {
+            textNode = APPG.textBuffer.textNodes2d.get(textNodeName);
+            text = APPG.textBuffer.textContents2d.get(textNodeName);
+            characterCache = APPG.textBuffer.characterCache2d;
+        }
+        else {
+            textNode = APPG.textBuffer.textNodes3d.get(textNodeName);
+            text = APPG.textBuffer.textContents3d.get(textNodeName);
+            characterCache = APPG.textBuffer.characterCache3d;
+        }
 
-        var posx = 0;
+        textNode.children = [];
+        var posX = 0;
         var posY = 0;
 
         var character = "";
@@ -185,20 +240,19 @@ APPG.textBuffer.functions = {
             character = text[i];
             countsPos = text.charCodeAt(i);
 
-            characterMeshes = APPG.textBuffer.characterCache.get(character);
-            characterCount = APPG.textBuffer.characterCountsRender[countsPos];
+            characterMeshes = characterCache.get(character);
+            characterCount = use2d ? APPG.textBuffer.characterCountsRender2d[countsPos] : APPG.textBuffer.characterCountsRender3d[countsPos];
             mesh = characterMeshes.toArray()[characterCount];
             if (mesh !== null && mesh !== undefined) {
-                if (materialOverride !== null && materialOverride !== undefined) {
-                    mesh.material = materialOverride;
+                if (use2d) {
+                    APPG.textBuffer.characterCountsRender2d[countsPos] = characterCount + 1;
                 }
                 else {
-                    mesh.material = APPG.textBuffer.material;
+                    APPG.textBuffer.characterCountsRender3d[countsPos] = characterCount + 1;
                 }
-                APPG.textBuffer.characterCountsRender[countsPos] = characterCount + 1;
 
-                mesh.position.set(posx, posY, 0);
-                posx += defaultSpacing;
+                mesh.position.set(posX, posY, 0);
+                posX += defaultSpacing;
 
                 textNode.add(mesh);
             }

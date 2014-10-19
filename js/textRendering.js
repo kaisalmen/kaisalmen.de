@@ -70,7 +70,10 @@ ATR.datGui = {
 ATR.objectText = {
     mesh : null,
     geometry : null,
-    material : null
+    material2d : null,
+    material2dParams : null,
+    material3d : null,
+    material3dParams : null
 }
 ATR.text = {};
 ATR.text.textParams = {
@@ -186,8 +189,7 @@ function initGL() {
 
     APPG.scenes.lights.functions.createDefault();
 
-    createText();
-    initText2d();
+    initText();
 
     var material = new THREE.ShaderMaterial( {
         uniforms : APPG.shaders.shaderFlicker.uniforms,
@@ -204,9 +206,84 @@ function initGL() {
     APPG.controls.functions.createDefault(APPG.scenes.perspective.camera);
 }
 
-function initText2d() {
-    APPG.textBuffer.functions.addNode("textFrameNode", "None");
-    APPG.textBuffer.functions.completeInit();
+function initText() {
+    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
+    ATR.objectText.material2d = new THREE.MeshFaceMaterial( [
+        new THREE.MeshPhongMaterial( {
+            emissive: 0x00ff00,
+            transparent : true,
+            opacity : 1.0,
+            shading: THREE.FlatShading,
+            side : THREE.DoubleSide
+        } )
+    ] );
+    ATR.objectText.material3d = new THREE.MeshFaceMaterial( [
+        // front
+        new THREE.MeshPhongMaterial( {
+            color: 0xffffff,
+            shading: THREE.FlatShading,
+            transparent: true,
+            opacity: ATR.datGui.paramFunctionRef.opacityText,
+            side: THREE.DoubleSide
+        } ),
+        // side
+        new THREE.MeshPhongMaterial({
+            color: 0xffffff,
+            shading: THREE.SmoothShading,
+            transparent: true,
+            opacity: ATR.datGui.paramFunctionRef.opacityText,
+            side: THREE.DoubleSide
+        } )
+    ] );
+
+    ATR.objectText.material2dParams = {
+        name: "blah",
+        height : 20,
+        size: 18,
+        amount: 0,
+        hover : 30,
+        curveSegments: 2,
+        bevelEnabled: true,
+        bevelSegments : 2,
+        bevelThickness : 2,
+        bevelSize : 1.0,
+        font: "ubuntu mono",
+        weight: "normal",
+        style: "normal",
+        material: 0,
+        extrudeMaterial: 1
+    };
+    ATR.objectText.material3dParams = {
+        name : "Magnificent void!",
+        height : 20,
+        size : 18,
+        hover : 30,
+        curveSegments : 2,
+        bevelEnabled : true,
+        bevelSegments : 2,
+        bevelThickness : 2,
+        bevelSize : 1.0,
+        font : "ubuntu mono",
+        weight : "normal",
+        style : "normal",
+        material : 0,
+        extrudeMaterial : 1
+    };
+
+    ATR.objectText.geometry = new THREE.TextGeometry(ATR.text.textParams.name, ATR.text.textParams);
+    ATR.objectText.geometry.computeBoundingBox();
+    ATR.objectText.geometry.computeVertexNormals();
+
+    var matText3d = updateTextMaterials();
+    ATR.objectText.mesh = new THREE.Mesh( ATR.objectText.geometry, matText3d.materials );
+
+    ATR.objectText.mesh.position.x = -(ATR.objectText.geometry.boundingBox.max.x - ATR.objectText.geometry.boundingBox.min.x) / 2;
+    ATR.objectText.mesh.position.y = -(ATR.objectText.geometry.boundingBox.max.y - ATR.objectText.geometry.boundingBox.min.y) / 2;
+    ATR.objectText.mesh.position.z = -(ATR.objectText.geometry.boundingBox.max.z - ATR.objectText.geometry.boundingBox.min.z) / 2;
+    APPG.scenes.perspective.scene.add(ATR.objectText.mesh);
+
+    APPG.textBuffer.functions.completeInit(ATR.objectText.material2d, ATR.objectText.material2dParams,
+                                           ATR.objectText.material3d, ATR.objectText.material3dParams);
 }
 
 function addEventHandlers() {
@@ -224,8 +301,9 @@ function addEventHandlers() {
     });
     ATR.datGui.controllerBlendText.onChange(function(value) {
         ATR.datGui.paramFunctionRef.opacityText = value;
-        for (var i in ATR.objectText.material.materials) {
-            var mat = ATR.objectText.material.materials[i];
+        var matText3d = ATR.objectText.allMaterialsMap.get("3d");
+        for (var i in matText3d) {
+            var mat = matText3d[i];
             mat.opacity = value;
         }
     });
@@ -304,22 +382,14 @@ function render() {
 
 function updateText2d() {
     var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
-    APPG.textBuffer.functions.updateContent("textFrameNode", text);
+    APPG.textBuffer.functions.updateTextNode2d("textFrameNode", text);
     APPG.textBuffer.functions.verifyTextGeometries();
-    var materialOverride = new THREE.MeshFaceMaterial( [
-        new THREE.MeshPhongMaterial( {
-            emissive: 0x00ff00,
-            transparent : true,
-            opacity : 1.0,
-            shading: THREE.FlatShading,
-            side : THREE.DoubleSide
-        } )
-    ] );
+
     var spacing = 18;
     var scale = new THREE.Vector3(0.75, 0.75, 0.75);
     var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
     var textPosY = 24 - APPG.screen.glHeight / 2;
-    APPG.textBuffer.functions.processTextGroups("textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
+    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
 }
 
 /**
@@ -335,38 +405,6 @@ function selectRandomText() {
     return randomStartText;
 }
 
-function createText() {
-    ATR.objectText.geometry = new THREE.TextGeometry(ATR.text.textParams.name, ATR.text.textParams);
-    ATR.objectText.geometry.computeBoundingBox();
-    ATR.objectText.geometry.computeVertexNormals();
-
-    ATR.objectText.material = new THREE.MeshFaceMaterial( [
-        // front
-        new THREE.MeshPhongMaterial( {
-            color: 0xffffff,
-            shading: THREE.FlatShading,
-            transparent: true,
-            opacity: ATR.datGui.paramFunctionRef.opacityText,
-            side: THREE.DoubleSide
-        } ),
-        // side
-        new THREE.MeshPhongMaterial({
-            color: 0xffffff,
-            shading: THREE.SmoothShading,
-            transparent: true,
-            opacity: ATR.datGui.paramFunctionRef.opacityText,
-            side: THREE.DoubleSide
-        } )
-    ] );
-    updateTextMaterials();
-
-    ATR.objectText.mesh = new THREE.Mesh( ATR.objectText.geometry, ATR.objectText.material );
-    ATR.objectText.mesh.position.x = -(ATR.objectText.geometry.boundingBox.max.x - ATR.objectText.geometry.boundingBox.min.x) / 2;
-    ATR.objectText.mesh.position.y = -(ATR.objectText.geometry.boundingBox.max.y - ATR.objectText.geometry.boundingBox.min.y) / 2;
-    ATR.objectText.mesh.position.z = -(ATR.objectText.geometry.boundingBox.max.z - ATR.objectText.geometry.boundingBox.min.z) / 2;
-    APPG.scenes.perspective.scene.add(ATR.objectText.mesh);
-}
-
 function removeText() {
     APPG.scenes.perspective.scene.remove(ATR.objectText.mesh);
 }
@@ -375,13 +413,17 @@ function updateTextMaterials() {
     var red = ATR.datGui.paramFunctionRef.red / 255;
     var green = ATR.datGui.paramFunctionRef.green / 255;
     var blue = ATR.datGui.paramFunctionRef.blue / 255;
-    ATR.objectText.material.materials.forEach(function (mat) {
+
+    var matText3d = ATR.objectText.allMaterialsMap.get("3d");
+    matText3d.materials.forEach(function (mat) {
         mat.color.setRGB(red, green, blue);
     });
     var rgb = ShaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[0] = rgb[0];
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[1] = rgb[1];
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[2] = rgb[2];
+
+    return matText3d;
 }
 
 function resetTrackballControls() {

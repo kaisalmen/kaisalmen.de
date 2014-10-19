@@ -116,7 +116,7 @@ function initGL() {
 }
 
 function initText() {
-    APPG.textBuffer.functions.addNode("textFrameNode", "None");
+    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
     APPL.support.load.functions.init();
     APPG.textBuffer.functions.completeInit();
 }
@@ -183,23 +183,14 @@ function render() {
 
 function updateText () {
     var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
-    APPG.textBuffer.functions.updateContent("textFrameNode", text);
+    APPG.textBuffer.functions.updateTextNode2d("textFrameNode", text);
     APPL.support.load.functions.updateTextContent();
     APPG.textBuffer.functions.verifyTextGeometries();
-    var materialOverride = new THREE.MeshFaceMaterial( [
-        new THREE.MeshPhongMaterial( {
-            emissive: 0x00ff00,
-            transparent : true,
-            opacity : 1.0,
-            shading: THREE.FlatShading,
-            side : THREE.DoubleSide
-        } )
-    ] );
     var spacing = 18;
     var scale = new THREE.Vector3(0.75, 0.75, 0.75);
     var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
     var textPosY = 24 - APPG.screen.glHeight / 2;
-    APPG.textBuffer.functions.processTextGroups("textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
+    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, scale);
     APPL.support.load.functions.render();
 }
 
