@@ -207,7 +207,6 @@ function initGL() {
 }
 
 function initText() {
-    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
     ATR.objectText.material2d = new THREE.MeshFaceMaterial( [
         new THREE.MeshPhongMaterial( {
             emissive: 0x00ff00,
@@ -235,6 +234,7 @@ function initText() {
             side: THREE.DoubleSide
         } )
     ] );
+    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
 
     ATR.objectText.material2dParams = {
         name: "blah",
@@ -269,18 +269,18 @@ function initText() {
         material : 0,
         extrudeMaterial : 1
     };
+    APPG.textBuffer.functions.addTextNode3d("textNode3d", "Magnificent void");
 
     ATR.objectText.geometry = new THREE.TextGeometry(ATR.text.textParams.name, ATR.text.textParams);
     ATR.objectText.geometry.computeBoundingBox();
     ATR.objectText.geometry.computeVertexNormals();
 
-    var matText3d = updateTextMaterials();
-    ATR.objectText.mesh = new THREE.Mesh( ATR.objectText.geometry, matText3d.materials );
-
-    ATR.objectText.mesh.position.x = -(ATR.objectText.geometry.boundingBox.max.x - ATR.objectText.geometry.boundingBox.min.x) / 2;
-    ATR.objectText.mesh.position.y = -(ATR.objectText.geometry.boundingBox.max.y - ATR.objectText.geometry.boundingBox.min.y) / 2;
-    ATR.objectText.mesh.position.z = -(ATR.objectText.geometry.boundingBox.max.z - ATR.objectText.geometry.boundingBox.min.z) / 2;
-    APPG.scenes.perspective.scene.add(ATR.objectText.mesh);
+//    var matText3d = updateTextMaterials();
+//    ATR.objectText.mesh = new THREE.Mesh( ATR.objectText.geometry, matText3d.materials );
+//    ATR.objectText.mesh.position.x = -(ATR.objectText.geometry.boundingBox.max.x - ATR.objectText.geometry.boundingBox.min.x) / 2;
+//    ATR.objectText.mesh.position.y = -(ATR.objectText.geometry.boundingBox.max.y - ATR.objectText.geometry.boundingBox.min.y) / 2;
+//    ATR.objectText.mesh.position.z = -(ATR.objectText.geometry.boundingBox.max.z - ATR.objectText.geometry.boundingBox.min.z) / 2;
+//    APPG.scenes.perspective.scene.add(ATR.objectText.mesh);
 
     APPG.textBuffer.functions.completeInit(ATR.objectText.material2d, ATR.objectText.material2dParams,
                                            ATR.objectText.material3d, ATR.objectText.material3dParams);
@@ -389,7 +389,7 @@ function updateText2d() {
     var scale = new THREE.Vector3(0.75, 0.75, 0.75);
     var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
     var textPosY = 24 - APPG.screen.glHeight / 2;
-    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, materialOverride, scale);
+    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, scale);
 }
 
 /**
@@ -414,8 +414,7 @@ function updateTextMaterials() {
     var green = ATR.datGui.paramFunctionRef.green / 255;
     var blue = ATR.datGui.paramFunctionRef.blue / 255;
 
-    var matText3d = ATR.objectText.allMaterialsMap.get("3d");
-    matText3d.materials.forEach(function (mat) {
+    APPG.textBuffer.material3d.materials.forEach(function (mat) {
         mat.color.setRGB(red, green, blue);
     });
     var rgb = ShaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);

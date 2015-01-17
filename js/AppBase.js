@@ -58,8 +58,9 @@ var APPG = {
 };
 APPG.textBuffer = {
     params : null,
-    textBaseNode : null,
     functions : null,
+    textBaseNode2d : null,
+    textBaseNode3d : null,
     material2d : null,
     material2dParams : null,
     material3d : null,
@@ -126,6 +127,7 @@ APPG.textBuffer.functions = {
 
         if (material3d !== null && material3dParams !== null) {
             for (var i = 0; i < 256; i++) {
+                character = String.fromCharCode(i);
                 textGeometry3d = new THREE.TextGeometry(character, material3dParams);
                 textGeometry3d.computeBoundingBox();
                 textGeometry3d.computeVertexNormals();
@@ -136,19 +138,22 @@ APPG.textBuffer.functions = {
             }
         }
 
-        APPG.textBuffer.textBaseNode = new THREE.Object3D();
+        APPG.textBuffer.textBaseNode2d = new THREE.Object3D();
+        APPG.textBuffer.textBaseNode3d = new THREE.Object3D();
         APPG.textBuffer.functions.updateBaseNode();
-        APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.textBaseNode);
+        APPG.scenes.ortho.Billboard.functions.addMesh(APPG.textBuffer.textBaseNode2d);
+        APPG.scenes.perspective.scene.add(APPG.textBuffer.textBaseNode3d);
     },
     updateBaseNode : function() {
-        APPG.textBuffer.textBaseNode.children = [];
+        APPG.textBuffer.textBaseNode2d.children = [];
+        APPG.textBuffer.textBaseNode3d.children = [];
         var allValues2d = APPG.textBuffer.textNodes2d.values();
         for (var i = 0; i < allValues2d.length; i++) {
-            APPG.textBuffer.textBaseNode.add(allValues2d[i]);
+            APPG.textBuffer.textBaseNode2d.add(allValues2d[i]);
         }
         var allValues3d = APPG.textBuffer.textNodes3d.values();
         for (var i = 0; i < allValues3d.length; i++) {
-            APPG.textBuffer.textBaseNode.add(allValues3d[i]);
+            APPG.textBuffer.textBaseNode3d.add(allValues3d[i]);
         }
     },
     verifyTextGeometries : function() {
@@ -261,7 +266,7 @@ APPG.textBuffer.functions = {
             textNode.scale.set(scaleVector.x, scaleVector.y, scaleVector.z);
         }
         textNode.position.set(baseX, baseY, 0);
-        APPG.textBuffer.textBaseNode.add(textNode);
+        use2d ? APPG.textBuffer.textBaseNode2d.add(textNode) : APPG.textBuffer.textBaseNode3d.add(textNode);
     }
 };
 

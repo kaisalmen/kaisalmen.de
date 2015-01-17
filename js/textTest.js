@@ -65,9 +65,6 @@ function initGL() {
 }
 
 function initText() {
-    APPG.textBuffer.functions.addTextNode2d("textNode1", "Each character is a single geometry in ortho view.");
-    APPG.textBuffer.functions.addTextNode2d("textNode2", "They are created once and are only re-instantiated if required (mesh cache)!");
-    APPG.textBuffer.functions.addTextNode2d("textFrameNode", "None");
     var material2d = new THREE.MeshFaceMaterial( [
         new THREE.MeshPhongMaterial( {
             emissive: 0x00ff00,
@@ -78,7 +75,7 @@ function initText() {
         } )
     ] );
     var material2dParams = {
-        name: "blah",
+        name: "text2d",
         height : 20,
         size: 18,
         amount: 0,
@@ -94,8 +91,48 @@ function initText() {
         material: 0,
         extrudeMaterial: 0
     };
+    APPG.textBuffer.functions.addTextNode2d("textNode1", "Each character is a single geometry in ortho view.");
+    APPG.textBuffer.functions.addTextNode2d("textNode2", "They are created once and are only re-instantiated if required (mesh cache)!");
+    APPG.textBuffer.functions.addTextNode2d("textFramesNode", "None");
 
-    APPG.textBuffer.functions.completeInit(material2d, material2dParams, null, null);
+    var opacity = 0.9;
+    var material3d = new THREE.MeshFaceMaterial( [
+        // front
+        new THREE.MeshPhongMaterial( {
+            color: 0xff00ff,
+            shading: THREE.FlatShading,
+            transparent: true,
+            opacity: opacity,
+            side: THREE.DoubleSide
+        } ),
+        // side
+        new THREE.MeshPhongMaterial({
+            color: 0xff00ff,
+            shading: THREE.SmoothShading,
+            transparent: true,
+            opacity: opacity,
+            side: THREE.DoubleSide
+        } )
+    ] );
+    var material3dParams = {
+        name : "text3d!",
+        height : 5,
+        size : 18,
+        hover : 10,
+        curveSegments : 3,
+        bevelEnabled : false,
+        bevelSegments : 2,
+        bevelThickness : 1,
+        bevelSize : 1,
+        font : "ubuntu mono",
+        weight : "normal",
+        style : "normal",
+        material : 0,
+        extrudeMaterial : 1
+    };
+    APPG.textBuffer.functions.addTextNode3d("textNode3d", "Tester");
+
+    APPG.textBuffer.functions.completeInit(material2d, material2dParams, material3d, material3dParams);
 }
 
 function addEventHandlers() {}
@@ -121,11 +158,12 @@ function animateFrame() {
 
 function render() {
     APPG.controls.trackball.update();
-    APPG.renderer.clear();
-    APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
-    APPG.functions.addFrameNumber();
 
     updateText();
+    APPG.functions.addFrameNumber();
+
+    APPG.renderer.clear();
+    APPG.renderer.render(APPG.scenes.perspective.scene, APPG.scenes.perspective.camera);
 
     APPG.renderer.clearDepth();
     APPG.renderer.render(APPG.scenes.ortho.scene, APPG.scenes.ortho.camera);
@@ -133,7 +171,7 @@ function render() {
 
 function updateText() {
     var text = "Frame: " + APPG.frameNumber + " FPS:" + APPG.fps.toFixed(1);
-    APPG.textBuffer.functions.updateTextNode2d("textFrameNode", text);
+    APPG.textBuffer.functions.updateTextNode2d("textFramesNode", text);
     APPG.textBuffer.functions.verifyTextGeometries();
     APPG.textBuffer.functions.processTextNode(true, "textNode1", -800, 327, 18);
     APPG.textBuffer.functions.processTextNode(true, "textNode2", -800, 300, 18);
@@ -141,7 +179,9 @@ function updateText() {
     var scale = new THREE.Vector3(0.75, 0.75, 0.75);
     var textPosX = -(text.length * scale.x * spacing) - 24 + APPG.screen.glWidth / 2;
     var textPosY = 24 - APPG.screen.glHeight / 2;
-    APPG.textBuffer.functions.processTextNode(true, "textFrameNode", textPosX, textPosY, spacing, scale);
+    APPG.textBuffer.functions.processTextNode(true, "textFramesNode", textPosX, textPosY, spacing, scale);
+
+    APPG.textBuffer.functions.processTextNode(false, "textNode3d", 0, 0, 18);
 }
 
 function resetCamera() {
