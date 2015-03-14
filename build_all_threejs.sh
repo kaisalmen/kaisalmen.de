@@ -1,12 +1,12 @@
 #!/bin/sh
 
 cd ../js/three.js/utils/build
-python3 build.py --include common --include extras --output ../../build/three.js
-python3 build.py --include canvas --output ../../build/three-canvas.js
-python3 build.py --include css3d --output ../../build/three-css3d.js
-python3 build.py --include webgl --output ../../build/three-webgl.js
-python3 build.py --include extras --externs externs/extras.js --output ../../build/three-extras.js
-python3 build.py --include math --output ../../build/three-math.js
+python build.py --include common --include extras --output ../../build/three.js
+python build.py --include canvas --output ../../build/three-canvas.js
+python build.py --include css3d --output ../../build/three-css3d.js
+python build.py --include webgl --output ../../build/three-webgl.js
+python build.py --include extras --externs externs/extras.js --output ../../build/three-extras.js
+python build.py --include math --output ../../build/three-math.js
 cd ../../../../kaijs
 
 rm ./libs/three.js

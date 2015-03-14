@@ -7,3 +7,5 @@ models
 mongoose.conf
 mongoose-*.exe
 .idea
+/libs/ts
+/node_modules
