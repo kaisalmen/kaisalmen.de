@@ -2,34 +2,25 @@
  * Created by Kai on 14.03.2015.
  */
 /// <reference path="../libs/ts/threejs/three.d.ts" />
-var Camera = (function () {
-    function Camera(windowWidth, windowHeight, fov, near, far) {
-        var aspect = windowWidth / windowHeight;
-        this.camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
-    }
-    Camera.prototype.getThreejsCam = function () {
-        return this.camera;
-    };
-    return Camera;
-})();
+/// <reference path="./appBase/SceneApp.ts" />
+/// <reference path="./appBase/SceneAppPerspective.ts" />
 var HelloThreejs = (function () {
     function HelloThreejs() {
-        this.scene = new THREE.Scene();
-        this.camera = new Camera(window.innerWidth, window.innerHeight, 75, 0.1, 1000);
+        this.sceneApp = new SceneAppPerspective(window.innerWidth, window.innerHeight);
         this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(this.sceneApp.screenWidth, this.sceneApp.screenHeight);
         var divGL = document.getElementById("AppWebGL");
         divGL.appendChild(this.renderer.domElement);
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
-        this.scene.add(this.cube);
-        this.camera.getThreejsCam().position.z = 5;
+        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.camera.position.z = 5;
     }
     HelloThreejs.prototype.render = function () {
         this.cube.rotation.x += 0.1;
         this.cube.rotation.y += 0.1;
-        this.renderer.render(this.scene, this.camera.getThreejsCam());
+        this.renderer.render(this.sceneApp.scene, this.sceneApp.camera);
     };
     return HelloThreejs;
 })();
