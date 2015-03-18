@@ -6,23 +6,18 @@
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
 
-class HelloThreejs {
+class HelloThreejsFirst {
 
     private sceneApp : SceneApp;
-    private renderer : THREE.WebGLRenderer;
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective(window.innerWidth, window.innerHeight);
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(this.sceneApp.screenWidth, this.sceneApp.screenHeight);
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
+        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL1"));
 
-        var divGL = document.getElementById("AppWebGL");
-        divGL.appendChild(this.renderer.domElement);
-
-        var geometry = new THREE.BoxGeometry( 1, 1, 1 );
+        var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
-        this.cube = new THREE.Mesh( geometry, material );
+        this.cube = new THREE.Mesh(geometry, material);
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
     }
@@ -30,15 +25,41 @@ class HelloThreejs {
     render() {
         this.cube.rotation.x += 0.1;
         this.cube.rotation.y += 0.1;
-        this.renderer.render(this.sceneApp.scene, this.sceneApp.camera);
+        this.sceneApp.render();
     }
 }
 
-var helloThreejs = new HelloThreejs();
+class HelloThreejsSecond {
+
+    private sceneApp : SceneApp;
+    private cube : THREE.Mesh;
+
+    constructor() {
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
+        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL2"));
+
+        var geometry = new THREE.BoxGeometry(1, 2, 1);
+        var material = new THREE.MeshNormalMaterial();
+
+        this.cube = new THREE.Mesh(geometry, material);
+        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.camera.position.z = 5;
+    }
+
+    render() {
+        this.cube.rotation.x += 0.2;
+        this.cube.rotation.y += 0.2;
+        this.sceneApp.render();
+    }
+}
+
+var helloThreejsFirst = new HelloThreejsFirst();
+var helloThreejsSecond = new HelloThreejsSecond();
 
 var render = function () {
-    requestAnimationFrame( render );
-    helloThreejs.render();
+    requestAnimationFrame(render);
+    helloThreejsFirst.render();
+    helloThreejsSecond.render();
 };
 
 render();

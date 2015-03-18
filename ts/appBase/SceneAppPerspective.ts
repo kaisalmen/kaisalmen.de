@@ -7,8 +7,10 @@
 class SceneAppPerspective implements SceneApp {
 
     aspectRatio : number;
-    screenWidth : number;
-    screenHeight : number;
+    canvasWidth : number;
+    canvasHeight : number;
+
+    renderer : THREE.WebGLRenderer;
 
     scene : THREE.Scene;
     camera : THREE.PerspectiveCamera;
@@ -17,13 +19,28 @@ class SceneAppPerspective implements SceneApp {
     lights : Lights;
     geometry : Geometry;
 
-    constructor(screenWidth : number, screenHeight : number) {
-        this.screenWidth = screenWidth;
-        this.screenHeight = screenHeight;
-        this.aspectRatio = screenWidth / screenHeight;
+    constructor(canvasWidth : number, canvasHeight : number) {
+        this.canvasWidth = canvasWidth;
+        this.canvasHeight = canvasHeight;
+        this.aspectRatio = this.canvasWidth / this.canvasHeight;
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.aspectRatio, 0.1, 10000);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
+
+        this.renderer = new THREE.WebGLRenderer();
+        this.renderer.setSize(this.canvasWidth, this.canvasHeight);
+    }
+
+    setCanvasHtmlElement(divGL : HTMLElement) {
+        divGL.style.width = this.canvasWidth + "px";
+        divGL.style.height = this.canvasHeight + "px";
+        this.renderer.domElement.style.padding = "0px 0px 0px 0px";
+        this.renderer.domElement.style.margin = "0px 0px 0px 0px";
+        divGL.appendChild(this.renderer.domElement);
+    }
+
+    render() {
+        this.renderer.render(this.scene, this.camera);
     }
 
     resetCamera() {
@@ -34,7 +51,7 @@ class SceneAppPerspective implements SceneApp {
     }
 
     resizeCamera() {
-        this.aspectRatio = this.screenWidth / this.screenHeight;
+        this.aspectRatio = this.canvasWidth / this.canvasHeight;
         this.camera.updateProjectionMatrix();
     }
 }

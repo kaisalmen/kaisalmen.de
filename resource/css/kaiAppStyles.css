@@ -17,17 +17,21 @@
 }
 
 body,
-#AppWebGL {
-	margin-left: 0px;
-	margin-right: 0px;
-	margin-top: 0px;
-	margin-bottom: 0px;
-	padding-left: 0px;
-	padding-right: 0px;
-	padding-top: 0px;
-	padding-bottom: 0px;
-	left: 0px;
-	top: 0px;
+html,
+#AppWebGL,
+#AppWebGL1,
+#AppWebGL2,
+#AppWebGL3,
+#AppWebGL4,
+#AppWebGL5,
+#AppWebGL6,
+#AppWebGL7,
+#AppWebGL8 {
+	margin: 0px 0px 0px 0px;
+	padding: 0px 0px 0px 0px;
+    border-spacing: 0px;
+    display: inline-block;
+    float: left;
     background-color: black;
     z-index: 1;
 }

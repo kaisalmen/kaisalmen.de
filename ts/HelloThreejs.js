@@ -4,30 +4,46 @@
 /// <reference path="../libs/ts/threejs/three.d.ts" />
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
-var HelloThreejs = (function () {
-    function HelloThreejs() {
-        this.sceneApp = new SceneAppPerspective(window.innerWidth, window.innerHeight);
-        this.renderer = new THREE.WebGLRenderer();
-        this.renderer.setSize(this.sceneApp.screenWidth, this.sceneApp.screenHeight);
-        var divGL = document.getElementById("AppWebGL");
-        divGL.appendChild(this.renderer.domElement);
+var HelloThreejsFirst = (function () {
+    function HelloThreejsFirst() {
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
+        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL1"));
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
     }
-    HelloThreejs.prototype.render = function () {
+    HelloThreejsFirst.prototype.render = function () {
         this.cube.rotation.x += 0.1;
         this.cube.rotation.y += 0.1;
-        this.renderer.render(this.sceneApp.scene, this.sceneApp.camera);
+        this.sceneApp.render();
     };
-    return HelloThreejs;
+    return HelloThreejsFirst;
 })();
-var helloThreejs = new HelloThreejs();
+var HelloThreejsSecond = (function () {
+    function HelloThreejsSecond() {
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
+        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL2"));
+        var geometry = new THREE.BoxGeometry(1, 2, 1);
+        var material = new THREE.MeshNormalMaterial();
+        this.cube = new THREE.Mesh(geometry, material);
+        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.camera.position.z = 5;
+    }
+    HelloThreejsSecond.prototype.render = function () {
+        this.cube.rotation.x += 0.2;
+        this.cube.rotation.y += 0.2;
+        this.sceneApp.render();
+    };
+    return HelloThreejsSecond;
+})();
+var helloThreejsFirst = new HelloThreejsFirst();
+var helloThreejsSecond = new HelloThreejsSecond();
 var render = function () {
     requestAnimationFrame(render);
-    helloThreejs.render();
+    helloThreejsFirst.render();
+    helloThreejsSecond.render();
 };
 render();
 //# sourceMappingURL=HelloThreejs.js.map

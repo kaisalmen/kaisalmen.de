@@ -14,12 +14,18 @@ interface Geometry {
 
 interface SceneApp {
     aspectRatio : number;
-    screenWidth : number;
-    screenHeight : number;
+    canvasWidth : number;
+    canvasHeight : number;
+
+    renderer : THREE.WebGLRenderer;
 
     scene : THREE.Scene;
     camera : THREE.Camera;
 
     lights : Lights;
     geometry : Geometry;
+
+    setCanvasHtmlElement(divGL : HTMLElement);
+
+    render();
 }
