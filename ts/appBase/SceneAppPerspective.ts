@@ -3,26 +3,47 @@
  */
 
 /// <reference path="SceneApp.ts" />
+/// <reference path="AppExecFlow.ts" />
 
 class SceneAppPerspective implements SceneApp {
 
     aspectRatio : number;
     canvasWidth : number;
     canvasHeight : number;
+    divGL : HTMLElement;
 
+    execFlow : APPExecFlow;
     renderer : THREE.WebGLRenderer;
-
     scene : THREE.Scene;
     camera : THREE.PerspectiveCamera;
     cameraTarget : THREE.Vector3;
 
-    lights : Lights;
     geometry : Geometry;
 
-    constructor(canvasWidth : number, canvasHeight : number) {
+    constructor(canvasWidth : number, canvasHeight : number, divGL : HTMLElement) {
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
+        this.divGL = divGL;
         this.aspectRatio = this.canvasWidth / this.canvasHeight;
+
+        this.execFlow = new APPExecFlow(this);
+        this.execFlow.run();
+    }
+
+    initShaders() {
+        console.log("SceneAppPerspective: initShaders");
+    }
+
+    initPreGL() {
+        console.log("SceneAppPerspective: initPreGL");
+    }
+
+    resizeDisplayHtml() {
+        console.log("SceneAppPerspective: resizeDisplayHtml");
+    }
+
+    initGL() {
+        console.log("SceneAppPerspective: initGL");
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.aspectRatio, 0.1, 10000);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
@@ -31,12 +52,21 @@ class SceneAppPerspective implements SceneApp {
         this.renderer.setSize(this.canvasWidth, this.canvasHeight);
     }
 
-    setCanvasHtmlElement(divGL : HTMLElement) {
-        divGL.style.width = this.canvasWidth + "px";
-        divGL.style.height = this.canvasHeight + "px";
+    addEventHandlers() {
+        console.log("SceneAppPerspective: addEventHandlers");
+    }
+
+    resizeDisplayGL() {
+        console.log("SceneAppPerspective: resizeDisplayGL");
+    }
+
+    initPostGL() {
+        console.log("SceneAppPerspective: initPostGL");
+        this.divGL.style.width = this.canvasWidth + "px";
+        this.divGL.style.height = this.canvasHeight + "px";
         this.renderer.domElement.style.padding = "0px 0px 0px 0px";
         this.renderer.domElement.style.margin = "0px 0px 0px 0px";
-        divGL.appendChild(this.renderer.domElement);
+        this.divGL.appendChild(this.renderer.domElement);
     }
 
     render() {

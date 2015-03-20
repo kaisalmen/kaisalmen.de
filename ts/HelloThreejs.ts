@@ -3,6 +3,7 @@
  */
 
 /// <reference path="../libs/ts/threejs/three.d.ts" />
+/// <reference path="./appBase/AppExecFlow.ts" />
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
 
@@ -12,8 +13,7 @@ class HelloThreejsFirst {
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
-        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL1"));
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL1"));
 
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
@@ -35,8 +35,7 @@ class HelloThreejsSecond {
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16);
-        this.sceneApp.setCanvasHtmlElement(document.getElementById("AppWebGL2"));
+        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL2"));
 
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
