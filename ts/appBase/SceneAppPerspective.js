@@ -4,7 +4,8 @@
 /// <reference path="SceneApp.ts" />
 /// <reference path="AppExecFlow.ts" />
 var SceneAppPerspective = (function () {
-    function SceneAppPerspective(canvasWidth, canvasHeight, divGL) {
+    function SceneAppPerspective(appName, canvasWidth, canvasHeight, divGL) {
+        this.appName = appName;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.divGL = divGL;

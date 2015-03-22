@@ -6,6 +6,7 @@
 /// <reference path="AppExecFlow.ts" />
 
 class SceneAppPerspective implements SceneApp {
+    appName : String;
 
     aspectRatio : number;
     canvasWidth : number;
@@ -20,7 +21,8 @@ class SceneAppPerspective implements SceneApp {
 
     geometry : Geometry;
 
-    constructor(canvasWidth : number, canvasHeight : number, divGL : HTMLElement) {
+    constructor(appName : String, canvasWidth : number, canvasHeight : number, divGL : HTMLElement) {
+        this.appName = appName;
         this.canvasWidth = canvasWidth;
         this.canvasHeight = canvasHeight;
         this.divGL = divGL;

@@ -10,6 +10,8 @@ interface Geometry {
 }
 
 interface SceneApp {
+    appName : String;
+
     aspectRatio : number;
     canvasWidth : number;
     canvasHeight : number;

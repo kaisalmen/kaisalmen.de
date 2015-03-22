@@ -2,12 +2,14 @@
  * Created by Kai on 14.03.2015.
  */
 /// <reference path="../libs/ts/threejs/three.d.ts" />
+/// <reference path="../libs/ts/jquery/jquery.d.ts" />
 /// <reference path="./appBase/AppExecFlow.ts" />
+/// <reference path="./appBase/BrowserContext.ts" />
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
 var HelloThreejsFirst = (function () {
     function HelloThreejsFirst() {
-        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL1"));
+        this.sceneApp = new SceneAppPerspective("first", (window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL1"));
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
@@ -23,7 +25,7 @@ var HelloThreejsFirst = (function () {
 })();
 var HelloThreejsSecond = (function () {
     function HelloThreejsSecond() {
-        this.sceneApp = new SceneAppPerspective((window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL2"));
+        this.sceneApp = new SceneAppPerspective("second", (window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL2"));
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
@@ -39,6 +41,8 @@ var HelloThreejsSecond = (function () {
 })();
 var helloThreejsFirst = new HelloThreejsFirst();
 var helloThreejsSecond = new HelloThreejsSecond();
+browserContext.addSceneApp(helloThreejsFirst.sceneApp);
+browserContext.addSceneApp(helloThreejsSecond.sceneApp);
 var render = function () {
     requestAnimationFrame(render);
     helloThreejsFirst.render();
