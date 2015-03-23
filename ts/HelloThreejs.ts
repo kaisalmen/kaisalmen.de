@@ -9,17 +9,24 @@
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
 
-class HelloThreejsFirst {
+class HelloThreejsFirst implements SceneAppUser {
 
     sceneApp : SceneApp;
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective("first", (window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL1"));
+        this.sceneApp = new SceneAppPerspective(this, 1280, 1.667, 400, document.getElementById("AppWebGL1"));
 
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
+    }
+
+    getAppName() {
+        return "first";
+    }
+
+    initGL() {
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
     }
@@ -30,14 +37,14 @@ class HelloThreejsFirst {
         this.sceneApp.render();
     }
 }
-
+/*
 class HelloThreejsSecond {
 
     sceneApp : SceneApp;
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective("second", (window.innerWidth / 2) - 8, window.innerHeight - 16, document.getElementById("AppWebGL2"));
+        this.sceneApp = new SceneAppPerspective("second", (window.innerWidth / 2) - 8, 1.667, 400, document.getElementById("AppWebGL2"));
 
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
@@ -53,17 +60,17 @@ class HelloThreejsSecond {
         this.sceneApp.render();
     }
 }
-
+*/
 var helloThreejsFirst = new HelloThreejsFirst();
-var helloThreejsSecond = new HelloThreejsSecond();
+//var helloThreejsSecond = new HelloThreejsSecond();
 
 browserContext.addSceneApp(helloThreejsFirst.sceneApp);
-browserContext.addSceneApp(helloThreejsSecond.sceneApp);
+//browserContext.addSceneApp(helloThreejsSecond.sceneApp);
 
 var render = function () {
     requestAnimationFrame(render);
     helloThreejsFirst.render();
-    helloThreejsSecond.render();
+    //helloThreejsSecond.render();
 };
 
 render();

@@ -3,4 +3,6 @@
  */
 /// <reference path="../../libs/ts/threejs/three.d.ts" />
 /// <reference path="AppExecFlow.ts" />
+/// <reference path="Canvas.ts" />
+/// <reference path="SceneAppUser.ts" />
 //# sourceMappingURL=SceneApp.js.map

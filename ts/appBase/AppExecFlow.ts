@@ -6,35 +6,46 @@
 
 class APPExecFlow {
 
-    sceneApp : SceneApp;
-
-    constructor(sceneApp : SceneApp) {
-        this.sceneApp = sceneApp;
+    constructor() {
     }
 
-    run() {
+    run(sceneApps : Array<SceneApp>) {
         console.log("Starting global initialisation phase...");
 
         console.log("Kicking initShaders...");
-        this.sceneApp.initShaders();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].initShaders();
+        }
 
         console.log("Kicking initPreGL...");
-        this.sceneApp.initPreGL();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].initPreGL();
+        }
 
         console.log("Kicking resizeDisplayHtml...");
-        this.sceneApp.resizeDisplayHtml();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].resizeDisplayHtml();
+        }
 
         console.log("Kicking initGL...");
-        this.sceneApp.initGL();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].initGL();
+        }
 
         console.log("Kicking addEventHandlers...");
-        this.sceneApp.addEventHandlers();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].addEventHandlers();
+        }
 
         console.log("Kicking resizeDisplayGL...");
-        this.sceneApp.resizeDisplayGL();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].resizeDisplayGL();
+        }
 
         console.log("Kicking initPostGL...");
-        this.sceneApp.initPostGL();
+        for (var i : number = 0; i < sceneApps.length; i++) {
+            sceneApps[i].initPostGL();
+        }
 
         console.log("Ready to start render loop...");
     }

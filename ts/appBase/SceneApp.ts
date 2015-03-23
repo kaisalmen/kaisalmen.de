@@ -4,20 +4,18 @@
 
 /// <reference path="../../libs/ts/threejs/three.d.ts" />
 /// <reference path="AppExecFlow.ts" />
+/// <reference path="Canvas.ts" />
+/// <reference path="SceneAppUser.ts" />
 
 interface Geometry {
     createGrid() : THREE.Object3D;
 }
 
 interface SceneApp {
-    appName : String;
+    user : SceneAppUser;
 
-    aspectRatio : number;
-    canvasWidth : number;
-    canvasHeight : number;
-    divGL : HTMLElement;
+    canvas : Canvas;
 
-    execFlow : APPExecFlow;
     renderer : THREE.WebGLRenderer;
     scene : THREE.Scene;
     camera : THREE.Camera;
@@ -39,4 +37,8 @@ interface SceneApp {
     initPostGL();
 
     render();
+
+    resetCamera();
+
+    resizeCamera();
 }
