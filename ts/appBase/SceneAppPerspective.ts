@@ -17,9 +17,9 @@ class SceneAppPerspective implements SceneApp {
 
     geometry : Geometry;
 
-    constructor(user : SceneAppUser, canvasWidth : number, aspectRatio : number, canvasMinWidth : number, divGL : HTMLElement) {
+    constructor(user : SceneAppUser, divGL : HTMLElement) {
         this.user = user;
-        this.canvas = new Canvas(canvasWidth, aspectRatio, canvasMinWidth, divGL);
+        this.canvas = new Canvas(divGL);
         this.canvas.recalcAspectRatio();
 
         this.scene = new THREE.Scene();
@@ -44,7 +44,7 @@ class SceneAppPerspective implements SceneApp {
     initGL() {
         console.log("SceneAppPerspective: initGL");
 
-        this.renderer.setSize(this.canvas.width, this.canvas.height);
+        this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight());
 
         this.user.initGL();
     }
@@ -68,6 +68,14 @@ class SceneAppPerspective implements SceneApp {
         this.renderer.render(this.scene, this.camera);
     }
 
+    adjustWindow(width : number, height : number) {
+        this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight());
+
+        this.canvas.recalcAspectRatio();
+        this.camera.aspect = this.canvas.aspectRatio;
+        this.camera.updateProjectionMatrix();
+    }
+
     resetCamera() {
         this.camera.position.set(0, 0, 250);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
@@ -75,10 +83,5 @@ class SceneAppPerspective implements SceneApp {
         this.camera.updateProjectionMatrix();
     }
 
-    resizeCamera() {
-        this.canvas.recalcAspectRatio();
-        this.camera.aspect = this.canvas.aspectRatio;
-        this.camera.updateProjectionMatrix();
-    }
 }
 

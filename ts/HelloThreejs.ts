@@ -15,7 +15,7 @@ class HelloThreejsFirst implements SceneAppUser {
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective(this, 1280, 1.667, 400, document.getElementById("AppWebGL1"));
+        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL1"));
 
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
@@ -37,19 +37,28 @@ class HelloThreejsFirst implements SceneAppUser {
         this.sceneApp.render();
     }
 }
-/*
-class HelloThreejsSecond {
+
+class HelloThreejsSecond implements SceneAppUser {
 
     sceneApp : SceneApp;
     private cube : THREE.Mesh;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective("second", (window.innerWidth / 2) - 8, 1.667, 400, document.getElementById("AppWebGL2"));
+        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL4"));
 
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
 
         this.cube = new THREE.Mesh(geometry, material);
+        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.camera.position.z = 5;
+    }
+
+    getAppName() {
+        return "second";
+    }
+
+    initGL() {
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
     }
@@ -60,17 +69,17 @@ class HelloThreejsSecond {
         this.sceneApp.render();
     }
 }
-*/
+
 var helloThreejsFirst = new HelloThreejsFirst();
-//var helloThreejsSecond = new HelloThreejsSecond();
+var helloThreejsSecond = new HelloThreejsSecond();
 
 browserContext.addSceneApp(helloThreejsFirst.sceneApp);
-//browserContext.addSceneApp(helloThreejsSecond.sceneApp);
+browserContext.addSceneApp(helloThreejsSecond.sceneApp);
 
 var render = function () {
     requestAnimationFrame(render);
     helloThreejsFirst.render();
-    //helloThreejsSecond.render();
+    helloThreejsSecond.render();
 };
 
 render();

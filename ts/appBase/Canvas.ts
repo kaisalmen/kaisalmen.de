@@ -3,29 +3,23 @@
  */
 
 class Canvas {
-    aspectRatio: number;
-    width : number;
-    height  : number;
-    minWidth  : number;
-
     divGL : HTMLElement;
+    aspectRatio : number;
 
-    constructor(width : number, aspectRatio : number, minWidth : number, divGL : HTMLElement) {
-        this.width = width;
-        this.aspectRatio = aspectRatio;
-        this.height = this.width / this.aspectRatio;
-        this.minWidth = minWidth;
-
-       this.divGL = divGL;
+    constructor( divGL : HTMLElement) {
+        this.divGL = divGL;
     }
 
     recalcAspectRatio() {
-        if (this.width < this.minWidth) {
-            this.width = this.minWidth;
-        }
-        this.height = this.width / this.aspectRatio;
+        console.log("width: " + this.divGL.offsetWidth + " height: " + this.divGL.offsetHeight);
+        this.aspectRatio = this.getWidth() / this.getHeight();
+    }
 
-        this.divGL.style.width = this.width + "px";
-        this.divGL.style.height = this.height + "px";
+    getWidth() {
+        return this.divGL.offsetWidth - 4;
+    }
+
+    getHeight() {
+        return this.divGL.offsetHeight - 4;
     }
 }

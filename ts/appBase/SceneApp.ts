@@ -38,7 +38,7 @@ interface SceneApp {
 
     render();
 
-    resetCamera();
+    adjustWindow(width : number, height : number);
 
-    resizeCamera();
+    resetCamera();
 }

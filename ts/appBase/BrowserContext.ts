@@ -31,8 +31,7 @@ var browserContext = new BrowserContext("Browser Context");
 $(window).resize(
     function() {
         for (var i : number = 0; i < browserContext.sceneApps.length; i++) {
-            browserContext.sceneApps[i].canvas.width = window.innerWidth;
-            browserContext.sceneApps[i].resizeCamera();
+            browserContext.sceneApps[i].adjustWindow(window.innerWidth, window.innerHeight);
         }
     }
 );

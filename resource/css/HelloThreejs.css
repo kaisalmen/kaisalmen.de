@@ -1,0 +1,28 @@
+#DivGL1,
+#DivGL2,
+#DivGL3,
+#DivGL4 {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+}
+#DivGL1 {
+    background-color: #000000;
+    top: 0px;
+    left: 0px;
+}
+#DivGL2 {
+    background-color: #0000ff;
+    top: 0px;
+    right: 0px;
+}
+#DivGL3 {
+    background-color: #00ff00;
+    bottom: 0px;
+    left: 0px;
+}
+#DivGL4 {
+    background-color: #ff0000;
+    bottom: 0px;
+    right: 0px;
+}
