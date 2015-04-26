@@ -3,13 +3,12 @@
  */
 /// <reference path="../libs/ts/threejs/three.d.ts" />
 /// <reference path="../libs/ts/jquery/jquery.d.ts" />
-/// <reference path="./appBase/AppExecFlow.ts" />
 /// <reference path="./appBase/BrowserContext.ts" />
 /// <reference path="./appBase/SceneApp.ts" />
 /// <reference path="./appBase/SceneAppPerspective.ts" />
 var HelloThreejsFirst = (function () {
     function HelloThreejsFirst() {
-        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL1"));
+        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL1"), document.getElementById("DivGL1Canvas"));
         var geometry = new THREE.BoxGeometry(1, 1, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
@@ -30,7 +29,7 @@ var HelloThreejsFirst = (function () {
 })();
 var HelloThreejsSecond = (function () {
     function HelloThreejsSecond() {
-        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL4"));
+        this.sceneApp = new SceneAppPerspective(this, document.getElementById("master"), document.getElementById("DivGL4Canvas"));
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);

@@ -1,17 +1,16 @@
 /**
  * Created by Kai on 15.03.2015.
  */
-/// <reference path="AppExecFlow.ts" />
 /// <reference path="SceneApp.ts" />
 var SceneAppPerspective = (function () {
-    function SceneAppPerspective(user, divGL) {
+    function SceneAppPerspective(user, divGL, divGLCanvas) {
         this.user = user;
-        this.canvas = new Canvas(divGL);
+        this.canvas = new Canvas(divGLCanvas);
         this.canvas.recalcAspectRatio();
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.canvas.aspectRatio, 0.1, 10000);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
-        this.renderer = new THREE.WebGLRenderer();
+        this.renderer = new THREE.WebGLRenderer({ canvas: divGLCanvas });
     }
     SceneAppPerspective.prototype.initShaders = function () {
         console.log("SceneAppPerspective: initShaders");
@@ -24,7 +23,7 @@ var SceneAppPerspective = (function () {
     };
     SceneAppPerspective.prototype.initGL = function () {
         console.log("SceneAppPerspective: initGL");
-        this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight());
+        this.resizeDisplayGL();
         this.user.initGL();
     };
     SceneAppPerspective.prototype.addEventHandlers = function () {
@@ -32,18 +31,16 @@ var SceneAppPerspective = (function () {
     };
     SceneAppPerspective.prototype.resizeDisplayGL = function () {
         console.log("SceneAppPerspective: resizeDisplayGL");
+        this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
     };
     SceneAppPerspective.prototype.initPostGL = function () {
         console.log("SceneAppPerspective: initPostGL");
-        this.renderer.domElement.style.padding = "0px 0px 0px 0px";
-        this.renderer.domElement.style.margin = "0px 0px 0px 0px";
-        this.canvas.divGL.appendChild(this.renderer.domElement);
     };
     SceneAppPerspective.prototype.render = function () {
         this.renderer.render(this.scene, this.camera);
     };
-    SceneAppPerspective.prototype.adjustWindow = function (width, height) {
-        this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight());
+    SceneAppPerspective.prototype.adjustWindow = function () {
+        this.resizeDisplayGL();
         this.canvas.recalcAspectRatio();
         this.camera.aspect = this.canvas.aspectRatio;
         this.camera.updateProjectionMatrix();

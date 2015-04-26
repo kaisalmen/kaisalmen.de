@@ -3,7 +3,7 @@
  */
 
 /// <reference path="../../libs/ts/threejs/three.d.ts" />
-/// <reference path="AppExecFlow.ts" />
+/// <reference path="BrowserContext.ts" />
 /// <reference path="Canvas.ts" />
 /// <reference path="SceneAppUser.ts" />
 
@@ -12,15 +12,15 @@ interface Geometry {
 }
 
 interface SceneApp {
-    user : SceneAppUser;
+    browserContext: BrowserContext;
+    user: SceneAppUser;
+    canvas: Canvas;
 
-    canvas : Canvas;
+    renderer: THREE.WebGLRenderer;
+    scene: THREE.Scene;
+    camera: THREE.Camera;
 
-    renderer : THREE.WebGLRenderer;
-    scene : THREE.Scene;
-    camera : THREE.Camera;
-
-    geometry : Geometry;
+    geometry: Geometry;
 
     initShaders();
 
@@ -38,7 +38,7 @@ interface SceneApp {
 
     render();
 
-    adjustWindow(width : number, height : number);
+    adjustWindow();
 
     resetCamera();
 }

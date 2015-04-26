@@ -8,15 +8,14 @@ body {
 }
 
 #master {
-    margin: 0px 0px 0px 0px;
+    margin: inherit;
+    padding: inherit;
 
     width: 100%;
     height: 100vh;
-    max-width: 1920px;
-    min-width: 1024px;
 
-    max-height: 1080px;
+    min-width: 1024px;
     min-height: 576px;
 
-    position:relative;
+    position: relative;
 }
