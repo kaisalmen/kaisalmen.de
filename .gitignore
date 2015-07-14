@@ -9,3 +9,6 @@ mongoose-*.exe
 .idea
 /libs/ts
 /node_modules
+.vertx
+/java/vertxweb/target
+/java/vertxweb/.classpath
