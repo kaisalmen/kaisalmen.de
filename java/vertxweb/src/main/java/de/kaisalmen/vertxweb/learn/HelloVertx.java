@@ -9,44 +9,42 @@ import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
 import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
+import io.vertx.ext.web.handler.StaticHandler;
 
 /**
- * Simplest way to create a super simple vert.x HttpServer
+ * Simplest way to create a super simple vert.x HttpServer serving static files
  * 
  * @author Kai Salmen
  *
  */
 public class HelloVertx {
 
+	private Vertx vertx;
+	
 	public HelloVertx() {
-		Vertx vertx = Vertx.vertx();
+		vertx = Vertx.vertx();
+	}
+	
+	public void launch() {
 		HttpServer httpServer = vertx.createHttpServer();
 		Router router = Router.router(vertx);
-		
 
-		router.get("/").handler(routingContext -> {
+		StaticHandler staticHandler = StaticHandler.create();
+		staticHandler.setWebRoot("./webroot"); 
+	    router.route().handler(staticHandler);
+/*
+	    router.get("/").handler(routingContext -> {
 			HttpServerResponse response = routingContext.response();
-			response.end(loadIndex());
-			//response.putHeader("content-type", "text/plain");
-			//response.end("Hello World!");
+			response.putHeader("content-type", "text/plain");
+			response.end("Hello World!");
 		});
+*/
 		httpServer.requestHandler(router::accept).listen(8081);
 	}
 	
-	private String loadIndex() {
-		String text = "leer";
-		try {
-			Path path = Paths.get("src/main/resources/index.html");
-			System.out.println(path.toAbsolutePath());
-			text = new String(Files.readAllBytes(path));
-		} catch (IOException e) {
-			 text = "Error";
-		}
-		
-		return text;
-	}
 
 	public static void main(String[] args) {
 		HelloVertx helloVertx = new HelloVertx();
+		helloVertx.launch();
 	}
 }
