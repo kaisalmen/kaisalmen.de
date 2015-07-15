@@ -12,3 +12,4 @@ mongoose-*.exe
 .vertx
 /java/vertxweb/target
 /java/vertxweb/.classpath
+/java/vertxweb/src/main/resources

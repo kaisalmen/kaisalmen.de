@@ -1,13 +1,7 @@
 package de.kaisalmen.vertxweb.learn;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-
 import io.vertx.core.Vertx;
 import io.vertx.core.http.HttpServer;
-import io.vertx.core.http.HttpServerResponse;
 import io.vertx.ext.web.Router;
 import io.vertx.ext.web.handler.StaticHandler;
 
@@ -30,7 +24,7 @@ public class HelloVertx {
 		Router router = Router.router(vertx);
 
 		StaticHandler staticHandler = StaticHandler.create();
-		staticHandler.setWebRoot("./webroot"); 
+		staticHandler.setWebRoot("./webroot");
 	    router.route().handler(staticHandler);
 /*
 	    router.get("/").handler(routingContext -> {
