@@ -10,7 +10,10 @@ var SceneAppPerspective = (function () {
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.canvas.aspectRatio, 0.1, 10000);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
-        this.renderer = new THREE.WebGLRenderer({ canvas: divGLCanvas });
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: divGLCanvas,
+            antialias: true
+        });
     }
     SceneAppPerspective.prototype.initShaders = function () {
         console.log("SceneAppPerspective: initShaders");

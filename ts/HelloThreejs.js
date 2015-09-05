@@ -32,6 +32,15 @@ var HelloThreejsSecond = (function () {
         this.sceneApp = new SceneAppPerspective(this, document.getElementById("master"), document.getElementById("DivGL4Canvas"));
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
+        var shapes = THREE.FontUtils.generateShapes("Hello world", {
+            font: "ubuntu mono",
+            curveSegments: 10,
+            weight: "normal",
+            size: 1
+        });
+        var geom = new THREE.ShapeGeometry(shapes);
+        var mat = new THREE.MeshBasicMaterial();
+        this.text = new THREE.Mesh(geom, mat);
         this.cube = new THREE.Mesh(geometry, material);
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
@@ -42,6 +51,8 @@ var HelloThreejsSecond = (function () {
     HelloThreejsSecond.prototype.initGL = function () {
         this.sceneApp.scene.add(this.cube);
         this.sceneApp.camera.position.z = 5;
+        this.text.position.set(-3, 0, 0);
+        this.sceneApp.scene.add(this.text);
     };
     HelloThreejsSecond.prototype.render = function () {
         this.cube.rotation.x += 0.2;

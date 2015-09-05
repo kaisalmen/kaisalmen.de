@@ -25,6 +25,7 @@ public class HelloVertx {
 
 		StaticHandler staticHandler = StaticHandler.create();
 		staticHandler.setWebRoot("./webroot");
+		staticHandler.setDirectoryListing(true);
 	    router.route().handler(staticHandler);
 /*
 	    router.get("/").handler(routingContext -> {
