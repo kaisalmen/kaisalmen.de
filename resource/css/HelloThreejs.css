@@ -1,7 +1,7 @@
 #DivGL1,
 #DivGL2,
 #DivGL3,
-#DivGL4Canvas {
+#DivGL4 {
     width: 50%;
     height: 50%;
     position: absolute;
@@ -9,13 +9,14 @@
 #DivGL1,
 #DivGL2,
 #DivGL3,
+#DivGL4,
 #DivGL1Canvas,
 #DivGL4Canvas {
     margin: inherit;
     padding: inherit;
 }
 #DivGL1 {
-    background-color: #666666;
+    background-color: #ff0000;
     top: 0px;
     left: 0px;
 }
@@ -34,8 +35,13 @@
     bottom: 0px;
     left: 0px;
 }
+#DivGL4 {
+    background-color: #fff600;
+    bottom: 0px;
+    right: 0px;
+}
 #DivGL4Canvas {
-    background-color: #ff0000;
+    background-color: #666666;
     bottom: 0px;
     right: 0px;
 }

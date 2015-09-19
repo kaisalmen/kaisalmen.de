@@ -18,7 +18,7 @@ class HelloThreejsFirst implements SceneAppUser {
     constructor() {
         this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL1"), <HTMLCanvasElement> document.getElementById("DivGL1Canvas"));
 
-        var geometry = new THREE.BoxGeometry(1, 1, 1);
+        var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.cube = new THREE.Mesh(geometry, material);
     }
@@ -47,13 +47,13 @@ class HelloThreejsSecond implements SceneAppUser {
     private textStorage : Text2d;
 
     constructor() {
-        this.sceneApp = new SceneAppPerspective(this, document.getElementById("master"), <HTMLCanvasElement> document.getElementById("DivGL4Canvas"));
+        this.sceneApp = new SceneAppPerspective(this, document.getElementById("DivGL4"), <HTMLCanvasElement> document.getElementById("DivGL4Canvas"));
 
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
 
         this.textStorage = new Text2d();
-        this.text = this.textStorage.addText("Hello", "Hello world", new THREE.MeshBasicMaterial(), 1, 10);
+        this.text = this.textStorage.addText("Hello", "Hello world sldfjsfj  sdkf jsadf aslkdf asj flas fasjklflas fasfljasldf ask ldf", new THREE.MeshBasicMaterial(), 0.1, 10);
 
         this.cube = new THREE.Mesh(geometry, material);
         this.sceneApp.scene.add(this.cube);
@@ -82,13 +82,18 @@ class HelloThreejsSecond implements SceneAppUser {
 var helloThreejsFirst = new HelloThreejsFirst();
 var helloThreejsSecond = new HelloThreejsSecond();
 
-//browserContext.addSceneApp(helloThreejsFirst.sceneApp);
+browserContext.addSceneApp(helloThreejsFirst.sceneApp);
 browserContext.addSceneApp(helloThreejsSecond.sceneApp);
 
 var render = function () {
     requestAnimationFrame(render);
     helloThreejsFirst.render();
     helloThreejsSecond.render();
+
+    document.getElementById("DivGL1").style.width = "70%";
+    document.getElementById("DivGL2").style.width = "30%";
+    document.getElementById("DivGL3").style.width = "70%";
+    document.getElementById("DivGL4").style.width = "30%";
 };
 
 render();
