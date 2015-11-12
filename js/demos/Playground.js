@@ -4,53 +4,60 @@
 
 "use strict";
 
-var Polygon = (function () {
+var KSPG = {
+    Polygon : (function () {
 
-    var WURST = undefined;
+        // private const: equal for all prototypes; no direct access
+        var WURST = "Salami";
 
-    function Polygon(width, height) {
-        this.init();
-        if (width !== undefined) {
-            this.width = width;
+        function Polygon(width, height) {
+            width != null ? this.width = width: this.width = 3840;
+            height != null ? this.height = height: this.height = 2160;
         }
-        if (height !== undefined) {
-            this.height = height;
+
+        Polygon.prototype.printDimensions = function() {
+            return "Width: " + this.width + " Height: " + this.height;
+        };
+
+        Polygon.prototype.getWURST = function() {
+            return WURST;
+        };
+
+        return Polygon;
+    })(),
+    Point : (function () {
+
+        function Point(x, y) {
+            x != null ? this.x = x: this.x = 10;
+            y != null ? this.y = y: this.y = 10;
         }
-    }
 
-    Polygon.prototype.init = function() {
-        WURST = "Salami";
-        this.width = 4096;
-        this.height = 2160;
-    };
+        Point.prototype.printCoordinates = function() {
+            return "Position: X: " + this.x + " Y: " + this.y;
+        };
 
-    Polygon.prototype.printMe = function() {
-        return "Width: " + this.width + " Height: " + this.height;
-    };
+        return Point;
+    })()
+};
 
-    Polygon.prototype.getWURST = function() {
-        return WURST;
-    };
-
-    Polygon.prototype.setWURST = function(name) {
-        WURST = name;
-    };
-
-    return Polygon;
-})();
 
 function run() {
-    var polygonA = new Polygon(800, 600);
-    var polygonB = new Polygon();
-    console.log(polygonA.printMe());
-    console.log(polygonB.printMe());
-    console.log(polygonA.width);
-    console.log(polygonA.height);
-    console.log(polygonB.width);
-    console.log(polygonB.height);
+    var polygonA = new KSPG.Polygon();
+    var polygonB = new KSPG.Polygon(800, 600);
+    var polygonC = new KSPG.Polygon(null, null);
 
-    polygonA.setWURST("Sommerwurst");
-    console.log(polygonA.getWURST());
-    console.log(polygonB.getWURST());
+    console.log(polygonA.printDimensions());
+    console.log(polygonB.printDimensions());
+    console.log(polygonC.printDimensions());
 
+    var pointA = new KSPG.Point();
+    var pointB = new KSPG.Point(-200, 124);
+
+    console.log(pointA.printCoordinates());
+    console.log(pointB.printCoordinates());
+
+    var shaderTools = new ShaderTools();
+    var hexColorValue = "#FF00FF";
+    var rgbColorValue = shaderTools.hexToRGB(hexColorValue, false);
+    console.log(hexColorValue + " = " + rgbColorValue);
 }

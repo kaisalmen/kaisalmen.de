@@ -51,8 +51,8 @@ var DatGuiText = function() {
 $(document).ready(
 	function() {
 	    $.when(
-	    	loadVertexShader(),
-	    	loadFragmentShader()
+            loadShader("../../resource/shader/passThrough.glsl"),
+            loadShader("../../resource/shader/simpleTextureEffect.glsl")
 	    ).done(
 	    	function(vert, frag) {
 	    		console.log("Shader and texture loading from file is completed!");
@@ -89,14 +89,8 @@ $(document).ready(
 	}
 );
 
-function loadVertexShader() {
-	return $.get("../../resource/shader/passThrough.glsl", function(data) {
-		console.log(data);
-	});
-}
-
-function loadFragmentShader() {
-	return $.get("../../resource/shader/simpleTextureEffect.glsl", function(data) {
+function loadShader(resource) {
+	return $.get(resource, function(data) {
 		console.log(data);
 	});
 }
