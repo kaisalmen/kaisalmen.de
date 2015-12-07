@@ -20,7 +20,7 @@ class HelloThreejsFirst implements SceneAppUser {
 
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
-        this.cube = new THREE.Mesh(geometry, material);
+        this.sphere = new THREE.Mesh(geometry, material);
     }
 
     getAppName() {
@@ -28,13 +28,13 @@ class HelloThreejsFirst implements SceneAppUser {
     }
 
     initGL() {
-        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.scene.add(this.sphere);
         this.sceneApp.camera.position.z = 5;
     }
 
     render() {
-        this.cube.rotation.x += 0.1;
-        this.cube.rotation.y += 0.1;
+        this.sphere.rotation.x += 0.1;
+        this.sphere.rotation.y += 0.1;
         this.sceneApp.render();
     }
 }
@@ -55,8 +55,8 @@ class HelloThreejsSecond implements SceneAppUser {
         this.textStorage = new Text2d();
         this.text = this.textStorage.addText("Hello", "Hello world sldfjsfj  sdkf jsadf aslkdf asj flas fasjklflas fasfljasldf ask ldf", new THREE.MeshBasicMaterial(), 0.1, 10);
 
-        this.cube = new THREE.Mesh(geometry, material);
-        this.sceneApp.scene.add(this.cube);
+        this.sphere = new THREE.Mesh(geometry, material);
+        this.sceneApp.scene.add(this.sphere);
         this.sceneApp.camera.position.z = 5;
     }
 
@@ -65,7 +65,7 @@ class HelloThreejsSecond implements SceneAppUser {
     }
 
     initGL() {
-        this.sceneApp.scene.add(this.cube);
+        this.sceneApp.scene.add(this.sphere);
         this.sceneApp.camera.position.z = 5;
 
         this.text.mesh.position.set(-3, 0, 0);
@@ -73,8 +73,8 @@ class HelloThreejsSecond implements SceneAppUser {
     }
 
     render() {
-        this.cube.rotation.x += 0.2;
-        this.cube.rotation.y += 0.2;
+        this.sphere.rotation.x += 0.2;
+        this.sphere.rotation.y += 0.2;
         this.sceneApp.render();
     }
 }
