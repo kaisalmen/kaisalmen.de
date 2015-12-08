@@ -16,6 +16,7 @@ var AppLifecycle = (function () {
 
     AppLifecycle.prototype.addSceneApp = function (sceneApp) {
         this.sceneApps.push(sceneApp);
+        console.log("Added sceneApp: " + sceneApp.getAppName())
     };
 
     AppLifecycle.prototype.run = function () {

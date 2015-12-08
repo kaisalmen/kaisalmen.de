@@ -5,6 +5,7 @@
  * 2014.08.10:
  * Added three basic loading functions to AppBase
  */
+
 var APPExecFlow = {};
 
 APPExecFlow =  {
@@ -137,26 +138,26 @@ APPG.textBuffer.functions = {
         var characterMesh3d = null;
         var characterMeshes3d = null;
 
-        if (material2d !== null && material2dParams !== null) {
+        if (APPG.textBuffer.material2d !== null && APPG.textBuffer.material2dParams !== null) {
             for (var i = 0; i < 256; i++) {
                 character = String.fromCharCode(i);
                 textGeometry2d = new THREE.TextGeometry(character, APPG.textBuffer.material2dParams);
                 textGeometry2d.computeBoundingBox();
                 textGeometry2d.computeVertexNormals();
-                characterMesh2d = new THREE.Mesh(textGeometry2d, material2d);
+                characterMesh2d = new THREE.Mesh(textGeometry2d, APPG.textBuffer.material2d);
                 characterMeshes2d = new Set();
                 characterMeshes2d.add(characterMesh2d);
                 APPG.textBuffer.characterCache2d.set(character, characterMeshes2d);
             }
         }
 
-        if (material3d !== null && material3dParams !== null) {
+        if (APPG.textBuffer.material3d !== null && APPG.textBuffer.material3dParams !== null) {
             for (var i = 0; i < 256; i++) {
                 character = String.fromCharCode(i);
                 textGeometry3d = new THREE.TextGeometry(character, APPG.textBuffer.material3dParams);
                 textGeometry3d.computeBoundingBox();
                 textGeometry3d.computeVertexNormals();
-                characterMesh3d = new THREE.Mesh(textGeometry3d, material3d);
+                characterMesh3d = new THREE.Mesh(textGeometry3d, APPG.textBuffer.material3d);
                 characterMeshes3d = new Set();
                 characterMeshes3d.add(characterMesh3d);
                 APPG.textBuffer.characterCache3d.set(character, characterMeshes3d);

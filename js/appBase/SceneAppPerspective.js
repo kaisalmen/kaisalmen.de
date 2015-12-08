@@ -9,8 +9,9 @@
  */
 var SceneAppPerspective = (function () {
 
-    function SceneAppPerspective(user, divGLCanvas) {
+    function SceneAppPerspective(user, name, divGLCanvas) {
         this.user = user;
+        this.name = name;
         this.canvas = new Canvas(divGLCanvas);
         this.canvas.recalcAspectRatio();
         this.scene = new THREE.Scene();
@@ -21,6 +22,10 @@ var SceneAppPerspective = (function () {
             antialias: true
         });
     }
+
+    SceneAppPerspective.prototype.getAppName = function () {
+        return this.name;
+    };
 
     SceneAppPerspective.prototype.initShaders = function () {
         console.log("SceneAppPerspective: initShaders");

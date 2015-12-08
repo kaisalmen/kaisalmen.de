@@ -1,16 +1,7 @@
 /**
- * Created by Kai Salmen on 2014.01.24
- *
- * Update 2014.04.12:
- * - Version 1 goes life
- * Update 2014.05.06:
- * - Version 2 with shader manipulation
- * Update 2014.07.12:
- * - Moved common declarations and common code to APPG
- * - APPExecFlow was extended, share code with other applications
- * Update 2014.07.22:
- * - Moved further common definitions and functions to APPG
+ * Created by Kai Salmen
  */
+
 var ATR = {};
 
 APPG.shaders.shaderFlicker = {
@@ -24,7 +15,7 @@ APPG.shaders.shaderFlicker = {
         texture1: { type: "t", value: null }
     },
     updateTextureRef : null
-}
+};
 APPG.shaders.functions = {
     loadShader : function() {
         console.log("Shader and texture loading from file is completed!");
@@ -42,7 +33,7 @@ APPG.shaders.functions = {
     updateShader : function() {
         APPG.shaders.shaderFlicker.uniforms.ilFactor.value = APPG.screen.glHeight / 2.0;
     }
-}
+};
 ATR.datGui = {
     paramFunction : function(defaultText) {
         this.resetCamera = resetTrackballControls;
@@ -66,7 +57,7 @@ ATR.datGui = {
     controllerEnableShader : null,
     controllerBlendShader : null,
     controllerColorShader : null
-}
+};
 ATR.objectText = {
     mesh : null,
     geometry : null,
@@ -74,7 +65,7 @@ ATR.objectText = {
     material2dParams : null,
     material3d : null,
     material3dParams : null
-}
+};
 ATR.text = {};
 ATR.text.textParams = {
     name : "Magnificent void!",
@@ -91,7 +82,7 @@ ATR.text.textParams = {
     style : "normal",
     material : 0,
     extrudeMaterial : 1
-}
+};
 ATR.text.possibleContent = ["Change me!", "Adjust me!", "Modify me!", "Play with me!", "Reload me!"];
 ATR.text.update = true;
 ATR.text.lengthLimit = 50;
@@ -301,9 +292,8 @@ function addEventHandlers() {
     });
     ATR.datGui.controllerBlendText.onChange(function(value) {
         ATR.datGui.paramFunctionRef.opacityText = value;
-        var matText3d = ATR.objectText.allMaterialsMap.get("3d");
-        for (var i in matText3d) {
-            var mat = matText3d[i];
+        for (var i in ATR.objectText.material3d) {
+            var mat = ATR.objectText.material3d[i];
             mat.opacity = value;
         }
     });
@@ -400,7 +390,7 @@ function updateText2d() {
  * select random text on start-up
  */
 function selectRandomText() {
-    var randomStartText = ATR.text.possibleContent[parseInt(Math.random() * ATR.text.possibleContent.length)]
+    var randomStartText = ATR.text.possibleContent[parseInt(Math.random() * ATR.text.possibleContent.length)];
     ATR.text.textParams.name = randomStartText;
     return randomStartText;
 }
