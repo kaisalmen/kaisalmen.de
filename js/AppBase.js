@@ -50,7 +50,17 @@ var APPG = {
     screen : null,
     dom : null,
     functions : null,
-    shaders : null,
+    shaders : {
+        shaderTools : new ShaderTools(),
+        functions : {
+            loadShader: function () {
+                console.log("Currently no shaders are used.");
+            },
+            updateShader: function () {
+                console.log("Currently no shaders are used.");
+            }
+        }
+    },
     renderer : null,
     scenes : null,
     controls : null,
@@ -104,6 +114,21 @@ APPG.textBuffer.functions = {
         APPG.textBuffer.material2dParams = material2dParams;
         APPG.textBuffer.material3d = material3d;
         APPG.textBuffer.material3dParams = material3dParams;
+        if (APPG.textBuffer.material2dParams == null || APPG.textBuffer.material2dParams.length == 0) {
+            APPG.textBuffer.material2dParams = {
+                font : "ubuntu mono",
+                weight : "normal",
+                style : "normal",
+            }
+        }
+        if (APPG.textBuffer.material3dParams == null || APPG.textBuffer.material3dParams.length == 0) {
+            APPG.textBuffer.material3dParams = {
+                font : "ubuntu mono",
+                weight : "normal",
+                style : "normal",
+            }
+        }
+
         var character = "";
         var textGeometry2d = null;
         var textGeometry3d = null;
@@ -115,7 +140,7 @@ APPG.textBuffer.functions = {
         if (material2d !== null && material2dParams !== null) {
             for (var i = 0; i < 256; i++) {
                 character = String.fromCharCode(i);
-                textGeometry2d = new THREE.TextGeometry(character, material2dParams);
+                textGeometry2d = new THREE.TextGeometry(character, APPG.textBuffer.material2dParams);
                 textGeometry2d.computeBoundingBox();
                 textGeometry2d.computeVertexNormals();
                 characterMesh2d = new THREE.Mesh(textGeometry2d, material2d);
@@ -128,7 +153,7 @@ APPG.textBuffer.functions = {
         if (material3d !== null && material3dParams !== null) {
             for (var i = 0; i < 256; i++) {
                 character = String.fromCharCode(i);
-                textGeometry3d = new THREE.TextGeometry(character, material3dParams);
+                textGeometry3d = new THREE.TextGeometry(character, APPG.textBuffer.material3dParams);
                 textGeometry3d.computeBoundingBox();
                 textGeometry3d.computeVertexNormals();
                 characterMesh3d = new THREE.Mesh(textGeometry3d, material3d);
@@ -311,14 +336,8 @@ APPG.functions = {
     }
 };
 
-APPG.shaders = {};
 APPG.shaders.functions = {
-    loadShader : function() {
-        console.log("Currently no shaders are used.");
-    },
-    updateShader : function() {
-        console.log("Currently no shaders are used.");
-    }
+
 };
 APPG.renderer = {
     domElement : null

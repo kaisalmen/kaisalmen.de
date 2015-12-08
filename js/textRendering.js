@@ -28,9 +28,8 @@ APPG.shaders.shaderFlicker = {
 APPG.shaders.functions = {
     loadShader : function() {
         console.log("Shader and texture loading from file is completed!");
-        var shaderTools = new ShaderTools();
-        shaderTools.printShader(APPG.shaders.shaderFlicker.vertexShaderText, "Vertex Shader");
-        shaderTools.printShader(APPG.shaders.shaderFlicker.fragmentShaderText, "Fragment Shader");
+        APPG.shaders.shaderTools.printShader(APPG.shaders.shaderFlicker.vertexShaderText, "Vertex Shader");
+        APPG.shaders.shaderTools.printShader(APPG.shaders.shaderFlicker.fragmentShaderText, "Fragment Shader");
 
         //APPG.shaders.shaderFlicker.fragmentShaderText = base[0] + "\n" + frag[0];
 
@@ -99,9 +98,8 @@ ATR.text.lengthLimit = 50;
 
 $(document).ready(
     $.when(
-        var shaderTools = new ShaderTools();
-        shaderTools.loadShader("../resource/shader/passThrough.glsl"),
-        shaderTools.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
+        APPG.shaders.shaderTools.loadShader("../resource/shader/passThrough.glsl"),
+        APPG.shaders.shaderTools.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
     ).done(
         function(vert, frag) {
             APPG.shaders.shaderFlicker.vertexShaderText = vert[0];
@@ -419,8 +417,7 @@ function updateTextMaterials() {
     APPG.textBuffer.material3d.materials.forEach(function (mat) {
         mat.color.setRGB(red, green, blue);
     });
-    var shaderTools = new ShaderTools();
-    var rgb = shaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
+    var rgb = APPG.shaders.shaderTools.hexToRGB(ATR.datGui.paramFunctionRef.colorShader, true);
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[0] = rgb[0];
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[1] = rgb[1];
     APPG.shaders.shaderFlicker.uniforms.colorFactor.value[2] = rgb[2];
