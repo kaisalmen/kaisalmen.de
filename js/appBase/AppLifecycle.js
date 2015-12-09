@@ -4,10 +4,7 @@
 
 "use strict";
 
-/**
- * This class was started with typescript
- */
-var AppLifecycle = (function () {
+KSX.appBase.AppLifecycle = (function () {
 
     function AppLifecycle(name) {
         this.name = name;
@@ -19,7 +16,7 @@ var AppLifecycle = (function () {
         console.log("Added sceneApp: " + sceneApp.getAppName())
     };
 
-    AppLifecycle.prototype.run = function () {
+    AppLifecycle.prototype.init = function () {
         console.log("Starting global initialisation phase...");
         console.log("Kicking register...");
         for (var i = 0; i < this.sceneApps.length; i++) {
@@ -63,5 +60,4 @@ var AppLifecycle = (function () {
     };
 
     return AppLifecycle;
-})();
-
+})()

@@ -7,7 +7,7 @@
 /**
  * This class was started with typescript
  */
-var Text2d = (function () {
+KSX.appBase.Text2d = (function () {
 
     function Text2d() {
         this.texts = new Map();
@@ -25,7 +25,7 @@ var Text2d = (function () {
             style: style
         });
         var geometry = new THREE.ShapeGeometry(shapes);
-        var textUnit = new TextUnit(geometry, material);
+        var textUnit = new KSX.appBase.TextUnit(geometry, material);
         this.texts.set(name, textUnit);
         return textUnit;
     };

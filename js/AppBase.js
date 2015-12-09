@@ -19,7 +19,7 @@ APPExecFlow =  {
     startAnimation : null
 };
 APPExecFlow.functions =  {
-    run : function() {
+    init : function() {
         console.log("Starting global initialisation phase...");
         console.log("Kicking initShaders...");
         APPExecFlow.initShaders = initShaders();

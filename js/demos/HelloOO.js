@@ -4,36 +4,51 @@
 
 "use strict";
 
-var appLifecycle = new AppLifecycle("App Lifecycle");
+KSX.HelloOO = {
+    glob : {
+        appLifecycle : null,
+        helloOOSimple : null,
+        helloOOShader : null,
+        helloOOVideo : null,
+        helloOOText : null
+    },
+    func : {
+        init : function () {
+            KSX.HelloOO.glob.appLifecycle = new KSX.appBase.AppLifecycle("App Lifecycle"),
+            KSX.HelloOO.glob.helloOOSimple = new HelloOOSimple(document.getElementById("DivGL1Canvas")),
+            KSX.HelloOO.glob.helloOOShader = new HelloOOShader(document.getElementById("DivGL2Canvas")),
+            KSX.HelloOO.glob.helloOOVideo = new HelloOOVideo(document.getElementById("DivGL3Canvas")),
+            KSX.HelloOO.glob.helloOOText = new HelloOOText(document.getElementById("DivGL4Canvas"))
 
-var helloOOSimple = new HelloOOSimple(document.getElementById("DivGL1Canvas"));
-var helloOOShader = new HelloOOShader(document.getElementById("DivGL2Canvas"));
-var helloOOVideo = new HelloOOVideo(document.getElementById("DivGL3Canvas"));
-var helloOOText = new HelloOOText(document.getElementById("DivGL4Canvas"));
-
-appLifecycle.addSceneApp(helloOOSimple.sceneApp);
-appLifecycle.addSceneApp(helloOOShader.sceneApp);
-appLifecycle.addSceneApp(helloOOVideo.sceneApp);
-appLifecycle.addSceneApp(helloOOText.sceneApp);
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOSimple.sceneApp),
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOShader.sceneApp),
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOVideo.sceneApp),
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOText.sceneApp),
+            KSX.HelloOO.glob.appLifecycle.init()
+        },
+        render : function () {
+            requestAnimationFrame(KSX.HelloOO.func.render);
+            KSX.HelloOO.glob.helloOOSimple.render();
+            KSX.HelloOO.glob.helloOOShader.render();
+            KSX.HelloOO.glob.helloOOVideo.render();
+            KSX.HelloOO.glob.helloOOText.render();
+            //document.getElementById("DivGL1").style.width = "50%";
+            //document.getElementById("DivGL2").style.width = "50%";
+            //document.getElementById("DivGL3").style.width = "50%";
+            //document.getElementById("DivGL4").style.width = "50%";
+        }
+    }
+}
 
 $(window).resize(function () {
-    appLifecycle.resizeAll();
+    KSX.HelloOO.glob.appLifecycle.resizeAll();
 });
 
 $(document).ready(function () {
-    appLifecycle.run();
+    console.log("run");
+    KSX.HelloOO.func.init();
+    KSX.HelloOO.func.render();
 });
 
-var render = function () {
-    requestAnimationFrame(render);
-    helloOOSimple.render();
-    helloOOShader.render();
-    helloOOVideo.render();
-    helloOOText.render();
-    //document.getElementById("DivGL1").style.width = "50%";
-    //document.getElementById("DivGL2").style.width = "50%";
-    //document.getElementById("DivGL3").style.width = "50%";
-    //document.getElementById("DivGL4").style.width = "50%";
-};
 
-render();
+

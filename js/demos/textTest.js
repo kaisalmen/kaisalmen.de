@@ -7,7 +7,7 @@ var APPTXT = {};
 
 $(document).ready(
     function() {
-        APPExecFlow.functions.run();
+        APPExecFlow.functions.init();
     }
 )
 .on({

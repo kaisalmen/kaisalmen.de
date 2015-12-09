@@ -7,7 +7,7 @@
 var HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo) {
-        this.sceneApp = new SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);
+        this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);
         var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);

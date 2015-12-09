@@ -7,7 +7,7 @@
 var HelloOOSimple = (function () {
 
     function HelloOOSimple(elementToBindTo) {
-        this.sceneApp = new SceneAppPerspective(this, "HelloOOSimple", elementToBindTo);
+        this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOSimple", elementToBindTo);
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);

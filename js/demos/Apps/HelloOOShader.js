@@ -7,7 +7,7 @@
 var HelloOOShader = (function () {
 
     function HelloOOShader(elementToBindTo) {
-        this.sceneApp = new SceneAppPerspective(this, "HelloOOShader", elementToBindTo);
+        this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOShader", elementToBindTo);
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);

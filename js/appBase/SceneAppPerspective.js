@@ -7,12 +7,12 @@
 /**
  * This class was started with typescript
  */
-var SceneAppPerspective = (function () {
+KSX.appBase.SceneAppPerspective = (function () {
 
     function SceneAppPerspective(user, name, divGLCanvas) {
         this.user = user;
         this.name = name;
-        this.canvas = new Canvas(divGLCanvas);
+        this.canvas = new KSX.appBase.Canvas(divGLCanvas);
         this.canvas.recalcAspectRatio();
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.canvas.aspectRatio, 0.1, 10000);

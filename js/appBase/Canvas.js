@@ -7,7 +7,7 @@
 /**
  * This class was started with typescript
  */
-var Canvas = (function () {
+KSX.appBase.Canvas = (function () {
 
     function Canvas(htmlCanvas) {
         this.init(htmlCanvas);
@@ -32,4 +32,4 @@ var Canvas = (function () {
     };
 
     return Canvas;
-})();
+})()

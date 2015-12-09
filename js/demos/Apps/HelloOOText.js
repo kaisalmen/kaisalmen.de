@@ -7,10 +7,10 @@
 var HelloOOText = (function () {
 
     function HelloOOText(elementToBindTo) {
-        this.sceneApp = new SceneAppPerspective(this, "HelloOOText", elementToBindTo);
+        this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOText", elementToBindTo);
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();
-        this.textStorage = new Text2d();
+        this.textStorage = new KSX.appBase.Text2d();
         this.text = this.textStorage.addText("Hello", "Hello world. This text fills the line as much as possible!", new THREE.MeshBasicMaterial(), 0.1, 10);
         this.mesh = new THREE.Mesh(geometry, material);
         this.sceneApp.scene.add(this.box);

@@ -96,7 +96,7 @@ $(document).ready(
             APPG.shaders.shaderFlicker.vertexShaderText = vert[0];
             APPG.shaders.shaderFlicker.fragmentShaderText = frag[0];
 
-            APPExecFlow.functions.run();
+            APPExecFlow.functions.init();
         }
     )
 )
