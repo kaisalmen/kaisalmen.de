@@ -7,7 +7,7 @@
 /**
  * This class was started with typescript
  */
-KSX.appBase.TextUnit = (function () {
+KSX.apps.core.TextUnit = (function () {
 
     function TextUnit(geometry, material) {
         this.geometry = geometry;

@@ -4,13 +4,17 @@
 
 "use strict";
 
-var ShaderTools = (function () {
+KSX.apps.tools.ShaderTools = (function () {
 
     function ShaderTools() {
     }
 
     ShaderTools.prototype.loadShader = function (path, printShader, shaderName) {
-        return $.get(path, function (data) {});
+        return $.get(path, function (data) {
+            if (printShader) {
+                ShaderTools.prototype.printShader(data, shaderName);
+            }
+        });
     };
 
     ShaderTools.prototype.printShader = function (shaderObj, shaderName) {

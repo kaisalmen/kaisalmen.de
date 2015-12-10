@@ -7,7 +7,7 @@
 /**
  * This class was started with typescript
  */
-KSX.appBase.Canvas = (function () {
+KSX.apps.core.Canvas = (function () {
 
     function Canvas(htmlCanvas) {
         this.init(htmlCanvas);

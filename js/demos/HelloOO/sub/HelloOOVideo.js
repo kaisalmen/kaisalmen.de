@@ -4,13 +4,17 @@
 
 "use strict";
 
-KSX.appBase.HelloOOVideo = (function () {
+KSX.apps.demos.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo) {
-        this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);
+        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);
         var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
+    }
+
+    HelloOOVideo.prototype.initShaders = function() {
+        console.log("HelloOOVideo.initShaders is not implemented");
     }
 
     HelloOOVideo.prototype.initGL = function () {

@@ -7,12 +7,12 @@
 /**
  * This class was started with typescript
  */
-KSX.appBase.SceneAppPerspective = (function () {
+KSX.apps.core.SceneAppPerspective = (function () {
 
     function SceneAppPerspective(user, name, divGLCanvas) {
         this.user = user;
         this.name = name;
-        this.canvas = new KSX.appBase.Canvas(divGLCanvas);
+        this.canvas = new KSX.apps.core.Canvas(divGLCanvas);
         this.canvas.recalcAspectRatio();
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.canvas.aspectRatio, 0.1, 10000);
@@ -29,6 +29,7 @@ KSX.appBase.SceneAppPerspective = (function () {
 
     SceneAppPerspective.prototype.initShaders = function () {
         console.log("SceneAppPerspective: initShaders");
+        this.user.initShaders();
     };
 
     SceneAppPerspective.prototype.initPreGL = function () {

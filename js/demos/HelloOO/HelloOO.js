@@ -14,11 +14,11 @@ KSX.HelloOO = {
     },
     func : {
         init : function () {
-            KSX.HelloOO.glob.appLifecycle = new KSX.appBase.AppLifecycle("App Lifecycle"),
-            KSX.HelloOO.glob.helloOOSimple = new KSX.appBase.HelloOOSimple(document.getElementById("DivGL1Canvas")),
-            KSX.HelloOO.glob.helloOOShader = new KSX.appBase.HelloOOShader(document.getElementById("DivGL2Canvas")),
-            KSX.HelloOO.glob.helloOOVideo = new KSX.appBase.HelloOOVideo(document.getElementById("DivGL3Canvas")),
-            KSX.HelloOO.glob.helloOOText = new KSX.appBase.HelloOOText(document.getElementById("DivGL4Canvas"))
+            KSX.HelloOO.glob.appLifecycle = new KSX.apps.core.AppLifecycle("App Lifecycle"),
+            KSX.HelloOO.glob.helloOOSimple = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas")),
+            KSX.HelloOO.glob.helloOOShader = new KSX.apps.demos.HelloOOShader(document.getElementById("DivGL2Canvas")),
+            KSX.HelloOO.glob.helloOOVideo = new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas")),
+            KSX.HelloOO.glob.helloOOText = new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas"))
 
             KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOSimple.sceneApp),
             KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOShader.sceneApp),

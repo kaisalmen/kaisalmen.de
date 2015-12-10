@@ -56,7 +56,7 @@ function run() {
     console.log(pointA.printCoordinates());
     console.log(pointB.printCoordinates());
 
-    var shaderTools = new ShaderTools();
+    var shaderTools = new KSX.apps.tools.ShaderTools();
     var hexColorValue = "#FF00FF";
     var rgbColorValue = shaderTools.hexToRGB(hexColorValue, false);
     console.log(hexColorValue + " = " + rgbColorValue);

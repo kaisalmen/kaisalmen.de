@@ -4,7 +4,7 @@
 
 "use strict";
 
-KSX.appBase.AppLifecycle = (function () {
+KSX.apps.core.AppLifecycle = (function () {
 
     function AppLifecycle(name) {
         this.name = name;
