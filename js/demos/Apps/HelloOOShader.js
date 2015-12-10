@@ -4,7 +4,7 @@
 
 "use strict";
 
-var HelloOOShader = (function () {
+KSX.appBase.HelloOOShader = (function () {
 
     function HelloOOShader(elementToBindTo) {
         this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOShader", elementToBindTo);

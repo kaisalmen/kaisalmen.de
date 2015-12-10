@@ -4,7 +4,7 @@
 
 "use strict";
 
-var HelloOOVideo = (function () {
+KSX.appBase.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo) {
         this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);

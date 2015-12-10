@@ -7,8 +7,8 @@ images
 models
 mongoose.conf
 mongoose-*.exe
-/js/libs/ext
-/ts/libs
+/js/lib/ext
+/ts/lib
 /node_modules
 /java/vertxweb/target
 /java/vertxweb/.classpath

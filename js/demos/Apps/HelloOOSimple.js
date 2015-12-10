@@ -4,7 +4,7 @@
 
 "use strict";
 
-var HelloOOSimple = (function () {
+KSX.appBase.HelloOOSimple = (function () {
 
     function HelloOOSimple(elementToBindTo) {
         this.sceneApp = new KSX.appBase.SceneAppPerspective(this, "HelloOOSimple", elementToBindTo);
