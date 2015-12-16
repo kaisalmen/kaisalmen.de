@@ -7,26 +7,27 @@
 KSX.apps.demos.HelloOOShader = (function () {
 
     function HelloOOShader(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOShader", elementToBindTo);
+        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOShader", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
+        this.vertexShaderText = null;
+        this.fragmentShaderText = null;
     }
 
-    HelloOOShader.prototype.documentLoaded = function () {
-
-    }
-
-    HelloOOShader.prototype.initShaders = function() {
+    HelloOOShader.prototype.initAsyncContent = function(refToMyself) {
         $.when(
             this.shaderTools.loadShader("../../resource/shader/passThrough.glsl", true, "VS: Pass Through"),
-            this.shaderTools.loadShader("../../resource/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture")
+            this.shaderTools.loadShader("../../resource/shader/staticGreenColor.glsl", true, "FS: Simple Texture")
         ).done(
             function(vert, frag) {
-                console.log("HelloOOShader: Done shader loading");
+                refToMyself.vertexShaderText = vert[0];
+                refToMyself.fragmentShaderText = frag[0];
+                refToMyself.sceneApp.initSynchronuous();
             }
         );
-    }
+    };
 
     HelloOOShader.prototype.initGL = function () {
+/*
         var uniforms = {
             texture1: { type: "t", texture: null }
         };
@@ -39,12 +40,12 @@ KSX.apps.demos.HelloOOShader = (function () {
             console.log("Texture loading was completed successfully!");
             uniforms.texture1.value = texture;
         }
-
+*/
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({
-            uniforms: uniforms,
-            vertexShader: vertexShaderText,
-            fragmentShader: fragmentShaderText,
+//            uniforms: uniforms,
+            vertexShader: this.vertexShaderText,
+            fragmentShader: this.fragmentShaderText,
             transparent: true,
             side: THREE.DoubleSide
         });
@@ -57,7 +58,6 @@ KSX.apps.demos.HelloOOShader = (function () {
     HelloOOShader.prototype.render = function () {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
-        this.sceneApp.render();
     };
 
     return HelloOOShader;

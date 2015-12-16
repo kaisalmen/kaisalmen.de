@@ -7,35 +7,26 @@
 KSX.HelloOO = {
     glob : {
         appLifecycle : null,
-        helloOOSimple : null,
-        helloOOShader : null,
-        helloOOVideo : null,
-        helloOOText : null
     },
     func : {
         init : function () {
-            KSX.HelloOO.glob.appLifecycle = new KSX.apps.core.AppLifecycle("App Lifecycle"),
-            KSX.HelloOO.glob.helloOOSimple = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas")),
-            KSX.HelloOO.glob.helloOOShader = new KSX.apps.demos.HelloOOShader(document.getElementById("DivGL2Canvas")),
-            KSX.HelloOO.glob.helloOOVideo = new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas")),
-            KSX.HelloOO.glob.helloOOText = new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas"))
+            KSX.HelloOO.glob.appLifecycle = new KSX.apps.core.AppLifecycle("App Lifecycle");
+            var helloOOSimple = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas"));
+            var helloOOShader = new KSX.apps.demos.HelloOOShader(document.getElementById("DivGL2Canvas"));
+            var helloOOVideo = new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas"));
+            var helloOOText = new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas"));
 
-            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOSimple.sceneApp),
-            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOShader.sceneApp),
-            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOVideo.sceneApp),
-            KSX.HelloOO.glob.appLifecycle.addSceneApp(KSX.HelloOO.glob.helloOOText.sceneApp),
-            KSX.HelloOO.glob.appLifecycle.init()
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(helloOOSimple.sceneApp);
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(helloOOShader.sceneApp);
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(helloOOVideo.sceneApp);
+            KSX.HelloOO.glob.appLifecycle.addSceneApp(helloOOText.sceneApp);
+
+                // kicks init and starts rendering
+            KSX.HelloOO.glob.appLifecycle.initAsync();
         },
         render : function () {
             requestAnimationFrame(KSX.HelloOO.func.render);
-            KSX.HelloOO.glob.helloOOSimple.render();
-            KSX.HelloOO.glob.helloOOShader.render();
-            KSX.HelloOO.glob.helloOOVideo.render();
-            KSX.HelloOO.glob.helloOOText.render();
-            //document.getElementById("DivGL1").style.width = "50%";
-            //document.getElementById("DivGL2").style.width = "50%";
-            //document.getElementById("DivGL3").style.width = "50%";
-            //document.getElementById("DivGL4").style.width = "50%";
+            KSX.HelloOO.glob.appLifecycle.renderAllApps();
         }
     }
 }

@@ -7,14 +7,15 @@
 KSX.apps.demos.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo);
+        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo, false);
         var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
     }
 
-    HelloOOVideo.prototype.initShaders = function() {
+    HelloOOVideo.prototype.initAsyncContent = function() {
         console.log("HelloOOVideo.initShaders is not implemented");
+        this.sceneApp.initSynchronuous();
     }
 
     HelloOOVideo.prototype.initGL = function () {
@@ -25,7 +26,6 @@ KSX.apps.demos.HelloOOVideo = (function () {
     HelloOOVideo.prototype.render = function () {
         this.mesh.rotation.x += 0.025;
         this.mesh.rotation.y += 0.025;
-        this.sceneApp.render();
     };
 
     return HelloOOVideo;

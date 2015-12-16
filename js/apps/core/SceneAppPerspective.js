@@ -4,15 +4,12 @@
 
 "use strict";
 
-/**
- * This class was started with typescript
- */
 KSX.apps.core.SceneAppPerspective = (function () {
 
-    function SceneAppPerspective(user, name, divGLCanvas) {
+    function SceneAppPerspective(user, name, divGLCanvas, verbose) {
         this.user = user;
         this.name = name;
-        this.canvas = new KSX.apps.core.Canvas(divGLCanvas);
+        this.canvas = new KSX.apps.core.Canvas(divGLCanvas, verbose);
         this.canvas.recalcAspectRatio();
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(75, this.canvas.aspectRatio, 0.1, 10000);
@@ -21,46 +18,49 @@ KSX.apps.core.SceneAppPerspective = (function () {
             canvas: divGLCanvas,
             antialias: true
         });
+        this.renderingEndabled = false;
+        this.verbose = verbose;
     }
 
     SceneAppPerspective.prototype.getAppName = function () {
         return this.name;
     };
 
-    SceneAppPerspective.prototype.initShaders = function () {
-        console.log("SceneAppPerspective: initShaders");
-        this.user.initShaders();
+    SceneAppPerspective.prototype.initAsync = function () {
+        console.log("SceneAppPerspective (" + this.name + "): initAsyncContent");
+        this.user.initAsyncContent(this.user);
     };
 
-    SceneAppPerspective.prototype.initPreGL = function () {
-        console.log("SceneAppPerspective: initPreGL");
-    };
+    SceneAppPerspective.prototype.initSynchronuous = function () {
+        console.log("SceneAppPerspective (" + this.name + "): initPreGL");
 
-    SceneAppPerspective.prototype.resizeDisplayHtml = function () {
-        console.log("SceneAppPerspective: resizeDisplayHtml");
-    };
+        console.log("SceneAppPerspective (" + this.name + "): resizeDisplayHtml");
 
-    SceneAppPerspective.prototype.initGL = function () {
-        console.log("SceneAppPerspective: initGL");
+        console.log("SceneAppPerspective (" + this.name + "): initGL");
         this.resizeDisplayGL();
         this.user.initGL();
-    };
 
-    SceneAppPerspective.prototype.addEventHandlers = function () {
-        console.log("SceneAppPerspective: addEventHandlers");
+        console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
+
+        console.log("SceneAppPerspective (" + this.name + "): initPostGL");
+
+        console.log("SceneAppPerspective (" + this.name + "): Ready to start render loop!");
+
+        this.renderingEndabled = true;
     };
 
     SceneAppPerspective.prototype.resizeDisplayGL = function () {
-        console.log("SceneAppPerspective: resizeDisplayGL");
+        if (this.verbose) {
+            console.log("SceneAppPerspective (" + this.name + "): resizeDisplayGL");
+        }
         this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
     };
 
-    SceneAppPerspective.prototype.initPostGL = function () {
-        console.log("SceneAppPerspective: initPostGL");
-    };
-
     SceneAppPerspective.prototype.render = function () {
-        this.renderer.render(this.scene, this.camera);
+        if (this.renderingEndabled) {
+            this.user.render();
+            this.renderer.render(this.scene, this.camera);
+        }
     };
 
     SceneAppPerspective.prototype.adjustWindow = function () {

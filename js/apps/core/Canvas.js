@@ -9,8 +9,9 @@
  */
 KSX.apps.core.Canvas = (function () {
 
-    function Canvas(htmlCanvas) {
+    function Canvas(htmlCanvas, verbose) {
         this.init(htmlCanvas);
+        this.verbose = verbose;
     }
 
     Canvas.prototype.init = function (htmlCanvas) {
@@ -19,7 +20,9 @@ KSX.apps.core.Canvas = (function () {
     };
 
     Canvas.prototype.recalcAspectRatio = function () {
-        console.log("width: " + this.htmlCanvas.offsetWidth + " height: " + this.htmlCanvas.offsetHeight);
+        if (this.verbose) {
+            console.log("width: " + this.htmlCanvas.offsetWidth + " height: " + this.htmlCanvas.offsetHeight);
+        }
         this.aspectRatio = this.getWidth() / this.getHeight();
     };
 

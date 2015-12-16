@@ -4,6 +4,8 @@
 
 "use strict";
 
+
+
 KSX.apps.core.AppLifecycle = (function () {
 
     function AppLifecycle(name) {
@@ -16,41 +18,24 @@ KSX.apps.core.AppLifecycle = (function () {
         console.log("Added sceneApp: " + sceneApp.getAppName())
     };
 
-    AppLifecycle.prototype.init = function () {
+    AppLifecycle.prototype.initAsync = function () {
         console.log("Starting global initialisation phase...");
-        console.log("Kicking register...");
+
+        var currentScene;
         for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].browserContext = this;
+            currentScene = this.sceneApps[i];
+            currentScene.browserContext = this;
+            console.log("Registering: " + currentScene.name);
+
+            console.log("Kicking initShaders...");
+            currentScene.initAsync();
         }
-        console.log("Kicking initShaders...");
+    };
+
+    AppLifecycle.prototype.renderAllApps = function () {
         for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].initShaders();
+            this.sceneApps[i].render();
         }
-        console.log("Kicking initPreGL...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].initPreGL();
-        }
-        console.log("Kicking resizeDisplayHtml...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].resizeDisplayHtml();
-        }
-        console.log("Kicking initGL...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].initGL();
-        }
-        console.log("Kicking addEventHandlers...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].addEventHandlers();
-        }
-        console.log("Kicking resizeDisplayGL...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].resizeDisplayGL();
-        }
-        console.log("Kicking initPostGL...");
-        for (var i = 0; i < this.sceneApps.length; i++) {
-            this.sceneApps[i].initPostGL();
-        }
-        console.log("Ready to start render loop...");
     };
 
     AppLifecycle.prototype.resizeAll = function () {
@@ -60,4 +45,4 @@ KSX.apps.core.AppLifecycle = (function () {
     };
 
     return AppLifecycle;
-})()
+})();
