@@ -11,12 +11,17 @@ KSX.apps.demos.HelloOOShader = (function () {
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.vertexShaderText = null;
         this.fragmentShaderText = null;
+        this.uniforms = {
+            blendFactor : { type: "f", value: 0.75 },
+            colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
+            texture1: { type: "t", texture: null }
+        };
     }
 
     HelloOOShader.prototype.initAsyncContent = function(refToMyself) {
         $.when(
             this.shaderTools.loadShader("../../resource/shader/passThrough.glsl", true, "VS: Pass Through"),
-            this.shaderTools.loadShader("../../resource/shader/staticGreenColor.glsl", true, "FS: Simple Texture")
+            this.shaderTools.loadShader("../../resource/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture")
         ).done(
             function(vert, frag) {
                 refToMyself.vertexShaderText = vert[0];
@@ -27,27 +32,26 @@ KSX.apps.demos.HelloOOShader = (function () {
     };
 
     HelloOOShader.prototype.initGL = function () {
-/*
-        var uniforms = {
-            texture1: { type: "t", texture: null }
-        };
-
         var imageUrl = "../../resource/images/house02.jpg";
         var textureLoader = new THREE.TextureLoader();
-        textureLoader.load(imageUrl, successfulLoading);
 
-        function successfulLoading(texture) {
-            console.log("Texture loading was completed successfully!");
-            uniforms.texture1.value = texture;
-        }
-*/
+        this.uniforms.texture1.value = textureLoader.load(imageUrl,
+            function (texture) {
+                console.log("Loading of texture was completed successfully!");
+            },
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + "% loaded");
+            },
+            function (xhr) {
+                console.log("An error occured!");
+            }
+        );
+
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({
-//            uniforms: uniforms,
+            uniforms: this.uniforms,
             vertexShader: this.vertexShaderText,
-            fragmentShader: this.fragmentShaderText,
-            transparent: true,
-            side: THREE.DoubleSide
+            fragmentShader: this.fragmentShaderText
         });
         this.mesh =  new THREE.Mesh(geometry, material);
 
