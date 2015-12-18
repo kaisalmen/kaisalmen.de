@@ -57,6 +57,13 @@
     bottom: 0px;
     left: 0px;
 }
+#DivGL3Video,
+#DivGL3VideoBuffer {
+    background-color: #FFFFFF;
+    display: none;
+    width: 1920px;
+    height: 1080px;
+}
 #DivGL4 {
     background-color: #fff600;
     bottom: 0px;

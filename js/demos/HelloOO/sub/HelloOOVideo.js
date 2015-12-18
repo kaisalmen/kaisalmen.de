@@ -16,6 +16,10 @@ KSX.apps.demos.HelloOOVideo = (function () {
             colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
             texture1: { type: "t", texture: null }
         };
+        this.video = document.getElementById("DivGL3Video");
+        this.videoBuffer = document.getElementById("DivGL3VideoBuffer");
+        this.videoBufferContext = this.videoBuffer.getContext("2d");
+        this.texture = null;
     }
 
     HelloOOVideo.prototype.initAsyncContent = function (refToMyself) {
@@ -34,21 +38,40 @@ KSX.apps.demos.HelloOOVideo = (function () {
     HelloOOVideo.prototype.initGL = function () {
         this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02.jpg");
 
-        var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
+        this.videoBuffer.width = 1920;
+        this.videoBuffer.height = 1080;
+        this.videoBufferContext.fillStyle = "#000000";
+        this.videoBufferContext.fillRect(0, 0, 1920, 1080);
+
+        this.texture = new THREE.Texture(this.videoBuffer);
+        this.texture.minFilter = THREE.LinearFilter;
+        this.texture.magFilter = THREE.LinearFilter;
+        this.texture.format = THREE.RGBFormat;
+
+//        var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
+        var geometry = new THREE.BoxGeometry(192, 108, 10);
+        var material = new THREE.MeshBasicMaterial({
+            color: 0xffffff,
+            map: this.texture
+        });
+/*
         var material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
             vertexShader: this.vertexShaderText,
             fragmentShader: this.fragmentShaderText
         });
-        this.mesh =  new THREE.Mesh(geometry, material);
+*/
+        var mesh =  new THREE.Mesh(geometry, material);
 
-        this.sceneApp.scene.add(this.mesh);
-        this.sceneApp.camera.position.z = 15;
+        this.sceneApp.scene.add(mesh);
+        this.sceneApp.camera.position.z = 150;
     };
 
     HelloOOVideo.prototype.render = function () {
-        this.mesh.rotation.x += 0.025;
-        this.mesh.rotation.y += 0.025;
+        if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+            this.videoBufferContext.drawImage(this.video, 0, 0);
+            this.texture.needsUpdate = true;
+        }
     };
 
     return HelloOOVideo;
