@@ -13,3 +13,9 @@ mongoose-*.exe
 /java/vertxweb/target
 /java/vertxweb/.classpath
 /java/vertxweb/src/main/resources
+/resource/fonts/UbuntuMono-Bold.ttf
+/resource/fonts/UbuntuMono-BoldItalic.ttf
+/resource/fonts/UbuntuMono-Italic.ttf
+/resource/fonts/UbuntuMono-Regular.ttf
+/resource/fonts/Ubuntu_Mono.zip
+/resource/fonts/GoogleUbuntuMonoLatin.js

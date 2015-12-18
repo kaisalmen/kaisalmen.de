@@ -30,11 +30,27 @@ KSX.apps.tools.ShaderTools = (function () {
         rgb[1] = parseInt((hexNormalized).substring(2, 4), 16) / divider;
         rgb[2] = parseInt((hexNormalized).substring(4, 6), 16) / divider;
         return rgb;
-    }
+    };
 
     ShaderTools.prototype.hexToRGB = function (hexInput, floatUVSpace) {
         return hexToRGB(hexInput, floatUVSpace);
-    }
+    };
+
+    ShaderTools.prototype.loadTexture = function (imageUrl) {
+        var textureLoader = new THREE.TextureLoader();
+
+        return textureLoader.load(imageUrl,
+            function (texture) {
+                console.log("Loading of texture was completed successfully!");
+            },
+            function (xhr) {
+                console.log((xhr.loaded / xhr.total * 100) + "% loaded");
+            },
+            function (xhr) {
+                console.log("An error occurred!");
+            }
+        )
+    };
 
     return ShaderTools;
 })();

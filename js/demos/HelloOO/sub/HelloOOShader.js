@@ -32,20 +32,7 @@ KSX.apps.demos.HelloOOShader = (function () {
     };
 
     HelloOOShader.prototype.initGL = function () {
-        var imageUrl = "../../resource/images/house02.jpg";
-        var textureLoader = new THREE.TextureLoader();
-
-        this.uniforms.texture1.value = textureLoader.load(imageUrl,
-            function (texture) {
-                console.log("Loading of texture was completed successfully!");
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + "% loaded");
-            },
-            function (xhr) {
-                console.log("An error occured!");
-            }
-        );
+        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02.jpg");
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({
