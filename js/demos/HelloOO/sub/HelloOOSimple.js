@@ -14,7 +14,7 @@ KSX.apps.demos.HelloOOSimple = (function () {
     }
 
     HelloOOSimple.prototype.initAsyncContent = function() {
-        console.log("HelloOOSimple.initShaders is not implemented");
+        console.log("HelloOOSimple.initAsyncContent is not required!");
         this.sceneApp.initSynchronuous();
     }
 

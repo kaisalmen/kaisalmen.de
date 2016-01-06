@@ -26,7 +26,21 @@
     width: 100%;
     height: 100%;
 }
-
+#DivGLFull {
+    position: absolute;
+    min-width: 320px;
+    min-height: 240px;
+}
+#DivGLFull,
+#DivGLFullCanvas {
+    margin: inherit;
+    padding: inherit;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: #222222;
+}
 #DivGL1 {
     background-color: #ff0000;
     top: 0px;

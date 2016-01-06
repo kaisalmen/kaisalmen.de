@@ -2,15 +2,28 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>HelloOO: Single renderer</title>
+    <title>HelloOO: Multiple renderers</title>
 </head>
 <body>
     <link href="../../resource/css/tsWebGL.css" type="text/css" rel="stylesheet"/>
     <link href="../../resource/css/HelloThreejs.css" type="text/css" rel="stylesheet"/>
 
     <div id="master">
-        <div id="DivGLFull">
-            <canvas id="DivGLFullCanvas"></canvas>
+        <div id="DivGL1">
+            <canvas id="DivGL1Canvas"></canvas>
+        </div>
+        <div id="DivGL2">
+            <canvas id="DivGL2Canvas"></canvas>
+        </div>
+        <div id="DivGL3">
+            <canvas id="DivGL3Canvas"></canvas>
+            <video id="DivGL3Video" loop autoplay muted>
+                <source src="../../resource/video/avatar_1080p.mp4" type='video/mp4'>
+            </video>
+            <canvas id="DivGL3VideoBuffer"></canvas>
+        </div>
+        <div id="DivGL4">
+            <canvas id="DivGL4Canvas"></canvas>
         </div>
     </div>
     <script src="../../js/lib/ext/three.js"></script>
@@ -28,8 +41,10 @@
     <script src="../../js/apps/core/TextUnit.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
 
-    <script src="../../js/demos/HelloOO/sub/ImageBasedGeometryTransform.js"></script>
-    <script src="../../js/demos/HelloOO/HelloOO.js"></script>
-
+    <script src="../../js/demos/HelloOO/sub/HelloOOSimple.js"></script>
+    <script src="../../js/demos/HelloOO/sub/HelloOOShader.js"></script>
+    <script src="../../js/demos/HelloOO/sub/HelloOOVideo.js"></script>
+    <script src="../../js/demos/HelloOO/sub/HelloOOText.js"></script>
+    <script src="../../js/demos/HelloOO/HelloOOMulti.js"></script>
 </body>
 </html>

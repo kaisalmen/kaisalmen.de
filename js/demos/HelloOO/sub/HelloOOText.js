@@ -18,7 +18,7 @@ KSX.apps.demos.HelloOOText = (function () {
     }
 
     HelloOOText.prototype.initAsyncContent = function() {
-        console.log("HelloOOText.initShaders is not implemented");
+        console.log("HelloOOText.initAsyncContent is not required!");
         this.sceneApp.initSynchronuous();
     }
 
