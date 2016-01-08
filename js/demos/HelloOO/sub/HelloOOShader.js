@@ -32,7 +32,7 @@ KSX.apps.demos.HelloOOShader = (function () {
     };
 
     HelloOOShader.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02.jpg");
+        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02_pot.jpg");
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({

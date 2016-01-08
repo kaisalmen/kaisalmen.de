@@ -5,8 +5,8 @@
 .vertx
 images
 models
-mongoose.conf
-mongoose-*.exe
+nginx
+mongoose*
 /js/lib/ext
 /ts/lib
 /node_modules

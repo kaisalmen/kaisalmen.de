@@ -71,6 +71,8 @@
     bottom: 0px;
     left: 0px;
 }
+#DivGLFullVideo,
+#DivGLFullVideoBuffer,
 #DivGL3Video,
 #DivGL3VideoBuffer {
     background-color: #FFFFFF;

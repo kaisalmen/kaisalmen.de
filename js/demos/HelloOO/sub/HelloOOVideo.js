@@ -6,7 +6,7 @@
 
 KSX.apps.demos.HelloOOVideo = (function () {
 
-    function HelloOOVideo(elementToBindTo) {
+    function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.vertexShaderText = null;
@@ -16,8 +16,8 @@ KSX.apps.demos.HelloOOVideo = (function () {
             colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
             texture1: { type: "t", texture: null }
         };
-        this.video = document.getElementById("DivGL3Video");
-        this.videoBuffer = document.getElementById("DivGL3VideoBuffer");
+        this.video = document.getElementById(elementNameVideo);
+        this.videoBuffer = document.getElementById(elementNameVideoBuffer);
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.texture = null;
     }
@@ -36,7 +36,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
     }
 
     HelloOOVideo.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02.jpg");
+        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02_pot.jpg");
 
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 1080;
