@@ -11,6 +11,10 @@
     <div id="master">
         <div id="DivGLFull">
             <canvas id="DivGLFullCanvas"></canvas>
+            <video id="DivGLFullVideo" autoplay loop muted controls>
+                <source src="../../resource/video/avatar_1080p.mp4" type='video/mp4'>
+            </video>
+            <canvas id="DivGLFullVideoBuffer"></canvas>
         </div>
     </div>
     <script src="../../js/lib/ext/three.js"></script>
@@ -28,8 +32,8 @@
     <script src="../../js/apps/core/TextUnit.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
 
-    <script src="../../js/demos/HelloOO/sub/ImageBasedGeometryTransform.js"></script>
-    <script src="../../js/demos/HelloOO/HelloOO.js"></script>
+    <script src="../../js/apps/demos/HelloOO/impl/HelloOOVideo.js"></script>
+    <script src="../../js/apps/demos/HelloOO/VideoPlayer.js"></script>
 
 </body>
 </html>

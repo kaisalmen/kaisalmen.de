@@ -12,7 +12,14 @@ var KSX = {
             TextUnit : null
         },
         demos : {
+            impl : {
 
+            }
+        },
+        learn : {
+            impl : {
+
+            }
         },
         tools : {
             ShaderTools : null

@@ -52,15 +52,7 @@ var APPG = {
     dom : null,
     functions : null,
     shaders : {
-        shaderTools : new KSX.apps.tools.ShaderTools(),
-        functions : {
-            loadShader: function () {
-                console.log("Currently no shaders are used.");
-            },
-            updateShader: function () {
-                console.log("Currently no shaders are used.");
-            }
-        }
+        shaderTools : new KSX.apps.tools.ShaderTools()
     },
     renderer : null,
     scenes : null,

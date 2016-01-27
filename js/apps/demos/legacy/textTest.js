@@ -29,7 +29,6 @@ $(window).resize(function() {
  * Life-cycle functions
  */
 function initShaders() {
-    APPG.shaders.functions.loadShader();
 }
 
 function initPreGL() {

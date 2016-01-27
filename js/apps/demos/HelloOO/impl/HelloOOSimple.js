@@ -16,7 +16,7 @@ KSX.apps.demos.HelloOOSimple = (function () {
     HelloOOSimple.prototype.initAsyncContent = function() {
         console.log("HelloOOSimple.initAsyncContent is not required!");
         this.sceneApp.initSynchronuous();
-    }
+    };
 
     HelloOOSimple.prototype.initGL = function () {
         this.sceneApp.scene.add(this.mesh);
