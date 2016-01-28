@@ -53,6 +53,10 @@ KSX.apps.core.SceneAppPerspective = (function () {
         if (this.verbose) {
             console.log("SceneAppPerspective (" + this.name + "): resizeDisplayGL");
         }
+        if (typeof this.user.resizeDisplayGL == "function") {
+            this.user.resizeDisplayGL();
+        }
+
         this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
     };
 
@@ -76,6 +80,26 @@ KSX.apps.core.SceneAppPerspective = (function () {
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
         this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
+    };
+
+    SceneAppPerspective.prototype.getScene = function () {
+      return this.scene;
+    };
+
+    SceneAppPerspective.prototype.getRenderer = function () {
+        return this.renderer;
+    };
+
+    SceneAppPerspective.prototype.getCanvas = function () {
+        return this.canvas;
+    };
+
+    SceneAppPerspective.prototype.getCamera = function () {
+        return this.camera;
+    };
+
+    SceneAppPerspective.prototype.getCameraTarget = function () {
+        return this.cameraTarget;
     };
 
     return SceneAppPerspective;
