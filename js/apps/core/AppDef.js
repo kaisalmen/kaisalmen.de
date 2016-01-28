@@ -21,6 +21,11 @@ var KSX = {
 
             }
         },
+        zerosouth : {
+            impl : {
+
+            }
+        },
         tools : {
             ShaderTools : null
         }
