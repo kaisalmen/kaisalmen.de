@@ -36,7 +36,7 @@ self.addEventListener('message', function(e) {
 
             APPL.loaders.obj.objMtlLoader.init(WWOBJ.obj);
 
-            ObjectEx
+            //ObjectEx
             //WWOBJ.mtlLoader.parse(WWOBJ.mtl);
             //WWOBJ.OBJMTLLoader.init(WWOBJ.obj);
             //WWOBJ.loaderRef.functions.logEnd("MTL loader completed: ");

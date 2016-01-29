@@ -89,8 +89,8 @@ ATR.text.lengthLimit = 50;
 
 $(document).ready(
     $.when(
-        APPG.shaders.shaderTools.loadShader("../resource/shader/passThrough.glsl"),
-        APPG.shaders.shaderTools.loadShader("../resource/shader/overlayEffectTextureEffect.glsl")
+        APPG.shaders.shaderTools.loadShader("../../resource/shader/passThrough.glsl"),
+        APPG.shaders.shaderTools.loadShader("../../resource/shader/overlayEffectTextureEffect.glsl")
     ).done(
         function(vert, frag) {
             APPG.shaders.shaderFlicker.vertexShaderText = vert[0];

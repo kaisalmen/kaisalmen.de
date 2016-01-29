@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/html">
+    <head>
+        <title>Kai Salmen's WebGL Playground (V2.1)</title>
+        <meta name="CREATOR" content="Kai Salmen">
+        <meta name="AUTHOR" content="Kai Salmen">
+    </head>
+    <body>
+        <script src="../../js/lib/ext/three.js"></script>
+        <script src="../../js/lib/ext/three.min.js"></script>
+        <script src="../../js/lib/ext/legacy/FontUtils.js"></script>
+        <script src="../../js/lib/ext/legacy/TextGeometry.js"></script>
+        <script src="../../js/lib/ext/jquery.min.js"></script>
+        <script src="../../js/lib/ext/collections.min.js"></script>
+        <script src="../../js/lib/ext/dat.gui.js"></script>
+        <script src="../../js/lib/ext/dat.gui.min.js"></script>
+        <script src="../../js/lib/ext/Detector.js"></script>
+        <script src="../../js/lib/mod/TrackballControls.js"></script>
+
+        <script src="../../resource/fonts/ubuntu_mono_regular.typeface.js"></script>
+        <link href="../../resource/css/kaiAppStyles.css" type="text/css" rel="stylesheet">
+
+        <script src="../../js/apps/core/AppDef.js"></script>
+        <script src="../../js/apps/core/AppLifecycle.js"></script>
+        <script src="../../js/apps/core/Canvas.js"></script>
+        <script src="../../js/apps/core/SceneAppPerspective.js"></script>
+        <script src="../../js/apps/core/Text2d.js"></script>
+        <script src="../../js/apps/core/TextUnit.js"></script>
+        <script src="../../js/apps/tools/ShaderTools.js"></script>
+        <script src="../../js/AppBase.js"></script>
+        <script src="../../js/TextRendering.js"></script>
+
+        <script>if ( ! Detector.webgl ) Detector.addGetWebGLMessage();</script>
+
+        <div id="AppRoot">
+            <div id="AppFloat"></div>
+            <div id="AppTextIndex">Welcome to Kai Salmen's WebGL Playground (V2.1). Lighting the magnificent void!</div>
+            <div id="AppWebGL"></div>
+            <div id="AppThreejsFooter">
+                This is a spare time activity. The aim is to write well-structured and easily maintainable Javascript code from the beginning.
+                </br>The content is mostly realized in Javascript with substantial help of
+                <a href="http://threejs.org/">three.js</a> and
+                <a href="http://jquery.com/">jQuery</a>,
+                <a href="http://collectionsjs.com/">collections.js</a>,
+                <a href="http://stuk.github.io/jszip/">jszip.js</a>, etc...
+                </br></br>Recommended Reads:
+                </br><a href="http://javascript.crockford.com">JavaScript: The Good Parts</a> by Douglas Crockford
+                </br><a href="https://github.com/tparisi/WebGLBook">WebGL Up and Running</a> by Tony Parisi
+            </div>
+        </div>
+    </body>
+</html>
