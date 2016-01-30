@@ -40,7 +40,9 @@ var KSX = {
             }
         },
         tools : {
-            ShaderTools : null
+            ShaderTools : null,
+            TextureTools : null,
+            ObjLoadingTools : null
         }
     }
 }

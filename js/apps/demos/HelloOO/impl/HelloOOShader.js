@@ -9,6 +9,7 @@ KSX.apps.demos.HelloOOShader = (function () {
     function HelloOOShader(elementToBindTo) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOShader", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
+        this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
         this.fragmentShaderText = null;
         this.uniforms = {
@@ -32,7 +33,7 @@ KSX.apps.demos.HelloOOShader = (function () {
     };
 
     HelloOOShader.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02_pot.jpg");
+        this.uniforms.texture1.value = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({

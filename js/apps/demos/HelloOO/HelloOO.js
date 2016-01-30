@@ -6,12 +6,10 @@
 
 KSX.apps.demos.HelloOO = {
     glob : {
-        appLifecycle : null,
+        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle")
     },
     func : {
         init : function () {
-            KSX.apps.demos.HelloOO.glob.appLifecycle = new KSX.apps.core.AppLifecycle("App Lifecycle");
-
             var impl = new KSX.apps.demos.ImageBasedGeometryTransform(document.getElementById("DivGLFullCanvas"));
             KSX.apps.demos.HelloOO.glob.appLifecycle.addSceneApp(impl.sceneApp);
 
@@ -23,7 +21,7 @@ KSX.apps.demos.HelloOO = {
             KSX.apps.demos.HelloOO.glob.appLifecycle.renderAllApps();
         }
     }
-}
+};
 
 $(window).resize(function () {
     KSX.apps.demos.HelloOO.glob.appLifecycle.resizeAll();

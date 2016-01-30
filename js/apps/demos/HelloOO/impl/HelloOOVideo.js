@@ -9,6 +9,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
     function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
+        this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
         this.fragmentShaderText = null;
         this.uniforms = {
@@ -36,7 +37,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
     }
 
     HelloOOVideo.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02_pot.jpg");
+        this.uniforms.texture1.value = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
 
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 1080;

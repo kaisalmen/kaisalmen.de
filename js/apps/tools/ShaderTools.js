@@ -36,21 +36,5 @@ KSX.apps.tools.ShaderTools = (function () {
         return hexToRGB(hexInput, floatUVSpace);
     };
 
-    ShaderTools.prototype.loadTexture = function (imageUrl) {
-        var textureLoader = new THREE.TextureLoader();
-
-        return textureLoader.load(imageUrl,
-            function (texture) {
-                console.log("Loading of texture was completed successfully!");
-            },
-            function (xhr) {
-                console.log((xhr.loaded / xhr.total * 100) + "% loaded");
-            },
-            function (xhr) {
-                console.log("An error occurred!");
-            }
-        )
-    };
-
     return ShaderTools;
 })();

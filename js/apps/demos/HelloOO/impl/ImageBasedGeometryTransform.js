@@ -9,6 +9,7 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
     function ImageBasedGeometryTransform(elementToBindTo) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "ImageBasedGeometryTransform", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
+        this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
         this.fragmentShaderText = null;
         this.uniforms = {
@@ -32,7 +33,7 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
     };
 
     ImageBasedGeometryTransform.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.shaderTools.loadTexture("../../resource/images/house02_pot.jpg");
+        this.uniforms.texture1.value = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = new THREE.ShaderMaterial({

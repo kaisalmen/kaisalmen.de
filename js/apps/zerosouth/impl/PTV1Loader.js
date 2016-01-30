@@ -9,6 +9,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     function PTV1Loader(elementToBindTo) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "PTV1Loader", elementToBindTo, true);
         this.controls = new THREE.TrackballControls(this.sceneApp.getCamera());
+        this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -46,28 +47,13 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         directionalLight2.position.set(1000, 1000, -1000);
         scene.add(directionalLight2);
 
-        var manager = new THREE.LoadingManager();
-        manager.onProgress = function (item, loaded, total) {
-            console.log(item, loaded, total);
-        };
-
-        var loader = new THREE.OBJLoader(manager);
-        var onProgress = function (xhr) {
-            if (xhr.lengthComputable) {
-                var percentComplete = xhr.loaded / xhr.total * 100;
-                console.log(Math.round(percentComplete, 2) + '% downloaded');
-            }
-        };
-
-        var onError = function ( xhr ) {
-        };
-
         var scene = this.sceneApp.getScene();
-        loader.load('../../resource/models/PTV1.obj', function (object) {
-        //loader.load('../../resource/models/snowtracks.obj', function (object) {
+        var loadingScene = function (object) {
+            //loader.load('../../resource/models/snowtracks.obj', function (object) {
             //object.scale.set(0.01, 0.01, 0.01);
-            scene.add( object );
-        }, onProgress, onError );
+            scene.add(object);
+        };
+        this.objectLoadingTools.loadObject('../../resource/models/PTV1.obj', loadingScene);
     };
 
     PTV1Loader.prototype.render = function() {
