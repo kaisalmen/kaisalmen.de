@@ -9,6 +9,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     function PTV1Loader(elementToBindTo) {
         this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "PTV1Loader", elementToBindTo, true);
         this.controls = new THREE.TrackballControls(this.sceneApp.getCamera());
+        this.useZip = false;
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
     }
 
@@ -47,13 +48,22 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         directionalLight2.position.set(1000, 1000, -1000);
         scene.add(directionalLight2);
 
-        var scene = this.sceneApp.getScene();
-        var loadingScene = function (object) {
-            //loader.load('../../resource/models/snowtracks.obj', function (object) {
-            //object.scale.set(0.01, 0.01, 0.01);
-            scene.add(object);
-        };
-        this.objectLoadingTools.loadObject('../../resource/models/PTV1.obj', loadingScene);
+        var scope = this;
+        if (this.useZip) {
+            var zipTools = new KSX.apps.tools.ZipTools();
+
+            var loadCallbackZip = function () {
+                var rootGroup = scope.objectLoadingTools.parse(zipTools.loadSingle("PTV1.obj"));
+                scene.add(rootGroup);
+            };
+            zipTools.loadBinaryData("../../resource/models/PTV1.zip", loadCallbackZip);
+        }
+        else {
+            var loadCallbackDirect = function (rootGroup) {
+                scene.add(rootGroup);
+            };
+            this.objectLoadingTools.loadObject("../../resource/models/PTV1.obj", loadCallbackDirect);
+        }
     };
 
     PTV1Loader.prototype.render = function() {

@@ -19,15 +19,16 @@ KSX.apps.demos.HelloOOShader = (function () {
         };
     }
 
-    HelloOOShader.prototype.initAsyncContent = function(refToMyself) {
+    HelloOOShader.prototype.initAsyncContent = function() {
+        var scope = this;
         $.when(
             this.shaderTools.loadShader("../../resource/shader/passThrough.glsl", true, "VS: Pass Through"),
             this.shaderTools.loadShader("../../resource/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture")
         ).done(
             function(vert, frag) {
-                refToMyself.vertexShaderText = vert[0];
-                refToMyself.fragmentShaderText = frag[0];
-                refToMyself.sceneApp.initSynchronuous();
+                scope.vertexShaderText = vert[0];
+                scope.fragmentShaderText = frag[0];
+                scope.sceneApp.initSynchronuous();
             }
         );
     };

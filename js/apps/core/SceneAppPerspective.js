@@ -28,7 +28,7 @@ KSX.apps.core.SceneAppPerspective = (function () {
 
     SceneAppPerspective.prototype.initAsync = function () {
         console.log("SceneAppPerspective (" + this.name + "): initAsyncContent");
-        this.user.initAsyncContent(this.user);
+        this.user.initAsyncContent();
     };
 
     SceneAppPerspective.prototype.initSynchronuous = function () {

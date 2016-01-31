@@ -36,5 +36,9 @@ KSX.apps.tools.ObjLoadingTools = (function () {
         this.loader.load(objUrl, loadFunction, onProgress, onError);
     };
 
+    ObjLoadingTools.prototype.parse = function (dataAsText) {
+        return this.loader.parse(dataAsText);
+    };
+
     return ObjLoadingTools;
 })();
