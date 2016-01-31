@@ -32,6 +32,11 @@ var KSX = {
         learn : {
             impl : {
 
+            },
+            worker : {
+                impl : {
+
+                }
             }
         },
         zerosouth : {
