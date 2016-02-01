@@ -5,17 +5,14 @@
     <title>HelloOO: Single renderer</title>
 </head>
 <body>
-    <link href="../../resource/css/tsWebGL.css" type="text/css" rel="stylesheet"/>
-    <link href="../../resource/css/HelloThreejs.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
 
-    <div id="master">
-        <div id="DivGLFull">
-            <canvas id="DivGLFullCanvas"></canvas>
-            <video id="DivGLFullVideo" autoplay loop muted controls>
-                <source src="../../resource/video/avatar_1080p.mp4" type='video/mp4'>
-            </video>
-            <canvas id="DivGLFullVideoBuffer"></canvas>
-        </div>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+        <video id="DivGLFullVideo" autoplay loop muted controls>
+            <source src="../../resource/video/avatar_1080p.mp4" type='video/mp4'>
+        </video>
+        <canvas id="DivGLFullVideoBuffer"></canvas>
     </div>
     <script src="../../js/lib/ext/three.js"></script>
     <script src="../../js/lib/ext/jquery.min.js"></script>
