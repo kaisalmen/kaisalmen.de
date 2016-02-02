@@ -15,7 +15,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileZip = "PTV1.zip";
         this.fileMtl = "PTV1.mtl";
 
-        this.loadDirectly = false;
+        this.loadDirectly = true;
         this.zipTools = new KSX.apps.tools.ZipTools();
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
 
@@ -66,37 +66,32 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.helper.setColors(0xFF4444, 0xB0B0B0);
         scene.add(this.helper);
 
+        this.loadObj();
+    };
+
+    PTV1Loader.prototype.loadObj = function() {
+        var scope = this;
+        var adjustScene = function(rootGroup) {
+            rootGroup.position.y = 20;
+            rootGroup.position.z = 250;
+            scope.sceneApp.getScene().add(rootGroup);
+        };
+
         if (this.loadDirectly) {
-            this.loadObjDirectly();
+            var callbackMtl = function (materials) {
+                scope.objectLoadingTools.loadObject(scope.pathToObj, scope.fileObj, materials, adjustScene);
+            };
+            this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
         }
         else {
-            this.loadFromZip();
+            var loadCallbackZip = function () {
+                var dataAsTextObj = scope.zipTools.unzipFile(scope.fileObj);
+                var dataAsTextMtl = scope.zipTools.unzipFile(scope.fileMtl);
+                var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
+                adjustScene(rootGroup);
+            };
+            this.zipTools.loadBinaryData(this.pathToObj + this.fileZip, loadCallbackZip);
         }
-    };
-
-    PTV1Loader.prototype.loadObjDirectly = function() {
-        var scope = this;
-        var callbackMtl = function (materials) {
-            scope.objectLoadingTools.loadObject(scope.pathToObj, scope.fileObj, materials, scope.adjustScene);
-        };
-        this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
-    };
-
-    PTV1Loader.prototype.loadFromZip = function() {
-        var scope = this;
-        var loadCallbackZip = function () {
-            var dataAsTextObj = scope.zipTools.unzipFile(scope.fileObj);
-            var dataAsTextMtl = scope.zipTools.unzipFile(scope.fileMtl);
-            var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
-            scope.adjustScene(rootGroup);
-        };
-        this.zipTools.loadBinaryData(this.pathToObj + this.fileZip, loadCallbackZip);
-    };
-
-    PTV1Loader.prototype.adjustScene = function(rootGroup) {
-        rootGroup.position.y = 20;
-        rootGroup.position.z = 250;
-        this.sceneApp.getScene().add(rootGroup);
     };
 
     PTV1Loader.prototype.render = function() {
