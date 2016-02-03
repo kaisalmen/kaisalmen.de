@@ -4,15 +4,6 @@
  * Web Worker for async obj loading
  */
 
-var WWOBJ = {
-    obj: null,
-    objName: null,
-    mtl: null,
-    mtlName: null,
-    mtlLoader: null,
-    objMtlLoader: null,
-    materialCreator: null
-}
 self.addEventListener('message', function(e) {
     var data = e.data;
     switch (data.cmd) {
@@ -32,5 +23,6 @@ self.addEventListener('message', function(e) {
             break;
         default:
             self.postMessage({"msg" : "Unknown command: " + data.msg});
+            break;
     };
 }, false);

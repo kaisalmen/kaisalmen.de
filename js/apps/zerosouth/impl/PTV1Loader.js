@@ -15,11 +15,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileZip = "PTV1.zip";
         this.fileMtl = "PTV1.mtl";
 
-        this.loadDirectly = true;
+        this.loadDirectly = false;
         this.zipTools = new KSX.apps.tools.ZipTools();
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
 
         this.helper = null;
+        this.worker = null;
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -39,7 +40,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         camera.position.z = 350;
 
         this.controls.rotateSpeed = 0.5;
-        this.controls.zoomSpeed = 0.5;
+        this.controls.zoomSpeed = 1.0;
         this.controls.panSpeed = 0.8;
 
         this.controls.noZoom = false;
@@ -84,11 +85,85 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
         }
         else {
-            var loadCallbackZip = function () {
-                var dataAsTextObj = scope.zipTools.unzipFile(scope.fileObj);
-                var dataAsTextMtl = scope.zipTools.unzipFile(scope.fileMtl);
-                var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
-                adjustScene(rootGroup);
+            var loadCallbackZip = function (binaryData) {
+                scope.worker = new Worker("../../js/apps/tools/webWorker/WWUnzip.js");
+
+                var unzipper = function (e) {
+                    var arrayBuffer = e.data;
+                    console.log(arrayBuffer.length);
+                }
+                scope.worker.addEventListener("message", unzipper, false);
+
+                scope.worker.postMessage(binaryData, [binaryData]);
+
+                //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
+                //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
+
+//                var sendUuint8Array = new TextEncoder(document.characterSet.toLowerCase()).encode(dataAsTextObj);
+//                var sendArrayBuffer = sendUuint8Array.buffer;
+
+                scope.worker = new Worker("../../js/apps/tools/webWorker/WWObjParser.js");
+                var objReceptor = function (e) {
+                    var arrayBuffer = e.data;
+                    var decoder = new TextDecoder("utf-8");
+                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
+                    var objectAsString = decoder.decode(view);
+                    var objects = JSON.parse(objectAsString);
+
+                    console.log("Received object back from worker.");
+
+                    var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
+
+                    console.time("Brute Force");
+                    var container = new THREE.Group();
+                    var object = null;
+                    for ( var i = 0, l = objects.length; i < l; i ++ ) {
+                        object = objects[ i ];
+                        var geometry = object.geometry;
+                        var buffergeometry = new THREE.BufferGeometry();
+
+                        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
+
+                        if ( geometry.normals.length > 0 ) {
+                            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
+                        }
+                        else {
+                            buffergeometry.computeVertexNormals();
+                        }
+
+                        if ( geometry.uvs.length > 0 ) {
+                            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
+                        }
+
+                        var material;
+                        if (materials !== null ) {
+                            material = materials.create( object.material.name );
+                        }
+
+                        if ( !material ) {
+                            material = new THREE.MeshPhongMaterial();
+                            material.name = object.material.name;
+                        }
+
+                        material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
+
+                        var mesh = new THREE.Mesh( buffergeometry, material );
+                        mesh.name = object.name;
+
+                        container.add( mesh );
+                    }
+                    console.timeEnd("Brute Force");
+
+                    adjustScene(container);
+                };
+                scope.worker.addEventListener("message", objReceptor, false);
+
+                //scope.worker.postMessage(sendArrayBuffer, [sendArrayBuffer]);
+                scope.worker.postMessage(binaryData, [binaryData]);
+
+
+                //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
+                //adjustScene(rootGroup);
             };
             this.zipTools.loadBinaryData(this.pathToObj + this.fileZip, loadCallbackZip);
         }

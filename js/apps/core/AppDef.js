@@ -32,6 +32,9 @@ var KSX = {
             }
         },
         tools : {
+            webworker : {
+
+            },
             ShaderTools : null,
             TextureTools : null,
             ObjLoadingTools : null

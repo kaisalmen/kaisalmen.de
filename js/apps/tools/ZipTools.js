@@ -7,14 +7,14 @@
 KSX.apps.tools.ZipTools = (function () {
 
     function ZipTools() {
-        this.zip = null;
         this.hasData = false;
     }
 
-    ZipTools.prototype.unzipFile = function (filename) {
+    ZipTools.prototype.unzipFile = function (binaryData, filename) {
         console.time("unzipFile");
-        var file = this.zip.file(filename);
-        var dataAsText = this.zip.file(file.name).asBinary();
+        var zip = new JSZip(binaryData);
+        var file = zip.file(filename);
+        var dataAsText = zip.file(file.name).asBinary();
         console.timeEnd("unzipFile");
         return dataAsText;
     };
@@ -45,10 +45,10 @@ KSX.apps.tools.ZipTools = (function () {
                 }
                 else {
                     console.log("Retrieved binary data of zip file: " + zipFile);
-                    scope.zip = new JSZip(binaryData);
+
                     scope.hasData = true;
                     console.timeEnd("getBinaryContent");
-                    loadCallback();
+                    loadCallback(binaryData);
                 }
             }
         );
