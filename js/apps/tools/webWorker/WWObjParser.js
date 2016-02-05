@@ -12,7 +12,7 @@ var wwParseObj = function (e) {
     var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
     var text = decoder.decode(view);
 
-    console.time('WWObjParser');
+    console.time("Worker Obj: Parsing");
 
     var objects = [];
     var object;
@@ -310,14 +310,18 @@ var wwParseObj = function (e) {
         }
     }
 
-    console.timeEnd('WWObjParser');
-    console.log("Worker ObjParser:parse completed");
+    console.timeEnd("Worker Obj: Parsing");
 
+    console.time("Worker Obj: Objects encode");
     var objectsAsString = JSON.stringify(objects);
-    var outputUint8Array = new TextEncoder("utf-8").encode(objectsAsString);
-    var outputArrayBuffer = outputUint8Array.buffer;
 
-    self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
+//    var outputUint8Array = new TextEncoder("utf-8").encode(objectsAsString);
+  //  var outputArrayBuffer = outputUint8Array.buffer;
+
+    console.timeEnd("Worker Obj: Objects encode");
+
+    //self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
+    self.postMessage(JSON.stringify(objectsAsString));
 };
 
 self.addEventListener('message', wwParseObj, false);

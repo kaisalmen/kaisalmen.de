@@ -15,12 +15,11 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileZip = "PTV1.zip";
         this.fileMtl = "PTV1.mtl";
 
-        this.loadDirectly = false;
+        this.loadDirectly = true;
         this.zipTools = new KSX.apps.tools.ZipTools();
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
 
         this.helper = null;
-        this.worker = null;
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -76,6 +75,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             rootGroup.position.y = 20;
             rootGroup.position.z = 250;
             scope.sceneApp.getScene().add(rootGroup);
+
+            var exportRoot = rootGroup.toJSON();
+            var exportString = JSON.stringify(exportRoot);
+            console.log(exportString.length);
+            var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
+            saveAs(blob, "data.json");
         };
 
         if (this.loadDirectly) {
@@ -83,36 +88,24 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 scope.objectLoadingTools.loadObject(scope.pathToObj, scope.fileObj, materials, adjustScene);
             };
             this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
+
         }
         else {
             var loadCallbackZip = function (binaryData) {
-                scope.worker = new Worker("../../js/apps/tools/webWorker/WWUnzip.js");
-
-                var unzipper = function (e) {
-                    var arrayBuffer = e.data;
-                    console.log(arrayBuffer.length);
-                }
-                scope.worker.addEventListener("message", unzipper, false);
-
-                scope.worker.postMessage(binaryData, [binaryData]);
-
-                //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
-                //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
-
-//                var sendUuint8Array = new TextEncoder(document.characterSet.toLowerCase()).encode(dataAsTextObj);
-//                var sendArrayBuffer = sendUuint8Array.buffer;
-
-                scope.worker = new Worker("../../js/apps/tools/webWorker/WWObjParser.js");
+                var workerObj = new Worker("../../js/apps/tools/webWorker/WWObjParser.js");
                 var objReceptor = function (e) {
-                    var arrayBuffer = e.data;
-                    var decoder = new TextDecoder("utf-8");
-                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
-                    var objectAsString = decoder.decode(view);
+//                    var arrayBuffer = e.data;
+
+                    console.time("Main: Objects decode");
+//                    var decoder = new TextDecoder("utf-8");
+//                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
+//                    var objectAsString = decoder.decode(view);
+                    var objectAsString = e.data;
                     var objects = JSON.parse(objectAsString);
 
-                    console.log("Received object back from worker.");
+                    console.timeEnd("Main: Objects decode");
 
-                    var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
+                    //var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
 
                     console.time("Brute Force");
                     var container = new THREE.Group();
@@ -156,11 +149,23 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
                     adjustScene(container);
                 };
-                scope.worker.addEventListener("message", objReceptor, false);
+                workerObj.addEventListener("message", objReceptor, false);
 
-                //scope.worker.postMessage(sendArrayBuffer, [sendArrayBuffer]);
-                scope.worker.postMessage(binaryData, [binaryData]);
+                var workerZip = new Worker("../../js/apps/tools/webWorker/WWUnzip.js");
+                var unzipper = function (e) {
+                    var arrayBuffer = e.data;
+                    workerObj.postMessage(arrayBuffer, [arrayBuffer]);
+                }
+                workerZip.addEventListener("message", unzipper, false);
 
+                workerZip.postMessage({"filename": "PTV1.obj"});
+                workerZip.postMessage(binaryData, [binaryData]);
+
+                //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
+                //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
+
+//                var sendUuint8Array = new TextEncoder(document.characterSet.toLowerCase()).encode(dataAsTextObj);
+//                var sendArrayBuffer = sendUuint8Array.buffer;
 
                 //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
                 //adjustScene(rootGroup);
