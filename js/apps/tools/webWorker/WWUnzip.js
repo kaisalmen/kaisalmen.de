@@ -9,7 +9,6 @@ var filename = "";
 var wwParseObj = function (e) {
 
     importScripts("../../../lib/ext/jszip.js");
-    importScripts("../../../lib/ext/three.js");
 
     var payload = e.data;
     if (payload.filename) {

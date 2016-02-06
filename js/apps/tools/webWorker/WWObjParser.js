@@ -6,6 +6,8 @@
 
 var wwParseObj = function (e) {
 
+    importScripts("../../../lib/ext/three.js");
+
     var inputArrayBuffer = e.data;
 
     var decoder = new TextDecoder("utf-8");
@@ -311,17 +313,62 @@ var wwParseObj = function (e) {
     }
 
     console.timeEnd("Worker Obj: Parsing");
+    //var i = 0;
 
-    console.time("Worker Obj: Objects encode");
-    var objectsAsString = JSON.stringify(objects);
+//    var container = new THREE.Group();
+    for ( var i = 0, l = objects.length; i < l; i ++ ) {
+
+//        self.postMessage({"cmd": "new"});
+        console.time("Worker Obj: BufferGeometry building");
+        object = objects[ i ];
+        var geometry = object.geometry;
+
+        var buffergeometry = new THREE.BufferGeometry();
+
+        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
+
+        if ( geometry.normals.length > 0 ) {
+            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
+        }
+        else {
+            buffergeometry.computeVertexNormals();
+        }
+
+        if ( geometry.uvs.length > 0 ) {
+            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
+        }
+        console.timeEnd("Worker Obj: BufferGeometry building");
+/*
+        var material;
+        if ( this.materials !== null ) {
+            material = this.materials.create( object.material.name );
+        }
+
+        if ( !material ) {
+            material = new THREE.MeshPhongMaterial();
+            material.name = object.material.name;
+        }
+
+        material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
+
+        var mesh = new THREE.Mesh( buffergeometry, material );
+        mesh.name = object.name;
+
+        container.add( mesh );
+*/
+        self.postMessage({json: buffergeometry.toJSON()});
+    }
+
+//    console.time("Worker Obj: Objects encode");
+//    var objectsAsString = JSON.stringify(objects);
 
 //    var outputUint8Array = new TextEncoder("utf-8").encode(objectsAsString);
   //  var outputArrayBuffer = outputUint8Array.buffer;
 
-    console.timeEnd("Worker Obj: Objects encode");
+//    console.timeEnd("Worker Obj: Objects encode");
 
     //self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
-    self.postMessage(JSON.stringify(objectsAsString));
+
 };
 
 self.addEventListener('message', wwParseObj, false);

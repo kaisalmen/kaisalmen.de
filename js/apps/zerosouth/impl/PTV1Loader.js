@@ -15,11 +15,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileZip = "PTV1.zip";
         this.fileMtl = "PTV1.mtl";
 
-        this.loadDirectly = true;
+        this.loadDirectly = false;
         this.zipTools = new KSX.apps.tools.ZipTools();
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
 
         this.helper = null;
+        this.objGroup = null;
+
+        this.faceCount = 0;
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -75,12 +78,13 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             rootGroup.position.y = 20;
             rootGroup.position.z = 250;
             scope.sceneApp.getScene().add(rootGroup);
-
+/*
             var exportRoot = rootGroup.toJSON();
             var exportString = JSON.stringify(exportRoot);
             console.log(exportString.length);
             var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
             saveAs(blob, "data.json");
+*/
         };
 
         if (this.loadDirectly) {
@@ -91,74 +95,44 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         }
         else {
+            this.objGroup = new THREE.Group();
+            this.objGroup.position.y = 20;
+            this.objGroup.position.z = 250;
+            scope.sceneApp.getScene().add(this.objGroup);
+
+            var defaultMaterial = new THREE.MeshPhongMaterial();
+
             var loadCallbackZip = function (binaryData) {
-                var workerObj = new Worker("../../js/apps/tools/webWorker/WWObjParser.js");
+                var workerObj = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
+
                 var objReceptor = function (e) {
-//                    var arrayBuffer = e.data;
+//                    console.time("Main: BufferGeometry decode");
 
-                    console.time("Main: Objects decode");
-//                    var decoder = new TextDecoder("utf-8");
-//                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
-//                    var objectAsString = decoder.decode(view);
-                    var objectAsString = e.data;
-                    var objects = JSON.parse(objectAsString);
-
-                    console.timeEnd("Main: Objects decode");
+                    var bufferGeometryLoader = new THREE.BufferGeometryLoader();
+                    var bufferGeometryJson = e.data;
+                    var bufferGeometry = bufferGeometryLoader.parse(bufferGeometryJson.json);
 
                     //var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
 
-                    console.time("Brute Force");
-                    var container = new THREE.Group();
-                    var object = null;
-                    for ( var i = 0, l = objects.length; i < l; i ++ ) {
-                        object = objects[ i ];
-                        var geometry = object.geometry;
-                        var buffergeometry = new THREE.BufferGeometry();
+//                    console.time("Main: Add BufferGeometry");
+                    scope.faceCount += bufferGeometry.getAttribute("position").count;
+                    var mesh = new THREE.Mesh(bufferGeometry, defaultMaterial);
+                    scope.objGroup.add(mesh);
+//                    console.timeEnd("Main: Add BufferGeometry");
 
-                        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
-
-                        if ( geometry.normals.length > 0 ) {
-                            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
-                        }
-                        else {
-                            buffergeometry.computeVertexNormals();
-                        }
-
-                        if ( geometry.uvs.length > 0 ) {
-                            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
-                        }
-
-                        var material;
-                        if (materials !== null ) {
-                            material = materials.create( object.material.name );
-                        }
-
-                        if ( !material ) {
-                            material = new THREE.MeshPhongMaterial();
-                            material.name = object.material.name;
-                        }
-
-                        material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-                        var mesh = new THREE.Mesh( buffergeometry, material );
-                        mesh.name = object.name;
-
-                        container.add( mesh );
-                    }
-                    console.timeEnd("Brute Force");
-
-                    adjustScene(container);
+//                    console.timeEnd("Main: BufferGeometry decode");
+//                    console.log("Total Faces: " + scope.faceCount);
                 };
                 workerObj.addEventListener("message", objReceptor, false);
 
-                var workerZip = new Worker("../../js/apps/tools/webWorker/WWUnzip.js");
+                var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
                 var unzipper = function (e) {
                     var arrayBuffer = e.data;
                     workerObj.postMessage(arrayBuffer, [arrayBuffer]);
                 }
                 workerZip.addEventListener("message", unzipper, false);
 
-                workerZip.postMessage({"filename": "PTV1.obj"});
+                workerZip.postMessage({"filename": scope.fileObj});
                 workerZip.postMessage(binaryData, [binaryData]);
 
                 //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
