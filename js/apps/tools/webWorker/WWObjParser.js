@@ -319,25 +319,44 @@ var wwParseObj = function (e) {
     for ( var i = 0, l = objects.length; i < l; i ++ ) {
 
 //        self.postMessage({"cmd": "new"});
-        console.time("Worker Obj: BufferGeometry building");
+//        console.time("Worker Obj: BufferGeometry building");
         object = objects[ i ];
         var geometry = object.geometry;
 
-        var buffergeometry = new THREE.BufferGeometry();
+        // init
+//        var buffergeometry = new THREE.BufferGeometry();
+        var transferableObject = null;
+        self.postMessage({"cmd": "reset"});
 
-        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
+
+        self.postMessage({"cmd": "position"});
+        transferableObject = new Float32Array(geometry.vertices);
+        self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
 
         if ( geometry.normals.length > 0 ) {
-            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
+            self.postMessage({"cmd": "normal"});
+            transferableObject = new Float32Array(geometry.normals);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
         }
         else {
-            buffergeometry.computeVertexNormals();
+            console.log("Warning no normals have been defined.");
+//            buffergeometry.computeVertexNormals();
         }
 
         if ( geometry.uvs.length > 0 ) {
-            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
+            self.postMessage({"cmd": "uv"});
+            transferableObject = new Float32Array(geometry.uvs);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
         }
-        console.timeEnd("Worker Obj: BufferGeometry building");
+
+        self.postMessage({"cmd": "ready"});
+//        console.timeEnd("Worker Obj: BufferGeometry building");
 /*
         var material;
         if ( this.materials !== null ) {
@@ -356,7 +375,7 @@ var wwParseObj = function (e) {
 
         container.add( mesh );
 */
-        self.postMessage({json: buffergeometry.toJSON()});
+        //self.postMessage({json: buffergeometry.toJSON()});
     }
 
 //    console.time("Worker Obj: Objects encode");

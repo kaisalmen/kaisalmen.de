@@ -102,24 +102,66 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
             var defaultMaterial = new THREE.MeshPhongMaterial();
 
+            var geoStruct = {
+                current : "reset",
+                bufferGeometry : new THREE.BufferGeometry(),
+                material : null,
+                reset : function () {
+                    geoStruct.current = "reset";
+                    geoStruct.bufferGeometry = new THREE.BufferGeometry();
+                }
+            };
+
             var loadCallbackZip = function (binaryData) {
                 var workerObj = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
 
                 var objReceptor = function (e) {
-//                    console.time("Main: BufferGeometry decode");
-
-                    var bufferGeometryLoader = new THREE.BufferGeometryLoader();
-                    var bufferGeometryJson = e.data;
-                    var bufferGeometry = bufferGeometryLoader.parse(bufferGeometryJson.json);
-
                     //var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
 
-//                    console.time("Main: Add BufferGeometry");
-                    scope.faceCount += bufferGeometry.getAttribute("position").count;
-                    var mesh = new THREE.Mesh(bufferGeometry, defaultMaterial);
-                    scope.objGroup.add(mesh);
-//                    console.timeEnd("Main: Add BufferGeometry");
+//                    console.time("Main: BufferGeometry decode");
 
+                    var payload = e.data;
+                    if (payload.cmd != null) {
+                        switch (payload.cmd) {
+                            case "reset":
+                                geoStruct.reset();
+                                break;
+                            case "position":
+                                geoStruct.current = "position";
+                                break;
+                            case "normal":
+                                geoStruct.current = "normal";
+                                break;
+                            case "uv":
+                                geoStruct.current = "uv";
+                                break;
+                            case "ready":
+                                geoStruct.current = "ready";
+//                                console.time("Main: Add BufferGeometry");
+                                scope.faceCount += geoStruct.bufferGeometry.getAttribute("position").count;
+                                var mesh = new THREE.Mesh(geoStruct.bufferGeometry, defaultMaterial);
+                                scope.objGroup.add(mesh);
+//                                console.timeEnd("Main: Add BufferGeometry");
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                    else {
+                        switch (geoStruct.current) {
+                            case "position":
+                                geoStruct.bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload), 3));
+                                break;
+                            case "normal":
+                                geoStruct.bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload), 3));
+                                break;
+                            case "uv":
+                                geoStruct.bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload), 2));
+                                break;
+                            default:
+                                break;
+                        }
+                    }
 //                    console.timeEnd("Main: BufferGeometry decode");
 //                    console.log("Total Faces: " + scope.faceCount);
                 };
