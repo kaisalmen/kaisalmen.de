@@ -191,7 +191,64 @@ var wwParseObj = function (e) {
 
     var smoothing_pattern = /^s\s+(\d+|on|off)/;
 
-    //
+
+    var sentObject = function (object) {
+//        console.time("Worker Obj: BufferGeometry building");
+        var geometry = object.geometry;
+
+        // init
+//        var buffergeometry = new THREE.BufferGeometry();
+        var transferableObject = null;
+        self.postMessage({"cmd": "reset"});
+
+
+        self.postMessage({"cmd": "position"});
+        transferableObject = new Float32Array(geometry.vertices);
+        self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
+
+        if ( geometry.normals.length > 0 ) {
+            self.postMessage({"cmd": "normal"});
+            transferableObject = new Float32Array(geometry.normals);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
+        }
+        else {
+            console.log("Warning no normals have been defined.");
+//            buffergeometry.computeVertexNormals();
+        }
+
+        if ( geometry.uvs.length > 0 ) {
+            self.postMessage({"cmd": "uv"});
+            transferableObject = new Float32Array(geometry.uvs);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+
+//            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
+        }
+
+        self.postMessage({"cmd": "ready"});
+//        console.timeEnd("Worker Obj: BufferGeometry building");
+        /*
+         var material;
+         if ( this.materials !== null ) {
+         material = this.materials.create( object.material.name );
+         }
+
+         if ( !material ) {
+         material = new THREE.MeshPhongMaterial();
+         material.name = object.material.name;
+         }
+
+         material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
+
+         var mesh = new THREE.Mesh( buffergeometry, material );
+         mesh.name = object.name;
+
+         container.add( mesh );
+         */
+    };
 
     var lines = text.split('\n');
 
@@ -280,15 +337,17 @@ var wwParseObj = function (e) {
 
             var name = result[1].trim();
 
-            if (foundObjects === false) {
-
+            if (!foundObjects) {
                 foundObjects = true;
                 object.name = name;
-
-            } else {
-
+            }
+            else {
+                if (object !== null) {
+                    var lastObject = object;
+                    // Here a new object is found. It can be sent over
+                    sentObject(object);
+                }
                 addObject(name);
-
             }
 
         } else if (/^usemtl /.test(line)) {
@@ -312,82 +371,16 @@ var wwParseObj = function (e) {
         }
     }
 
+    // Don't forget to post the last object
+    sentObject(object);
     console.timeEnd("Worker Obj: Parsing");
-    //var i = 0;
+/*
+    for ( var i = 0, l = objects.length; i < l; i ++ ) {
+        sentObject(objects[ i ]);
+    }
+*/
 
 //    var container = new THREE.Group();
-    for ( var i = 0, l = objects.length; i < l; i ++ ) {
-
-//        self.postMessage({"cmd": "new"});
-//        console.time("Worker Obj: BufferGeometry building");
-        object = objects[ i ];
-        var geometry = object.geometry;
-
-        // init
-//        var buffergeometry = new THREE.BufferGeometry();
-        var transferableObject = null;
-        self.postMessage({"cmd": "reset"});
-
-
-        self.postMessage({"cmd": "position"});
-        transferableObject = new Float32Array(geometry.vertices);
-        self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
-
-        if ( geometry.normals.length > 0 ) {
-            self.postMessage({"cmd": "normal"});
-            transferableObject = new Float32Array(geometry.normals);
-            self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
-        }
-        else {
-            console.log("Warning no normals have been defined.");
-//            buffergeometry.computeVertexNormals();
-        }
-
-        if ( geometry.uvs.length > 0 ) {
-            self.postMessage({"cmd": "uv"});
-            transferableObject = new Float32Array(geometry.uvs);
-            self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
-        }
-
-        self.postMessage({"cmd": "ready"});
-//        console.timeEnd("Worker Obj: BufferGeometry building");
-/*
-        var material;
-        if ( this.materials !== null ) {
-            material = this.materials.create( object.material.name );
-        }
-
-        if ( !material ) {
-            material = new THREE.MeshPhongMaterial();
-            material.name = object.material.name;
-        }
-
-        material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-        var mesh = new THREE.Mesh( buffergeometry, material );
-        mesh.name = object.name;
-
-        container.add( mesh );
-*/
-        //self.postMessage({json: buffergeometry.toJSON()});
-    }
-
-//    console.time("Worker Obj: Objects encode");
-//    var objectsAsString = JSON.stringify(objects);
-
-//    var outputUint8Array = new TextEncoder("utf-8").encode(objectsAsString);
-  //  var outputArrayBuffer = outputUint8Array.buffer;
-
-//    console.timeEnd("Worker Obj: Objects encode");
-
-    //self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
-
 };
 
 self.addEventListener('message', wwParseObj, false);
