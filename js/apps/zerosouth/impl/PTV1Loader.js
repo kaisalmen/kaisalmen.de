@@ -18,6 +18,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.loadDirectly = false;
         this.zipTools = new KSX.apps.tools.ZipTools();
         this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
+        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW();
 
         this.helper = null;
         this.objGroup = null;
@@ -100,78 +101,20 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             this.objGroup.position.z = 250;
             scope.sceneApp.getScene().add(this.objGroup);
 
-            var defaultMaterial = new THREE.MeshPhongMaterial();
+            this.objLoaderWW.setObjGroup(this.objGroup);
 
-            var geoStruct = {
-                current : "reset",
-                bufferGeometry : new THREE.BufferGeometry(),
-                material : null,
-                reset : function () {
-                    geoStruct.current = "reset";
-                    geoStruct.bufferGeometry = new THREE.BufferGeometry();
-                }
+            var callbackWWObjPrser = function (e) {
+                scope.objLoaderWW.process(e);
+            };
+
+            var unzipper = function (e) {
+                var arrayBuffer = e.data;
+                var objWorker = scope.objLoaderWW.registerCallback(callbackWWObjPrser);
+                objWorker.postMessage(arrayBuffer, [arrayBuffer]);
             };
 
             var loadCallbackZip = function (binaryData) {
-                var workerObj = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
-
-                var objReceptor = function (e) {
-                    //var materials = scope.objectLoadingTools.parseMtl(dataAsTextMtl);
-
-//                    console.time("Main: BufferGeometry decode");
-
-                    var payload = e.data;
-                    if (payload.cmd != null) {
-                        switch (payload.cmd) {
-                            case "reset":
-                                geoStruct.reset();
-                                break;
-                            case "position":
-                                geoStruct.current = "position";
-                                break;
-                            case "normal":
-                                geoStruct.current = "normal";
-                                break;
-                            case "uv":
-                                geoStruct.current = "uv";
-                                break;
-                            case "ready":
-                                geoStruct.current = "ready";
-//                                console.time("Main: Add BufferGeometry");
-                                scope.faceCount += geoStruct.bufferGeometry.getAttribute("position").count;
-                                var mesh = new THREE.Mesh(geoStruct.bufferGeometry, defaultMaterial);
-                                scope.objGroup.add(mesh);
-//                                console.timeEnd("Main: Add BufferGeometry");
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-                    else {
-                        switch (geoStruct.current) {
-                            case "position":
-                                geoStruct.bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload), 3));
-                                break;
-                            case "normal":
-                                geoStruct.bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload), 3));
-                                break;
-                            case "uv":
-                                geoStruct.bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload), 2));
-                                break;
-                            default:
-                                break;
-                        }
-                    }
-//                    console.timeEnd("Main: BufferGeometry decode");
-//                    console.log("Total Faces: " + scope.faceCount);
-                };
-                workerObj.addEventListener("message", objReceptor, false);
-
                 var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
-                var unzipper = function (e) {
-                    var arrayBuffer = e.data;
-                    workerObj.postMessage(arrayBuffer, [arrayBuffer]);
-                }
                 workerZip.addEventListener("message", unzipper, false);
 
                 workerZip.postMessage({"filename": scope.fileObj});
@@ -180,13 +123,15 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
                 //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
 
-//                var sendUuint8Array = new TextEncoder(document.characterSet.toLowerCase()).encode(dataAsTextObj);
-//                var sendArrayBuffer = sendUuint8Array.buffer;
-
                 //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
                 //adjustScene(rootGroup);
             };
-            this.zipTools.loadBinaryData(this.pathToObj + this.fileZip, loadCallbackZip);
+
+            var callbackMtlZip = function (materials) {
+                scope.objLoaderWW.setMaterials(materials);
+                scope.zipTools.loadBinaryData(scope.pathToObj + scope.fileZip, loadCallbackZip);
+            };
+            this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtlZip);
         }
     };
 
