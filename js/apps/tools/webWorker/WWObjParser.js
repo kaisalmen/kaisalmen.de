@@ -164,6 +164,41 @@ var wwParseObj = function (e) {
 
     }
 
+    var postObject = function (object) {
+//        console.time("Worker Obj: BufferGeometry building");
+        var geometry = object.geometry;
+
+        // init
+        var transferableObject = null;
+        self.postMessage({"cmd": "reset"});
+
+
+        self.postMessage({"cmd": "position"});
+        transferableObject = new Float32Array(geometry.vertices);
+        self.postMessage(transferableObject, [transferableObject.buffer]);
+
+        if ( geometry.normals.length > 0 ) {
+            self.postMessage({"cmd": "normal"});
+            transferableObject = new Float32Array(geometry.normals);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+        }
+        else {
+            console.log("Warning no normals have been defined.");
+        }
+
+        if ( geometry.uvs.length > 0 ) {
+            self.postMessage({"cmd": "uv"});
+            transferableObject = new Float32Array(geometry.uvs);
+            self.postMessage(transferableObject, [transferableObject.buffer]);
+        }
+
+        self.postMessage({"cmd": "material", "material": object.material.name, "smooth" : object.material.smooth});
+        self.postMessage({"cmd": "ready"});
+//        console.timeEnd("Worker Obj: BufferGeometry building");
+
+    };
+
+
     addObject('');
 
     // v float float float
@@ -190,65 +225,6 @@ var wwParseObj = function (e) {
     var object_pattern = /^[og]\s+(.+)/;
 
     var smoothing_pattern = /^s\s+(\d+|on|off)/;
-
-
-    var sentObject = function (object) {
-//        console.time("Worker Obj: BufferGeometry building");
-        var geometry = object.geometry;
-
-        // init
-//        var buffergeometry = new THREE.BufferGeometry();
-        var transferableObject = null;
-        self.postMessage({"cmd": "reset"});
-
-
-        self.postMessage({"cmd": "position"});
-        transferableObject = new Float32Array(geometry.vertices);
-        self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//        buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
-
-        if ( geometry.normals.length > 0 ) {
-            self.postMessage({"cmd": "normal"});
-            transferableObject = new Float32Array(geometry.normals);
-            self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//            buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
-        }
-        else {
-            console.log("Warning no normals have been defined.");
-//            buffergeometry.computeVertexNormals();
-        }
-
-        if ( geometry.uvs.length > 0 ) {
-            self.postMessage({"cmd": "uv"});
-            transferableObject = new Float32Array(geometry.uvs);
-            self.postMessage(transferableObject, [transferableObject.buffer]);
-
-//            buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
-        }
-
-        self.postMessage({"cmd": "ready"});
-//        console.timeEnd("Worker Obj: BufferGeometry building");
-        /*
-         var material;
-         if ( this.materials !== null ) {
-         material = this.materials.create( object.material.name );
-         }
-
-         if ( !material ) {
-         material = new THREE.MeshPhongMaterial();
-         material.name = object.material.name;
-         }
-
-         material.shading = object.material.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-         var mesh = new THREE.Mesh( buffergeometry, material );
-         mesh.name = object.name;
-
-         container.add( mesh );
-         */
-    };
 
     var lines = text.split('\n');
 
@@ -345,7 +321,7 @@ var wwParseObj = function (e) {
                 if (object !== null) {
                     var lastObject = object;
                     // Here a new object is found. It can be sent over
-                    sentObject(object);
+                    postObject(object);
                 }
                 addObject(name);
             }
@@ -372,7 +348,7 @@ var wwParseObj = function (e) {
     }
 
     // Don't forget to post the last object
-    sentObject(object);
+    postObject(object);
     console.timeEnd("Worker Obj: Parsing");
 /*
     for ( var i = 0, l = objects.length; i < l; i ++ ) {

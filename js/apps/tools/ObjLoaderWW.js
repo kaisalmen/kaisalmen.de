@@ -9,14 +9,14 @@ KSX.apps.tools.ObjLoaderWW = (function () {
     function ObjLoaderWW() {
         this.worker = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
 
+        this.defaultMaterial = new THREE.MeshPhongMaterial();
+        this.defaultMaterial.name = "defaultMaterial";
 
         this.geoStruct = {
             current : "reset",
             bufferGeometry : new THREE.BufferGeometry(),
-            material : null
+            material : this.defaultMaterial
         };
-
-        this.defaultMaterial = new THREE.MeshPhongMaterial();
 
         this.faceCount = 0;
     }
@@ -41,7 +41,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
     ObjLoaderWW.prototype.resetGeoStruct = function () {
         this.geoStruct.current = "reset";
         this.geoStruct.bufferGeometry = new THREE.BufferGeometry();
-        this.geoStruct.material = null;
+        this.geoStruct.material = this.defaultMaterial;
     };
 
     ObjLoaderWW.prototype.process = function (e) {
@@ -60,11 +60,19 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 case "uv":
                     this.geoStruct.current = "uv";
                     break;
+                case "material":
+                    var materialName = payload.material;
+
+                    if (this.materials !== null) {
+                        this.geoStruct.material = this.materials.create(materialName);
+                    }
+                    this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
+                    break;
                 case "ready":
                     this.geoStruct.current = "ready";
 //                    console.time("Main: Add BufferGeometry");
                     this.faceCount += this.geoStruct.bufferGeometry.getAttribute("position").count;
-                    var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.defaultMaterial);
+                    var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.geoStruct.material);
                     this.objGroup.add(mesh);
 //                    console.timeEnd("Main: Add BufferGeometry");
                     break;

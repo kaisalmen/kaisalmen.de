@@ -88,51 +88,48 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 */
         };
 
-        if (this.loadDirectly) {
-            var callbackMtl = function (materials) {
+        var callbackWWObjPrser = function (e) {
+            scope.objLoaderWW.process(e);
+        };
+
+        var unzipper = function (e) {
+            var arrayBuffer = e.data;
+            var objWorker = scope.objLoaderWW.registerCallback(callbackWWObjPrser);
+            objWorker.postMessage(arrayBuffer, [arrayBuffer]);
+        };
+
+        var loadCallbackZip = function (binaryData) {
+            var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
+            workerZip.addEventListener("message", unzipper, false);
+
+            workerZip.postMessage({"filename": scope.fileObj});
+            workerZip.postMessage(binaryData, [binaryData]);
+
+            //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
+            //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
+
+            //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
+            //adjustScene(rootGroup);
+        };
+
+        var callbackMtl = function (materials) {
+            if (scope.loadDirectly) {
                 scope.objectLoadingTools.loadObject(scope.pathToObj, scope.fileObj, materials, adjustScene);
-            };
-            this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
+            }
+            else {
+                scope.objGroup = new THREE.Group();
+                scope.objGroup.position.y = 20;
+                scope.objGroup.position.z = 250;
+                scope.sceneApp.getScene().add(scope.objGroup);
 
-        }
-        else {
-            this.objGroup = new THREE.Group();
-            this.objGroup.position.y = 20;
-            this.objGroup.position.z = 250;
-            scope.sceneApp.getScene().add(this.objGroup);
+                scope.objLoaderWW.setObjGroup(scope.objGroup);
 
-            this.objLoaderWW.setObjGroup(this.objGroup);
-
-            var callbackWWObjPrser = function (e) {
-                scope.objLoaderWW.process(e);
-            };
-
-            var unzipper = function (e) {
-                var arrayBuffer = e.data;
-                var objWorker = scope.objLoaderWW.registerCallback(callbackWWObjPrser);
-                objWorker.postMessage(arrayBuffer, [arrayBuffer]);
-            };
-
-            var loadCallbackZip = function (binaryData) {
-                var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
-                workerZip.addEventListener("message", unzipper, false);
-
-                workerZip.postMessage({"filename": scope.fileObj});
-                workerZip.postMessage(binaryData, [binaryData]);
-
-                //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
-                //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
-
-                //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
-                //adjustScene(rootGroup);
-            };
-
-            var callbackMtlZip = function (materials) {
                 scope.objLoaderWW.setMaterials(materials);
                 scope.zipTools.loadBinaryData(scope.pathToObj + scope.fileZip, loadCallbackZip);
-            };
-            this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtlZip);
-        }
+            }
+        };
+        this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
+
     };
 
     PTV1Loader.prototype.render = function() {
