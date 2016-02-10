@@ -16,9 +16,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileMtl = "PTV1.mtl";
 
         this.loadDirectly = false;
-        this.zipTools = new KSX.apps.tools.ZipTools();
-        this.objectLoadingTools = new KSX.apps.tools.ObjLoadingTools();
-        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW();
+        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(null, this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
 
         this.helper = null;
         this.objGroup = null;
@@ -74,11 +72,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     };
 
     PTV1Loader.prototype.loadObj = function() {
-        var scope = this;
-        var adjustScene = function(rootGroup) {
-            rootGroup.position.y = 20;
-            rootGroup.position.z = 250;
-            scope.sceneApp.getScene().add(rootGroup);
 /*
             var exportRoot = rootGroup.toJSON();
             var exportString = JSON.stringify(exportRoot);
@@ -86,49 +79,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
             saveAs(blob, "data.json");
 */
-        };
+        this.objGroup = new THREE.Group();
+        this.objGroup.position.y = 20;
+        this.objGroup.position.z = 250;
+        this.sceneApp.getScene().add(this.objGroup);
 
-        var callbackWWObjPrser = function (e) {
-            scope.objLoaderWW.process(e);
-        };
+        this.objLoaderWW.setObjGroup(this.objGroup);
 
-        var unzipper = function (e) {
-            var arrayBuffer = e.data;
-            var objWorker = scope.objLoaderWW.registerCallback(callbackWWObjPrser);
-            objWorker.postMessage(arrayBuffer, [arrayBuffer]);
-        };
-
-        var loadCallbackZip = function (binaryData) {
-            var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
-            workerZip.addEventListener("message", unzipper, false);
-
-            workerZip.postMessage({"filename": scope.fileObj});
-            workerZip.postMessage(binaryData, [binaryData]);
-
-            //var dataAsTextObj = scope.zipTools.unzipFile(binaryData, scope.fileObj);
-            //var dataAsTextMtl = scope.zipTools.unzipFile(binaryData, scope.fileMtl);
-
-            //var rootGroup = scope.objectLoadingTools.parseObj(dataAsTextObj, dataAsTextMtl);
-            //adjustScene(rootGroup);
-        };
-
-        var callbackMtl = function (materials) {
-            if (scope.loadDirectly) {
-                scope.objectLoadingTools.loadObject(scope.pathToObj, scope.fileObj, materials, adjustScene);
-            }
-            else {
-                scope.objGroup = new THREE.Group();
-                scope.objGroup.position.y = 20;
-                scope.objGroup.position.z = 250;
-                scope.sceneApp.getScene().add(scope.objGroup);
-
-                scope.objLoaderWW.setObjGroup(scope.objGroup);
-
-                scope.objLoaderWW.setMaterials(materials);
-                scope.zipTools.loadBinaryData(scope.pathToObj + scope.fileZip, loadCallbackZip);
-            }
-        };
-        this.objectLoadingTools.loadMtl(this.pathToObj, this.fileMtl, callbackMtl);
+        this.objLoaderWW.load();
 
     };
 

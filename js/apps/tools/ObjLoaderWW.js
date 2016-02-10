@@ -6,20 +6,102 @@
 
 KSX.apps.tools.ObjLoaderWW = (function () {
 
-    function ObjLoaderWW() {
+    function ObjLoaderWW (manager, path, fileObj, fileMtl, needsUnzipping, fileZip) {
         this.worker = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
+
+        this.manager = (manager !== undefined && manager !== null) ? manager : THREE.DefaultLoadingManager;
+
+        this.path = path;
+        this.fileObj = fileObj;
+        this.fileMtl = fileMtl;
+        this.needsUnzipping = needsUnzipping;
+        this.fileZip = fileZip;
+
+        this.mtlLoader = new THREE.MTLLoader();
+        this.loader = new THREE.XHRLoader(this.manager);
+        this.loader.setPath(this.path);
+        this.materials = null;
+
+        this.objContent = null;
+        this.mtlContent = null;
 
         this.defaultMaterial = new THREE.MeshPhongMaterial();
         this.defaultMaterial.name = "defaultMaterial";
 
         this.geoStruct = {
-            current : "reset",
-            bufferGeometry : new THREE.BufferGeometry(),
-            material : this.defaultMaterial
+            current: "reset",
+            bufferGeometry: new THREE.BufferGeometry(),
+            material: this.defaultMaterial
         };
 
         this.faceCount = 0;
     }
+
+    ObjLoaderWW.prototype.onProgress = function (event) {
+        if (event.lengthComputable) {
+            var percentComplete = event.loaded / event.total * 100;
+            console.log(Math.round(percentComplete, 2) + '% downloaded');
+        }
+    };
+
+    ObjLoaderWW.prototype.onError = function (event) {
+        console.log("Error of type '" + event.type + "' occurred when trying to load: " + src);
+    };
+
+    ObjLoaderWW.prototype.load = function () {
+        var scope = this;
+
+        var unzipper = function (e) {
+            var arrayBuffer = e.data;
+
+            var scopeFunction = function (e) {
+                scope.process(e);
+            };
+            scope.worker.addEventListener("message", scopeFunction, false);
+            scope.worker.postMessage(arrayBuffer, [arrayBuffer]);
+        };
+
+        var onLoadObj = function (text) {
+            console.log("reached onLoadObj");
+            scope.objContent = text;
+
+            if (scope.needsUnzipping) {
+                var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
+                workerZip.addEventListener("message", unzipper, false);
+
+                workerZip.postMessage({"filename": scope.fileObj});
+                workerZip.postMessage(scope.objContent, [scope.objContent]);
+            }
+        };
+
+        var onLoadMtl = function (text) {
+            console.log("reached onLoadMtl");
+            scope.mtlContent = text;
+
+            scope.materials = scope.mtlLoader.parse(scope.mtlContent);
+
+            if (scope.needsUnzipping) {
+                scope.loader.setResponseType("arraybuffer");
+                scope.loader.load(scope.path + scope.fileZip, onLoadObj, scope.onProgress, scope.onError);
+            }
+            else {
+                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
+            }
+        };
+
+        if (this.fileMtl !== null || this.fileMtl !== undefined) {
+            scope.loader.load(scope.path + scope.fileMtl, onLoadMtl, scope.onProgress, scope.onError);
+        }
+        else {
+            if (scope.needsUnzipping) {
+                scope.loader.setResponseType("arraybuffer");
+                scope.loader.load(scope.path + scope.fileZip, onLoadObj, scope.onProgress, scope.onError);
+            }
+            else {
+                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
+            }
+        }
+    };
 
     ObjLoaderWW.prototype.getWorker = function () {
         return this.worker;
@@ -32,10 +114,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
     ObjLoaderWW.prototype.registerCallback = function (callback) {
         this.worker.addEventListener("message", callback, false);
         return this.worker;
-    };
-
-    ObjLoaderWW.prototype.setMaterials = function (materials) {
-        this.materials = materials;
     };
 
     ObjLoaderWW.prototype.resetGeoStruct = function () {
