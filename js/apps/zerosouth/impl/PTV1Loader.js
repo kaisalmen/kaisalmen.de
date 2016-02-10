@@ -16,7 +16,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.fileMtl = "PTV1.mtl";
 
         this.loadDirectly = false;
-        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(null, this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
+        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
 
         this.helper = null;
         this.objGroup = null;
@@ -72,13 +72,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     };
 
     PTV1Loader.prototype.loadObj = function() {
-/*
-            var exportRoot = rootGroup.toJSON();
-            var exportString = JSON.stringify(exportRoot);
-            console.log(exportString.length);
-            var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
-            saveAs(blob, "data.json");
-*/
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;

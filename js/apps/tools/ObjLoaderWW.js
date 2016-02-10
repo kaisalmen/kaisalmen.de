@@ -6,10 +6,10 @@
 
 KSX.apps.tools.ObjLoaderWW = (function () {
 
-    function ObjLoaderWW (manager, path, fileObj, fileMtl, needsUnzipping, fileZip) {
+    function ObjLoaderWW (path, fileObj, fileMtl, needsUnzipping, fileZip) {
         this.worker = new Worker("../../js/apps/tools/webworker/WWObjParser.js");
 
-        this.manager = (manager !== undefined && manager !== null) ? manager : THREE.DefaultLoadingManager;
+        this.manager = THREE.DefaultLoadingManager;
 
         this.path = path;
         this.fileObj = fileObj;
@@ -22,12 +22,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.loader.setPath(this.path);
         this.materials = null;
 
-        this.objContent = null;
-        this.mtlContent = null;
-
         this.defaultMaterial = new THREE.MeshPhongMaterial();
         this.defaultMaterial.name = "defaultMaterial";
 
+        this.fileCount = 0;
         this.geoStruct = {
             current: "reset",
             bufferGeometry: new THREE.BufferGeometry(),
@@ -51,8 +49,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
     ObjLoaderWW.prototype.load = function () {
         var scope = this;
 
-        var unzipper = function (e) {
-            var arrayBuffer = e.data;
+        var onLoadObj = function (arrayBuffer) {
+            console.log("reached onLoadObj");
 
             var scopeFunction = function (e) {
                 scope.process(e);
@@ -61,44 +59,53 @@ KSX.apps.tools.ObjLoaderWW = (function () {
             scope.worker.postMessage(arrayBuffer, [arrayBuffer]);
         };
 
-        var onLoadObj = function (text) {
-            console.log("reached onLoadObj");
-            scope.objContent = text;
+        var onLoadMtl = function (text, loadObj) {
+            console.log("reached onLoadMtl");
+            scope.materials = scope.mtlLoader.parse(text);
 
-            if (scope.needsUnzipping) {
+            if (loadObj === undefined || loadObj === null) {
+                scope.loader.setResponseType("arraybuffer");
+                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
+            }
+        };
+
+        var unzipper = function (e) {
+            var payload = e.data;
+            if (scope.fileCount === 0 && scope.fileMtl !== null && payload.text) {
+                onLoadMtl(payload.text, false);
+            }
+            else {
+                onLoadObj(e.data);
+            }
+        };
+
+        if (this.needsUnzipping) {
+            var onLoadZip = function(binary) {
+                console.log("reached onLoadZip");
+
                 var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
                 workerZip.addEventListener("message", unzipper, false);
 
-                workerZip.postMessage({"filename": scope.fileObj});
-                workerZip.postMessage(scope.objContent, [scope.objContent]);
-            }
-        };
+                workerZip.postMessage(binary, [binary]);
 
-        var onLoadMtl = function (text) {
-            console.log("reached onLoadMtl");
-            scope.mtlContent = text;
+                if (scope.fileMtl !== null || scope.fileMtl !== undefined) {
+                    workerZip.postMessage({"cmd": "file", "filename": scope.fileMtl, "encoding": "text"});
+                }
+                workerZip.postMessage({"cmd": "file", "filename": scope.fileObj, "encoding": "arraybuffer"});
+                workerZip.postMessage({"cmd": "clean"});
+            };
 
-            scope.materials = scope.mtlLoader.parse(scope.mtlContent);
-
-            if (scope.needsUnzipping) {
-                scope.loader.setResponseType("arraybuffer");
-                scope.loader.load(scope.path + scope.fileZip, onLoadObj, scope.onProgress, scope.onError);
-            }
-            else {
-                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
-            }
-        };
-
-        if (this.fileMtl !== null || this.fileMtl !== undefined) {
-            scope.loader.load(scope.path + scope.fileMtl, onLoadMtl, scope.onProgress, scope.onError);
+            this.loader.setResponseType("arraybuffer");
+            this.loader.load(this.path + this.fileZip, onLoadZip, this.onProgress, this.onError);
         }
         else {
-            if (scope.needsUnzipping) {
-                scope.loader.setResponseType("arraybuffer");
-                scope.loader.load(scope.path + scope.fileZip, onLoadObj, scope.onProgress, scope.onError);
+            if (this.fileMtl !== null) {
+                scope.loader.setResponseType("text");
+                this.loader.load(this.path + this.fileMtl, onLoadMtl, this.onProgress, this.onError);
             }
             else {
-                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
+                this.loader.setResponseType("arraybuffer");
+                this.loader.load(this.path + this.fileObj, onLoadObj, this.onProgress, this.onError);
             }
         }
     };
