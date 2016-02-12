@@ -22,12 +22,31 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objGroup = null;
 
         this.faceCount = 0;
+
+        this.stats = new Stats();
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
         console.log("PTV1Loader.initAsyncContent is not required!");
 
         this.sceneApp.initSynchronuous();
+    };
+
+    PTV1Loader.prototype.initPreGL = function () {
+        var progressUpdate = function (text) {
+           var div = document.getElementById("DIVFeedbackAreaDynamic");
+            div.innerHTML = text;
+        };
+        this.objLoaderWW.registerProgressCallback(progressUpdate);
+
+        this.stats.setMode(0);
+
+        // align top-left
+        this.stats.domElement.style.position = "absolute";
+        this.stats.domElement.style.left = "0px";
+        this.stats.domElement.style.top = "0px";
+
+        document.body.appendChild(this.stats.domElement);
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -85,6 +104,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     PTV1Loader.prototype.render = function() {
         this.controls.update();
+        this.stats.update();
     };
 
     PTV1Loader.prototype.resizeDisplayGL = function() {

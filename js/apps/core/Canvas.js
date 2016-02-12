@@ -21,7 +21,7 @@ KSX.apps.core.Canvas = (function () {
 
     Canvas.prototype.recalcAspectRatio = function () {
         if (this.verbose) {
-            console.log("width: " + this.htmlCanvas.offsetWidth + " height: " + this.htmlCanvas.offsetHeight);
+            console.log("width: " + this.getWidth() + " height: " + this.getHeight());
         }
         this.aspectRatio = this.getWidth() / this.getHeight();
     };

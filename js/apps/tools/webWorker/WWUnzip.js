@@ -18,6 +18,8 @@ var wwParseObj = function (e) {
 
                 console.time("Worker Unzip: Deflating file: " + filename);
                 var file = zip.file(filename);
+
+                self.postMessage({"cmd": "feedback", "filename": file.name});
                 var fileAsString = zip.file(file.name).asBinary();
                 console.timeEnd("Worker Unzip: Deflating file: " + filename);
 

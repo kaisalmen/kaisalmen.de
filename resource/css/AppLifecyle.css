@@ -5,6 +5,7 @@
 body {
     margin: 0px 0px 0px 0px;
     padding: 0px 0px 0px 0px;
+    border: none;
 }
 
 #master {
@@ -37,7 +38,9 @@ body {
 #DivGL1Canvas,
 #DivGL2Canvas,
 #DivGL3Canvas,
-#DivGL4Canvas {
+#DivGL4Canvas,
+#DIVFeedbackAreaStatic,
+#DIVFeedbackAreaDynamic {
     margin: inherit;
     padding: inherit;
 }
@@ -111,4 +114,29 @@ body {
     background-color: #666666;
     bottom: 0px;
     right: 0px;
+}
+
+#DIVFeedbackAreaStatic,
+#DIVFeedbackAreaDynamic {
+    padding-top: 8px;
+    position: relative;
+    z-index: 1;
+    background-color: rgba(255, 255, 255, 0.0);
+    color: rgba(80, 255, 80, 0.8);
+    font-size: 24px;
+    text-align: center;
+    width: 640px;
+    height: 32px;
+    min-width: 640px;
+    min-height: 32px;
+    margin-left: auto;
+    margin-right: auto;
+    pointer-events: none;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+    -khtml-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+    -o-user-select: none;
+    user-select: none;
 }

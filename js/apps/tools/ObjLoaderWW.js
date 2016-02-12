@@ -25,33 +25,53 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.defaultMaterial = new THREE.MeshPhongMaterial();
         this.defaultMaterial.name = "defaultMaterial";
 
-        this.fileCount = 0;
+        this.announcedFile = "";
         this.geoStruct = {
             current: "reset",
+            name: "unknown",
             bufferGeometry: new THREE.BufferGeometry(),
             material: this.defaultMaterial
         };
 
         this.faceCount = 0;
+        this.progressCallback = null;
+
+        this.progressInfoBaseText = "";
     }
 
-    ObjLoaderWW.prototype.onProgress = function (event) {
-        if (event.lengthComputable) {
-            var percentComplete = event.loaded / event.total * 100;
-            console.log(Math.round(percentComplete, 2) + '% downloaded');
-        }
+    ObjLoaderWW.prototype.registerProgressCallback = function (progresCallback) {
+        this.progressCallback = progresCallback;
     };
 
-    ObjLoaderWW.prototype.onError = function (event) {
-        console.log("Error of type '" + event.type + "' occurred when trying to load: " + src);
+    ObjLoaderWW.prototype.announceProgress = function (scope, text, newBaseText) {
+        if (scope.progressCallback !== null) {
+            if (newBaseText !== null && newBaseText !== undefined) {
+                scope.progressInfoBaseText = newBaseText;
+            }
+            var output = scope.progressInfoBaseText + " " + text;
+            //console.log(output);
+            scope.progressCallback(output);
+        }
     };
 
     ObjLoaderWW.prototype.load = function () {
         var scope = this;
 
+        var onProgress = function (event) {
+            if (event.lengthComputable) {
+                var percentComplete = event.loaded / event.total * 100;
+                var output = Math.round(percentComplete, 2) + "%";
+                console.log(output);
+                scope.announceProgress(scope, output);
+            }
+        };
+
+        var onError = function (event) {
+            console.log("Error of type '" + event.type + "' occurred when trying to load: " + src);
+        };
+
         var onLoadObj = function (arrayBuffer) {
             console.log("reached onLoadObj");
-
             var scopeFunction = function (e) {
                 scope.process(e);
             };
@@ -61,21 +81,39 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         var onLoadMtl = function (text, loadObj) {
             console.log("reached onLoadMtl");
+
+
             scope.materials = scope.mtlLoader.parse(text);
 
             if (loadObj === undefined || loadObj === null) {
                 scope.loader.setResponseType("arraybuffer");
-                scope.loader.load(scope.path + scope.fileObj, onLoadObj, scope.onProgress, scope.onError);
+                scope.loader.load(scope.path + scope.fileObj, onLoadObj, onProgress, onError);
             }
         };
 
         var unzipper = function (e) {
             var payload = e.data;
-            if (scope.fileCount === 0 && scope.fileMtl !== null && payload.text) {
-                onLoadMtl(payload.text, false);
+            if (payload.cmd !== null && payload.cmd === "feedback") {
+                scope.announcedFile = payload.filename;
+                switch (payload.filename) {
+                    case scope.fileObj:
+                        scope.announceProgress(scope, "", "Processing object data...");
+                        break;
+                    case scope.fileMtl:
+                        scope.announceProgress(scope, "", "Processing material data...");
+                        break;
+                    default:
+                        console.log("Received feedback for unkown file: " + payload.filename);
+                        break;
+                }
             }
             else {
-                onLoadObj(e.data);
+                if (scope.announcedFile === scope.fileMtl) {
+                    onLoadMtl(payload.text, false);
+                }
+                else if (scope.announcedFile === scope.fileObj) {
+                    onLoadObj(e.data);
+                }
             }
         };
 
@@ -88,6 +126,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 workerZip.postMessage(binary, [binary]);
 
+                scope.announceProgress(scope, "", "Uncompressing 150 MB of data!");
                 if (scope.fileMtl !== null || scope.fileMtl !== undefined) {
                     workerZip.postMessage({"cmd": "file", "filename": scope.fileMtl, "encoding": "text"});
                 }
@@ -95,36 +134,29 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 workerZip.postMessage({"cmd": "clean"});
             };
 
+            this.announceProgress(this, "", "Downloading object data:");
             this.loader.setResponseType("arraybuffer");
-            this.loader.load(this.path + this.fileZip, onLoadZip, this.onProgress, this.onError);
+            this.loader.load(this.path + this.fileZip, onLoadZip, onProgress, onError);
         }
         else {
             if (this.fileMtl !== null) {
                 scope.loader.setResponseType("text");
-                this.loader.load(this.path + this.fileMtl, onLoadMtl, this.onProgress, this.onError);
+                this.loader.load(this.path + this.fileMtl, onLoadMtl, onProgress, onError);
             }
             else {
                 this.loader.setResponseType("arraybuffer");
-                this.loader.load(this.path + this.fileObj, onLoadObj, this.onProgress, this.onError);
+                this.loader.load(this.path + this.fileObj, onLoadObj, onProgress, onError);
             }
         }
-    };
-
-    ObjLoaderWW.prototype.getWorker = function () {
-        return this.worker;
     };
 
     ObjLoaderWW.prototype.setObjGroup = function (objGroup) {
         this.objGroup = objGroup;
     };
 
-    ObjLoaderWW.prototype.registerCallback = function (callback) {
-        this.worker.addEventListener("message", callback, false);
-        return this.worker;
-    };
-
     ObjLoaderWW.prototype.resetGeoStruct = function () {
         this.geoStruct.current = "reset";
+        this.geoStruct.name = "unknown";
         this.geoStruct.bufferGeometry = new THREE.BufferGeometry();
         this.geoStruct.material = this.defaultMaterial;
     };
@@ -133,8 +165,11 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         var payload = e.data;
         if (payload.cmd != null) {
             switch (payload.cmd) {
+                case "start":
+                    break;
                 case "reset":
                     this.resetGeoStruct();
+                    this.announceProgress(this, "", "Adding mesh:");
                     break;
                 case "position":
                     this.geoStruct.current = "position";
@@ -153,16 +188,22 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     }
                     this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
                     break;
+                case "name":
+                    this.geoStruct.name = payload.meshName
+                    this.announceProgress(this, this.geoStruct.name);
+                    break;
                 case "ready":
                     this.geoStruct.current = "ready";
 //                    console.time("Main: Add BufferGeometry");
                     this.faceCount += this.geoStruct.bufferGeometry.getAttribute("position").count;
                     var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.geoStruct.material);
+                    mesh.name = this.geoStruct.name;
                     this.objGroup.add(mesh);
 //                    console.timeEnd("Main: Add BufferGeometry");
                     break;
                 case "complete":
                     console.log("Total Faces: " + this.faceCount);
+                    this.announceProgress(this, "", "");
                 default:
                     break;
             }

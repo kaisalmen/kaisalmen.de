@@ -33,7 +33,9 @@ KSX.apps.core.SceneAppPerspective = (function () {
 
     SceneAppPerspective.prototype.initSynchronuous = function () {
         console.log("SceneAppPerspective (" + this.name + "): initPreGL");
-
+        if (typeof this.user.initPreGL == "function") {
+            this.user.initPreGL();
+        }
         console.log("SceneAppPerspective (" + this.name + "): resizeDisplayHtml");
 
         console.log("SceneAppPerspective (" + this.name + "): initGL");

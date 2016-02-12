@@ -10,6 +10,8 @@ var wwParseObj = function (e) {
 
     var inputArrayBuffer = e.data;
 
+    self.postMessage({"cmd": "start"});
+
     var decoder = new TextDecoder("utf-8");
     var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
     var text = decoder.decode(view);
@@ -172,6 +174,7 @@ var wwParseObj = function (e) {
         var transferableObject = null;
         self.postMessage({"cmd": "reset"});
 
+        self.postMessage({"cmd": "name", "meshName" : object.name});
 
         self.postMessage({"cmd": "position"});
         transferableObject = new Float32Array(geometry.vertices);
@@ -349,14 +352,9 @@ var wwParseObj = function (e) {
 
     // Don't forget to post the last object
     postObject(object);
+    self.postMessage({"cmd": "complete"});
     console.timeEnd("Worker Obj: Parsing");
-/*
-    for ( var i = 0, l = objects.length; i < l; i ++ ) {
-        sentObject(objects[ i ]);
-    }
-*/
 
-//    var container = new THREE.Group();
 };
 
 self.addEventListener('message', wwParseObj, false);
