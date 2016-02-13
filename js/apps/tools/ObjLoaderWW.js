@@ -97,10 +97,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 scope.announcedFile = payload.filename;
                 switch (payload.filename) {
                     case scope.fileObj:
-                        scope.announceProgress(scope, "", "Processing object data...");
+                        scope.announceProgress(scope, "", "Unpacking PTV data...");
                         break;
                     case scope.fileMtl:
-                        scope.announceProgress(scope, "", "Processing material data...");
+                        scope.announceProgress(scope, "", "Unpacking PTV material data...");
                         break;
                     default:
                         console.log("Received feedback for unkown file: " + payload.filename);
@@ -166,10 +166,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         if (payload.cmd != null) {
             switch (payload.cmd) {
                 case "start":
+                    this.announceProgress(this, "", "Adding mesh (total: " + payload.objectCount + "):");
                     break;
                 case "reset":
                     this.resetGeoStruct();
-                    this.announceProgress(this, "", "Adding mesh:");
                     break;
                 case "position":
                     this.geoStruct.current = "position";
@@ -187,6 +187,9 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                         this.geoStruct.material = this.materials.create(materialName);
                     }
                     this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
+                    this.geoStruct.material.side = THREE.DoubleSide;
+                    this.geoStruct.material.transparent = true;
+                    this.geoStruct.material.opacity = 0.5;
                     break;
                 case "name":
                     this.geoStruct.name = payload.meshName

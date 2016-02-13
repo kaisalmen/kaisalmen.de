@@ -54,7 +54,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var scene = this.sceneApp.getScene();
         var camera = this.sceneApp.getCamera();
 
-        renderer.setClearColor(0x606060);
+        renderer.setClearColor(0x3B3B3B);
         camera.position.x = 600;
         camera.position.y = 450;
         camera.position.z = 350;

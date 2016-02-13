@@ -30,6 +30,7 @@ body {
     position: absolute;
     min-width: 320px;
     min-height: 240px;
+    overflow: hidden;
 }
 #DivGL1,
 #DivGL2,
@@ -55,6 +56,7 @@ body {
     position: absolute;
     min-width: 320px;
     min-height: 240px;
+    overflow: hidden;
 }
 #DivGLFull,
 #DivGLFullCanvas {

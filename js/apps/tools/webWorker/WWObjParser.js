@@ -10,8 +10,6 @@ var wwParseObj = function (e) {
 
     var inputArrayBuffer = e.data;
 
-    self.postMessage({"cmd": "start"});
-
     var decoder = new TextDecoder("utf-8");
     var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
     var text = decoder.decode(view);
@@ -159,11 +157,8 @@ var wwParseObj = function (e) {
 
                 addNormal(ia, ib, id);
                 addNormal(ib, ic, id);
-
             }
-
         }
-
     }
 
     var postObject = function (object) {
@@ -198,7 +193,6 @@ var wwParseObj = function (e) {
         self.postMessage({"cmd": "material", "material": object.material.name, "smooth" : object.material.smooth});
         self.postMessage({"cmd": "ready"});
 //        console.timeEnd("Worker Obj: BufferGeometry building");
-
     };
 
 
@@ -230,6 +224,28 @@ var wwParseObj = function (e) {
     var smoothing_pattern = /^s\s+(\d+|on|off)/;
 
     var lines = text.split('\n');
+
+    var calcObjectCount = function (lines) {
+        var linesCount = lines.length;
+        var objectCount = 0;
+
+        console.time("Object Count");
+        var result;
+        for (var i = 0; i < linesCount; i++) {
+            var line = lines[i];
+            //if (line.length > 0 && (/^g /.test(line) || /# object /.test(line))) {
+            if ((result = object_pattern.exec(line)) !== null) {
+                objectCount++;
+            }
+        }
+        console.timeEnd("Object Count");
+        console.log("Total mesh count: " + objectCount);
+
+        return objectCount;
+    };
+
+    var objectCount = calcObjectCount(lines);
+    self.postMessage({"cmd": "start", "objectCount": objectCount});
 
     for (var i = 0; i < lines.length; i++) {
 
@@ -352,9 +368,9 @@ var wwParseObj = function (e) {
 
     // Don't forget to post the last object
     postObject(object);
+
     self.postMessage({"cmd": "complete"});
     console.timeEnd("Worker Obj: Parsing");
-
 };
 
 self.addEventListener('message', wwParseObj, false);
