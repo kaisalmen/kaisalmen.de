@@ -14,6 +14,8 @@ var wwParseObj = function (e) {
     var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
     var text = decoder.decode(view);
 
+    delete e.data;
+
     console.time("Worker Obj: Parsing");
 
     var objects = [];
@@ -161,7 +163,7 @@ var wwParseObj = function (e) {
         }
     }
 
-    var postObject = function (object) {
+    var postObject = function (object, count) {
 //        console.time("Worker Obj: BufferGeometry building");
         var geometry = object.geometry;
 
@@ -169,7 +171,7 @@ var wwParseObj = function (e) {
         var transferableObject = null;
         self.postMessage({"cmd": "reset"});
 
-        self.postMessage({"cmd": "name", "meshName" : object.name});
+        self.postMessage({"cmd": "name", "meshName" : object.name, "count" : count});
 
         self.postMessage({"cmd": "position"});
         transferableObject = new Float32Array(geometry.vertices);
@@ -247,6 +249,7 @@ var wwParseObj = function (e) {
     var objectCount = calcObjectCount(lines);
     self.postMessage({"cmd": "start", "objectCount": objectCount});
 
+    var objectCountRun = 0;
     for (var i = 0; i < lines.length; i++) {
 
         var line = lines[i];
@@ -340,7 +343,8 @@ var wwParseObj = function (e) {
                 if (object !== null) {
                     var lastObject = object;
                     // Here a new object is found. It can be sent over
-                    postObject(object);
+                    objectCountRun++;
+                    postObject(object, objectCountRun);
                 }
                 addObject(name);
             }
@@ -367,7 +371,8 @@ var wwParseObj = function (e) {
     }
 
     // Don't forget to post the last object
-    postObject(object);
+    objectCountRun++;
+    postObject(object, objectCountRun);
 
     self.postMessage({"cmd": "complete"});
     console.timeEnd("Worker Obj: Parsing");

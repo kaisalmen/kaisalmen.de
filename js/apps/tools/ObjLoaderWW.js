@@ -33,6 +33,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
             material: this.defaultMaterial
         };
 
+        this.overallObjectCount = 0;
         this.faceCount = 0;
         this.progressCallback = null;
 
@@ -166,7 +167,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         if (payload.cmd != null) {
             switch (payload.cmd) {
                 case "start":
-                    this.announceProgress(this, "", "Adding mesh (total: " + payload.objectCount + "):");
+                    this.overallObjectCount = payload.objectCount;
+                    this.announceProgress(this, "", "Adding mesh ");
                     break;
                 case "reset":
                     this.resetGeoStruct();
@@ -192,8 +194,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     this.geoStruct.material.opacity = 0.5;
                     break;
                 case "name":
-                    this.geoStruct.name = payload.meshName
-                    this.announceProgress(this, this.geoStruct.name);
+                    this.geoStruct.name = payload.meshName;
+
+                    var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + this.geoStruct.name;
+                    this.announceProgress(this, output);
                     break;
                 case "ready":
                     this.geoStruct.current = "ready";

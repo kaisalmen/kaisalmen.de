@@ -15,22 +15,34 @@ var wwParseObj = function (e) {
         switch (payload.cmd) {
             case "file":
                 var filename = payload.filename;
-
-                console.time("Worker Unzip: Deflating file: " + filename);
                 var file = zip.file(filename);
 
                 self.postMessage({"cmd": "feedback", "filename": file.name});
-                var fileAsString = zip.file(file.name).asBinary();
-                console.timeEnd("Worker Unzip: Deflating file: " + filename);
 
                 if (payload.encoding === "text") {
+                    console.time("Worker Unzip: Deflating file as text: " + filename);
+
+                    var fileAsString = zip.file(file.name).asBinary();
                     self.postMessage({"text": fileAsString});
+
+                    console.timeEnd("Worker Unzip: Deflating file as text: " + filename);
                 }
                 else if (payload.encoding === "arraybuffer") {
-                    console.time("Worker Unzip: Encoding: " + filename);
-                    var outputUint8Array = new TextEncoder("utf-8").encode(fileAsString);
+                    console.time("Worker Unzip: Deflating file as unit8array: " + filename);
+
+                    var outputUint8Array;
+                    if (JSZip.support.uint8array) {
+                        console.log("Using direct uint8array encoding");
+                        outputUint8Array = zip.file(file.name).asUint8Array();
+                    }
+                    else {
+                        console.log("Using direct text encoding");
+                        var fileAsString = zip.file(file.name).asBinary();
+                        outputUint8Array = new TextEncoder("utf-8").encode(fileAsString);
+                    }
                     var outputArrayBuffer = outputUint8Array.buffer;
-                    console.timeEnd("Worker Unzip: Encoding: " + filename);
+
+                    console.timeEnd("Worker Unzip: Deflating file as unit8array: " + filename);
 
                     self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
                 }
@@ -47,7 +59,9 @@ var wwParseObj = function (e) {
         }
     }
     else {
+        console.time("Open Zip");
         zip = new JSZip(payload);
+        console.timeEnd("Open Zip");
     }
 };
 
