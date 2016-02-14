@@ -16,7 +16,7 @@ var wwParseObj = function (e) {
 
     delete e.data;
 
-    console.time("Worker Obj: Parsing");
+    console.time("Worker Obj: Overall Parsing Time");
 
     var objects = [];
     var object;
@@ -175,11 +175,13 @@ var wwParseObj = function (e) {
 
         self.postMessage({"cmd": "position"});
         transferableObject = new Float32Array(geometry.vertices);
+        delete geometry.vertices;
         self.postMessage(transferableObject, [transferableObject.buffer]);
 
         if ( geometry.normals.length > 0 ) {
             self.postMessage({"cmd": "normal"});
             transferableObject = new Float32Array(geometry.normals);
+            delete geometry.normals;
             self.postMessage(transferableObject, [transferableObject.buffer]);
         }
         else {
@@ -189,6 +191,7 @@ var wwParseObj = function (e) {
         if ( geometry.uvs.length > 0 ) {
             self.postMessage({"cmd": "uv"});
             transferableObject = new Float32Array(geometry.uvs);
+            delete geometry.uvs;
             self.postMessage(transferableObject, [transferableObject.buffer]);
         }
 
@@ -231,7 +234,7 @@ var wwParseObj = function (e) {
         var linesCount = lines.length;
         var objectCount = 0;
 
-        console.time("Object Count");
+        console.time("Worker Obj: Counting all objects");
         var result;
         for (var i = 0; i < linesCount; i++) {
             var line = lines[i];
@@ -240,8 +243,8 @@ var wwParseObj = function (e) {
                 objectCount++;
             }
         }
-        console.timeEnd("Object Count");
-        console.log("Total mesh count: " + objectCount);
+        console.timeEnd("Worker Obj: Counting all objects");
+        console.log("Worker Obj: Total object count: " + objectCount);
 
         return objectCount;
     };
@@ -375,7 +378,7 @@ var wwParseObj = function (e) {
     postObject(object, objectCountRun);
 
     self.postMessage({"cmd": "complete"});
-    console.timeEnd("Worker Obj: Parsing");
+    console.timeEnd("Worker Obj: Overall Parsing Time");
 };
 
 self.addEventListener('message', wwParseObj, false);
