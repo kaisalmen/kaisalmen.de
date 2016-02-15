@@ -72,7 +72,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         };
 
         var onLoadObj = function (arrayBuffer) {
-            console.log("reached onLoadObj");
+            console.log("ObjLoaderWW: Reached onLoadObj");
             var scopeFunction = function (e) {
                 scope.process(e);
             };
@@ -81,9 +81,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         };
 
         var onLoadMtl = function (text, loadObj) {
-            console.log("reached onLoadMtl");
-
-
+            console.log("ObjLoaderWW: Reached onLoadMtl");
             scope.materials = scope.mtlLoader.parse(text);
 
             if (loadObj === undefined || loadObj === null) {
@@ -120,7 +118,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         if (this.needsUnzipping) {
             var onLoadZip = function(binary) {
-                console.log("reached onLoadZip");
+                console.log("ObjLoaderWW: Reached onLoadZip");
 
                 var workerZip = new Worker("../../js/apps/tools/webworker/WWUnzip.js");
                 workerZip.addEventListener("message", unzipper, false);
@@ -201,12 +199,12 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     break;
                 case "ready":
                     this.geoStruct.current = "ready";
-//                    console.time("Main: Add BufferGeometry");
+
                     this.faceCount += this.geoStruct.bufferGeometry.getAttribute("position").count;
                     var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.geoStruct.material);
                     mesh.name = this.geoStruct.name;
+
                     this.objGroup.add(mesh);
-//                    console.timeEnd("Main: Add BufferGeometry");
                     break;
                 case "complete":
                     console.log("Total Faces: " + this.faceCount);

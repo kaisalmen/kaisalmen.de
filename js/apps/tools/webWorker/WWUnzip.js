@@ -32,11 +32,11 @@ var wwParseObj = function (e) {
 
                     var outputUint8Array;
                     if (JSZip.support.uint8array) {
-                        console.log("Using direct uint8array encoding");
+                        console.log("Worker Unzip: Using direct uint8array encoding");
                         outputUint8Array = zip.file(file.name).asUint8Array();
                     }
                     else {
-                        console.log("Using direct text encoding");
+                        console.log("Worker Unzip: Using direct text encoding");
                         var fileAsString = zip.file(file.name).asBinary();
                         outputUint8Array = new TextEncoder("utf-8").encode(fileAsString);
                     }
@@ -47,21 +47,19 @@ var wwParseObj = function (e) {
                     self.postMessage(outputArrayBuffer, [outputArrayBuffer]);
                 }
                 else {
-                    console.error("Received unknown encoding: " + payload.encoding);
+                    console.error("Worker Unzip: Received unknown encoding: " + payload.encoding);
                 }
                 break;
             case "clean":
                 zip = null;
                 break;
             default:
-                console.error("Received unknown command: " + payload.cmd);
+                console.error("Worker Unzip: Received unknown command: " + payload.cmd);
                 break;
         }
     }
     else {
-        console.time("Open Zip");
         zip = new JSZip(payload);
-        console.timeEnd("Open Zip");
     }
 };
 
