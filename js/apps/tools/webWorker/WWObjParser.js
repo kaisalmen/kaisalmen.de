@@ -361,59 +361,65 @@ var useTextDecoder = false;
 
 var wwParseObj = function (e) {
 
-    var inputArrayBuffer = e.data;
-
-    if (useTextDecoder) {
-        console.log("Worker Obj: Using TextDecoder");
-
-        console.time("Worker Obj: Overall Parsing Time");
-        var decoder = new TextDecoder("utf-8");
-        var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
-        var text = decoder.decode(view);
-
-        var lines = text.split('\n');
-
-        console.time("Worker Obj: Counting all objects");
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            calcObjectCount(line);
-        }
-        console.timeEnd("Worker Obj: Counting all objects");
-
-        console.log("Worker Obj: Total object count: " + objectCount);
-        self.postMessage({"cmd": "start", "objectCount": objectCount});
-
-        console.time("Worker Obj: Overall Parsing Time");
-        addObject('');
-
-        for (var i = 0; i < lines.length; i++) {
-            var line = lines[i];
-            parseSingleLine(line);
-        }
+    // fast-check (cmd)
+    if (e.data.useTextDecoder !== undefined) {
+        useTextDecoder = e.data.useTextDecoder;
     }
     else {
-        console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
+        var inputArrayBuffer = e.data;
 
-        console.time("Worker Obj: Counting all objects");
-        decodeLines(inputArrayBuffer, calcObjectCount);
-        console.timeEnd("Worker Obj: Counting all objects");
+        if (useTextDecoder) {
+            console.log("Worker Obj: Using TextDecoder");
 
-        console.log("Worker Obj: Total object count: " + objectCount);
-        self.postMessage({"cmd": "start", "objectCount": objectCount});
+            console.time("Worker Obj: Overall Parsing Time");
+            var decoder = new TextDecoder("utf-8");
+            var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
+            var text = decoder.decode(view);
+
+            var lines = text.split('\n');
+
+            console.time("Worker Obj: Counting all objects");
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                calcObjectCount(line);
+            }
+            console.timeEnd("Worker Obj: Counting all objects");
+
+            console.log("Worker Obj: Total object count: " + objectCount);
+            self.postMessage({"cmd": "start", "objectCount": objectCount});
+
+            console.time("Worker Obj: Overall Parsing Time");
+            addObject('');
+
+            for (var i = 0; i < lines.length; i++) {
+                var line = lines[i];
+                parseSingleLine(line);
+            }
+        }
+        else {
+            console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
+
+            console.time("Worker Obj: Counting all objects");
+            decodeLines(inputArrayBuffer, calcObjectCount);
+            console.timeEnd("Worker Obj: Counting all objects");
+
+            console.log("Worker Obj: Total object count: " + objectCount);
+            self.postMessage({"cmd": "start", "objectCount": objectCount});
 
 
-        console.time("Worker Obj: Overall Parsing Time");
-        addObject('');
+            console.time("Worker Obj: Overall Parsing Time");
+            addObject('');
 
-        decodeLines(inputArrayBuffer, parseSingleLine);
+            decodeLines(inputArrayBuffer, parseSingleLine);
+        }
+
+        // Don't forget to post the last object
+        objectCountRun++;
+        postObject(object, objectCountRun);
+
+        self.postMessage({"cmd": "complete"});
+        console.timeEnd("Worker Obj: Overall Parsing Time");
     }
-
-    // Don't forget to post the last object
-    objectCountRun++;
-    postObject(object, objectCountRun);
-
-    self.postMessage({"cmd": "complete"});
-    console.timeEnd("Worker Obj: Overall Parsing Time");
 };
 
 self.addEventListener('message', wwParseObj, false);

@@ -87,19 +87,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.helper.setColors(0xFF4444, 0xB0B0B0);
         scene.add(this.helper);
 
-        this.loadObj();
-    };
-
-    PTV1Loader.prototype.loadObj = function() {
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
-        this.sceneApp.getScene().add(this.objGroup);
+        scene.add(this.objGroup);
 
         this.objLoaderWW.setObjGroup(this.objGroup);
 
         this.objLoaderWW.load();
-
     };
 
     PTV1Loader.prototype.render = function() {

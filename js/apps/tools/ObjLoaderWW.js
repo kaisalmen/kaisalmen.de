@@ -77,6 +77,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 scope.process(e);
             };
             scope.worker.addEventListener("message", scopeFunction, false);
+            scope.worker.postMessage({"useTextDecoder" : is.chrome() || is.firefox()});
+
             scope.worker.postMessage(arrayBuffer, [arrayBuffer]);
         };
 
