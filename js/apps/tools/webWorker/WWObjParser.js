@@ -361,19 +361,28 @@ var useTextDecoder = false;
 
 var wwParseObj = function (e) {
 
-    // fast-check (cmd)
-    if (e.data.useTextDecoder !== undefined) {
-        useTextDecoder = e.data.useTextDecoder;
+    var payload = e.data;
+
+    if (payload.cmd) {
+        switch (payload.cmd) {
+            case "init":
+                if (payload.useTextDecoder !== undefined) {
+                    useTextDecoder = payload.useTextDecoder;
+                }
+                break;
+            default:
+                console.error("Worker Obj: Received unknown command: " + payload.cmd);
+                break;
+        }
     }
     else {
-        var inputArrayBuffer = e.data;
 
         if (useTextDecoder) {
             console.log("Worker Obj: Using TextDecoder");
 
             console.time("Worker Obj: Overall Parsing Time");
             var decoder = new TextDecoder("utf-8");
-            var view = new DataView(inputArrayBuffer, 0, inputArrayBuffer.byteLength);
+            var view = new DataView(payload, 0, payload.byteLength);
             var text = decoder.decode(view);
 
             var lines = text.split('\n');
@@ -400,7 +409,7 @@ var wwParseObj = function (e) {
             console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
 
             console.time("Worker Obj: Counting all objects");
-            decodeLines(inputArrayBuffer, calcObjectCount);
+            decodeLines(payload, calcObjectCount);
             console.timeEnd("Worker Obj: Counting all objects");
 
             console.log("Worker Obj: Total object count: " + objectCount);
@@ -410,7 +419,7 @@ var wwParseObj = function (e) {
             console.time("Worker Obj: Overall Parsing Time");
             addObject('');
 
-            decodeLines(inputArrayBuffer, parseSingleLine);
+            decodeLines(payload, parseSingleLine);
         }
 
         // Don't forget to post the last object

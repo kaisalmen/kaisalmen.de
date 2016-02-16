@@ -17,6 +17,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.loadDirectly = false;
         this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
+        this.objLoaderWW.setUseTextDecoder(is.chrome() || is.firefox());
 
         this.helper = null;
         this.objGroup = null;
