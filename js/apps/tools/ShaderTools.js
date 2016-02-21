@@ -7,14 +7,38 @@
 KSX.apps.tools.ShaderTools = (function () {
 
     function ShaderTools() {
+        this.loader = new THREE.XHRLoader();
     }
 
     ShaderTools.prototype.loadShader = function (path, printShader, shaderName) {
-        return $.get(path, function (data) {
-            if (printShader) {
-                ShaderTools.prototype.printShader(data, shaderName);
-            }
-        });
+        var scope = this;
+
+        var promise = function (resolve, reject) {
+
+            var onSuccess = function(text) {
+                if (printShader) {
+                    scope.printShader(text, shaderName);
+                }
+                resolve(text);
+            };
+
+            var onProgress = function (event) {
+                if (event.lengthComputable) {
+                    var percentComplete = event.loaded / event.total * 100;
+                    var output = Math.round(percentComplete, 2) + '% downloaded';
+                    console.log(output);
+                }
+            };
+
+            var onError = function (event) {
+                console.log("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
+                reject(event);
+            };
+
+            scope.loader.load(path, onSuccess, onProgress, onError);
+        };
+
+        return new Promise(promise);
     };
 
     ShaderTools.prototype.printShader = function (shaderObj, shaderName) {

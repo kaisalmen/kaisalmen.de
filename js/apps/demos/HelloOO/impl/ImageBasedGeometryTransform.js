@@ -21,21 +21,27 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
 
     ImageBasedGeometryTransform.prototype.initAsyncContent = function() {
         var scope = this;
-        $.when(
-            this.shaderTools.loadShader("../../resource/shader/passThrough.glsl", true, "VS: Pass Through"),
-            this.shaderTools.loadShader("../../resource/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture")
-        ).done(
-            function(vert, frag) {
-                scope.vertexShaderText = vert[0];
-                scope.fragmentShaderText = frag[0];
+
+        var promises = new Array(3);
+        promises[0] = this.shaderTools.loadShader("../../resource/shader/passThrough.glsl", true, "VS: Pass Through");
+        promises[1] = this.shaderTools.loadShader("../../resource/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture");
+        promises[2] = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
+
+        Promise.all( promises ).then(
+            function (results) {
+                scope.vertexShaderText = results[0];
+                scope.fragmentShaderText = results[1];
+                scope.uniforms.texture1.value = results[2];
                 scope.sceneApp.initSynchronuous();
+            }
+        ).catch(
+            function (error) {
+                console.log('The following error occurred: ', error);
             }
         );
     };
 
     ImageBasedGeometryTransform.prototype.initGL = function () {
-        this.uniforms.texture1.value = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
-
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,

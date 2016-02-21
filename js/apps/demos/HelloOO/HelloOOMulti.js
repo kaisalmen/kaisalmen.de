@@ -30,19 +30,15 @@ KSX.apps.demos.HelloOOMulti = {
         render : function () {
             requestAnimationFrame(KSX.apps.demos.HelloOOMulti.func.render);
             KSX.apps.demos.HelloOOMulti.glob.appLifecycle.renderAllApps();
+        },
+        onWindowResize : function () {
+            KSX.apps.demos.HelloOOMulti.glob.appLifecycle.resizeAll();
         }
     }
 }
 
-$(window).resize(function () {
-    KSX.apps.demos.HelloOOMulti.glob.appLifecycle.resizeAll();
-});
 
-$(document).ready(function () {
-    console.log("Document is ready starting applications...");
-    KSX.apps.demos.HelloOOMulti.func.init();
-    KSX.apps.demos.HelloOOMulti.func.render();
-});
-
-
-
+console.log('Starting multiple applications...');
+window.addEventListener( 'resize', KSX.apps.demos.HelloOOMulti.func.onWindowResize, false );
+KSX.apps.demos.HelloOOMulti.func.init();
+KSX.apps.demos.HelloOOMulti.func.render();

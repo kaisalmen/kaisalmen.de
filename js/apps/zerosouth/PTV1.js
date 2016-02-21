@@ -6,7 +6,7 @@
 
 KSX.apps.zerosouth.PTV1 = {
     glob : {
-        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle for GLCheck")
+        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle for PTV 1 loader")
     },
     func : {
         init : function () {
@@ -19,16 +19,20 @@ KSX.apps.zerosouth.PTV1 = {
         render : function () {
             requestAnimationFrame(KSX.apps.zerosouth.PTV1.func.render);
             KSX.apps.zerosouth.PTV1.glob.appLifecycle.renderAllApps();
+        },
+        onWindowResize : function () {
+            KSX.apps.zerosouth.PTV1.glob.appLifecycle.resizeAll();
         }
     }
 }
 
-$(window).resize(function () {
-    KSX.apps.zerosouth.PTV1.glob.appLifecycle.resizeAll();
-});
+console.log('Starting application "PTV1 loader"...');
+if (is.not.ie()) {
+    window.addEventListener( 'resize', KSX.apps.zerosouth.PTV1.func.onWindowResize, false );
 
-$(document).ready(function () {
-    console.log("Document is ready starting applications...");
     KSX.apps.zerosouth.PTV1.func.init();
     KSX.apps.zerosouth.PTV1.func.render();
-});
+}
+else {
+    alert("Internet Explorer is not supported! Please use Chrome, Firefox or Edge.");
+}

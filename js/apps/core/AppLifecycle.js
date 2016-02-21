@@ -27,7 +27,6 @@ KSX.apps.core.AppLifecycle = (function () {
             currentScene.browserContext = this;
             console.log("Registering: " + currentScene.name);
 
-            console.log("Kicking initShaders...");
             currentScene.initAsync();
         }
     };

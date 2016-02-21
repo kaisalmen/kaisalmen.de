@@ -19,19 +19,15 @@ KSX.apps.demos.HelloOO = {
         render : function () {
             requestAnimationFrame(KSX.apps.demos.HelloOO.func.render);
             KSX.apps.demos.HelloOO.glob.appLifecycle.renderAllApps();
+        },
+        onWindowResize : function () {
+            KSX.apps.demos.HelloOO.glob.appLifecycle.resizeAll();
         }
     }
 };
 
-$(window).resize(function () {
-    KSX.apps.demos.HelloOO.glob.appLifecycle.resizeAll();
-});
 
-$(document).ready(function () {
-    console.log("Document is ready starting applications...");
-    KSX.apps.demos.HelloOO.func.init();
-    KSX.apps.demos.HelloOO.func.render();
-});
-
-
-
+console.log('Starting application "ImageBasedGeometryTransform"...');
+window.addEventListener( 'resize', KSX.apps.demos.HelloOO.func.onWindowResize, false );
+KSX.apps.demos.HelloOO.func.init();
+KSX.apps.demos.HelloOO.func.render();

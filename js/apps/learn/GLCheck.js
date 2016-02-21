@@ -19,16 +19,15 @@ KSX.apps.learn.GLCheck = {
         render : function () {
             requestAnimationFrame(KSX.apps.learn.GLCheck.func.render);
             KSX.apps.learn.GLCheck.glob.appLifecycle.renderAllApps();
+        },
+        onWindowResize : function () {
+            KSX.apps.demos.HelloOOMulti.glob.appLifecycle.resizeAll();
         }
     }
 }
 
-$(window).resize(function () {
-    KSX.apps.learn.GLCheck.glob.appLifecycle.resizeAll();
-});
 
-$(document).ready(function () {
-    console.log("Document is ready starting applications...");
-    KSX.apps.learn.GLCheck.func.init();
-    KSX.apps.learn.GLCheck.func.render();
-});
+console.log('Starting application "GLCheck"...');
+window.addEventListener( 'resize', KSX.apps.learn.GLCheck.func.onWindowResize, false );
+KSX.apps.learn.GLCheck.func.init();
+KSX.apps.learn.GLCheck.func.render();
