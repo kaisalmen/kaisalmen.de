@@ -14,7 +14,7 @@ KSX.apps.tools.TextureTools = (function () {
         var scope = this;
 
         var promise = function (resolve, reject) {
-            
+
             var onSuccess = function (texture) {
                 var src = texture.image !== null ? texture.image.src : imageUrl;
                 console.log("Loading of texture was completed successfully: " + src);
