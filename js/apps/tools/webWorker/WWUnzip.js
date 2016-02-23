@@ -8,7 +8,7 @@ var zip = null;
 
 var wwParseObj = function (e) {
 
-    importScripts("../../../lib/ext/jszip.js");
+    importScripts("../../../lib/ext/jszip.min.js");
 
     var payload = e.data;
     if (payload.cmd) {

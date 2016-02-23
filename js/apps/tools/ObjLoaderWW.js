@@ -20,7 +20,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         // TODO: Implement own loading manager
         this.loader = new THREE.XHRLoader();
         this.loader.setPath(this.path);
-        this.materials = null;
+        this.materials = new Map();
 
         this.defaultMaterial = new THREE.MeshPhongMaterial();
         this.defaultMaterial.name = "defaultMaterial";
@@ -41,12 +41,17 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         this.useTextDecoder = false;
 
+        this.callbackMaterialsLoaded = null;
         this.callbackMeshLoaded = null;
         this.callbackCompletedLoading = null;
     }
 
     ObjLoaderWW.prototype.registerProgressCallback = function (progresCallback) {
         this.progressCallback = progresCallback;
+    };
+
+    ObjLoaderWW.prototype.registerHookMaterialsLoaded = function (callback) {
+        this.callbackMaterialsLoaded = callback;
     };
 
     ObjLoaderWW.prototype.registerHookMeshLoaded = function (callback) {
@@ -101,7 +106,18 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         var onLoadMtl = function (text, loadObj) {
             console.log("ObjLoaderWW: Reached onLoadMtl");
-            scope.materials = scope.mtlLoader.parse(text);
+            var materialCreator = scope.mtlLoader.parse(text);
+
+            if (materialCreator !== null && materialCreator.materialsInfo !== null) {
+                var materialsInfo = materialCreator.materialsInfo;
+                for (var id in materialsInfo) {
+                    scope.materials.set(id, materialCreator.create(id));
+                }
+            }
+
+            if (scope.callbackMaterialsLoaded !== null) {
+                scope.callbackMaterialsLoaded(scope.materials);
+            }
 
             if (loadObj === undefined || loadObj === null) {
                 scope.loader.setResponseType("arraybuffer");
@@ -187,33 +203,40 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     this.overallObjectCount = payload.objectCount;
                     this.announceProgress(this, "", "Adding mesh ");
                     break;
+
                 case "reset":
                     this.resetGeoStruct();
                     break;
+
                 case "position":
                     this.geoStruct.current = "position";
                     break;
+
                 case "normal":
                     this.geoStruct.current = "normal";
                     break;
+
                 case "uv":
                     this.geoStruct.current = "uv";
                     break;
-                case "material":
-                    var materialName = payload.material;
 
+                case "material":
                     if (this.materials !== null) {
-                        this.geoStruct.material = this.materials.create(materialName);
+                        var mat = this.materials.get(payload.material);
+                        if (mat !== null) {
+                            this.geoStruct.material = mat;
+                        }
                     }
                     this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
                     break;
+
                 case "name":
                     this.geoStruct.name = payload.meshName;
 
                     var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + this.geoStruct.name;
                     this.announceProgress(this, output);
                     break;
+
                 case "ready":
                     this.geoStruct.current = "ready";
 
@@ -228,6 +251,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                     this.objGroup.add(mesh);
                     break;
+
                 case "complete":
                     console.log("Total Faces: " + this.faceCount);
                     this.announceProgress(this, "", "");
@@ -235,6 +259,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     if (this.callbackCompletedLoading !== null) {
                         this.callbackCompletedLoading();
                     }
+                    break;
 
                 default:
                     break;
@@ -245,12 +270,15 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 case "position":
                     this.geoStruct.bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload), 3));
                     break;
+
                 case "normal":
                     this.geoStruct.bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload), 3));
                     break;
+
                 case "uv":
                     this.geoStruct.bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload), 2));
                     break;
+
                 default:
                     break;
             }

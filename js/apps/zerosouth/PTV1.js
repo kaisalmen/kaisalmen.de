@@ -26,13 +26,18 @@ KSX.apps.zerosouth.PTV1 = {
     }
 }
 
-console.log('Starting application "PTV1 loader"...');
-if (is.not.ie()) {
+if (bowser.msie) {
+    alert('Internet Explorer is not supported!\nPlease use Chrome 48+, Firefox 44+ or Edge 13+.');
+}
+else if (bowser.msedge && bowser.version < 13.10586) {
+    alert('Edge ' + bowser.version + ' is not supported!\nPlease use Chrome 48+, Firefox 44+ or Edge 13+.');
+}
+else if (bowser.safari && bowser.version < 9.0) {
+    alert('Safari ' + bowser.version + ' is not supported!\nPlease use Chrome 48+, Firefox 44+ or Safari 9+.');
+}
+else {
     window.addEventListener( 'resize', KSX.apps.zerosouth.PTV1.func.onWindowResize, false );
 
     KSX.apps.zerosouth.PTV1.func.init();
     KSX.apps.zerosouth.PTV1.func.render();
-}
-else {
-    alert("Internet Explorer is not supported! Please use Chrome, Firefox or Edge.");
 }

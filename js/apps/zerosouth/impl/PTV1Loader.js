@@ -29,7 +29,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.loadDirectly = false;
         this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
-        this.objLoaderWW.setUseTextDecoder(is.chrome() || is.firefox());
+        this.objLoaderWW.setUseTextDecoder(bowser.chrome || bowser.firefox);
 
         this.helper = null;
         this.objGroup = null;
@@ -38,6 +38,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.meshInfos = new Set();
         this.exportMeshInfos = false;
         this.alterMaterial = false;
+
+        this.alteredColors = new Map();
 
         this.stats = new Stats();
     }
@@ -63,6 +65,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.stats.domElement.style.top = "0px";
 
         document.body.appendChild(this.stats.domElement);
+
+        this.alteredColors.set('wire_166229229', 'rgb(2, 26, 128)');
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -111,6 +115,24 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objLoaderWW.setObjGroup(this.objGroup);
 
         var scope = this;
+
+        var callbackMaterialsLoaded = function (materials) {
+            if (materials !== null) {
+                console.log("Overall nuumber of materials: " + materials.size);
+
+                var funcAlterMaterials = function(rgbvalue, matName) {
+                    console.log('Altering color of "' + matName + '" to: ' + rgbvalue);
+
+                    var matAlter = materials.get(matName);
+                    if (matAlter !== null) {
+                        matAlter.color = new THREE.Color(rgbvalue);
+                    }
+                };
+                scope.alteredColors.forEach(funcAlterMaterials, scope.alteredColors);
+            }
+        };
+        this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
+
         var callbackMeshLoaded = function (meshName, material) {
             if (scope.alterMaterial) {
                 material.side = THREE.DoubleSide;
