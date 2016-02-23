@@ -4,6 +4,18 @@
 
 "use strict";
 
+
+KSX.apps.tools.MeshInfo = (function () {
+
+    function MeshInfo(meshName, materialName) {
+        this.meshName = meshName;
+        this.materialName = materialName;
+    }
+
+    return MeshInfo;
+})();
+
+
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     function PTV1Loader(elementToBindTo) {
@@ -23,6 +35,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objGroup = null;
 
         this.faceCount = 0;
+        this.meshInfos = new Set();
+        this.exportMeshInfos = false;
+        this.alterMaterial = false;
 
         this.stats = new Stats();
     }
@@ -94,6 +109,39 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         scene.add(this.objGroup);
 
         this.objLoaderWW.setObjGroup(this.objGroup);
+
+        var scope = this;
+        var callbackMeshLoaded = function (meshName, material) {
+            if (scope.alterMaterial) {
+                material.side = THREE.DoubleSide;
+                material.transparent = true;
+                material.opacity = 0.5;
+            }
+
+            var meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
+            scope.meshInfos.add(meshInfo);
+        };
+        this.objLoaderWW.registerHookMeshLoaded(callbackMeshLoaded);
+
+        var callbackCompletedLoading = function () {
+            if (scope.exportMeshInfos) {
+                var exportString = "";
+
+                if (scope.meshInfos.size > 0) {
+                    for (let item of scope.meshInfos.values()) {
+                        exportString += JSON.stringify(item);
+                        exportString += "\n";
+                    }
+
+                    var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
+                    saveAs(blob, "meshInfos.json");
+                }
+                else {
+                    alert("Unable to export MeshInfo data as the datastructure is empty!");
+                }
+            }
+        };
+        this.objLoaderWW.registerHookCompletedLoading(callbackCompletedLoading);
 
         this.objLoaderWW.load();
     };

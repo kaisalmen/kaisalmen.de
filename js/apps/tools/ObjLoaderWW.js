@@ -4,16 +4,6 @@
 
 "use strict";
 
-KSX.apps.tools.MeshInfo = (function () {
-
-    function MeshInfo(meshName, materialName) {
-        this.meshName = meshName;
-        this.materialName = materialName;
-    }
-
-    return MeshInfo;
-})();
-
 KSX.apps.tools.ObjLoaderWW = (function () {
 
     function ObjLoaderWW (path, fileObj, fileMtl, needsUnzipping, fileZip) {
@@ -51,11 +41,20 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         this.useTextDecoder = false;
 
-        this.meshInfos = new Set();
+        this.callbackMeshLoaded = null;
+        this.callbackCompletedLoading = null;
     }
 
     ObjLoaderWW.prototype.registerProgressCallback = function (progresCallback) {
         this.progressCallback = progresCallback;
+    };
+
+    ObjLoaderWW.prototype.registerHookMeshLoaded = function (callback) {
+        this.callbackMeshLoaded = callback;
+    };
+
+    ObjLoaderWW.prototype.registerHookCompletedLoading = function (callback) {
+        this.callbackCompletedLoading = callback;
     };
 
     ObjLoaderWW.prototype.setUseTextDecoder = function (useTextDecoder) {
@@ -207,11 +206,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                         this.geoStruct.material = this.materials.create(materialName);
                     }
                     this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
-/*
-                    this.geoStruct.material.side = THREE.DoubleSide;
-                    this.geoStruct.material.transparent = true;
-                    this.geoStruct.material.opacity = 0.5;
-*/
+
                     break;
                 case "name":
                     this.geoStruct.name = payload.meshName;
@@ -223,27 +218,24 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     this.geoStruct.current = "ready";
 
                     this.faceCount += this.geoStruct.bufferGeometry.getAttribute("position").count;
+
+                    if (this.callbackMeshLoaded !== null) {
+                        this.callbackMeshLoaded(this.geoStruct.name, this.geoStruct.material);
+                    }
+
                     var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.geoStruct.material);
                     mesh.name = this.geoStruct.name;
-
-                    var meshInfo = new KSX.apps.tools.MeshInfo(mesh.name, this.geoStruct.material.name);
-                    this.meshInfos.add(meshInfo);
 
                     this.objGroup.add(mesh);
                     break;
                 case "complete":
                     console.log("Total Faces: " + this.faceCount);
                     this.announceProgress(this, "", "");
-/*
-                    var exportString = "";
 
-                    for (let item of this.meshInfos.values()) {
-                        exportString += JSON.stringify(item);
-                        exportString += "\n";
+                    if (this.callbackCompletedLoading !== null) {
+                        this.callbackCompletedLoading();
                     }
-                    var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, "meshInfos.json");
-*/
+
                 default:
                     break;
             }
