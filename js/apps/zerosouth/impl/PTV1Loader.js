@@ -68,6 +68,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         document.body.appendChild(this.stats.domElement);
 
         this.alteredColors.set('wire_166229229', 'rgb(2, 26, 128)');
+        this.replaceMaterials.set('wire_135110008', 'Yellow_Metal');
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -142,7 +143,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             var replacedMaterial = null;
             var replacedMaterialName = scope.replaceMaterials.get(material.name);
 
-            if (replacedMaterialName !== null) {
+            if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
                 replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
             }
 

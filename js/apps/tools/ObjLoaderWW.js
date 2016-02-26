@@ -18,8 +18,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.mtlLoader = new THREE.MTLLoader();
 
         // TODO: Implement own loading manager
-        this.loader = new THREE.XHRLoader();
-        this.loader.setPath(this.path);
+        this.xhrLoader = new THREE.XHRLoader();
+        this.xhrLoader.setPath(this.path);
         this.materials = new Map();
 
         this.defaultMaterial = new THREE.MeshPhongMaterial();
@@ -35,19 +35,17 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         this.overallObjectCount = 0;
         this.faceCount = 0;
-        this.progressCallback = null;
-
-        this.progressInfoBaseText = "";
 
         this.useTextDecoder = false;
 
+        this.callbackProgress = null;
         this.callbackMaterialsLoaded = null;
         this.callbackMeshLoaded = null;
         this.callbackCompletedLoading = null;
     }
 
-    ObjLoaderWW.prototype.registerProgressCallback = function (progresCallback) {
-        this.progressCallback = progresCallback;
+    ObjLoaderWW.prototype.registerProgressCallback = function (callbackProgress) {
+        this.callbackProgress = callbackProgress;
     };
 
     ObjLoaderWW.prototype.registerHookMaterialsLoaded = function (callback) {
@@ -66,14 +64,19 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.useTextDecoder = useTextDecoder;
     };
 
-    ObjLoaderWW.prototype.announceProgress = function (scope, text, newBaseText) {
-        if (scope.progressCallback !== null) {
-            if (newBaseText !== null && newBaseText !== undefined) {
-                scope.progressInfoBaseText = newBaseText;
+    ObjLoaderWW.prototype.announceProgress = function (callbackProgress, baseText, text) {
+        if (callbackProgress !== null) {
+            var output = "";
+            if (baseText !== null && baseText !== undefined) {
+                output = baseText;
             }
-            var output = scope.progressInfoBaseText + " " + text;
-            console.log(output);
-            scope.progressCallback(output);
+
+            if (text !== null && text !== undefined) {
+                output = output + " " + text;
+            }
+
+            //console.log(output);
+            callbackProgress(output);
         }
     };
 
@@ -97,7 +100,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 var percentComplete = event.loaded / event.total * 100;
                 var output = Math.round(percentComplete, 2) + "%";
                 console.log(output);
-                scope.announceProgress(scope, output);
+                scope.announceProgress(scope.callbackProgress, "Downloading PTV data: ", output);
             }
         };
 
@@ -108,7 +111,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         var onLoadObj = function (arrayBuffer) {
             console.log("ObjLoaderWW: Reached onLoadObj");
             var scopeFunction = function (e) {
-                scope.process(e);
+                scope.processObjData(e);
             };
             scope.worker.addEventListener("message", scopeFunction, false);
             scope.worker.postMessage({"cmd" : "init", "useTextDecoder" : scope.useTextDecoder});
@@ -143,10 +146,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 scope.announcedFile = payload.filename;
                 switch (payload.filename) {
                     case scope.fileObj:
-                        scope.announceProgress(scope, "", "Unpacking PTV data...");
+                        scope.announceProgress(scope.callbackProgress, "Unpacking PTV data...");
                         break;
                     case scope.fileMtl:
-                        scope.announceProgress(scope, "", "Unpacking PTV material data...");
+                        scope.announceProgress(scope.callbackProgress, "Unpacking PTV material data...");
                         break;
                     default:
                         console.log("Received feedback for unkown file: " + payload.filename);
@@ -163,7 +166,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
             }
         };
 
-        if (this.needsUnzipping) {
+        if (scope.needsUnzipping) {
             var onLoadZip = function(binary) {
                 console.log("ObjLoaderWW: Reached onLoadZip");
 
@@ -172,7 +175,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 workerZip.postMessage(binary, [binary]);
 
-                scope.announceProgress(scope, "", "Uncompressing 150 MB of data!");
+                scope.announceProgress(scope.callbackProgress, "Uncompressing 150 MB of data!");
                 if (scope.fileMtl !== null || scope.fileMtl !== undefined) {
                     workerZip.postMessage({"cmd": "file", "filename": scope.fileMtl, "encoding": "text"});
                 }
@@ -180,18 +183,18 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 workerZip.postMessage({"cmd": "clean"});
             };
 
-            this.announceProgress(this, "", "Downloading object data:");
-            this.loader.setResponseType("arraybuffer");
-            this.loader.load(this.path + this.fileZip, onLoadZip, onProgress, onError);
+            scope.announceProgress(scope.callbackProgress, "Downloading PTV data:");
+            scope.xhrLoader.setResponseType("arraybuffer");
+            scope.xhrLoader.load(scope.path + scope.fileZip, onLoadZip, onProgress, onError);
         }
         else {
-            if (this.fileMtl !== null) {
+            if (scope.fileMtl !== null) {
                 scope.loader.setResponseType("text");
-                this.loader.load(this.path + this.fileMtl, onLoadMtl, onProgress, onError);
+                scope.xhrLoader.load(scope.path + scope.fileMtl, onLoadMtl, onProgress, onError);
             }
             else {
-                this.loader.setResponseType("arraybuffer");
-                this.loader.load(this.path + this.fileObj, onLoadObj, onProgress, onError);
+                scope.xhrLoader.setResponseType("arraybuffer");
+                scope.xhrLoader.load(scope.path + scope.fileObj, onLoadObj, onProgress, onError);
             }
         }
     };
@@ -205,15 +208,16 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.geoStruct.name = "unknown";
         this.geoStruct.bufferGeometry = new THREE.BufferGeometry();
         this.geoStruct.material = this.defaultMaterial;
+        
     };
 
-    ObjLoaderWW.prototype.process = function (e) {
+    ObjLoaderWW.prototype.processObjData = function (e) {
         var payload = e.data;
         if (payload.cmd != null) {
             switch (payload.cmd) {
                 case "start":
                     this.overallObjectCount = payload.objectCount;
-                    this.announceProgress(this, "", "Adding mesh ");
+                    this.announceProgress(this.callbackProgress, "Adding mesh ");
                     break;
 
                 case "reset":
@@ -246,7 +250,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     this.geoStruct.name = payload.meshName;
 
                     var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + this.geoStruct.name;
-                    this.announceProgress(this, output);
+                    this.announceProgress(this.callbackProgress, "Adding mesh ", output);
                     break;
 
                 case "ready":
@@ -266,7 +270,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 case "complete":
                     console.log("Total Faces: " + this.faceCount);
-                    this.announceProgress(this, "", "");
+                    this.announceProgress(this.callbackProgress, "", "");
 
                     if (this.callbackCompletedLoading !== null) {
                         this.callbackCompletedLoading();
