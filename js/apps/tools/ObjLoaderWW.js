@@ -72,9 +72,21 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 scope.progressInfoBaseText = newBaseText;
             }
             var output = scope.progressInfoBaseText + " " + text;
-            //console.log(output);
+            console.log(output);
             scope.progressCallback(output);
         }
+    };
+
+    ObjLoaderWW.prototype.getMaterial = function (name) {
+        var material = null;
+        if (this.materials !== null) {
+            material = this.materials.get(name);
+            if (material === undefined) {
+                material = null;
+            }
+        }
+
+        return material;
     };
 
     ObjLoaderWW.prototype.load = function () {
