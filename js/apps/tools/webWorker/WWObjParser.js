@@ -177,40 +177,83 @@ function addFace(a, b, c, d, ua, ub, uc, ud, na, nb, nc, nd) {
     }
 }
 
-var postObject = function (object, count) {
+var postObject = function (object, count, complete) {
 //        console.time("Worker Obj: BufferGeometry building");
+
     var geometry = object.geometry;
+    var vertices = new Float32Array(geometry.vertices);
+    var normals = null;
+    var uvs = null;
 
-    // init
-    var transferableObject = null;
-    self.postMessage({"cmd": "reset"});
-
-    self.postMessage({"cmd": "name", "meshName" : object.name, "count" : count});
-
-    self.postMessage({"cmd": "position"});
-    transferableObject = new Float32Array(geometry.vertices);
-    delete geometry.vertices;
-    self.postMessage(transferableObject, [transferableObject.buffer]);
-
+//    console.log(count + ': ' + object.name + ': ' + vertices.length);
     if ( geometry.normals.length > 0 ) {
-        self.postMessage({"cmd": "normal"});
-        transferableObject = new Float32Array(geometry.normals);
-        delete geometry.normals;
-        self.postMessage(transferableObject, [transferableObject.buffer]);
+        normals = new Float32Array(geometry.normals);
     }
     else {
         console.log("Warning no normals have been defined.");
     }
 
     if ( geometry.uvs.length > 0 ) {
-        self.postMessage({"cmd": "uv"});
-        transferableObject = new Float32Array(geometry.uvs);
-        delete geometry.uvs;
-        self.postMessage(transferableObject, [transferableObject.buffer]);
+        uvs = new Float32Array(geometry.uvs);
     }
 
-    self.postMessage({"cmd": "material", "material": object.material.name, "smooth" : object.material.smooth});
-    self.postMessage({"cmd": "ready"});
+
+    if (normals !== null) {
+        if (uvs !== null) {
+            self.postMessage({
+                'cmd': 'objData',
+                'meshName': object.name,
+                'count': count,
+                'material': object.material.name,
+                'smooth' : object.material.smooth,
+                'complete': complete,
+                vertices: vertices,
+                normals: normals,
+                uvs: uvs
+            }, [vertices.buffer], [normals.buffer], [uvs.buffer]);
+        }
+        else {
+            self.postMessage({
+                'cmd': 'objData',
+                'meshName' : object.name,
+                'count' : count,
+                'material': object.material.name,
+                'smooth' : object.material.smooth,
+                'complete': complete,
+                vertices: vertices,
+                normals: normals
+            }, [vertices.buffer], [normals.buffer]);
+        }
+
+    }
+    else if (uvs !== null) {
+        self.postMessage({
+            'cmd': 'objData',
+            'meshName' : object.name,
+            'count' : count,
+            'material': object.material.name,
+            'smooth' : object.material.smooth,
+            'complete': complete,
+            vertices: vertices,
+            uvs: uvs
+        }, [vertices.buffer], [uvs.uvs]);
+    }
+    else {
+        self.postMessage({
+            'cmd': 'objData',
+            'meshName' : object.name,
+            'count' : count,
+            'material': object.material.name,
+            'smooth' : object.material.smooth,
+            'complete': complete,
+            vertices: vertices,
+        }, [vertices.buffer]);
+    }
+
+    delete geometry.vertices;
+    delete geometry.normals;
+    delete geometry.uvs;
+
 //        console.timeEnd("Worker Obj: BufferGeometry building");
 };
 
@@ -226,13 +269,18 @@ var decodeLines = function (arrayBuffer, processLineCallback) {
 
     var code = 0;
     var char;
-    for (var i = 0; i < view.length; i++) {
-        code = view[i];
+    var interruptProcessing = false;
+
+    for (; currentLine < view.length; currentLine++) {
+        code = view[currentLine];
         char = String.fromCharCode(code);
 
         if (code === 10 || code === 13) {
-            processLineCallback(line);
+            interruptProcessing = processLineCallback(line);
             line = "";
+            if (interruptProcessing) {
+                break;
+            }
         }
         else {
             line += char;
@@ -245,6 +293,7 @@ var parseSingleLine = function (line) {
     line = line.trim();
 
     var result;
+    var interruptProcessing = false;
 
     if (line.length === 0 || line.charAt(0) === '#') {
 
@@ -331,7 +380,8 @@ var parseSingleLine = function (line) {
                 var lastObject = object;
                 // Here a new object is found. It can be sent over
                 objectCountRun++;
-                postObject(object, objectCountRun);
+                postObject(object, objectCountRun, false);
+                interruptProcessing = true;
             }
             addObject(name);
         }
@@ -355,9 +405,14 @@ var parseSingleLine = function (line) {
     } else {
         throw new Error("Unexpected line: " + line);
     }
+
+    return interruptProcessing;
 };
 
 var useTextDecoder = false;
+var arrayBuffer = null;
+var lines = null;
+var currentLine = 0;
 
 var wwParseObj = function (e) {
 
@@ -365,11 +420,73 @@ var wwParseObj = function (e) {
 
     if (payload.cmd) {
         switch (payload.cmd) {
-            case "init":
-                if (payload.useTextDecoder !== undefined) {
-                    useTextDecoder = payload.useTextDecoder;
+            case 'init':
+                console.time("Worker Obj: Overall Parsing Time");
+                useTextDecoder = payload.useTextDecoder;
+                arrayBuffer = payload.arrayBuffer;
+                if (useTextDecoder) {
+                    console.log("Worker Obj: Using TextDecoder");
+                    var decoder = new TextDecoder("utf-8");
+                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
+                    var text = decoder.decode(view);
+                    arrayBuffer = null;
+
+                    lines = text.split('\n');
+                }
+                else {
+                    console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
+                }
+
+                self.postMessage({"cmd": "initDone"});
+                break;
+
+            case 'count':
+                console.time("Worker Obj: Counting all objects");
+                if (useTextDecoder) {
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        calcObjectCount(line);
+                    }
+                }
+                else {
+                    decodeLines(payload, calcObjectCount);
+                }
+
+                console.timeEnd("Worker Obj: Counting all objects");
+                console.log("Worker Obj: Total object count: " + objectCount);
+
+                self.postMessage({"cmd": "countDone", "objectCount": objectCount});
+                break;
+
+            case 'process':
+                var interruptProcessing = false;
+
+                if (payload.state === 'start') {
+                    addObject('');
+                }
+
+                if (useTextDecoder) {
+                    for (; currentLine < lines.length; currentLine++) {
+                        var line = lines[currentLine];
+                        interruptProcessing = parseSingleLine(line);
+                        if (interruptProcessing) {
+                            break;
+                        }
+                    }
+                }
+                else {
+                    decodeLines(payload, parseSingleLine);
+                }
+
+                if (!interruptProcessing) {
+                    // Don't forget to post the last object
+                    objectCountRun++;
+                    postObject(object, objectCountRun, true);
+
+                    console.timeEnd("Worker Obj: Overall Parsing Time");
                 }
                 break;
+
             default:
                 console.error("Worker Obj: Received unknown command: " + payload.cmd);
                 break;
@@ -377,57 +494,7 @@ var wwParseObj = function (e) {
     }
     else {
 
-        if (useTextDecoder) {
-            console.log("Worker Obj: Using TextDecoder");
 
-            console.time("Worker Obj: Overall Parsing Time");
-            var decoder = new TextDecoder("utf-8");
-            var view = new DataView(payload, 0, payload.byteLength);
-            var text = decoder.decode(view);
-
-            var lines = text.split('\n');
-
-            console.time("Worker Obj: Counting all objects");
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i];
-                calcObjectCount(line);
-            }
-            console.timeEnd("Worker Obj: Counting all objects");
-
-            console.log("Worker Obj: Total object count: " + objectCount);
-            self.postMessage({"cmd": "start", "objectCount": objectCount});
-
-            console.time("Worker Obj: Overall Parsing Time");
-            addObject('');
-
-            for (var i = 0; i < lines.length; i++) {
-                var line = lines[i];
-                parseSingleLine(line);
-            }
-        }
-        else {
-            console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
-
-            console.time("Worker Obj: Counting all objects");
-            decodeLines(payload, calcObjectCount);
-            console.timeEnd("Worker Obj: Counting all objects");
-
-            console.log("Worker Obj: Total object count: " + objectCount);
-            self.postMessage({"cmd": "start", "objectCount": objectCount});
-
-
-            console.time("Worker Obj: Overall Parsing Time");
-            addObject('');
-
-            decodeLines(payload, parseSingleLine);
-        }
-
-        // Don't forget to post the last object
-        objectCountRun++;
-        postObject(object, objectCountRun);
-
-        self.postMessage({"cmd": "complete"});
-        console.timeEnd("Worker Obj: Overall Parsing Time");
     }
 };
 
