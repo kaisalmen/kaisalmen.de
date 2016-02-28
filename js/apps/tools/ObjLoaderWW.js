@@ -209,14 +209,16 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 this.overallObjectCount = payload.objectCount;
                 this.announceProgress(this.callbackProgress, "Adding mesh ");
 
-                this.worker.postMessage({'cmd' : 'process', 'state' : 'start'});
+                this.worker.postMessage({'cmd' : 'processStart', 'state' : 'start'});
                 break;
 
             case "objData":
                 var meshName = payload.meshName;
+//                console.time("Process objData: " + meshName);
+
                 var material = this.defaultMaterial;
                 if (this.materials !== null) {
-                     this.materials.get(payload.material);
+                    material = this.materials.get(payload.material);
                     if (material !== null) {
                         material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
                     }
@@ -227,8 +229,12 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 var bufferGeometry = new THREE.BufferGeometry();
                 bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload.vertices), 3));
-                bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload.normals), 3));
-                bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload.uvs), 2));
+                if (payload.normals !== undefined) {
+                    bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload.normals), 3));
+                }
+                if (payload.uvs !== undefined) {
+                    bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload.uvs), 2));
+                }
 
                 this.faceCount += bufferGeometry.getAttribute("position").count;
 
@@ -250,8 +256,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     }
                 }
                 else {
-                    this.worker.postMessage({'cmd' : 'process', 'state' : 'ongoing'});
+                    console.log('Main(' + payload.count + '): ' + new Date().getTime());
+                    this.worker.postMessage({'cmd' : 'processOngoing'});
                 }
+//                console.timeEnd("Process objData: " + meshName);
                 break;
 
             default:

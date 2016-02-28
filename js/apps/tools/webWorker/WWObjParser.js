@@ -39,6 +39,11 @@ var smoothing_pattern = /^s\s+(\d+|on|off)/;
 var objectCount = 0;
 var objectCountRun = 0;
 
+var useTextDecoder = false;
+var arrayBuffer = null;
+var lines = null;
+var currentLine = 0;
+
 function addObject(name) {
 
     var geometry = {
@@ -178,7 +183,7 @@ function addFace(a, b, c, d, ua, ub, uc, ud, na, nb, nc, nd) {
 }
 
 var postObject = function (object, count, complete) {
-//        console.time("Worker Obj: BufferGeometry building");
+//    console.time("Worker Obj: BufferGeometry building");
 
     var geometry = object.geometry;
     var vertices = new Float32Array(geometry.vertices);
@@ -254,7 +259,7 @@ var postObject = function (object, count, complete) {
     delete geometry.normals;
     delete geometry.uvs;
 
-//        console.timeEnd("Worker Obj: BufferGeometry building");
+//    console.timeEnd("Worker Obj: BufferGeometry building");
 };
 
 var calcObjectCount = function (line) {
@@ -291,6 +296,8 @@ var decodeLines = function (arrayBuffer, processLineCallback) {
 
 var parseSingleLine = function (line) {
     line = line.trim();
+
+//    console.log(line);
 
     var result;
     var interruptProcessing = false;
@@ -409,92 +416,94 @@ var parseSingleLine = function (line) {
     return interruptProcessing;
 };
 
-var useTextDecoder = false;
-var arrayBuffer = null;
-var lines = null;
-var currentLine = 0;
+var processFile = function () {
+    var interruptProcessing = false;
 
-var wwParseObj = function (e) {
-
-    var payload = e.data;
-
-    if (payload.cmd) {
-        switch (payload.cmd) {
-            case 'init':
-                console.time("Worker Obj: Overall Parsing Time");
-                useTextDecoder = payload.useTextDecoder;
-                arrayBuffer = payload.arrayBuffer;
-                if (useTextDecoder) {
-                    console.log("Worker Obj: Using TextDecoder");
-                    var decoder = new TextDecoder("utf-8");
-                    var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
-                    var text = decoder.decode(view);
-                    arrayBuffer = null;
-
-                    lines = text.split('\n');
-                }
-                else {
-                    console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
-                }
-
-                self.postMessage({"cmd": "initDone"});
+    if (useTextDecoder) {
+        var line = null;
+        for (; currentLine < lines.length; currentLine++) {
+            line = lines[currentLine];
+            interruptProcessing = parseSingleLine(line);
+            if (interruptProcessing) {
                 break;
-
-            case 'count':
-                console.time("Worker Obj: Counting all objects");
-                if (useTextDecoder) {
-                    for (var i = 0; i < lines.length; i++) {
-                        var line = lines[i];
-                        calcObjectCount(line);
-                    }
-                }
-                else {
-                    decodeLines(payload, calcObjectCount);
-                }
-
-                console.timeEnd("Worker Obj: Counting all objects");
-                console.log("Worker Obj: Total object count: " + objectCount);
-
-                self.postMessage({"cmd": "countDone", "objectCount": objectCount});
-                break;
-
-            case 'process':
-                var interruptProcessing = false;
-
-                if (payload.state === 'start') {
-                    addObject('');
-                }
-
-                if (useTextDecoder) {
-                    for (; currentLine < lines.length; currentLine++) {
-                        var line = lines[currentLine];
-                        interruptProcessing = parseSingleLine(line);
-                        if (interruptProcessing) {
-                            break;
-                        }
-                    }
-                }
-                else {
-                    decodeLines(payload, parseSingleLine);
-                }
-
-                if (!interruptProcessing) {
-                    // Don't forget to post the last object
-                    objectCountRun++;
-                    postObject(object, objectCountRun, true);
-
-                    console.timeEnd("Worker Obj: Overall Parsing Time");
-                }
-                break;
-
-            default:
-                console.error("Worker Obj: Received unknown command: " + payload.cmd);
-                break;
+            }
         }
     }
     else {
+        decodeLines(payload, parseSingleLine);
+    }
 
+    if (!interruptProcessing) {
+        // Don't forget to post the last object
+        objectCountRun++;
+        postObject(object, objectCountRun, true);
 
+        console.timeEnd("Worker Obj: Overall Parsing Time");
+    }
+};
+
+var wwParseObj = function (e) {
+    var payload = e.data;
+
+    switch (payload.cmd) {
+        case 'init':
+            console.time("Worker Obj: Overall Parsing Time");
+            useTextDecoder = payload.useTextDecoder;
+            arrayBuffer = payload.arrayBuffer;
+            if (useTextDecoder) {
+                console.log("Worker Obj: Using TextDecoder");
+                var decoder = new TextDecoder("utf-8");
+                var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
+                var text = decoder.decode(view);
+                arrayBuffer = null;
+
+                lines = text.split('\n');
+            }
+            else {
+                console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
+            }
+
+            self.postMessage({"cmd": "initDone"});
+            break;
+
+        case 'count':
+            console.time("Worker Obj: Counting all objects");
+            if (useTextDecoder) {
+                for (var i = 0; i < lines.length; i++) {
+                    var line = lines[i];
+                    calcObjectCount(line);
+                }
+            }
+            else {
+                decodeLines(payload, calcObjectCount);
+            }
+
+            console.timeEnd("Worker Obj: Counting all objects");
+            console.log("Worker Obj: Total object count: " + objectCount);
+
+            self.postMessage({"cmd": "countDone", "objectCount": objectCount});
+            break;
+
+        case 'processStart':
+            addObject('');
+
+            processFile();
+
+            break;
+
+        case 'processOngoing':
+            foundObjects = true;
+            // we exited the loop, therefore we need to increase the counter before entering it again
+            currentLine++;
+
+            console.log('WW(' + objectCountRun + '): ' + new Date().getTime());
+            processFile();
+
+            break;
+
+        default:
+            console.error("Worker Obj: Received unknown command: " + payload.cmd);
+            break;
     }
 };
 
