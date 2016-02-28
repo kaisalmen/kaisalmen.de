@@ -209,12 +209,11 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 this.overallObjectCount = payload.objectCount;
                 this.announceProgress(this.callbackProgress, "Adding mesh ");
 
-                this.worker.postMessage({'cmd' : 'processStart', 'state' : 'start'});
+                this.worker.postMessage({'cmd' : 'processStart'});
                 break;
 
             case "objData":
-                var meshName = payload.meshName;
-//                console.time("Process objData: " + meshName);
+                //                console.time("Process objData: " + payload.meshName);
 
                 var material = this.defaultMaterial;
                 if (this.materials !== null) {
@@ -223,9 +222,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                         material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
                     }
                 }
-
-                var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + payload.meshName;
-                this.announceProgress(this.callbackProgress, "Adding mesh ", output);
 
                 var bufferGeometry = new THREE.BufferGeometry();
                 bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload.vertices), 3));
@@ -239,7 +235,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 this.faceCount += bufferGeometry.getAttribute("position").count;
 
                 if (this.callbackMeshLoaded !== null) {
-                    this.callbackMeshLoaded(meshName, material);
+                    this.callbackMeshLoaded(payload.meshName, material);
                 }
 
                 var mesh = new THREE.Mesh(bufferGeometry, material);
@@ -256,10 +252,15 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     }
                 }
                 else {
-                    console.log('Main(' + payload.count + '): ' + new Date().getTime());
-                    this.worker.postMessage({'cmd' : 'processOngoing'});
+                    var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + payload.meshName;
+                    this.announceProgress(this.callbackProgress, "Adding mesh ", output);
+
+                    if (payload.interrupt) {
+                        this.worker.postMessage({'cmd' : 'processOngoing'});
+                    }
                 }
-//                console.timeEnd("Process objData: " + meshName);
+
+//                console.timeEnd("Process objData: " + payload.meshName);
                 break;
 
             default:

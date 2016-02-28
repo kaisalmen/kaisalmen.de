@@ -4,7 +4,6 @@
 
 "use strict";
 
-var objects = [];
 var object;
 var foundObjects = false;
 var vertices = [];
@@ -62,9 +61,6 @@ function addObject(name) {
         geometry: geometry,
         material: material
     };
-
-    objects.push(object);
-
 }
 
 function parseVertexIndex(value) {
@@ -189,6 +185,7 @@ var postObject = function (object, count, complete) {
     var vertices = new Float32Array(geometry.vertices);
     var normals = null;
     var uvs = null;
+    var interrupt = vertices.length > 30000;
 
 //    console.log(count + ': ' + object.name + ': ' + vertices.length);
     if ( geometry.normals.length > 0 ) {
@@ -212,6 +209,7 @@ var postObject = function (object, count, complete) {
                 'material': object.material.name,
                 'smooth' : object.material.smooth,
                 'complete': complete,
+                'interrupt': interrupt,
                 vertices: vertices,
                 normals: normals,
                 uvs: uvs
@@ -225,6 +223,7 @@ var postObject = function (object, count, complete) {
                 'material': object.material.name,
                 'smooth' : object.material.smooth,
                 'complete': complete,
+                'interrupt': interrupt,
                 vertices: vertices,
                 normals: normals
             }, [vertices.buffer], [normals.buffer]);
@@ -239,6 +238,7 @@ var postObject = function (object, count, complete) {
             'material': object.material.name,
             'smooth' : object.material.smooth,
             'complete': complete,
+            'interrupt': interrupt,
             vertices: vertices,
             uvs: uvs
         }, [vertices.buffer], [uvs.uvs]);
@@ -251,6 +251,7 @@ var postObject = function (object, count, complete) {
             'material': object.material.name,
             'smooth' : object.material.smooth,
             'complete': complete,
+            'interrupt': interrupt,
             vertices: vertices,
         }, [vertices.buffer]);
     }
@@ -258,6 +259,11 @@ var postObject = function (object, count, complete) {
     delete geometry.vertices;
     delete geometry.normals;
     delete geometry.uvs;
+
+    if (interrupt) {
+        console.log('Interrupting processing (10000+ vertices) at obj: ' + objectCountRun);
+    }
+    return interrupt;
 
 //    console.timeEnd("Worker Obj: BufferGeometry building");
 };
@@ -387,8 +393,8 @@ var parseSingleLine = function (line) {
                 var lastObject = object;
                 // Here a new object is found. It can be sent over
                 objectCountRun++;
-                postObject(object, objectCountRun, false);
-                interruptProcessing = true;
+
+                interruptProcessing = postObject(object, objectCountRun, false);;
             }
             addObject(name);
         }
@@ -492,11 +498,11 @@ var wwParseObj = function (e) {
             break;
 
         case 'processOngoing':
+            console.log("Restarted after interrupt at obj: " + objectCountRun);
             foundObjects = true;
             // we exited the loop, therefore we need to increase the counter before entering it again
             currentLine++;
 
-            console.log('WW(' + objectCountRun + '): ' + new Date().getTime());
             processFile();
 
             break;
