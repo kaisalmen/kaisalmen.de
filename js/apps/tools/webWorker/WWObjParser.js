@@ -274,7 +274,7 @@ var calcObjectCount = function (line) {
     }
 };
 
-var decodeLines = function (arrayBuffer, processLineCallback) {
+var decodeLines = function (processLineCallback) {
     var view = new Uint8Array(arrayBuffer);
     var line = "";
 
@@ -297,6 +297,8 @@ var decodeLines = function (arrayBuffer, processLineCallback) {
             line += char;
         }
     }
+
+    return interruptProcessing;
 };
 
 
@@ -436,7 +438,7 @@ var processFile = function () {
         }
     }
     else {
-        decodeLines(payload, parseSingleLine);
+        interruptProcessing = decodeLines(parseSingleLine);
     }
 
     if (!interruptProcessing) {
@@ -473,18 +475,25 @@ var wwParseObj = function (e) {
             break;
 
         case 'count':
-            console.time("Worker Obj: Counting all objects");
-            if (useTextDecoder) {
-                for (var i = 0; i < lines.length; i++) {
-                    var line = lines[i];
-                    calcObjectCount(line);
-                }
+            if (payload.forcedObjectCount > 0) {
+                objectCount = payload.forcedObjectCount;
             }
             else {
-                decodeLines(payload, calcObjectCount);
-            }
+                console.time("Worker Obj: Counting all objects");
 
-            console.timeEnd("Worker Obj: Counting all objects");
+                if (useTextDecoder) {
+                    for (var i = 0; i < lines.length; i++) {
+                        var line = lines[i];
+                        calcObjectCount(line);
+                    }
+                }
+                else {
+                    decodeLines(calcObjectCount);
+                    currentLine = 0;
+                }
+
+                console.timeEnd("Worker Obj: Counting all objects");
+            }
             console.log("Worker Obj: Total object count: " + objectCount);
 
             self.postMessage({"cmd": "countDone", "objectCount": objectCount});

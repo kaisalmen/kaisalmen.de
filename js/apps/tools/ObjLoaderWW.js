@@ -27,6 +27,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         this.announcedFile = "";
 
+        this.forcedObjectCount = 0;
         this.overallObjectCount = 0;
         this.faceCount = 0;
 
@@ -56,6 +57,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
     ObjLoaderWW.prototype.setUseTextDecoder = function (useTextDecoder) {
         this.useTextDecoder = useTextDecoder;
+    };
+
+    ObjLoaderWW.prototype.setForcedObjectCount = function (forcedObjectCount) {
+        this.forcedObjectCount = forcedObjectCount;
     };
 
     ObjLoaderWW.prototype.announceProgress = function (callbackProgress, baseText, text) {
@@ -110,7 +115,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         var onLoadObj = function (arrayBuffer) {
             console.log("ObjLoaderWW: Reached onLoadObj");
 
-            scope.worker.postMessage({"cmd" : "init", "useTextDecoder" : scope.useTextDecoder, arrayBuffer : arrayBuffer},[arrayBuffer] );
+            scope.worker.postMessage({'cmd' : 'init', 'useTextDecoder' : scope.useTextDecoder, arrayBuffer : arrayBuffer},[arrayBuffer] );
         };
 
         var onLoadMtl = function (text, loadObj) {
@@ -202,7 +207,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         switch (payload.cmd) {
             case "initDone":
-                this.worker.postMessage({'cmd' : 'count'});
+                this.worker.postMessage({'cmd' : 'count', 'forcedObjectCount': this.forcedObjectCount});
                 break;
 
             case "countDone":
@@ -213,7 +218,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 break;
 
             case "objData":
-                //                console.time("Process objData: " + payload.meshName);
+//                 console.time("Process objData: " + payload.meshName);
 
                 var material = this.defaultMaterial;
                 if (this.materials !== null) {
