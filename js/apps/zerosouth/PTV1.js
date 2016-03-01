@@ -35,6 +35,12 @@ else if (bowser.msedge && bowser.version < 13.10586) {
 else if (bowser.safari && bowser.version < 9.0) {
     alert('Safari ' + bowser.version + ' is not supported!\nPlease use Chrome 48+, Firefox 44+ or Safari 9+.');
 }
+else if (bowser.chrome && bowser.version < 48.0) {
+    alert('Safari ' + bowser.version + ' is not supported!\nPlease use Chrome 48+, Firefox 44+ or Safari 9+.');
+}
+else if (bowser.firefoc && bowser.version < 44.0) {
+    alert('Safari ' + bowser.version + ' is not supported!\nPlease use Chrome 48+, Firefox 44+ or Safari 9+.');
+}
 else {
     window.addEventListener( 'resize', KSX.apps.zerosouth.PTV1.func.onWindowResize, false );
 

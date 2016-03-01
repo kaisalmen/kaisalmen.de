@@ -27,11 +27,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
         this.announcedFile = "";
 
-        this.forcedObjectCount = 0;
         this.overallObjectCount = 0;
         this.faceCount = 0;
-
-        this.useTextDecoder = false;
 
         this.callbackProgress = null;
         this.callbackMaterialsLoaded = null;
@@ -55,12 +52,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.callbackCompletedLoading = callback;
     };
 
-    ObjLoaderWW.prototype.setUseTextDecoder = function (useTextDecoder) {
-        this.useTextDecoder = useTextDecoder;
-    };
-
-    ObjLoaderWW.prototype.setForcedObjectCount = function (forcedObjectCount) {
-        this.forcedObjectCount = forcedObjectCount;
+    ObjLoaderWW.prototype.setOverallObjectCount = function (overallObjectCount) {
+        this.overallObjectCount = overallObjectCount;
     };
 
     ObjLoaderWW.prototype.announceProgress = function (callbackProgress, baseText, text) {
@@ -115,7 +108,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         var onLoadObj = function (arrayBuffer) {
             console.log("ObjLoaderWW: Reached onLoadObj");
 
-            scope.worker.postMessage({'cmd' : 'init', 'useTextDecoder' : scope.useTextDecoder, arrayBuffer : arrayBuffer},[arrayBuffer] );
+            scope.worker.postMessage({'cmd' : 'init', arrayBuffer : arrayBuffer},[arrayBuffer] );
         };
 
         var onLoadMtl = function (text, loadObj) {
@@ -160,6 +153,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     onLoadMtl(payload.text, false);
                 }
                 else if (scope.announcedFile === scope.fileObj) {
+                    scope.announceProgress(scope.callbackProgress, "Preparing data for processing");
                     onLoadObj(e.data);
                 }
             }
@@ -175,9 +169,11 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 workerZip.postMessage(binary, [binary]);
 
                 scope.announceProgress(scope.callbackProgress, "Uncompressing 150 MB of data!");
+
                 if (scope.fileMtl !== null || scope.fileMtl !== undefined) {
                     workerZip.postMessage({"cmd": "file", "filename": scope.fileMtl, "encoding": "text"});
                 }
+
                 workerZip.postMessage({"cmd": "file", "filename": scope.fileObj, "encoding": "arraybuffer"});
                 workerZip.postMessage({"cmd": "clean"});
             };
@@ -206,17 +202,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         var payload = e.data;
 
         switch (payload.cmd) {
-            case "initDone":
-                this.worker.postMessage({'cmd' : 'count', 'forcedObjectCount': this.forcedObjectCount});
-                break;
-
-            case "countDone":
-                this.overallObjectCount = payload.objectCount;
-                this.announceProgress(this.callbackProgress, "Adding mesh ");
-
-                this.worker.postMessage({'cmd' : 'processStart'});
-                break;
-
             case "objData":
 //                 console.time("Process objData: " + payload.meshName);
 

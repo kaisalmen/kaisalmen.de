@@ -35,13 +35,10 @@ var object_pattern = /^[og]\s+(.+)/;
 
 var smoothing_pattern = /^s\s+(\d+|on|off)/;
 
-var objectCount = 0;
 var objectCountRun = 0;
 
-var useTextDecoder = false;
 var arrayBuffer = null;
-var lines = null;
-var currentLine = 0;
+var currentPos = 0;
 
 function addObject(name) {
 
@@ -94,7 +91,6 @@ function addVertex(a, b, c) {
         vertices[b], vertices[b + 1], vertices[b + 2],
         vertices[c], vertices[c + 1], vertices[c + 2]
     );
-
 }
 
 function addNormal(a, b, c) {
@@ -182,26 +178,26 @@ var postObject = function (object, count, complete) {
 //    console.time("Worker Obj: BufferGeometry building");
 
     var geometry = object.geometry;
-    var vertices = new Float32Array(geometry.vertices);
-    var normals = null;
-    var uvs = null;
-    var interrupt = vertices.length > 30000;
+    var verticesOut = new Float32Array(geometry.vertices);
+    var normalsOut = null;
+    var uvsOut = null;
+    var interrupt = verticesOut.length > 30000;
 
 //    console.log(count + ': ' + object.name + ': ' + vertices.length);
     if ( geometry.normals.length > 0 ) {
-        normals = new Float32Array(geometry.normals);
+        normalsOut = new Float32Array(geometry.normals);
     }
     else {
         console.log("Warning no normals have been defined.");
     }
 
     if ( geometry.uvs.length > 0 ) {
-        uvs = new Float32Array(geometry.uvs);
+        uvsOut = new Float32Array(geometry.uvs);
     }
 
 
-    if (normals !== null) {
-        if (uvs !== null) {
+    if (normalsOut !== null) {
+        if (uvsOut !== null) {
             self.postMessage({
                 'cmd': 'objData',
                 'meshName': object.name,
@@ -210,10 +206,10 @@ var postObject = function (object, count, complete) {
                 'smooth' : object.material.smooth,
                 'complete': complete,
                 'interrupt': interrupt,
-                vertices: vertices,
-                normals: normals,
-                uvs: uvs
-            }, [vertices.buffer], [normals.buffer], [uvs.buffer]);
+                vertices: verticesOut,
+                normals: normalsOut,
+                uvs: uvsOut
+            }, [verticesOut.buffer], [normalsOut.buffer], [uvsOut.buffer]);
         }
         else {
             self.postMessage({
@@ -224,13 +220,13 @@ var postObject = function (object, count, complete) {
                 'smooth' : object.material.smooth,
                 'complete': complete,
                 'interrupt': interrupt,
-                vertices: vertices,
-                normals: normals
-            }, [vertices.buffer], [normals.buffer]);
+                vertices: verticesOut,
+                normals: normalsOut
+            }, [verticesOut.buffer], [normalsOut.buffer]);
         }
 
     }
-    else if (uvs !== null) {
+    else if (uvsOut !== null) {
         self.postMessage({
             'cmd': 'objData',
             'meshName' : object.name,
@@ -239,9 +235,9 @@ var postObject = function (object, count, complete) {
             'smooth' : object.material.smooth,
             'complete': complete,
             'interrupt': interrupt,
-            vertices: vertices,
-            uvs: uvs
-        }, [vertices.buffer], [uvs.uvs]);
+            vertices: verticesOut,
+            uvs: uvsOut
+        }, [verticesOut.buffer], [uvsOut.uvs]);
     }
     else {
         self.postMessage({
@@ -252,8 +248,8 @@ var postObject = function (object, count, complete) {
             'smooth' : object.material.smooth,
             'complete': complete,
             'interrupt': interrupt,
-            vertices: vertices,
-        }, [vertices.buffer]);
+            vertices: verticesOut,
+        }, [verticesOut.buffer]);
     }
 
     delete geometry.vertices;
@@ -261,17 +257,11 @@ var postObject = function (object, count, complete) {
     delete geometry.uvs;
 
     if (interrupt) {
-        console.log('Interrupting processing (10000+ vertices) at obj: ' + objectCountRun);
+        console.log('Interrupting processing (10000+ vertices) at object no.: ' + objectCountRun);
     }
     return interrupt;
 
 //    console.timeEnd("Worker Obj: BufferGeometry building");
-};
-
-var calcObjectCount = function (line) {
-    if (object_pattern.exec(line) !== null) {
-        objectCount++;
-    }
 };
 
 var decodeLines = function (processLineCallback) {
@@ -282,8 +272,8 @@ var decodeLines = function (processLineCallback) {
     var char;
     var interruptProcessing = false;
 
-    for (; currentLine < view.length; currentLine++) {
-        code = view[currentLine];
+    for (; currentPos < view.length; currentPos++) {
+        code = view[currentPos];
         char = String.fromCharCode(code);
 
         if (code === 10 || code === 13) {
@@ -392,7 +382,6 @@ var parseSingleLine = function (line) {
         }
         else {
             if (object !== null) {
-                var lastObject = object;
                 // Here a new object is found. It can be sent over
                 objectCountRun++;
 
@@ -425,26 +414,15 @@ var parseSingleLine = function (line) {
 };
 
 var processFile = function () {
-    var interruptProcessing = false;
 
-    if (useTextDecoder) {
-        var line = null;
-        for (; currentLine < lines.length; currentLine++) {
-            line = lines[currentLine];
-            interruptProcessing = parseSingleLine(line);
-            if (interruptProcessing) {
-                break;
-            }
-        }
-    }
-    else {
-        interruptProcessing = decodeLines(parseSingleLine);
-    }
+    var interruptProcessing = decodeLines(parseSingleLine);
 
     if (!interruptProcessing) {
         // Don't forget to post the last object
         objectCountRun++;
         postObject(object, objectCountRun, true);
+
+        console.log("Worker Obj: Total object count: " + objectCountRun);
 
         console.timeEnd("Worker Obj: Overall Parsing Time");
     }
@@ -456,50 +434,9 @@ var wwParseObj = function (e) {
     switch (payload.cmd) {
         case 'init':
             console.time("Worker Obj: Overall Parsing Time");
-            useTextDecoder = payload.useTextDecoder;
+
             arrayBuffer = payload.arrayBuffer;
-            if (useTextDecoder) {
-                console.log("Worker Obj: Using TextDecoder");
-                var decoder = new TextDecoder("utf-8");
-                var view = new DataView(arrayBuffer, 0, arrayBuffer.byteLength);
-                var text = decoder.decode(view);
-                arrayBuffer = null;
 
-                lines = text.split('\n');
-            }
-            else {
-                console.log("Worker Obj: Using manual String Generation (IE/Edge/Safari compatibility)");
-            }
-
-            self.postMessage({"cmd": "initDone"});
-            break;
-
-        case 'count':
-            if (payload.forcedObjectCount > 0) {
-                objectCount = payload.forcedObjectCount;
-            }
-            else {
-                console.time("Worker Obj: Counting all objects");
-
-                if (useTextDecoder) {
-                    for (var i = 0; i < lines.length; i++) {
-                        var line = lines[i];
-                        calcObjectCount(line);
-                    }
-                }
-                else {
-                    decodeLines(calcObjectCount);
-                    currentLine = 0;
-                }
-
-                console.timeEnd("Worker Obj: Counting all objects");
-            }
-            console.log("Worker Obj: Total object count: " + objectCount);
-
-            self.postMessage({"cmd": "countDone", "objectCount": objectCount});
-            break;
-
-        case 'processStart':
             addObject('');
 
             processFile();
@@ -507,10 +444,10 @@ var wwParseObj = function (e) {
             break;
 
         case 'processOngoing':
-            console.log("Restarted after interrupt at obj: " + objectCountRun);
+            console.log("Restarted after interrupt at object no.: " + objectCountRun);
             foundObjects = true;
             // we exited the loop, therefore we need to increase the counter before entering it again
-            currentLine++;
+            currentPos++;
 
             processFile();
 

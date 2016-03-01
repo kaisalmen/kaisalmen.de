@@ -29,10 +29,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.loadDirectly = false;
         this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
-        this.objLoaderWW.setUseTextDecoder(bowser.chrome || (bowser.firefox && !bowser.mobile));
 
         // disables dynamic counting of objects in file
-        this.objLoaderWW.setForcedObjectCount(1585);
+        this.objLoaderWW.setOverallObjectCount(1585);
 
         this.helper = null;
         this.objGroup = null;
