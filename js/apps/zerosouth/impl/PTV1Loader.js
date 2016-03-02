@@ -29,7 +29,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.loadDirectly = false;
         this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
-        this.objLoaderWW.setUseTextDecoder(bowser.chrome || bowser.firefox);
+
+        // disables dynamic counting of objects in file
+        this.objLoaderWW.setOverallObjectCount(1585);
 
         this.helper = null;
         this.objGroup = null;
@@ -59,12 +61,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objLoaderWW.registerProgressCallback(progressUpdate);
 
         this.stats.setMode(0);
-
-        // align top-left
-        this.stats.domElement.style.position = "absolute";
-        this.stats.domElement.style.left = "0px";
-        this.stats.domElement.style.top = "0px";
-
         document.body.appendChild(this.stats.domElement);
 
         this.alteredColors.set('wire_166229229', 'rgb(2, 26, 128)');

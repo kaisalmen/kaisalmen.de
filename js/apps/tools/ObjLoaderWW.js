@@ -26,17 +26,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.defaultMaterial.name = "defaultMaterial";
 
         this.announcedFile = "";
-        this.geoStruct = {
-            current: "reset",
-            name: "unknown",
-            bufferGeometry: new THREE.BufferGeometry(),
-            material: this.defaultMaterial
-        };
 
         this.overallObjectCount = 0;
-        this.faceCount = 0;
-
-        this.useTextDecoder = false;
 
         this.callbackProgress = null;
         this.callbackMaterialsLoaded = null;
@@ -60,8 +51,8 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.callbackCompletedLoading = callback;
     };
 
-    ObjLoaderWW.prototype.setUseTextDecoder = function (useTextDecoder) {
-        this.useTextDecoder = useTextDecoder;
+    ObjLoaderWW.prototype.setOverallObjectCount = function (overallObjectCount) {
+        this.overallObjectCount = overallObjectCount;
     };
 
     ObjLoaderWW.prototype.announceProgress = function (callbackProgress, baseText, text) {
@@ -108,15 +99,15 @@ KSX.apps.tools.ObjLoaderWW = (function () {
             console.log("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
         };
 
+        var scopeFunction = function (e) {
+            scope.processObjData(e);
+        };
+        scope.worker.addEventListener("message", scopeFunction, false);
+
         var onLoadObj = function (arrayBuffer) {
             console.log("ObjLoaderWW: Reached onLoadObj");
-            var scopeFunction = function (e) {
-                scope.processObjData(e);
-            };
-            scope.worker.addEventListener("message", scopeFunction, false);
-            scope.worker.postMessage({"cmd" : "init", "useTextDecoder" : scope.useTextDecoder});
 
-            scope.worker.postMessage(arrayBuffer, [arrayBuffer]);
+            scope.worker.postMessage({'cmd' : 'init', arrayBuffer : arrayBuffer},[arrayBuffer] );
         };
 
         var onLoadMtl = function (text, loadObj) {
@@ -161,6 +152,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     onLoadMtl(payload.text, false);
                 }
                 else if (scope.announcedFile === scope.fileObj) {
+                    scope.announceProgress(scope.callbackProgress, "Preparing data for processing");
                     onLoadObj(e.data);
                 }
             }
@@ -176,9 +168,11 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 workerZip.postMessage(binary, [binary]);
 
                 scope.announceProgress(scope.callbackProgress, "Uncompressing 150 MB of data!");
+
                 if (scope.fileMtl !== null || scope.fileMtl !== undefined) {
                     workerZip.postMessage({"cmd": "file", "filename": scope.fileMtl, "encoding": "text"});
                 }
+
                 workerZip.postMessage({"cmd": "file", "filename": scope.fileObj, "encoding": "arraybuffer"});
                 workerZip.postMessage({"cmd": "clean"});
             };
@@ -203,104 +197,63 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.objGroup = objGroup;
     };
 
-    ObjLoaderWW.prototype.resetGeoStruct = function () {
-        this.geoStruct.current = "reset";
-        this.geoStruct.name = "unknown";
-        this.geoStruct.bufferGeometry = new THREE.BufferGeometry();
-        this.geoStruct.material = this.defaultMaterial;
-        
-    };
-
     ObjLoaderWW.prototype.processObjData = function (e) {
         var payload = e.data;
-        if (payload.cmd != null) {
-            switch (payload.cmd) {
-                case "start":
-                    this.overallObjectCount = payload.objectCount;
-                    this.announceProgress(this.callbackProgress, "Adding mesh ");
-                    break;
 
-                case "reset":
-                    this.resetGeoStruct();
-                    break;
+        switch (payload.cmd) {
+            case "objData":
+//                 console.time("Process objData: " + payload.meshName);
 
-                case "position":
-                    this.geoStruct.current = "position";
-                    break;
-
-                case "normal":
-                    this.geoStruct.current = "normal";
-                    break;
-
-                case "uv":
-                    this.geoStruct.current = "uv";
-                    break;
-
-                case "material":
-                    if (this.materials !== null) {
-                        var mat = this.materials.get(payload.material);
-                        if (mat !== null) {
-                            this.geoStruct.material = mat;
-                        }
+                var material = this.defaultMaterial;
+                if (this.materials !== null) {
+                    material = this.materials.get(payload.material);
+                    if (material !== null) {
+                        material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
                     }
-                    this.geoStruct.material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
-                    break;
+                }
 
-                case "name":
-                    this.geoStruct.name = payload.meshName;
+                var bufferGeometry = new THREE.BufferGeometry();
+                bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload.vertices), 3));
+                if (payload.normals !== undefined) {
+                    bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload.normals), 3));
+                }
+                if (payload.uvs !== undefined) {
+                    bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload.uvs), 2));
+                }
 
-                    var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + this.geoStruct.name;
-                    this.announceProgress(this.callbackProgress, "Adding mesh ", output);
-                    break;
+                if (this.callbackMeshLoaded !== null) {
+                    this.callbackMeshLoaded(payload.meshName, material);
+                }
 
-                case "ready":
-                    this.geoStruct.current = "ready";
+                var mesh = new THREE.Mesh(bufferGeometry, material);
+                mesh.name = payload.meshName;
 
-                    this.faceCount += this.geoStruct.bufferGeometry.getAttribute("position").count;
+                this.objGroup.add(mesh);
 
-                    if (this.callbackMeshLoaded !== null) {
-                        this.callbackMeshLoaded(this.geoStruct.name, this.geoStruct.material);
-                    }
-
-                    var mesh = new THREE.Mesh(this.geoStruct.bufferGeometry, this.geoStruct.material);
-                    mesh.name = this.geoStruct.name;
-
-                    this.objGroup.add(mesh);
-                    break;
-
-                case "complete":
-                    console.log("Total Faces: " + this.faceCount);
+                if (payload.complete) {
+                    console.log("Total Faces: " + payload.faceCount);
                     this.announceProgress(this.callbackProgress, "", "");
 
                     if (this.callbackCompletedLoading !== null) {
                         this.callbackCompletedLoading();
                     }
-                    break;
+                }
+                else {
+                    var output = "(" + payload.count + "/" + this.overallObjectCount + "): " + payload.meshName;
+                    this.announceProgress(this.callbackProgress, "Adding mesh ", output);
 
-                default:
-                    break;
-            }
+                    if (payload.interrupt) {
+                        this.worker.postMessage({'cmd' : 'processOngoing'});
+                    }
+                }
+
+//                console.timeEnd("Process objData: " + payload.meshName);
+                break;
+
+            default:
+                console.error('Received unknown command: ' + payload.cmd);
+                break;
         }
-        else {
-            switch (this.geoStruct.current) {
-                case "position":
-                    this.geoStruct.bufferGeometry.addAttribute("position", new THREE.BufferAttribute(new Float32Array(payload), 3));
-                    break;
-
-                case "normal":
-                    this.geoStruct.bufferGeometry.addAttribute("normal", new THREE.BufferAttribute(new Float32Array(payload), 3));
-                    break;
-
-                case "uv":
-                    this.geoStruct.bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload), 2));
-                    break;
-
-                default:
-                    break;
-            }
-        }
-
-
     };
 
     return ObjLoaderWW;
