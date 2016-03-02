@@ -28,7 +28,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         this.announcedFile = "";
 
         this.overallObjectCount = 0;
-        this.faceCount = 0;
 
         this.callbackProgress = null;
         this.callbackMaterialsLoaded = null;
@@ -222,8 +221,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                     bufferGeometry.addAttribute("uv", new THREE.BufferAttribute(new Float32Array(payload.uvs), 2));
                 }
 
-                this.faceCount += bufferGeometry.getAttribute("position").count;
-
                 if (this.callbackMeshLoaded !== null) {
                     this.callbackMeshLoaded(payload.meshName, material);
                 }
@@ -234,7 +231,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 this.objGroup.add(mesh);
 
                 if (payload.complete) {
-                    console.log("Total Faces: " + this.faceCount);
+                    console.log("Total Faces: " + payload.faceCount);
                     this.announceProgress(this.callbackProgress, "", "");
 
                     if (this.callbackCompletedLoading !== null) {
