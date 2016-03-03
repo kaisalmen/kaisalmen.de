@@ -15,7 +15,7 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         this.uniforms = {
             blendFactor : { type: "f", value: 0.75 },
             colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
-            texture1: { type: "t", texture: null }
+            texture1: { type: "t", value: null }
         };
     }
 
