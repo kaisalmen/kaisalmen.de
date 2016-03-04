@@ -9,9 +9,9 @@
  */
 KSX.apps.core.Canvas = (function () {
 
-    function Canvas(htmlCanvas, verbose) {
+    function Canvas(htmlCanvas) {
         this.init(htmlCanvas);
-        this.verbose = verbose;
+        this.verbose = false;
     }
 
     Canvas.prototype.init = function (htmlCanvas) {

@@ -10,7 +10,7 @@ KSX.apps.demos.BlueMarble = {
     },
     func : {
         init : function () {
-            var impl = new KSX.apps.demos.impl.BlueMarbleApp(document.getElementById("DivGLFullCanvas"));
+            var impl = new KSX.apps.demos.impl.BlueMarbleApp(document.getElementById("DivGLCanvasFixed"));
             KSX.apps.demos.BlueMarble.glob.appLifecycle.addApp(impl.app);
 
             // kicks init and starts rendering

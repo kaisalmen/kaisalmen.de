@@ -4,34 +4,45 @@
 
 "use strict";
 
+
 KSX.apps.core.ThreeJsApp = (function () {
 
-    var DEFAULT_NEAR = 10;
-    var DEFAULT_FAR = -10;
-
-    function ThreeJsApp(user, name, divGLCanvas, verbose) {
+    function ThreeJsApp(user, name, divGLCanvas, useScenePerspective, useSceneOrtho) {
         this.user = user;
         this.name = name;
 
-        this.canvas = new KSX.apps.core.Canvas(divGLCanvas, verbose);
+        this.canvas = new KSX.apps.core.Canvas(divGLCanvas);
 
-        this.scene = new THREE.Scene();
-        this.camera = new THREE.PerspectiveCamera(45, this.canvas.aspectRatio, 0.1, 10000);
-        this.cameraTarget = new THREE.Vector3(0, 0, 0);
+        this.useScenePerspective = useScenePerspective;
+        if (this.useScenePerspective) {
+            this.scenePerspective = new KSX.apps.core.ThreeJsApp.ScenePerspective(this.canvas);
+        }
 
-        this.sceneOrtho = new THREE.Scene();
-        this.cameraOrtho = new THREE.OrthographicCamera(this.canvas.getPixelLeft(), this.canvas.getPixelRight, this.canvas.getPixelTop(), this.canvas.getPixelBottom(), DEFAULT_NEAR, DEFAULT_FAR);
+        this.useSceneOrtho = useSceneOrtho;
+        if (this.useSceneOrtho) {
+            this.sceneOrtho = new KSX.apps.core.ThreeJsApp.SceneOrtho(this.canvas);
+        }
 
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: divGLCanvas,
-            antialias: true
-        });
+        this.renderer = null;
+
         this.renderingEndabled = false;
-        this.verbose = verbose;
+        this.verbose = false;
     }
 
     ThreeJsApp.prototype.getAppName = function () {
         return this.name;
+    };
+
+    ThreeJsApp.prototype.setVerbose = function (enabled) {
+        this.verbose = enabled;
+        this.canvas.verbose = enabled;
+        if (this.useScenePerspective) {
+            this.scenePerspective.verbose = enabled;
+        }
+
+        if (this.useSceneOrtho) {
+            this.sceneOrtho.verbose = enabled;
+        }
     };
 
     ThreeJsApp.prototype.initAsync = function () {
@@ -44,17 +55,38 @@ KSX.apps.core.ThreeJsApp = (function () {
         if (typeof this.user.initPreGL == "function") {
             this.user.initPreGL();
         }
-        console.log("SceneAppPerspective (" + this.name + "): resizeDisplayHtml");
 
         console.log("SceneAppPerspective (" + this.name + "): initGL");
-        this.resizeDisplayGL();
+
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas.htmlCanvas,
+            antialias: true
+        });
+
+        if (this.useScenePerspective) {
+            this.scenePerspective.initGL();
+        }
+        if (this.useSceneOrtho) {
+            this.sceneOrtho.initGL();
+        }
+
         this.user.initGL();
+        this.resizeDisplayGL();
+
 
         console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
+        if (typeof this.user.addEventHandlers == "function") {
+            this.user.addEventHandlers();
+        }
+
 
         console.log("SceneAppPerspective (" + this.name + "): initPostGL");
+        if (typeof this.user.initPostGL == "function") {
+            this.user.initPostGL();
+        }
 
         console.log("SceneAppPerspective (" + this.name + "): Ready to start render loop!");
+
 
         this.renderingEndabled = true;
     };
@@ -71,50 +103,126 @@ KSX.apps.core.ThreeJsApp = (function () {
 
         this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
 
-        this.camera.aspect = this.canvas.aspectRatio;
-        this.camera.updateProjectionMatrix();
+        if (this.useScenePerspective) {
+            this.scenePerspective.updateCamera();
+        }
 
-
-        this.cameraOrtho.left = this.canvas.getPixelLeft();
-        this.cameraOrtho.right = this.canvas.getPixelRight();
-        this.cameraOrtho.top = this.canvas.getPixelTop();
-        this.cameraOrtho.bottom = this.canvas.getPixelBottom();
-        this.cameraOrtho.updateProjectionMatrix();
+        if (this.useSceneOrtho) {
+            this.sceneOrtho.updateCamera();
+        }
     };
 
     ThreeJsApp.prototype.render = function () {
         if (this.renderingEndabled) {
             this.user.render();
-            this.renderer.render(this.scene, this.camera);
+
+            if (this.useScenePerspective) {
+                this.renderer.clearDepth();
+                this.renderer.render(this.scenePerspective.scene, this.scenePerspective.camera);
+            }
+
+            if (this.useSceneOrtho) {
+                this.renderer.clearDepth();
+                this.renderer.render(this.sceneOrtho.scene, this.sceneOrtho.camera);
+            }
         }
     };
 
     ThreeJsApp.prototype.resetCamera = function () {
-        this.camera.position.set(0, 0, 250);
-        this.cameraTarget = new THREE.Vector3(0, 0, 0);
+        if (this.useScenePerspective) {
+            this.scenePerspective.resetCamera();
+        }
+
+        if (this.useSceneOrtho) {
+            this.sceneOrtho.resetCamera();
+        }
+    };
+
+    return ThreeJsApp;
+}
+)();
+
+KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
+
+    var DEFAULT_NEAR = 0.1;
+    var DEFAULT_FAR = 10000;
+    var DEFAULT_FOV = 45;
+    var DEFAULT_POS = new THREE.Vector3(0, 0, 250);
+    var DEFAULT_POS_TARGET = new THREE.Vector3(0, 0, 0);
+
+    function ScenePerspective(canvas) {
+        this.canvas = canvas;
+        this.verbose = false;
+    }
+
+    ScenePerspective.prototype.resetCamera = function () {
+        this.camera.position.set(DEFAULT_POS);
+        this.cameraTarget = new THREE.Vector3(DEFAULT_POS_TARGET);
         this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
     };
 
-    ThreeJsApp.prototype.getScene = function () {
-      return this.scene;
+    ScenePerspective.prototype.initGL = function () {
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
+        this.cameraTarget = new THREE.Vector3(DEFAULT_POS_TARGET);
     };
 
-    ThreeJsApp.prototype.getRenderer = function () {
-        return this.renderer;
+    ScenePerspective.prototype.updateCamera = function () {
+        this.camera.aspect = this.canvas.aspectRatio;
+        this.camera.updateProjectionMatrix();
     };
 
-    ThreeJsApp.prototype.getCanvas = function () {
-        return this.canvas;
+    ScenePerspective.prototype.getScene = function () {
+        return this.scene;
     };
 
-    ThreeJsApp.prototype.getCamera = function () {
+    ScenePerspective.prototype.getCamera = function () {
         return this.camera;
     };
 
-    ThreeJsApp.prototype.getCameraTarget = function () {
+    ScenePerspective.prototype.getCameraTarget = function () {
         return this.cameraTarget;
     };
 
-    return ThreeJsApp;
+    return ScenePerspective;
+
+})();
+
+KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
+
+    var DEFAULT_NEAR = 10;
+    var DEFAULT_FAR = -10;
+    var DEFAULT_POS = new THREE.Vector3(0, 0, 1);
+
+    function SceneOrtho(canvas) {
+        this.canvas = canvas;
+        this.verbose = false;
+    }
+
+    SceneOrtho.prototype.initGL = function () {
+        this.scene = new THREE.Scene();
+
+        this.camera = new THREE.OrthographicCamera(this.canvas.getPixelLeft(), this.canvas.getPixelRight, this.canvas.getPixelTop(), this.canvas.getPixelBottom(), DEFAULT_NEAR, DEFAULT_FAR);
+    };
+
+    SceneOrtho.prototype.resetCamera = function () {
+        this.camera.position.set(DEFAULT_POS);
+        this.camera.updateProjectionMatrix();
+    };
+
+    SceneOrtho.prototype.updateCamera = function () {
+        this.camera.left = this.canvas.getPixelLeft();
+        this.camera.right = this.canvas.getPixelRight();
+        this.camera.top = this.canvas.getPixelTop();
+        this.camera.bottom = this.canvas.getPixelBottom();
+
+        console.log('Ortho Camera Dimensions: ' + this.camera.left + ' ' + this.camera.right + ' ' + this.camera.top + ' ' + this.camera.bottom);
+
+        this.camera.updateProjectionMatrix();
+    };
+
+    return SceneOrtho;
+
 })();

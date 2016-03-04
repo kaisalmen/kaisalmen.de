@@ -1,0 +1,13 @@
+#DivGLCanvasFixed {
+    margin: inherit;
+    padding: inherit;
+    width: 3712px;
+    height: 3712px;
+    top: 0px;
+    left: 0px;
+    background-color: #000000;
+}
+
+#DivGLFull {
+    overflow: auto;
+}

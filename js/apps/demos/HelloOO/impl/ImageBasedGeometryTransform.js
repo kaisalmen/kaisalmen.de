@@ -7,7 +7,7 @@
 KSX.apps.demos.ImageBasedGeometryTransform = (function () {
 
     function ImageBasedGeometryTransform(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "ImageBasedGeometryTransform", elementToBindTo, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "ImageBasedGeometryTransform", elementToBindTo, true, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
@@ -50,8 +50,8 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         });
         this.mesh =  new THREE.Mesh(geometry, material);
 
-        this.app.scene.add(this.mesh);
-        this.app.camera.position.z = 25;
+        this.app.scenePerspective.scene.add(this.mesh);
+        this.app.scenePerspective.camera.position.z = 25;
     };
 
     ImageBasedGeometryTransform.prototype.render = function () {
