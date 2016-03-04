@@ -11,20 +11,20 @@ var KSX = {
 
                 function AppLifecycle(name) {
                     this.name = name;
-                    this.sceneApps = new Array();
+                    this.apps = new Array();
                 }
 
-                AppLifecycle.prototype.addSceneApp = function (sceneApp) {
-                    this.sceneApps.push(sceneApp);
-                    console.log("Added sceneApp: " + sceneApp.getAppName())
+                AppLifecycle.prototype.addApp = function (app) {
+                    this.apps.push(app);
+                    console.log("Added app: " + app.getAppName())
                 };
 
                 AppLifecycle.prototype.initAsync = function () {
                     console.log("Starting global initialisation phase...");
 
                     var currentScene;
-                    for (var i = 0; i < this.sceneApps.length; i++) {
-                        currentScene = this.sceneApps[i];
+                    for (var i = 0; i < this.apps.length; i++) {
+                        currentScene = this.apps[i];
                         currentScene.browserContext = this;
                         console.log("Registering: " + currentScene.name);
 
@@ -33,14 +33,14 @@ var KSX = {
                 };
 
                 AppLifecycle.prototype.renderAllApps = function () {
-                    for (var i = 0; i < this.sceneApps.length; i++) {
-                        this.sceneApps[i].render();
+                    for (var i = 0; i < this.apps.length; i++) {
+                        this.apps[i].render();
                     }
                 };
 
                 AppLifecycle.prototype.resizeAll = function () {
-                    for (var i = 0; i < this.sceneApps.length; i++) {
-                        this.sceneApps[i].adjustWindow();
+                    for (var i = 0; i < this.apps.length; i++) {
+                        this.apps[i].resizeDisplayGL();
                     }
                 };
 

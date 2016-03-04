@@ -7,7 +7,7 @@
 KSX.apps.demos.HelloOOSimple = (function () {
 
     function HelloOOSimple(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOSimple", elementToBindTo, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOSimple", elementToBindTo, false);
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
@@ -15,12 +15,12 @@ KSX.apps.demos.HelloOOSimple = (function () {
 
     HelloOOSimple.prototype.initAsyncContent = function() {
         console.log("HelloOOSimple.initAsyncContent is not required!");
-        this.sceneApp.initSynchronuous();
+        this.app.initSynchronuous();
     };
 
     HelloOOSimple.prototype.initGL = function () {
-        this.sceneApp.scene.add(this.mesh);
-        this.sceneApp.camera.position.z = 5;
+        this.app.scene.add(this.mesh);
+        this.app.camera.position.z = 5;
     };
 
     HelloOOSimple.prototype.render = function () {

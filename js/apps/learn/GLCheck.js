@@ -11,7 +11,7 @@ KSX.apps.learn.GLCheck = {
     func : {
         init : function () {
             var impl = new KSX.apps.learn.impl.GLCheckApp(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.learn.GLCheck.glob.appLifecycle.addSceneApp(impl.sceneApp);
+            KSX.apps.learn.GLCheck.glob.appLifecycle.addApp(impl.app);
 
             // kicks init and starts rendering
             KSX.apps.learn.GLCheck.glob.appLifecycle.initAsync();

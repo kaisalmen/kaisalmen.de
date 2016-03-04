@@ -34,5 +34,22 @@ KSX.apps.core.Canvas = (function () {
         return this.htmlCanvas.offsetHeight;
     };
 
+    Canvas.prototype.getPixelLeft = function () {
+        return -this.getWidth() / 2;
+    };
+
+    Canvas.prototype.getPixelRight = function () {
+        return this.getWidth() / 2;
+    };
+
+    Canvas.prototype.getPixelTop = function () {
+        return this.getHeight() / 2;
+    };
+
+    Canvas.prototype.getPixelBottom = function () {
+        return -this.getHeight() / 2;
+    };
+
     return Canvas;
-})()
+
+0})();

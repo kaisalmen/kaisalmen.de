@@ -8,7 +8,7 @@
 KSX.apps.demos.impl.BlueMarbleApp = class {
 
     constructor(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "BlueMarbleApp", elementToBindTo, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "BlueMarbleApp", elementToBindTo, true);
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
@@ -21,19 +21,19 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
     }
 
     initAsyncContent () {
-        this.sceneApp.initSynchronuous();
+        this.app.initSynchronuous();
 
         var scope = this;
 
         var promises = new Set();
-        promises.add(this.textureTools.loadTexture('./../resource/images/BlueMarble/bluemarble_rgba.png'));
-        promises.add(this.textureTools.loadTexture('./../resource/images/BlueMarble/sat_rgba.png'));
+        promises.add(this.textureTools.loadTexture('../../resource/images/BlueMarble/bluemarble_rgba.png'));
+        promises.add(this.textureTools.loadTexture('../../resource/images/BlueMarble/sat_rgba.png'));
 
         Promise.all( promises ).then(
             function (results) {
                 scope.uniforms.textureMarble.value = results[0];
                 scope.uniforms.textureSat.value = results[1];
-                scope.sceneApp.initSynchronuous();
+                scope.app.initSynchronuous();
             }
         ).catch(
             function (error) {
@@ -43,7 +43,7 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
     }
 
     initGL () {
-        var gl = this.sceneApp.renderer.getContext();
+        var gl = this.app.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {

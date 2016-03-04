@@ -7,16 +7,16 @@
 KSX.apps.learn.impl.GLCheckApp = (function () {
 
     function GLCheckApp(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "GLCheckApp", elementToBindTo, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "GLCheckApp", elementToBindTo, true);
     }
 
     GLCheckApp.prototype.initAsyncContent = function() {
         console.log("GLCheckApp.initAsyncContent is not required!");
-        this.sceneApp.initSynchronuous();
+        this.app.initSynchronuous();
     };
 
     GLCheckApp.prototype.initGL = function () {
-        var gl = this.sceneApp.renderer.getContext();
+        var gl = this.app.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {

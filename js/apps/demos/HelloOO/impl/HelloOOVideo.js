@@ -7,7 +7,7 @@
 KSX.apps.demos.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "HelloOOVideo", elementToBindTo, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOVideo", elementToBindTo, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
@@ -36,14 +36,14 @@ KSX.apps.demos.HelloOOVideo = (function () {
                 scope.vertexShaderText = results[0];
                 scope.fragmentShaderText = results[1];
                 scope.uniforms.texture1.value = results[2];
-                scope.sceneApp.initSynchronuous();
+                scope.app.initSynchronuous();
             }
         ).catch(
             function (error) {
                 console.log('The following error occurred: ', error);
             }
         );
-    }
+    };
 
     HelloOOVideo.prototype.initGL = function () {
        this.videoBuffer.width = 1920;
@@ -71,8 +71,8 @@ KSX.apps.demos.HelloOOVideo = (function () {
 */
         var mesh =  new THREE.Mesh(geometry, material);
 
-        this.sceneApp.scene.add(mesh);
-        this.sceneApp.camera.position.z = 150;
+        this.app.scene.add(mesh);
+        this.app.camera.position.z = 150;
     };
 
     HelloOOVideo.prototype.render = function () {

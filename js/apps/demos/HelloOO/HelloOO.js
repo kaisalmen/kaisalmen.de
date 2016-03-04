@@ -11,7 +11,7 @@ KSX.apps.demos.HelloOO = {
     func : {
         init : function () {
             var impl = new KSX.apps.demos.ImageBasedGeometryTransform(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.demos.HelloOO.glob.appLifecycle.addSceneApp(impl.sceneApp);
+            KSX.apps.demos.HelloOO.glob.appLifecycle.addApp(impl.app);
 
             // kicks init and starts rendering
             KSX.apps.demos.HelloOO.glob.appLifecycle.initAsync();

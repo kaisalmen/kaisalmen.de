@@ -19,8 +19,8 @@ KSX.apps.tools.MeshInfo = (function () {
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     function PTV1Loader(elementToBindTo) {
-        this.sceneApp = new KSX.apps.core.SceneAppPerspective(this, "PTV1Loader", elementToBindTo, true);
-        this.controls = new THREE.TrackballControls(this.sceneApp.getCamera());
+        this.app = new KSX.apps.core.ThreeJsApp(this, "PTV1Loader", elementToBindTo, true);
+        this.controls = new THREE.TrackballControls(this.app.getCamera());
 
         this.pathToObj = "../../resource/models/";
         this.fileObj = "PTV1.obj";
@@ -50,7 +50,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     PTV1Loader.prototype.initAsyncContent = function () {
         console.log("PTV1Loader.initAsyncContent is not required!");
 
-        this.sceneApp.initSynchronuous();
+        this.app.initSynchronuous();
     };
 
     PTV1Loader.prototype.initPreGL = function () {
@@ -68,9 +68,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     };
 
     PTV1Loader.prototype.initGL = function () {
-        var renderer = this.sceneApp.getRenderer();
-        var scene = this.sceneApp.getScene();
-        var camera = this.sceneApp.getCamera();
+        var renderer = this.app.getRenderer();
+        var scene = this.app.getScene();
+        var camera = this.app.getCamera();
 
         renderer.setClearColor(0x3B3B3B);
         camera.position.x = 600;

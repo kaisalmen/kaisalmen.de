@@ -11,7 +11,7 @@ KSX.apps.demos.VideoPlayer = {
     func : {
         init : function () {
             var impl = new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGLFullCanvas"), "DivGLFullVideo", "DivGLFullVideoBuffer");
-            KSX.apps.demos.VideoPlayer.glob.appLifecycle.addSceneApp(impl.sceneApp);
+            KSX.apps.demos.VideoPlayer.glob.appLifecycle.addApp(impl.app);
 
             // kicks init and starts rendering
             KSX.apps.demos.VideoPlayer.glob.appLifecycle.initAsync();

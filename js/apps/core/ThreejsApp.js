@@ -4,16 +4,24 @@
 
 "use strict";
 
-KSX.apps.core.SceneAppPerspective = (function () {
+KSX.apps.core.ThreeJsApp = (function () {
 
-    function SceneAppPerspective(user, name, divGLCanvas, verbose) {
+    var DEFAULT_NEAR = 10;
+    var DEFAULT_FAR = -10;
+
+    function ThreeJsApp(user, name, divGLCanvas, verbose) {
         this.user = user;
         this.name = name;
+
         this.canvas = new KSX.apps.core.Canvas(divGLCanvas, verbose);
-        this.canvas.recalcAspectRatio();
+
         this.scene = new THREE.Scene();
         this.camera = new THREE.PerspectiveCamera(45, this.canvas.aspectRatio, 0.1, 10000);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
+
+        this.sceneOrtho = new THREE.Scene();
+        this.cameraOrtho = new THREE.OrthographicCamera(this.canvas.getPixelLeft(), this.canvas.getPixelRight, this.canvas.getPixelTop(), this.canvas.getPixelBottom(), DEFAULT_NEAR, DEFAULT_FAR);
+
         this.renderer = new THREE.WebGLRenderer({
             canvas: divGLCanvas,
             antialias: true
@@ -22,16 +30,16 @@ KSX.apps.core.SceneAppPerspective = (function () {
         this.verbose = verbose;
     }
 
-    SceneAppPerspective.prototype.getAppName = function () {
+    ThreeJsApp.prototype.getAppName = function () {
         return this.name;
     };
 
-    SceneAppPerspective.prototype.initAsync = function () {
+    ThreeJsApp.prototype.initAsync = function () {
         console.log("SceneAppPerspective (" + this.name + "): initAsyncContent");
         this.user.initAsyncContent();
     };
 
-    SceneAppPerspective.prototype.initSynchronuous = function () {
+    ThreeJsApp.prototype.initSynchronuous = function () {
         console.log("SceneAppPerspective (" + this.name + "): initPreGL");
         if (typeof this.user.initPreGL == "function") {
             this.user.initPreGL();
@@ -51,7 +59,9 @@ KSX.apps.core.SceneAppPerspective = (function () {
         this.renderingEndabled = true;
     };
 
-    SceneAppPerspective.prototype.resizeDisplayGL = function () {
+    ThreeJsApp.prototype.resizeDisplayGL = function () {
+        this.canvas.recalcAspectRatio();
+
         if (this.verbose) {
             console.log("SceneAppPerspective (" + this.name + "): resizeDisplayGL");
         }
@@ -60,49 +70,51 @@ KSX.apps.core.SceneAppPerspective = (function () {
         }
 
         this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
+
+        this.camera.aspect = this.canvas.aspectRatio;
+        this.camera.updateProjectionMatrix();
+
+
+        this.cameraOrtho.left = this.canvas.getPixelLeft();
+        this.cameraOrtho.right = this.canvas.getPixelRight();
+        this.cameraOrtho.top = this.canvas.getPixelTop();
+        this.cameraOrtho.bottom = this.canvas.getPixelBottom();
+        this.cameraOrtho.updateProjectionMatrix();
     };
 
-    SceneAppPerspective.prototype.render = function () {
+    ThreeJsApp.prototype.render = function () {
         if (this.renderingEndabled) {
             this.user.render();
             this.renderer.render(this.scene, this.camera);
         }
     };
 
-    SceneAppPerspective.prototype.adjustWindow = function () {
-        this.canvas.recalcAspectRatio();
-        this.resizeDisplayGL();
-
-        this.camera.aspect = this.canvas.aspectRatio;
-        this.camera.updateProjectionMatrix();
-    };
-
-    SceneAppPerspective.prototype.resetCamera = function () {
+    ThreeJsApp.prototype.resetCamera = function () {
         this.camera.position.set(0, 0, 250);
         this.cameraTarget = new THREE.Vector3(0, 0, 0);
         this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
     };
 
-    SceneAppPerspective.prototype.getScene = function () {
+    ThreeJsApp.prototype.getScene = function () {
       return this.scene;
     };
 
-    SceneAppPerspective.prototype.getRenderer = function () {
+    ThreeJsApp.prototype.getRenderer = function () {
         return this.renderer;
     };
 
-    SceneAppPerspective.prototype.getCanvas = function () {
+    ThreeJsApp.prototype.getCanvas = function () {
         return this.canvas;
     };
 
-    SceneAppPerspective.prototype.getCamera = function () {
+    ThreeJsApp.prototype.getCamera = function () {
         return this.camera;
     };
 
-    SceneAppPerspective.prototype.getCameraTarget = function () {
+    ThreeJsApp.prototype.getCameraTarget = function () {
         return this.cameraTarget;
     };
 
-    return SceneAppPerspective;
+    return ThreeJsApp;
 })();

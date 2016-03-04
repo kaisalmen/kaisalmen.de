@@ -14,7 +14,7 @@ KSX.apps.zerosouth.PTV1 = {
             window.addEventListener( 'resize', KSX.apps.zerosouth.PTV1.func.onWindowResize, false );
 
             var impl = new KSX.apps.zerosouth.impl.PTV1Loader(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.zerosouth.PTV1.glob.appLifecycle.addSceneApp(impl.sceneApp);
+            KSX.apps.zerosouth.PTV1.glob.appLifecycle.addApp(impl.app);
 
             // kicks init and starts rendering
             KSX.apps.zerosouth.PTV1.glob.appLifecycle.initAsync();
