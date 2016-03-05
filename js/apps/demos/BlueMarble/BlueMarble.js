@@ -31,5 +31,6 @@ console.log('Starting application "BlueMarbleApp"');
 
 window.addEventListener( 'resize', KSX.apps.demos.BlueMarble.func.onWindowResize, false );
 
+
 KSX.apps.demos.BlueMarble.func.init();
 KSX.apps.demos.BlueMarble.func.render();

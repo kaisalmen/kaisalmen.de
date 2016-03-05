@@ -10,4 +10,12 @@
 
 #DivGLFull {
     overflow: auto;
+    background-color: #000000;
+}
+
+#stats {
+    position: absolute;
+    left: 450px;
+    top: 0px;
+    z-index: 1000;
 }

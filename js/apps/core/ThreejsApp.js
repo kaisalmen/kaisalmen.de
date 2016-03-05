@@ -73,7 +73,6 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.user.initGL();
         this.resizeDisplayGL();
 
-
         console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
         if (typeof this.user.addEventHandlers == "function") {
             this.user.addEventHandlers();
@@ -218,7 +217,9 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
         this.camera.top = this.canvas.getPixelTop();
         this.camera.bottom = this.canvas.getPixelBottom();
 
-        console.log('Ortho Camera Dimensions: ' + this.camera.left + ' ' + this.camera.right + ' ' + this.camera.top + ' ' + this.camera.bottom);
+        if (this.verbose) {
+            console.log('Ortho Camera Dimensions: ' + this.camera.left + ' ' + this.camera.right + ' ' + this.camera.top + ' ' + this.camera.bottom);
+        }
 
         this.camera.updateProjectionMatrix();
     };

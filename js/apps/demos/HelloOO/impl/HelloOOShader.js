@@ -13,7 +13,7 @@ KSX.apps.demos.HelloOOShader = (function () {
         this.vertexShaderText = null;
         this.fragmentShaderText = null;
         this.uniforms = {
-            blendFactor : { type: 'f', value: 0.75 },
+            blendFactor : { type: 'f', value: 1.0 },
             colorFactor : { type: 'fv1', value: [1.0, 1.0, 1.0] },
             texture1: { type: 't', value: null }
         };
