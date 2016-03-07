@@ -40,6 +40,8 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
         });
 
         this.stats = new Stats();
+
+        this.controls = null;
     }
 
     initAsyncContent () {
@@ -92,12 +94,6 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
 
         var changeScale = function (value) {
             if (scope.app.renderingEndabled) {
-                if (value <= 1.0) {
-                    scope.mesh.scale.x = value;
-                    scope.mesh.scale.y = value;
-                    scope.mesh.scale.z = value;
-                }
-
                 scope.app.canvas.resetWidth(NORMAL_WIDTH * value, NORMAL_HEIGHT * value);
                 scope.app.resizeDisplayGL();
             }
@@ -180,6 +176,12 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
     initGL () {
         var gl = this.app.renderer.getContext();
 
+        this.controls = new THREE.OrthographicTrackballControls(this.app.sceneOrtho.camera);
+        this.controls.noRotate = true;
+        this.controls.noPan = true;
+        this.controls.noRoll = true;
+
+
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
             console.log('Vertex shader is able to read texture (gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS= ' + result + ')');
@@ -194,11 +196,11 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.app.sceneOrtho.scene.add(this.mesh);
-
     }
 
     render () {
         this.stats.update();
+        this.controls.update();
     }
 
 }
