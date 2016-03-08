@@ -23,7 +23,10 @@ KSX.apps.core.ThreeJsApp = (function () {
             this.sceneOrtho = new KSX.apps.core.ThreeJsApp.SceneOrtho(this.canvas);
         }
 
-        this.renderer = null;
+        this.renderer = new THREE.WebGLRenderer({
+            canvas: this.canvas.htmlCanvas,
+            antialias: true
+        });
 
         this.renderingEndabled = false;
         this.verbose = false;
@@ -57,11 +60,6 @@ KSX.apps.core.ThreeJsApp = (function () {
         }
 
         console.log("SceneAppPerspective (" + this.name + "): initGL");
-
-        this.renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas.htmlCanvas,
-            antialias: true
-        });
 
         if (this.useScenePerspective) {
             this.scenePerspective.initGL();

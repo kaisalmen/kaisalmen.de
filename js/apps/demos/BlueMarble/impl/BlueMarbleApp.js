@@ -41,7 +41,8 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
 
         this.stats = new Stats();
 
-        this.controls = null;
+        this.zoom = 1.0;
+        this.divScale = 1.0;
     }
 
     initAsyncContent () {
@@ -92,10 +93,36 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
             scope.uniforms.alphaColor.value[2] = value / MAX_VALUE;
         };
 
-        var changeScale = function (value) {
+        var changeDiv = function (value) {
+            scope.divScale = value;
+
             if (scope.app.renderingEndabled) {
                 scope.app.canvas.resetWidth(NORMAL_WIDTH * value, NORMAL_HEIGHT * value);
                 scope.app.resizeDisplayGL();
+            }
+        };
+
+        var zoomMarble = function (value) {
+            scope.zoom = value;
+
+            if (scope.app.renderingEndabled) {
+                scope.mesh.scale.x = value;
+                scope.mesh.scale.y = value;
+                scope.mesh.scale.z = value;
+            }
+        };
+
+        var moveCameraX = function (value) {
+            if (scope.app.renderingEndabled) {
+                var dimX = -scope.app.canvas.getWidth() * 0.5 / scope.divScale;
+                scope.mesh.position.x = dimX * scope.zoom * value;
+            }
+        };
+
+        var moveCameraY = function (value) {
+            if (scope.app.renderingEndabled) {
+                var dimY = -scope.app.canvas.getHeight() * 0.5 / scope.divScale;
+                scope.mesh.position.y = dimY * scope.zoom * value;
             }
         };
 
@@ -158,14 +185,47 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
             fontColor:'#0000FF'
         });
         scope.ui.add('slide', {
-            name: 'marble scale',
-            callback: changeScale,
+            name: 'viewer scale',
+            callback: changeDiv,
             min: 0.1,
             max: 1,
-            value: 1,
+            value: scope.divScale,
             precision: 1,
             step: 0.1,
             width: 100,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('slide', {
+            name: 'zoom marble',
+            callback: zoomMarble,
+            min: 0.1,
+            max: 2,
+            value: scope.zoom,
+            precision: 1,
+            step: 0.1,
+            width: 100,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('slide', {
+            name: 'move x',
+            callback: moveCameraX,
+            min: -1,
+            max: 1,
+            value: 0,
+            precision: 2,
+            step: 0.01,
+            width: 200,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('slide', {
+            name: 'move y',
+            callback: moveCameraY,
+            min: -1,
+            max: 1,
+            value: 0,
+            precision: 2,
+            step: 0.01,
+            width: 200,
             height: SLIDES_HEIGHT
         });
 
@@ -175,12 +235,6 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
 
     initGL () {
         var gl = this.app.renderer.getContext();
-
-        this.controls = new THREE.OrthographicTrackballControls(this.app.sceneOrtho.camera);
-        this.controls.noRotate = true;
-        this.controls.noPan = true;
-        this.controls.noRoll = true;
-
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
@@ -200,7 +254,6 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
 
     render () {
         this.stats.update();
-        this.controls.update();
     }
 
 }

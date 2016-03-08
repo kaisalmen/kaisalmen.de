@@ -84,9 +84,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.controls.zoomSpeed = 1.0;
         this.controls.panSpeed = 0.8;
 
-        this.controls.noZoom = false;
-        this.controls.noPan = false;
-
         this.controls.staticMoving = true;
         this.controls.dynamicDampingFactor = 0.3;
 
