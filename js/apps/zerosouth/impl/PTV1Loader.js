@@ -43,6 +43,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.alteredColors = new Map();
         this.replaceMaterials = new Map();
+        this.replaceObjectMaterials = new Map();
 
         this.stats = new Stats();
     }
@@ -65,6 +66,19 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.alteredColors.set('wire_166229229', 'rgb(2, 26, 128)');
         this.replaceMaterials.set('wire_135110008', 'Yellow_Metal');
+
+        var glass = new THREE.MeshPhongMaterial( {
+            color: '#555555',
+            transparent: true,
+            opacity: 0.3,
+            depthTest: true,
+            depthWrite: false
+        });
+        this.objLoaderWW.addMaterial('glass', glass);
+
+        this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
+        this.replaceObjectMaterials.set('DoorRGlass', 'glass');
+        this.replaceObjectMaterials.set('DoorLGlass', 'glass');
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -137,10 +151,16 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         var callbackMeshLoaded = function (meshName, material) {
             var replacedMaterial = null;
-            var replacedMaterialName = scope.replaceMaterials.get(material.name);
+            var perObjectMaterialName = scope.replaceObjectMaterials.get(meshName);
 
-            if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
-                replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
+            if (perObjectMaterialName !== null && perObjectMaterialName !== undefined) {
+                replacedMaterial = scope.objLoaderWW.getMaterial(perObjectMaterialName);
+            }
+            else {
+                var replacedMaterialName = scope.replaceMaterials.get(material.name);
+                if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
+                    replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
+                }
             }
 
             if (replacedMaterial !== null) {

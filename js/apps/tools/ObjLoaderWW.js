@@ -71,15 +71,18 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         }
     };
 
-    ObjLoaderWW.prototype.getMaterial = function (name) {
-        var material = null;
-        if (this.materials !== null) {
-            material = this.materials.get(name);
-            if (material === undefined) {
-                material = null;
-            }
+    ObjLoaderWW.prototype.addMaterial = function (name, material) {
+        if (material.name !== name) {
+            material.name = name;
         }
+        this.materials.set(material.name, material);
+    };
 
+    ObjLoaderWW.prototype.getMaterial = function (name) {
+        var material = this.materials.get(name);
+        if (material === undefined) {
+            material = null;
+        }
         return material;
     };
 
@@ -222,7 +225,10 @@ KSX.apps.tools.ObjLoaderWW = (function () {
                 }
 
                 if (this.callbackMeshLoaded !== null) {
-                    this.callbackMeshLoaded(payload.meshName, material);
+                    var materialNew = this.callbackMeshLoaded(payload.meshName, material);
+                    if (materialNew !== null  && materialNew !== undefined) {
+                        material = materialNew;
+                    }
                 }
 
                 var mesh = new THREE.Mesh(bufferGeometry, material);
