@@ -41,7 +41,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.exportMeshInfos = false;
         this.alterAllMaterials = false;
 
-        this.alteredColors = new Map();
         this.replaceMaterials = new Map();
         this.replaceObjectMaterials = new Map();
 
@@ -64,15 +63,11 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.stats.setMode(0);
         document.body.appendChild(this.stats.domElement);
 
-        this.alteredColors.set('wire_166229229', 'rgb(2, 26, 128)');
-        this.replaceMaterials.set('wire_135110008', 'Yellow_Metal');
-
-        var glass = new THREE.MeshPhongMaterial( {
+        var glass = new THREE.MeshStandardMaterial( {
             color: '#555555',
             transparent: true,
             opacity: 0.3,
-            depthTest: true,
-            depthWrite: false
+            depthTest: true
         });
         this.objLoaderWW.addMaterial('glass', glass);
 
@@ -131,20 +126,15 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             if (materials !== null) {
                 console.log("Overall nuumber of materials: " + materials.size);
 
-                var funcAlterMaterials = function(rgbvalue, matName) {
-                    console.log('Altering color of "' + matName + '" to: ' + rgbvalue);
-
-                    var matAlter = materials.get(matName);
-                    if (matAlter !== null) {
-                        matAlter.color = new THREE.Color(rgbvalue);
-                    }
-                    if (scope.alterAllMaterials) {
+                if (scope.alterAllMaterials) {
+                    var funcAlterMaterials = function(material, matName) {
                         material.side = THREE.DoubleSide;
                         material.transparent = true;
                         material.opacity = 0.5;
-                    }
-                };
-                scope.alteredColors.forEach(funcAlterMaterials, scope.alteredColors);
+                        material.depthTest = true;
+                    };
+                    materials.forEach(funcAlterMaterials);
+                }
             }
         };
         this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
