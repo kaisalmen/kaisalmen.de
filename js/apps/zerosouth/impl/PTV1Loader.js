@@ -66,7 +66,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var glass = new THREE.MeshStandardMaterial( {
             color: '#555555',
             transparent: true,
-            opacity: 0.3,
+            opacity: 0.45,
             depthTest: true
         });
         this.objLoaderWW.addMaterial('glass', glass);
@@ -99,14 +99,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.controls.keys = [ 65, 83, 68 ];
 //        this.controls.addEventListener( 'change', render );
 
-        var ambient = new THREE.AmbientLight(0x1011030);
+        var ambient = new THREE.AmbientLight(0x202030);
         scene.add(ambient);
 
-        var directionalLight1 = new THREE.DirectionalLight(0xd0d0d0);
+        var directionalLight1 = new THREE.DirectionalLight(0xf0f0f0);
         directionalLight1.position.set(-1000, 1000, 1000);
         scene.add(directionalLight1);
 
-        var directionalLight2 = new THREE.DirectionalLight(0x909090);
+        var directionalLight2 = new THREE.DirectionalLight(0xA0A0A0);
         directionalLight2.position.set(1000, -1000, 1000);
         scene.add(directionalLight2);
 

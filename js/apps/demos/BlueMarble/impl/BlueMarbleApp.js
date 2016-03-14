@@ -13,9 +13,9 @@ const SLIDES_HEIGHT = 32;
 const NORMAL_WIDTH = 3712.0;
 const NORMAL_HEIGHT = 3712.0;
 
-KSX.apps.demos.impl.BlueMarbleApp = class {
+KSX.apps.demos.impl.BlueMarbleApp = (function () {
 
-    constructor(elementToBindTo) {
+    function BlueMarbleApp(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, 'BlueMarbleApp', elementToBindTo, true, true);
 
         this.textureTools = new KSX.apps.tools.TextureTools();
@@ -45,7 +45,7 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
         this.divScale = 1.0;
     }
 
-    initAsyncContent () {
+    BlueMarbleApp.prototype.initAsyncContent = function () {
         var scope = this;
 
         var promises = new Set();
@@ -68,9 +68,9 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
                 console.log('The following error occurred: ', error);
             }
         );
-    }
+    };
 
-    initPreGL () {
+    BlueMarbleApp.prototype.initPreGL = function () {
         var scope = this;
 
         var adjustLowerBoundary = function (value) {
@@ -233,7 +233,7 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
         document.body.appendChild(scope.stats.domElement);
     }
 
-    initGL () {
+    BlueMarbleApp.prototype.initGL = function () {
         var gl = this.app.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
@@ -250,10 +250,12 @@ KSX.apps.demos.impl.BlueMarbleApp = class {
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.app.sceneOrtho.scene.add(this.mesh);
-    }
+    };
 
-    render () {
+    BlueMarbleApp.prototype.render = function () {
         this.stats.update();
-    }
+    };
 
-}
+    return BlueMarbleApp;
+
+})();
