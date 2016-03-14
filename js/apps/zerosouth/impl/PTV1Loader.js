@@ -81,11 +81,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var scenePerspective = this.app.scenePerspective;
         var scene = scenePerspective.getScene();
         var camera = scenePerspective.getCamera();
+        var cameraTarget = scenePerspective.getCameraTarget();
 
         renderer.setClearColor(0x3B3B3B);
-        camera.position.x = 600;
-        camera.position.y = 450;
-        camera.position.z = 350;
+        camera.position.set( 600, 350, 600);
+        cameraTarget.y = 500;
+        scenePerspective.updateCamera();
 
         this.controls = new THREE.TrackballControls(camera);
 
@@ -99,16 +100,45 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.controls.keys = [ 65, 83, 68 ];
 //        this.controls.addEventListener( 'change', render );
 
-        var ambient = new THREE.AmbientLight(0x202030);
+        var ambient = new THREE.AmbientLight(0x404040);
         scene.add(ambient);
 
-        var directionalLight1 = new THREE.DirectionalLight(0xf0f0f0);
-        directionalLight1.position.set(-1000, 1000, 1000);
+        var posLight1 = new THREE.Vector3(-500, 500, 500);
+        var posLight2 = new THREE.Vector3(500, 200, -500);
+        var light1Color = 0xF0F0F0;
+        var light2Color = 0xE0E0E0;
+
+        var emissiveMat1 = new THREE.MeshStandardMaterial( {
+            emissive: new THREE.Color( light1Color ),
+            emissiveIntensity: 1.0
+        });
+        var emissiveMat2 = new THREE.MeshStandardMaterial( {
+            emissive: new THREE.Color( light2Color ),
+            emissiveIntensity: 1.0
+        });
+
+        var geoLight = new THREE.SphereGeometry(5, 32, 32);
+        var light1Mesh = new THREE.Mesh(geoLight, emissiveMat1);
+        light1Mesh.position.set(posLight1.x, posLight1.y, posLight1.z);
+        scene.add(light1Mesh);
+
+        var light2Mesh = new THREE.Mesh(geoLight, emissiveMat2);
+        light2Mesh.position.set(posLight2.x, posLight2.y, posLight2.z);
+        scene.add(light2Mesh);
+
+        var directionalLight1 = new THREE.DirectionalLight(light1Color);
+        directionalLight1.position.set(posLight1.x, posLight1.y, posLight1.z);
         scene.add(directionalLight1);
 
-        var directionalLight2 = new THREE.DirectionalLight(0xA0A0A0);
-        directionalLight2.position.set(1000, -1000, 1000);
+        var directionalLight2 = new THREE.DirectionalLight(light2Color);
+        directionalLight2.position.set(posLight2.x, posLight2.y, posLight2.z);
         scene.add(directionalLight2);
+
+        var dHelp1 = new THREE.DirectionalLightHelper(directionalLight1, 40);
+        scene.add(dHelp1);
+
+        var dHelp2 = new THREE.DirectionalLightHelper(directionalLight2, 40);
+        scene.add(dHelp2);
 
         this.helper = new THREE.GridHelper(1000, 20);
         this.helper.setColors(0xFF4444, 0xB0B0B0);

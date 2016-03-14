@@ -154,7 +154,7 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
     ScenePerspective.prototype.resetCamera = function () {
         this.camera.position.set(DEFAULT_POS);
-        this.cameraTarget = new THREE.Vector3(DEFAULT_POS_TARGET);
+        this.cameraTarget = DEFAULT_POS_TARGET;
         this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
     };
@@ -163,11 +163,12 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
-        this.cameraTarget = new THREE.Vector3(DEFAULT_POS_TARGET);
+        this.cameraTarget = DEFAULT_POS_TARGET;
     };
 
     ScenePerspective.prototype.updateCamera = function () {
         this.camera.aspect = this.canvas.aspectRatio;
+        this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
     };
 
