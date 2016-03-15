@@ -19,7 +19,7 @@ KSX.apps.tools.MeshInfo = (function () {
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     function PTV1Loader(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "PTV1Loader", elementToBindTo, true, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "PTV1Loader", elementToBindTo, true, false, false);
         this.controls = null;
 
         this.pathToObj = "../../resource/models/";
@@ -44,13 +44,29 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.replaceMaterials = new Map();
         this.replaceObjectMaterials = new Map();
 
+        this.textureTools = new KSX.apps.tools.TextureTools();
+        this.textureCube = null;
+        this.cameraCube = null;
+
         this.stats = new Stats();
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
-        console.log("PTV1Loader.initAsyncContent is not required!");
+        var scope = this;
 
-        this.app.initSynchronuous();
+        var promises = new Set();
+        promises.add(this.textureTools.loadTexture('../../resource/images/house02_pot.jpg'));
+
+        Promise.all(promises).then(
+            function (results) {
+                scope.textureEnv = results[0];
+                scope.app.initSynchronuous();
+            }
+        ).catch(
+            function (error) {
+                console.log('The following error occurred: ', error);
+            }
+        );
     };
 
     PTV1Loader.prototype.initPreGL = function () {
@@ -66,10 +82,18 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var glass = new THREE.MeshStandardMaterial( {
             color: '#555555',
             transparent: true,
+            side : THREE.DoubleSide,
             opacity: 0.45,
             depthTest: true
         });
         this.objLoaderWW.addMaterial('glass', glass);
+
+        var cubeBasePath = "../../resource/textures/skybox/";
+        var urls = [ cubeBasePath + "px.jpg", cubeBasePath + "nx.jpg", cubeBasePath + "py.jpg", cubeBasePath + "ny.jpg", cubeBasePath + "pz.jpg", cubeBasePath + "nz.jpg" ];
+
+        this.textureCube = new THREE.CubeTextureLoader().load( urls );
+        this.textureCube.format = THREE.RGBFormat;
+        this.textureCube.mapping = THREE.CubeReflectionMapping;
 
         this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
         this.replaceObjectMaterials.set('DoorRGlass', 'glass');
@@ -79,9 +103,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     PTV1Loader.prototype.initGL = function () {
         var renderer = this.app.renderer;
         var scenePerspective = this.app.scenePerspective;
-        var scene = scenePerspective.getScene();
-        var camera = scenePerspective.getCamera();
-        var cameraTarget = scenePerspective.getCameraTarget();
+        var scene = scenePerspective.scene;
+        var camera = scenePerspective.camera;
+        var cameraTarget = scenePerspective.cameraTarget;
 
         renderer.setClearColor(0x3B3B3B);
         camera.position.set( 600, 350, 600);
@@ -98,7 +122,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.controls.dynamicDampingFactor = 0.3;
 
         this.controls.keys = [ 65, 83, 68 ];
-//        this.controls.addEventListener( 'change', render );
+
 
         var ambient = new THREE.AmbientLight(0x404040);
         scene.add(ambient);
@@ -154,17 +178,24 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var scope = this;
         var callbackMaterialsLoaded = function (materials) {
             if (materials !== null) {
-                console.log("Overall nuumber of materials: " + materials.size);
+                console.log("Overall number of materials: " + materials.size);
 
-                if (scope.alterAllMaterials) {
-                    var funcAlterMaterials = function(material, matName) {
+                var funcAlterMaterials = function(material, matName) {
+                    if (scope.alterAllMaterials) {
                         material.side = THREE.DoubleSide;
                         material.transparent = true;
                         material.opacity = 0.5;
                         material.depthTest = true;
-                    };
-                    materials.forEach(funcAlterMaterials);
-                }
+                    }
+
+                    if (matName === 'Blue_Paint') {
+                        material.envMap = scope.textureCube;
+                        material.envMapIntensity = 0.4;
+                        material.roughness = 0.2;
+                    }
+                };
+                materials.forEach(funcAlterMaterials);
+
             }
         };
         this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);

@@ -3,9 +3,6 @@
 .project
 .idea
 .vertx
-images
-models
-mongoose*
 /js/lib/ext
 /ts/lib
 /node_modules
@@ -19,3 +16,6 @@ mongoose*
 /resource/fonts/Ubuntu_Mono.zip
 /resource/fonts/GoogleUbuntuMonoLatin.js
 /resource/video
+/resource/images
+/resource/models
+/resource/textures
