@@ -18,6 +18,9 @@ KSX.apps.tools.MeshInfo = (function () {
 
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
+    var SLIDES_WIDTH = 255;
+    var SLIDES_HEIGHT = 32;
+
     function PTV1Loader(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, false, true);
         this.controls = null;
@@ -47,6 +50,13 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
         this.cameraCube = null;
+        this.skybox = null;
+
+        this.ui = new UIL.Gui({
+            css: 'top: 0px; right: 0px;',
+            size: 450,
+            center: true
+        });
 
         this.stats = new Stats();
     }
@@ -80,19 +90,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.stats.setMode(0);
         document.body.appendChild(this.stats.domElement);
-
-        var glass = new THREE.MeshStandardMaterial( {
-            color: '#555555',
-            transparent: true,
-            side : THREE.DoubleSide,
-            opacity: 0.45,
-            depthTest: true
-        });
-        this.objLoaderWW.addMaterial('glass', glass);
-
-        this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
-        this.replaceObjectMaterials.set('DoorRGlass', 'glass');
-        this.replaceObjectMaterials.set('DoorLGlass', 'glass');
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -165,6 +162,21 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         scene.add(this.helper);
 
 
+        // material adjustemnts
+        var glass = new THREE.MeshStandardMaterial( {
+            color: '#555555',
+            transparent: true,
+            side : THREE.DoubleSide,
+            opacity: 0.45,
+            depthTest: true
+        });
+        this.objLoaderWW.addMaterial('glass', glass);
+
+        this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
+        this.replaceObjectMaterials.set('DoorRGlass', 'glass');
+        this.replaceObjectMaterials.set('DoorLGlass', 'glass');
+
+
         // Skybox
         var shader = THREE.ShaderLib[ "cube" ];
         shader.uniforms[ "tCube" ].value = this.textureCubeLoader;
@@ -177,9 +189,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             depthWrite: false,
             side: THREE.BackSide
         });
-        var meshCube = new THREE.Mesh(box, materialCube );
-        sceneCube.add( meshCube );
-
+        this.skybox = new THREE.Mesh(box, materialCube );
+        sceneCube.add( this.skybox );
 
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
@@ -260,6 +271,62 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objLoaderWW.registerHookCompletedLoading(callbackCompletedLoading);
 
         this.objLoaderWW.load();
+    };
+
+    PTV1Loader.prototype.initPostGL = function() {
+        var scope = this;
+
+        var enableSkybox = function (enabled) {
+            scope.skybox.visible = enabled;
+        };
+        this.ui.add('bool', {
+            name: 'Enable Skybox',
+            value: true,
+            callback: enableSkybox,
+            height: SLIDES_HEIGHT
+        });
+
+
+        var adjustTransparency = function (value) {
+            var scene = scope.app.scenePerspective.scene;
+            var mesh, dont;
+
+            if (value < 1.0) {
+                for (var meshInfo of scope.meshInfos) {
+                    mesh = scene.getObjectByName(meshInfo.meshName);
+                    dont = scope.replaceObjectMaterials.get(meshInfo.meshName);
+
+                    if (dont === undefined && mesh !== undefined) {
+                        mesh.material.transparent = true;
+                        mesh.material.opacity = value;
+                        mesh.material.depthTest = true;
+                    }
+                }
+            }
+            else {
+                for (var meshInfo of scope.meshInfos) {
+                    mesh = scene.getObjectByName(meshInfo.meshName);
+                    dont = scope.replaceObjectMaterials.get(meshInfo.meshName);
+
+                    if (dont === undefined && mesh !== undefined) {
+                        mesh.material.transparent = false;
+                        mesh.material.opacity = 1.0;
+                        mesh.material.depthTest = true;
+                    }
+                }
+            }
+        };
+        scope.ui.add('slide', {
+            name: 'Transparency',
+            callback: adjustTransparency,
+            min: 0.0,
+            max: 1.0,
+            value: 1.0,
+            precision: 2,
+            step: 0.01,
+            width: SLIDES_WIDTH,
+            height: SLIDES_HEIGHT
+        });
     };
 
     PTV1Loader.prototype.render = function() {
