@@ -2,7 +2,7 @@
  * Created by Kai Salmen.
  */
 
-"use strict";
+'use strict';
 
 
 KSX.apps.tools.MeshInfo = (function () {
@@ -19,13 +19,13 @@ KSX.apps.tools.MeshInfo = (function () {
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     function PTV1Loader(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "PTV1Loader", elementToBindTo, true, false, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, false, true);
         this.controls = null;
 
-        this.pathToObj = "../../resource/models/";
-        this.fileObj = "PTV1.obj";
-        this.fileZip = "PTV1.zip";
-        this.fileMtl = "PTV1.mtl";
+        this.pathToObj = '../../resource/models/';
+        this.fileObj = 'PTV1.obj';
+        this.fileZip = 'PTV1.zip';
+        this.fileMtl = 'PTV1.mtl';
 
         this.loadDirectly = false;
         this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
@@ -45,7 +45,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.replaceObjectMaterials = new Map();
 
         this.textureTools = new KSX.apps.tools.TextureTools();
-        this.textureCube = null;
+        this.textureCubeLoader = null;
         this.cameraCube = null;
 
         this.stats = new Stats();
@@ -55,11 +55,13 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var scope = this;
 
         var promises = new Set();
-        promises.add(this.textureTools.loadTexture('../../resource/images/house02_pot.jpg'));
+        var cubeBasePath = '../../resource/textures/skybox';
+        var imageFileNames = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
+        promises.add(this.textureTools.loadTextureCube(cubeBasePath, imageFileNames));
 
         Promise.all(promises).then(
             function (results) {
-                scope.textureEnv = results[0];
+                scope.textureCubeLoader = results[0];
                 scope.app.initSynchronuous();
             }
         ).catch(
@@ -71,7 +73,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     PTV1Loader.prototype.initPreGL = function () {
         var progressUpdate = function (text) {
-            var div = document.getElementById("DIVFeedbackAreaDynamic");
+            var div = document.getElementById('DIVFeedbackAreaDynamic');
             div.innerHTML = text;
         };
         this.objLoaderWW.registerProgressCallback(progressUpdate);
@@ -88,43 +90,37 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         });
         this.objLoaderWW.addMaterial('glass', glass);
 
-        var cubeBasePath = "../../resource/textures/skybox/";
-        var urls = [ cubeBasePath + "px.jpg", cubeBasePath + "nx.jpg", cubeBasePath + "py.jpg", cubeBasePath + "ny.jpg", cubeBasePath + "pz.jpg", cubeBasePath + "nz.jpg" ];
-
-        this.textureCube = new THREE.CubeTextureLoader().load( urls );
-        this.textureCube.format = THREE.RGBFormat;
-        this.textureCube.mapping = THREE.CubeReflectionMapping;
-
         this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
         this.replaceObjectMaterials.set('DoorRGlass', 'glass');
         this.replaceObjectMaterials.set('DoorLGlass', 'glass');
     };
 
     PTV1Loader.prototype.initGL = function () {
+        var scope = this;
         var renderer = this.app.renderer;
         var scenePerspective = this.app.scenePerspective;
         var scene = scenePerspective.scene;
+        var sceneCube = scenePerspective.sceneCube;
         var camera = scenePerspective.camera;
         var cameraTarget = scenePerspective.cameraTarget;
 
         renderer.setClearColor(0x3B3B3B);
+        renderer.autoClear = false;
+
         camera.position.set( 600, 350, 600);
         cameraTarget.y = 500;
         scenePerspective.updateCamera();
 
         this.controls = new THREE.TrackballControls(camera);
-
         this.controls.rotateSpeed = 0.5;
         this.controls.zoomSpeed = 1.0;
         this.controls.panSpeed = 0.8;
-
         this.controls.staticMoving = true;
         this.controls.dynamicDampingFactor = 0.3;
-
         this.controls.keys = [ 65, 83, 68 ];
 
 
-        var ambient = new THREE.AmbientLight(0x404040);
+        var ambient = new THREE.AmbientLight(0x707070);
         scene.add(ambient);
 
         var posLight1 = new THREE.Vector3(-500, 500, 500);
@@ -168,6 +164,23 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.helper.setColors(0xFF4444, 0xB0B0B0);
         scene.add(this.helper);
 
+
+        // Skybox
+        var shader = THREE.ShaderLib[ "cube" ];
+        shader.uniforms[ "tCube" ].value = this.textureCubeLoader;
+
+        var box = new THREE.BoxGeometry( 100, 100, 100 );
+        var materialCube = new THREE.ShaderMaterial( {
+            fragmentShader: shader.fragmentShader,
+            vertexShader: shader.vertexShader,
+            uniforms: shader.uniforms,
+            depthWrite: false,
+            side: THREE.BackSide
+        });
+        var meshCube = new THREE.Mesh(box, materialCube );
+        sceneCube.add( meshCube );
+
+
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
@@ -175,10 +188,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.objLoaderWW.setObjGroup(this.objGroup);
 
-        var scope = this;
         var callbackMaterialsLoaded = function (materials) {
             if (materials !== null) {
-                console.log("Overall number of materials: " + materials.size);
+                console.log('Overall number of materials: ' + materials.size);
 
                 var funcAlterMaterials = function(material, matName) {
                     if (scope.alterAllMaterials) {
@@ -189,8 +201,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                     }
 
                     if (matName === 'Blue_Paint') {
-                        material.envMap = scope.textureCube;
-                        material.envMapIntensity = 0.4;
+                        material.envMap = scope.textureCubeLoader;
+                        material.envMapIntensity = 0.5;
                         material.roughness = 0.2;
                     }
                 };
@@ -229,19 +241,19 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         var callbackCompletedLoading = function () {
             if (scope.exportMeshInfos) {
-                var exportString = "";
+                var exportString = '';
 
                 if (scope.meshInfos.size > 0) {
                     for (let item of scope.meshInfos.values()) {
                         exportString += JSON.stringify(item);
-                        exportString += "\n";
+                        exportString += '\n';
                     }
 
-                    var blob = new Blob([exportString], {type: "text/plain;charset=utf-8"});
-                    saveAs(blob, "meshInfos.json");
+                    var blob = new Blob([exportString], {type: 'text/plain;charset=utf-8'});
+                    saveAs(blob, 'meshInfos.json');
                 }
                 else {
-                    alert("Unable to export MeshInfo data as the datastructure is empty!");
+                    alert('Unable to export MeshInfo data as the datastructure is empty!');
                 }
             }
         };

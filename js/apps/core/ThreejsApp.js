@@ -54,7 +54,12 @@ KSX.apps.core.ThreeJsApp = (function () {
 
     ThreeJsApp.prototype.initAsync = function () {
         console.log("SceneAppPerspective (" + this.name + "): initAsyncContent");
-        this.user.initAsyncContent();
+        if (typeof this.user.initAsyncContent == "function") {
+            this.user.initAsyncContent();
+        }
+        else {
+            this.initSynchronuous();
+        }
     };
 
     ThreeJsApp.prototype.initSynchronuous = function () {
@@ -153,9 +158,9 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     var DEFAULT_NEAR = 0.1;
     var DEFAULT_FAR = 10000;
     var DEFAULT_FOV = 45;
-    var DEFAULT_POS = new THREE.Vector3(0, 0, 250);
-    var DEFAULT_POS_TARGET = new THREE.Vector3(0, 0, 0);
-    var DEFAULT_POS_CUBE = new THREE.Vector3(0, 0, 0);
+    var DEFAULT_POS_CAM = new THREE.Vector3(100, 100, 100);
+    var DEFAULT_POS_CAM_TARGET = new THREE.Vector3(0, 0, 0);
+    var DEFAULT_POS_CAM_CUBE = new THREE.Vector3(0, 0, 0);
 
     function ScenePerspective(canvas) {
         this.canvas = canvas;
@@ -169,18 +174,19 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
-        this.cameraTarget = DEFAULT_POS_TARGET;
+        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
+        this.cameraTarget = DEFAULT_POS_CAM_TARGET;
 
         if (this.useCube) {
             this.cameraCube = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
-            this.cameraCube.position.set(DEFAULT_POS_CUBE);
+            this.cameraCube.position.set(DEFAULT_POS_CAM_CUBE.x, DEFAULT_POS_CAM_CUBE.y, DEFAULT_POS_CAM_CUBE.z);
             this.sceneCube = new THREE.Scene();
         }
     };
 
     ScenePerspective.prototype.resetCamera = function () {
-        this.camera.position.set(DEFAULT_POS);
-        this.cameraTarget = DEFAULT_POS_TARGET;
+        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
+        this.cameraTarget = DEFAULT_POS_CAM_TARGET;
         this.camera.lookAt(this.cameraTarget);
         this.camera.updateProjectionMatrix();
     };
@@ -205,7 +211,7 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
 
     var DEFAULT_NEAR = 10;
     var DEFAULT_FAR = -10;
-    var DEFAULT_POS = new THREE.Vector3(0, 0, 1);
+    var DEFAULT_POS_CAM = new THREE.Vector3(0, 0, 1);
 
     function SceneOrtho(canvas) {
         this.canvas = canvas;
@@ -219,7 +225,7 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
     };
 
     SceneOrtho.prototype.resetCamera = function () {
-        this.camera.position.set(DEFAULT_POS);
+        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
         this.camera.updateProjectionMatrix();
     };
 
