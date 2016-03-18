@@ -120,7 +120,9 @@ KSX.apps.core.ThreeJsApp = (function () {
 
     ThreeJsApp.prototype.render = function () {
         if (this.renderingEndabled) {
-            this.renderer.clearDepth();
+            if (this.renderer.autoClear) {
+                this.renderer.clearDepth();
+            }
             this.user.render();
 
             if (this.useScenePerspective) {

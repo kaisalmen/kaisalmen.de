@@ -42,6 +42,9 @@ KSX.apps.demos.HelloOOShader = (function () {
     };
 
     HelloOOShader.prototype.initGL = function () {
+        var camera = this.app.scenePerspective.camera;
+        camera.position.set( 0, 0, 250 );
+
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,

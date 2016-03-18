@@ -19,6 +19,9 @@ KSX.apps.demos.HelloOOSimple = (function () {
     };
 
     HelloOOSimple.prototype.initGL = function () {
+        var camera = this.app.scenePerspective.camera;
+        camera.position.set( 0, 0, 250 );
+
         this.app.scenePerspective.scene.add(this.mesh);
         this.app.scenePerspective.camera.position.z = 5;
     };

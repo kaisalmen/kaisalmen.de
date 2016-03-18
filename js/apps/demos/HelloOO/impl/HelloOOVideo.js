@@ -46,6 +46,9 @@ KSX.apps.demos.HelloOOVideo = (function () {
     };
 
     HelloOOVideo.prototype.initGL = function () {
+        var camera = this.app.scenePerspective.camera;
+        camera.position.set( 0, 0, 250 );
+
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 1080;
         this.videoBufferContext.fillStyle = "#000000";

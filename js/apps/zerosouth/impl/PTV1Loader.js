@@ -117,8 +117,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.controls.keys = [ 65, 83, 68 ];
 
 
-        var ambient = new THREE.AmbientLight(0x707070);
-        scene.add(ambient);
+        var ambientLight = new THREE.AmbientLight(0x707070);
+        scene.add(ambientLight);
 
         var posLight1 = new THREE.Vector3(-500, 500, 500);
         var posLight2 = new THREE.Vector3(500, 200, -500);
@@ -189,6 +189,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         });
 
 
+        this.objGroup = new THREE.Group();
+        this.objGroup.position.y = 20;
+        this.objGroup.position.z = 250;
+        scene.add(this.objGroup);
+
+        this.objLoaderWW.setObjGroup(this.objGroup);
+
+
         // Skybox
         var shader = THREE.ShaderLib[ "cube" ];
         shader.uniforms[ "tCube" ].value = this.textureCubeLoader;
@@ -203,13 +211,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         });
         this.skybox = new THREE.Mesh(box, materialCube );
         sceneCube.add( this.skybox );
-
-        this.objGroup = new THREE.Group();
-        this.objGroup.position.y = 20;
-        this.objGroup.position.z = 250;
-        scene.add(this.objGroup);
-
-        this.objLoaderWW.setObjGroup(this.objGroup);
 
         var callbackMaterialsLoaded = function (materials) {
             if (materials !== null) {
@@ -345,6 +346,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     PTV1Loader.prototype.render = function() {
         this.controls.update();
         this.stats.update();
+        this.app.renderer.clearDepth();
+        this.app.renderer.clearColor();
     };
 
     PTV1Loader.prototype.resizeDisplayGL = function() {

@@ -42,6 +42,9 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
     };
 
     ImageBasedGeometryTransform.prototype.initGL = function () {
+        var camera = this.app.scenePerspective.camera;
+        camera.position.set( 0, 0, 250 );
+
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = new THREE.ShaderMaterial({
             uniforms: this.uniforms,
