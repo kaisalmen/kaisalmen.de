@@ -18,7 +18,7 @@ KSX.apps.tools.MeshInfo = (function () {
 
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
-    var SLIDES_WIDTH = 255;
+    var SLIDES_WIDTH = 100;
     var SLIDES_HEIGHT = 32;
 
     function PTV1Loader(elementToBindTo) {
@@ -42,10 +42,10 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.faceCount = 0;
         this.meshInfos = new Set();
         this.exportMeshInfos = false;
-        this.alterAllMaterials = false;
 
         this.replaceMaterials = new Map();
         this.replaceObjectMaterials = new Map();
+        this.alterMaterials = new Map();
 
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
@@ -54,7 +54,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.ui = new UIL.Gui({
             css: 'top: 0px; right: 0px;',
-            size: 450,
+            size: 350,
             center: true
         });
 
@@ -168,13 +168,25 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             transparent: true,
             side : THREE.DoubleSide,
             opacity: 0.45,
-            depthTest: true
         });
         this.objLoaderWW.addMaterial('glass', glass);
 
-        this.replaceObjectMaterials.set('WindshieldGlass', 'glass');
-        this.replaceObjectMaterials.set('DoorRGlass', 'glass');
-        this.replaceObjectMaterials.set('DoorLGlass', 'glass');
+        var glassProps = {
+            name: 'glass',
+            maxOpacity: 0.45,
+            materialAdjustments : {
+            }
+        };
+        this.replaceObjectMaterials.set('WindshieldGlass', glassProps);
+        this.replaceObjectMaterials.set('DoorRGlass', glassProps);
+        this.replaceObjectMaterials.set('DoorLGlass', glassProps);
+
+        this.alterMaterials.set('Blue_Paint', {
+            envMap: scope.textureCubeLoader,
+            envMapIntensity: 0.5,
+            roughness: 0.2,
+            color: new THREE.Color( 0x0221A5 )
+        });
 
 
         // Skybox
@@ -203,29 +215,27 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             if (materials !== null) {
                 console.log('Overall number of materials: ' + materials.size);
 
+                var alter;
                 var funcAlterMaterials = function(material, matName) {
-                    if (scope.alterAllMaterials) {
-                        material.side = THREE.DoubleSide;
-                        material.transparent = true;
-                        material.opacity = 0.5;
-                        material.depthTest = true;
-                    }
-
-                    if (matName === 'Blue_Paint') {
-                        material.envMap = scope.textureCubeLoader;
-                        material.envMapIntensity = 0.5;
-                        material.roughness = 0.2;
+                    alter = scope.alterMaterials.get(matName);
+                    if (alter !== undefined) {
+                        for ( var prop in alter ) {
+                            material[prop] = alter[prop];
+                        }
                     }
                 };
                 materials.forEach(funcAlterMaterials);
-
             }
         };
         this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
 
         var callbackMeshLoaded = function (meshName, material) {
             var replacedMaterial = null;
-            var perObjectMaterialName = scope.replaceObjectMaterials.get(meshName);
+            var perObjectMaterial = scope.replaceObjectMaterials.get(meshName);
+            var perObjectMaterialName = null;
+            if (perObjectMaterial !== undefined && perObjectMaterial !== null) {
+                perObjectMaterialName = perObjectMaterial['name'];
+            }
 
             if (perObjectMaterialName !== null && perObjectMaterialName !== undefined) {
                 replacedMaterial = scope.objLoaderWW.getMaterial(perObjectMaterialName);
@@ -280,45 +290,48 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             scope.skybox.visible = enabled;
         };
         this.ui.add('bool', {
-            name: 'Enable Skybox',
+            name: 'Skybox',
             value: true,
             callback: enableSkybox,
             height: SLIDES_HEIGHT
         });
 
 
-        var adjustTransparency = function (value) {
+        var adjustOpacity = function (value) {
             var scene = scope.app.scenePerspective.scene;
-            var mesh, dont;
+            var mesh;
+            var dontAlter;
+            var transparent = value < 1.0 ? true : false;
+            var side = value < 1.0 ? THREE.DoubleSide : THREE.FrontSide;
+            var maxOpacity = 1.0;
 
-            if (value < 1.0) {
-                for (var meshInfo of scope.meshInfos) {
-                    mesh = scene.getObjectByName(meshInfo.meshName);
-                    dont = scope.replaceObjectMaterials.get(meshInfo.meshName);
+            for (var meshInfo of scope.meshInfos) {
+                mesh = scene.getObjectByName(meshInfo.meshName);
+                dontAlter = scope.replaceObjectMaterials.get(meshInfo.meshName);
 
-                    if (dont === undefined && mesh !== undefined) {
-                        mesh.material.transparent = true;
-                        mesh.material.opacity = value;
-                        mesh.material.depthTest = true;
-                    }
+                if (dontAlter === undefined && mesh !== undefined) {
+                    mesh.material.transparent = transparent;
+                    mesh.material.opacity = value;
+                    mesh.material.side = side;
                 }
-            }
-            else {
-                for (var meshInfo of scope.meshInfos) {
-                    mesh = scene.getObjectByName(meshInfo.meshName);
-                    dont = scope.replaceObjectMaterials.get(meshInfo.meshName);
+                else {
+                    maxOpacity = dontAlter['maxOpacity'];
+                    if (value > maxOpacity) {
+                        mesh.material.opacity = maxOpacity;
+                    }
+                    else {
+                        mesh.material.opacity = value;
+                    }
 
-                    if (dont === undefined && mesh !== undefined) {
-                        mesh.material.transparent = false;
-                        mesh.material.opacity = 1.0;
-                        mesh.material.depthTest = true;
+                    for ( var prop in dontAlter['materialAdjustments'] ) {
+                        mesh.material[prop] = dontAlter[prop];
                     }
                 }
             }
         };
         scope.ui.add('slide', {
-            name: 'Transparency',
-            callback: adjustTransparency,
+            name: 'Opacity',
+            callback: adjustOpacity,
             min: 0.0,
             max: 1.0,
             value: 1.0,
