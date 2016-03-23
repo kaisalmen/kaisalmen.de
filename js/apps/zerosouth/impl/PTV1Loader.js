@@ -40,12 +40,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objGroup = null;
 
         this.faceCount = 0;
-        this.meshInfos = new Set();
+        this.meshInfos = new Array();
         this.exportMeshInfos = false;
 
-        this.replaceMaterials = new Map();
-        this.replaceObjectMaterials = new Map();
-        this.alterMaterials = new Map();
+        this.replaceMaterials = new Array();
+        this.replaceObjectMaterials = new Array();
+        this.alterMaterials = new Array();
 
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
@@ -64,10 +64,10 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     PTV1Loader.prototype.initAsyncContent = function () {
         var scope = this;
 
-        var promises = new Set();
+        var promises = new Array();
         var cubeBasePath = '../../resource/textures/skybox';
         var imageFileNames = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
-        promises.add(this.textureTools.loadTextureCube(cubeBasePath, imageFileNames));
+        promises.push(this.textureTools.loadTextureCube(cubeBasePath, imageFileNames));
 
         Promise.all(promises).then(
             function (results) {
@@ -177,16 +177,16 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             materialAdjustments : {
             }
         };
-        this.replaceObjectMaterials.set('WindshieldGlass', glassProps);
-        this.replaceObjectMaterials.set('DoorRGlass', glassProps);
-        this.replaceObjectMaterials.set('DoorLGlass', glassProps);
+        this.replaceObjectMaterials['WindshieldGlass'] = glassProps;
+        this.replaceObjectMaterials['DoorRGlass'] = glassProps;
+        this.replaceObjectMaterials['DoorLGlass'] = glassProps;
 
-        this.alterMaterials.set('Blue_Paint', {
+        this.alterMaterials['Blue_Paint'] = {
             envMap: scope.textureCubeLoader,
             envMapIntensity: 0.5,
             roughness: 0.2,
             color: new THREE.Color( 0x0221A5 )
-        });
+        };
 
 
         this.objGroup = new THREE.Group();
@@ -214,25 +214,30 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         var callbackMaterialsLoaded = function (materials) {
             if (materials !== null) {
-                console.log('Overall number of materials: ' + materials.size);
-
                 var alter;
-                var funcAlterMaterials = function(material, matName) {
-                    alter = scope.alterMaterials.get(matName);
+                var matName;
+                var material;
+                var prop;
+                var materialCount = 0;
+
+                for ( matName in materials ) {
+                    alter = scope.alterMaterials[matName];
+                    material =  materials[matName];
                     if (alter !== undefined) {
-                        for ( var prop in alter ) {
+                        for (prop in alter ) {
                             material[prop] = alter[prop];
                         }
                     }
+                    materialCount++;
                 };
-                materials.forEach(funcAlterMaterials);
+                console.log('Overall number of materials: ' + materialCount);
             }
         };
         this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
 
         var callbackMeshLoaded = function (meshName, material) {
             var replacedMaterial = null;
-            var perObjectMaterial = scope.replaceObjectMaterials.get(meshName);
+            var perObjectMaterial = scope.replaceObjectMaterials[meshName];
             var perObjectMaterialName = null;
             if (perObjectMaterial !== undefined && perObjectMaterial !== null) {
                 perObjectMaterialName = perObjectMaterial['name'];
@@ -242,7 +247,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 replacedMaterial = scope.objLoaderWW.getMaterial(perObjectMaterialName);
             }
             else {
-                var replacedMaterialName = scope.replaceMaterials.get(material.name);
+                var replacedMaterialName = scope.replaceMaterials[material.name];
                 if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
                     replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
                 }
@@ -255,7 +260,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 var meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
             }
 
-            scope.meshInfos.add(meshInfo);
+            scope.meshInfos.push(meshInfo);
 
             return replacedMaterial;
         };
@@ -265,9 +270,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             if (scope.exportMeshInfos) {
                 var exportString = '';
 
-                if (scope.meshInfos.size > 0) {
-                    for (let item of scope.meshInfos.values()) {
-                        exportString += JSON.stringify(item);
+                if (scope.meshInfos.length > 0) {
+                    for (var meshInfo of scope.meshInfos) {
+                        exportString += JSON.stringify(meshInfo);
                         exportString += '\n';
                     }
 
@@ -308,7 +313,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
             for (var meshInfo of scope.meshInfos) {
                 mesh = scene.getObjectByName(meshInfo.meshName);
-                dontAlter = scope.replaceObjectMaterials.get(meshInfo.meshName);
+                dontAlter = scope.replaceObjectMaterials[meshInfo.meshName];
 
                 if (dontAlter === undefined && mesh !== undefined) {
                     mesh.material.transparent = transparent;

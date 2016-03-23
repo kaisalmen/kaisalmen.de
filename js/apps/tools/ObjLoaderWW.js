@@ -20,7 +20,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         // TODO: Implement own loading manager
         this.xhrLoader = new THREE.XHRLoader();
         this.xhrLoader.setPath(this.path);
-        this.materials = new Map();
+        this.materials = new Array();
 
         this.defaultMaterial = new THREE.MeshPhongMaterial();
         this.defaultMaterial.name = "defaultMaterial";
@@ -75,11 +75,11 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         if (material.name !== name) {
             material.name = name;
         }
-        this.materials.set(material.name, material);
+        this.materials[name] = material;
     };
 
     ObjLoaderWW.prototype.getMaterial = function (name) {
-        var material = this.materials.get(name);
+        var material = this.materials[name];
         if (material === undefined) {
             material = null;
         }
@@ -120,7 +120,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
             if (materialCreator !== null && materialCreator.materialsInfo !== null) {
                 var materialsInfo = materialCreator.materialsInfo;
                 for (var id in materialsInfo) {
-                    scope.materials.set(id, materialCreator.create(id));
+                    scope.materials[id] = materialCreator.create(id);
                 }
             }
 
@@ -209,7 +209,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 var material = this.defaultMaterial;
                 if (this.materials !== null) {
-                    material = this.materials.get(payload.material);
+                    material = this.materials[payload.material];
                     if (material !== null) {
                         material.shading = payload.smooth ? THREE.SmoothShading : THREE.FlatShading;
                     }
