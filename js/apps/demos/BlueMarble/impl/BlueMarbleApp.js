@@ -48,12 +48,12 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
     BlueMarbleApp.prototype.initAsyncContent = function () {
         var scope = this;
 
-        var promises = new Set();
-        promises.add(this.textureTools.loadTexture('../../resource/images/BlueMarble/bluemarble_rgba.png'));
-        promises.add(this.textureTools.loadTexture('../../resource/images/BlueMarble/sat_rgba.png'));
+        var promises = new Array(4);
+        promises[0] = this.textureTools.loadTexture('../../resource/images/BlueMarble/bluemarble_rgba.png');
+        promises[1] = this.textureTools.loadTexture('../../resource/images/BlueMarble/sat_rgba.png');
 
-        promises.add(this.shaderTools.loadShader('../../resource/shader/passThrough.glsl', false, 'VS: Pass Through'));
-        promises.add(this.shaderTools.loadShader('../../resource/shader/blueMarble.glsl', false, 'FS: BlueMarble'));
+        promises[2] = this.shaderTools.loadShader('../../resource/shader/passThrough.glsl', false, 'VS: Pass Through');
+        promises[3] = this.shaderTools.loadShader('../../resource/shader/blueMarble.glsl', false, 'FS: BlueMarble');
 
         Promise.all(promises).then(
             function (results) {
