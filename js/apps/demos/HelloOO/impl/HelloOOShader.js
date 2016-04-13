@@ -23,8 +23,8 @@ KSX.apps.demos.HelloOOShader = (function () {
         var scope = this;
 
         var promises = new Array(3);
-        promises[0] = this.shaderTools.loadShader('../../resource/shader/passThrough.glsl', true, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader('../../resource/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture');
+        promises[0] = this.shaderTools.loadShader('../../js/apps/shader/passThrough.glsl', true, 'VS: Pass Through');
+        promises[1] = this.shaderTools.loadShader('../../js/apps/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture');
         promises[2] = this.textureTools.loadTexture('../../resource/images/house02_pot.jpg');
 
         Promise.all( promises ).then(

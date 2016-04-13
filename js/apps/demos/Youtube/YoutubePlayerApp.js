@@ -4,10 +4,10 @@
 
 "use strict";
 
-KSX.apps.demos.HelloOOVideo = (function () {
+KSX.apps.demos.YoutubePlayerApp = (function () {
 
-    function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOVideo", elementToBindTo, true, false);
+    function YoutubePlayerApp(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
+        this.app = new KSX.apps.core.ThreeJsApp(this, "YoutubePlayerApp", elementToBindTo, true, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;
@@ -17,13 +17,14 @@ KSX.apps.demos.HelloOOVideo = (function () {
             colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
             texture1: { type: "t", value: null }
         };
-        this.video = document.getElementById(elementNameVideo);
+//        this.video = document.getElementById('youtubeVideo');
+        this.video = null;
         this.videoBuffer = document.getElementById(elementNameVideoBuffer);
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.texture = null;
     }
 
-    HelloOOVideo.prototype.initAsyncContent = function () {
+    YoutubePlayerApp.prototype.initAsyncContent = function () {
         var scope = this;
 
         var promises = new Array(3);
@@ -45,7 +46,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
         );
     };
 
-    HelloOOVideo.prototype.initGL = function () {
+    YoutubePlayerApp.prototype.initGL = function () {
         var camera = this.app.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
@@ -78,12 +79,14 @@ KSX.apps.demos.HelloOOVideo = (function () {
         this.app.scenePerspective.camera.position.z = 150;
     };
 
-    HelloOOVideo.prototype.render = function () {
-        if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+    YoutubePlayerApp.prototype.render = function () {
+        if (this.video !== null && this.videoBufferContext !== null && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
             this.videoBufferContext.drawImage(this.video, 0, 0);
             this.texture.needsUpdate = true;
         }
+
+//        var youtubeObject = document.getElementById('youtubeVideo');
     };
 
-    return HelloOOVideo;
+    return YoutubePlayerApp;
 })();

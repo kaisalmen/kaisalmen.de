@@ -48,7 +48,7 @@ else if (bowser.chrome && bowser.version < 46.0) {
     alert('Chrome ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Safari 9+.');
 }
 else if (bowser.firefox) {
-    if (bowser.version < 42.0) {
+    if (bowser.version < 37.0) {
         alert('Firefox ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Safari 9+.');
     }
     else if (bowser.mobile) {

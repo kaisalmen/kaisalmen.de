@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Youtube Player</title>
+</head>
+<body>
+    <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+
+    <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
+    <div id="player"></div>
+
+
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+<!--
+        <video id="DivGLFullVideo" autoplay loop muted controls>
+            <source src="../../resource/video/avatar_1080p.mp4" type='video/mp4'>
+        </video>
+-->
+        <canvas id="DivGLFullVideoBuffer"></canvas>
+
+    </div>
+<!--
+    <video width="640" height="360" id="youtubeVideo">
+        <param name="movie" value="http://www.youtube.com/embed/M7lc1UVf-VE?html5=1&amp;rel=0&amp;hl=en_US&amp;version=3"/>
+        <param name="allowFullScreen" value="true"/>
+        <param name="allowscriptaccess" value="always"/>
+        <embed width="640" height="360" src="http://www.youtube.com/embed/M7lc1UVf-VE?html5=1&amp;rel=0&amp;hl=en_US&amp;version=3" class="youtube-player" type="text/html" allowscriptaccess="always" allowfullscreen="true"/>
+    </video>
+-->
+    <script src="../../js/lib/ext/three.js"></script>
+
+    <script src="../../js/apps/core/AppLifecycle.js"></script>
+    <script src="../../js/apps/core/Canvas.js"></script>
+    <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/tools/ShaderTools.js"></script>
+    <script src="../../js/apps/tools/TextureTools.js"></script>
+
+    <script src="../../js/apps/demos/Youtube/YoutubePlayerApp.js"></script>
+    <script src="../../js/apps/demos/Youtube/YoutubePlayer.js"></script>
+
+</body>
+</html>

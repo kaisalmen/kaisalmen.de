@@ -51,8 +51,8 @@ var DatGuiText = function() {
 $(document).ready(
 	function() {
 	    $.when(
-            loadShader("../../resource/shader/passThrough.glsl"),
-            loadShader("../../resource/shader/simpleTextureEffect.glsl")
+            loadShader("../../js/apps/shader/passThrough.glsl"),
+            loadShader("../../js/apps/shader/simpleTextureEffect.glsl")
 	    ).done(
 	    	function(vert, frag) {
 	    		console.log("Shader and texture loading from file is completed!");

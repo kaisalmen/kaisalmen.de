@@ -233,7 +233,6 @@ KSX.apps.tools.ObjLoaderWW = (function () {
 
                 var mesh = new THREE.Mesh(bufferGeometry, material);
                 mesh.name = payload.meshName;
-
                 this.objGroup.add(mesh);
 
                 if (payload.complete) {

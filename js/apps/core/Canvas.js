@@ -23,21 +23,29 @@ KSX.apps.core.Canvas = (function () {
         if (this.verbose) {
             console.log("width: " + this.getWidth() + " height: " + this.getHeight());
         }
-        this.aspectRatio = this.getWidth() / this.getHeight();
+        var height = this.getHeight();
+        if (height === 0) {
+            this.aspectRatio = 1;
+        }
+        else {
+            this.aspectRatio = this.getWidth() / height;
+        }
     };
 
     Canvas.prototype.resetWidth = function (width, height) {
-        this.htmlCanvas.style.width = width + 'px';
-        this.htmlCanvas.style.height = height + 'px';
+        if (this.htmlCanvas !== null) {
+            this.htmlCanvas.style.width = width + 'px';
+            this.htmlCanvas.style.height = height + 'px';
+        }
         this.recalcAspectRatio();
     };
 
     Canvas.prototype.getWidth = function () {
-        return this.htmlCanvas.offsetWidth;
+        return this.htmlCanvas === null ? 0 : this.htmlCanvas.offsetWidth;
     };
 
     Canvas.prototype.getHeight = function () {
-        return this.htmlCanvas.offsetHeight;
+        return this.htmlCanvas === null ? 0 : this.htmlCanvas.offsetHeight;
     };
 
     Canvas.prototype.getPixelLeft = function () {

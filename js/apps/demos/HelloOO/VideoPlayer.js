@@ -21,7 +21,7 @@ KSX.apps.demos.VideoPlayer = {
             KSX.apps.demos.VideoPlayer.glob.appLifecycle.renderAllApps();
         },
         onWindowResize : function () {
-            KSX.apps.demos.HelloOOMulti.glob.appLifecycle.resizeAll();
+            KSX.apps.demos.VideoPlayer.glob.appLifecycle.resizeAll();
         }
     }
 }

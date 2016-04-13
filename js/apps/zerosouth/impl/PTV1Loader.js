@@ -25,21 +25,18 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, false, true);
         this.controls = null;
 
-        this.pathToObj = '../../resource/models/';
-        this.fileObj = 'PTV1.obj';
-        this.fileZip = 'PTV1.zip';
-        this.fileMtl = 'PTV1.mtl';
-
-        this.loadDirectly = false;
-        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(this.pathToObj, this.fileObj, this.fileMtl, !this.loadDirectly, this.fileZip);
+        var pathToObj = '../../resource/models/';
+        var fileObj = 'PTV1.obj';
+        var fileZip = 'PTV1.zip';
+        var fileMtl = 'PTV1.mtl';
+        var loadDirectly = false;
+        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(pathToObj, fileObj, fileMtl, !loadDirectly, fileZip);
 
         // disables dynamic counting of objects in file
         this.objLoaderWW.setOverallObjectCount(1585);
 
-        this.helper = null;
         this.objGroup = null;
 
-        this.faceCount = 0;
         this.meshInfos = new Array();
         this.exportMeshInfos = false;
 
@@ -49,7 +46,6 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
-        this.cameraCube = null;
         this.skybox = null;
 
         this.ui = new UIL.Gui({
@@ -145,10 +141,17 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         var directionalLight1 = new THREE.DirectionalLight(light1Color);
         directionalLight1.position.set(posLight1.x, posLight1.y, posLight1.z);
+        directionalLight1.castShadow = true;
+        directionalLight1.shadow.camera.near = 10;
+        directionalLight1.shadow.camera.far = 2500;
+        directionalLight1.shadow.camera.fov = 50;
+        directionalLight1.shadow.mapSize.width = 2048;
+        directionalLight1.shadow.mapSize.height = 2048;
         scene.add(directionalLight1);
 
         var directionalLight2 = new THREE.DirectionalLight(light2Color);
         directionalLight2.position.set(posLight2.x, posLight2.y, posLight2.z);
+        directionalLight2.castShadow = true;
         scene.add(directionalLight2);
 
         var dHelp1 = new THREE.DirectionalLightHelper(directionalLight1, 40);
@@ -157,9 +160,19 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var dHelp2 = new THREE.DirectionalLightHelper(directionalLight2, 40);
         scene.add(dHelp2);
 
-        this.helper = new THREE.GridHelper(1000, 20);
-        this.helper.setColors(0xFF4444, 0xB0B0B0);
-        scene.add(this.helper);
+        var helper = new THREE.GridHelper( 2400, 100 );
+        helper.setColors( 0xFF4444, 0x404040 );
+        scene.add(helper);
+
+        var plane = new THREE.CircleGeometry( 5000, 64 );
+        var planeMaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
+        var planeMesh = new THREE.Mesh(plane, planeMaterial);
+        planeMesh.rotateX( Math.PI / 2.0) ;
+        planeMesh.position.set( 0.0, -1.0, 0.0 );
+        planeMesh.receiveShadow = true;
+        planeMesh.castShadow = true;
+
+        scene.add(planeMesh);
 
 
         // material adjustemnts
@@ -167,7 +180,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             color: '#555555',
             transparent: true,
             side : THREE.DoubleSide,
-            opacity: 0.45,
+            opacity: 0.45
         });
         this.objLoaderWW.addMaterial('glass', glass);
 
@@ -209,7 +222,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             depthWrite: false,
             side: THREE.BackSide
         });
-        this.skybox = new THREE.Mesh(box, materialCube );
+        this.skybox = new THREE.Mesh(box, materialCube);
         sceneCube.add( this.skybox );
 
         var callbackMaterialsLoaded = function (materials) {
