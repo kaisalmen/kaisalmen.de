@@ -15,7 +15,7 @@ KSX.apps.demos.HelloOOMulti = {
             var impl = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas"));
             KSX.apps.demos.HelloOOMulti.glob.appLifecycle.addApp(impl.app);
 
-            impl = new KSX.apps.demos.HelloOOShader(document.getElementById("DivGL2Canvas"));
+            impl = new KSX.apps.demos.TextureWithNoiseShaderApp(document.getElementById("DivGL2Canvas"));
             KSX.apps.demos.HelloOOMulti.glob.appLifecycle.addApp(impl.app);
 
             impl = new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas"), "DivGL3Video", "DivGL3VideoBuffer");

@@ -4,22 +4,22 @@
 
 'use strict';
 
-KSX.apps.demos.HelloOOShader = (function () {
+KSX.apps.shader.TextureWithNoiseShader = (function () {
 
-    function HelloOOShader(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'HelloOOShader', elementToBindTo, true, false);
-        this.shaderTools = new KSX.apps.tools.ShaderTools();
-        this.textureTools = new KSX.apps.tools.TextureTools();
-        this.vertexShaderText = null;
-        this.fragmentShaderText = null;
+    function TextureWithNoiseShader() {
+        
+        KSX.apps.shader.ShaderBase.call(this);
+
         this.uniforms = {
             blendFactor : { type: 'f', value: 1.0 },
             colorFactor : { type: 'fv1', value: [1.0, 1.0, 1.0] },
             texture1: { type: 't', value: null }
         };
+        this.vertexShader = null;
+        this.fragmentShader = null;
     }
 
-    HelloOOShader.prototype.initAsyncContent = function() {
+    TextureWithNoiseShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
         var promises = new Array(3);
@@ -29,10 +29,11 @@ KSX.apps.demos.HelloOOShader = (function () {
 
         Promise.all( promises ).then(
             function (results) {
-                scope.vertexShaderText = results[0];
-                scope.fragmentShaderText = results[1];
+                scope.vertexShader = results[0];
+                scope.fragmentShader = results[1];
                 scope.uniforms.texture1.value = results[2];
-                scope.app.initSynchronuous();
+
+                callbackOnSuccess();
             }
         ).catch(
             function (error) {
@@ -41,15 +42,37 @@ KSX.apps.demos.HelloOOShader = (function () {
         );
     };
 
-    HelloOOShader.prototype.initGL = function () {
+    return TextureWithNoiseShader;
+})();
+
+KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
+
+    function TextureWithNoiseShaderApp(elementToBindTo) {
+        this.app = new KSX.apps.core.ThreeJsApp(this, 'TextureWithNoiseShaderApp', elementToBindTo, true, false);
+
+        this.vertexShaderText = null;
+        this.fragmentShaderText = null;
+        this.shader = new KSX.apps.shader.TextureWithNoiseShader();
+    }
+
+    TextureWithNoiseShaderApp.prototype.initAsyncContent = function() {
+        var scope = this;
+
+        var callbackOnSuccess = function () {
+            scope.app.initSynchronuous();
+        };
+        this.shader.loadResources(callbackOnSuccess);
+    };
+
+    TextureWithNoiseShaderApp.prototype.initGL = function () {
         var camera = this.app.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = new THREE.ShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: this.vertexShaderText,
-            fragmentShader: this.fragmentShaderText
+            uniforms: this.shader.uniforms,
+            vertexShader: this.shader.vertexShader,
+            fragmentShader: this.shader.fragmentShader
         });
         this.mesh =  new THREE.Mesh(geometry, material);
 
@@ -57,10 +80,10 @@ KSX.apps.demos.HelloOOShader = (function () {
         this.app.scenePerspective.camera.position.z = 25;
     };
 
-    HelloOOShader.prototype.render = function () {
+    TextureWithNoiseShaderApp.prototype.render = function () {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
     };
 
-    return HelloOOShader;
+    return TextureWithNoiseShaderApp;
 })();
