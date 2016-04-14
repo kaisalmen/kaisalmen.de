@@ -8,15 +8,9 @@ KSX.apps.demos.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOVideo", elementToBindTo, true, false);
-        this.shaderTools = new KSX.apps.tools.ShaderTools();
-        this.textureTools = new KSX.apps.tools.TextureTools();
-        this.vertexShaderText = null;
-        this.fragmentShaderText = null;
-        this.uniforms = {
-            blendFactor : { type: "f", value: 0.75 },
-            colorFactor : { type: "fv1", value: [1.0, 1.0, 1.0] },
-            texture1: { type: "t", value: null }
-        };
+
+        this.shader = new KSX.apps.shader.SimpleTextureShader();
+        
         this.video = document.getElementById(elementNameVideo);
         this.videoBuffer = document.getElementById(elementNameVideoBuffer);
         this.videoBufferContext = this.videoBuffer.getContext("2d");
@@ -26,24 +20,12 @@ KSX.apps.demos.HelloOOVideo = (function () {
     HelloOOVideo.prototype.initAsyncContent = function () {
         var scope = this;
 
-        var promises = new Array(3);
-        promises[0] = this.shaderTools.loadShader("../../js/apps/shader/passThrough.glsl", true, "VS: Pass Through");
-        promises[1] = this.shaderTools.loadShader("../../js/apps/shader/simpleTextureEffect.glsl", true, "FS: Simple Texture");
-        promises[2] = this.textureTools.loadTexture("../../resource/images/house02_pot.jpg");
-
-        Promise.all( promises ).then(
-            function (results) {
-                scope.vertexShaderText = results[0];
-                scope.fragmentShaderText = results[1];
-                scope.uniforms.texture1.value = results[2];
-                scope.app.initSynchronuous();
-            }
-        ).catch(
-            function (error) {
-                console.log('The following error occurred: ', error);
-            }
-        );
+        var callbackOnSuccess = function () {
+            scope.app.initSynchronuous();
+        };
+        this.shader.loadResources(callbackOnSuccess);
     };
+
 
     HelloOOVideo.prototype.initGL = function () {
         var camera = this.app.scenePerspective.camera;
@@ -67,9 +49,9 @@ KSX.apps.demos.HelloOOVideo = (function () {
         });
 /*
         var material = new THREE.ShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: this.vertexShaderText,
-            fragmentShader: this.fragmentShaderText
+            uniforms: this.shader.uniforms,
+            vertexShader: this.shader.vertexShader,
+            fragmentShader: this.shader.fragmentShader
         });
 */
         var mesh =  new THREE.Mesh(geometry, material);

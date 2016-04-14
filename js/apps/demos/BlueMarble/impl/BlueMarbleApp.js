@@ -18,20 +18,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
     function BlueMarbleApp(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, 'BlueMarbleApp', elementToBindTo, false, true, false);
 
-        this.textureTools = new KSX.apps.tools.TextureTools();
-        this.shaderTools = new KSX.apps.tools.ShaderTools();
-
-        this.uniforms = {
-            blendFactor : { type : 'f', value : 1.0 },
-            alphaColor : { type : 'fv1', value : [1.0, 1.0, 1.0] },
-            lowerBoundary : { type: 'f', value: 50.0 / MAX_VALUE },
-            upperBoundary : { type: 'f', value: 127.0 / MAX_VALUE },
-            textureMarble : { type : 't', value : null },
-            textureSat : { type : 't', value : null }
-        };
-
-        this.vertexShader = null;
-        this.fragmentShader = null;
+        this.shader = new KSX.apps.shader.BlueMarbleShader();
 
         this.ui = new UIL.Gui({
             css: 'top: 0px; left: 225px;',
@@ -48,49 +35,33 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
     BlueMarbleApp.prototype.initAsyncContent = function () {
         var scope = this;
 
-        var promises = new Array(4);
-        promises[0] = this.textureTools.loadTexture('../../resource/images/BlueMarble/bluemarble_rgba.png');
-        promises[1] = this.textureTools.loadTexture('../../resource/images/BlueMarble/sat_rgba.png');
-
-        promises[2] = this.shaderTools.loadShader('../../js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
-        promises[3] = this.shaderTools.loadShader('../../js/apps/shader/blueMarble.glsl', false, 'FS: BlueMarble');
-
-        Promise.all(promises).then(
-            function (results) {
-                scope.uniforms.textureMarble.value = results[0];
-                scope.uniforms.textureSat.value = results[1];
-                scope.vertexShader = results[2];
-                scope.fragmentShader = results[3];
-                scope.app.initSynchronuous();
-            }
-        ).catch(
-            function (error) {
-                console.log('The following error occurred: ', error);
-            }
-        );
+        var callbackOnSuccess = function () {
+            scope.app.initSynchronuous();
+        };
+        this.shader.loadResources(callbackOnSuccess);
     };
 
     BlueMarbleApp.prototype.initPreGL = function () {
         var scope = this;
 
         var adjustLowerBoundary = function (value) {
-            scope.uniforms.lowerBoundary.value = value / MAX_VALUE;
+            scope.shader.uniforms.lowerBoundary.value = value / MAX_VALUE;
         };
 
         var adjustUpperBoundary = function (value) {
-            scope.uniforms.upperBoundary.value = value / MAX_VALUE;
+            scope.shader.uniforms.upperBoundary.value = value / MAX_VALUE;
         };
 
         var adjustRed = function (value) {
-            scope.uniforms.alphaColor.value[0] = value / MAX_VALUE;
+            scope.shader.uniforms.alphaColor.value[0] = value / MAX_VALUE;
         };
 
         var adjustGreen = function (value) {
-            scope.uniforms.alphaColor.value[1] = value / MAX_VALUE;
+            scope.shader.uniforms.alphaColor.value[1] = value / MAX_VALUE;
         };
 
         var adjustBlue = function (value) {
-            scope.uniforms.alphaColor.value[2] = value / MAX_VALUE;
+            scope.shader.uniforms.alphaColor.value[2] = value / MAX_VALUE;
         };
 
         var changeDiv = function (value) {
@@ -131,7 +102,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             callback: adjustLowerBoundary,
             min: COLOR_MIN,
             max: COLOR_MAX,
-            value: scope.uniforms.lowerBoundary.value * MAX_VALUE,
+            value: scope.shader.uniforms.lowerBoundary.value * MAX_VALUE,
             precision: 0,
             step: 1,
             width: SLIDES_WIDTH,
@@ -142,7 +113,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             callback: adjustUpperBoundary,
             min: COLOR_MIN,
             max: COLOR_MAX,
-            value: scope.uniforms.upperBoundary.value * MAX_VALUE,
+            value: scope.shader.uniforms.upperBoundary.value * MAX_VALUE,
             precision: 0,
             step: 1,
             width: SLIDES_WIDTH,
@@ -153,7 +124,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             callback: adjustRed,
             min: COLOR_MIN,
             max: COLOR_MAX,
-            value: scope.uniforms.alphaColor.value[0] * MAX_VALUE,
+            value: scope.shader.uniforms.alphaColor.value[0] * MAX_VALUE,
             precision: 0,
             step: 1,
             width: SLIDES_WIDTH,
@@ -165,7 +136,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             callback: adjustGreen,
             min: COLOR_MIN,
             max: COLOR_MAX,
-            value: scope.uniforms.alphaColor.value[1] * MAX_VALUE,
+            value: scope.shader.uniforms.alphaColor.value[1] * MAX_VALUE,
             precision: 0,
             step: 1,
             width: SLIDES_WIDTH,
@@ -177,7 +148,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             callback: adjustBlue,
             min: COLOR_MIN,
             max: COLOR_MAX,
-            value: scope.uniforms.alphaColor.value[1] * MAX_VALUE,
+            value: scope.shader.uniforms.alphaColor.value[1] * MAX_VALUE,
             precision: 0,
             step: 1,
             width: SLIDES_WIDTH,
@@ -243,9 +214,9 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
 
         var geometry = new THREE.PlaneGeometry(3712, 3712, 1, 1);
         var material = new THREE.ShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: this.vertexShader,
-            fragmentShader: this.fragmentShader
+            uniforms: this.shader.uniforms,
+            vertexShader: this.shader.vertexShader,
+            fragmentShader: this.shader.fragmentShader
         });
         this.mesh =  new THREE.Mesh(geometry, material);
 
