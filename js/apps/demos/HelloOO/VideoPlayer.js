@@ -24,7 +24,7 @@ KSX.apps.demos.VideoPlayer = {
             KSX.apps.demos.VideoPlayer.glob.appLifecycle.resizeAll();
         }
     }
-}
+};
 
 
 console.log('Starting application "VideoPlayer"...');

@@ -4,42 +4,37 @@
 
 'use strict';
 
-KSX.apps.shader.TextureWithNoiseShader = (function () {
+KSX.apps.shader.PixelProtestShader = (function () {
 
-    function TextureWithNoiseShader() {
+    function PixelProtestShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
         this.uniforms = {
-            blendFactor : { type: 'f', value: 1.0 },
-            colorFactor : { type: 'fv1', value: [1.0, 1.0, 1.0] },
-            texture1: { type: 't', value: null }
         };
         this.vertexShader = null;
         this.fragmentShader = null;
     }
 
-    TextureWithNoiseShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
+    PixelProtestShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
         constructor: {
             configurable: true,
             enumerable: true,
-            value: TextureWithNoiseShader,
+            value: PixelProtestShader,
             writable: true
         }
     });
 
-    TextureWithNoiseShader.prototype.loadResources = function (callbackOnSuccess) {
+    PixelProtestShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(3);
+        var promises = new Array(2);
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', true, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/noiseTextureEffect.glsl', true, 'FS: Simple Texture');
-        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
+        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', true, 'FS: Pure Noise');
 
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
                 scope.fragmentShader = results[1];
-                scope.uniforms.texture1.value = results[2];
 
                 callbackOnSuccess();
             }
@@ -50,5 +45,5 @@ KSX.apps.shader.TextureWithNoiseShader = (function () {
         );
     };
 
-    return TextureWithNoiseShader;
+    return PixelProtestShader;
 })();
