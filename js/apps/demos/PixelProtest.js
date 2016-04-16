@@ -6,11 +6,21 @@
 
 KSX.apps.demos.PixelProtestApp = (function () {
 
+    const SLIDES_WIDTH = 255;
+    const SLIDES_HEIGHT = 32;
+
     function PixelProtestApp(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtestApp", elementToBindTo, false, true);
 
-        this.shader = new KSX.apps.shader.PixelProtestShader();
+        this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
         this.shader.setBaseDir('');
+
+        this.ui = new UIL.Gui({
+            css: 'top: 0px; left: 250px;',
+            size: 500,
+            center: true
+        });
+        this.animateNoise = true;
     }
 
     PixelProtestApp.prototype.initAsyncContent = function() {
@@ -20,6 +30,49 @@ KSX.apps.demos.PixelProtestApp = (function () {
             scope.app.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
+    };
+
+    PixelProtestApp.prototype.initPreGL = function () {
+        var scope = this;
+
+        var adjustWidth = function (value) {
+            scope.shader.uniforms.width.value = value;
+        };
+        var adjustHeight = function (value) {
+            scope.shader.uniforms.height.value = value;
+        };
+        var enableNoiseAnimation = function (enabled) {
+            scope.animateNoise = enabled;
+        };
+
+        this.ui.add('bool', {
+            name: 'Animate',
+            value: this.animateNoise,
+            callback: enableNoiseAnimation,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('slide', {
+            name: 'Width',
+            callback: adjustWidth,
+            min: 0,
+            max: this.app.canvas.getWidth(),
+            value: this.app.canvas.getWidth(),
+            precision: 1,
+            step: 1,
+            width: SLIDES_WIDTH,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('slide', {
+            name: 'Height',
+            callback: adjustHeight,
+            min: 0,
+            max: this.app.canvas.getHeight(),
+            value: this.app.canvas.getHeight(),
+            precision: 1,
+            step: 1,
+            width: SLIDES_WIDTH,
+            height: SLIDES_HEIGHT
+        });
     };
 
     PixelProtestApp.prototype.initGL = function () {
@@ -40,6 +93,11 @@ KSX.apps.demos.PixelProtestApp = (function () {
     };
 
     PixelProtestApp.prototype.render = function () {
+        if (this.animateNoise) {
+            this.shader.uniforms.offsetR.value = Math.random();
+            this.shader.uniforms.offsetG.value = Math.random();
+            this.shader.uniforms.offsetB.value = Math.random();
+        }
     };
 
     return PixelProtestApp;

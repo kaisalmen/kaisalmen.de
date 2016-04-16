@@ -6,10 +6,16 @@
 
 KSX.apps.shader.PixelProtestShader = (function () {
 
-    function PixelProtestShader() {
+    function PixelProtestShader(width, height) {
         KSX.apps.shader.ShaderBase.call(this);
 
+        var baseValue = Math.random();
         this.uniforms = {
+            offsetR : { type : 'f', value : baseValue },
+            offsetG : { type : 'f', value : baseValue },
+            offsetB : { type : 'f', value : baseValue },
+            width : { type : 'f', value : width },
+            height : { type : 'f', value : height }
         };
         this.vertexShader = null;
         this.fragmentShader = null;
@@ -27,15 +33,17 @@ KSX.apps.shader.PixelProtestShader = (function () {
     PixelProtestShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(2);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', true, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', true, 'FS: Pure Noise');
+        var promises = new Array(3);
+        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
+        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/noise2D.glsl', false, 'FS: Pure Noise');
+        promises[2] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise');
 
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
-                scope.fragmentShader = results[1];
+                scope.fragmentShader = THREE.ShaderChunk[ "common" ] + '\n' + results[2];
 
+                console.log('Combined FS:\n' + scope.fragmentShader);
                 callbackOnSuccess();
             }
         ).catch(
