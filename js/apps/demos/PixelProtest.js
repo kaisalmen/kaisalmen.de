@@ -16,11 +16,15 @@ KSX.apps.demos.PixelProtestApp = (function () {
         this.shader.setBaseDir('');
 
         this.ui = new UIL.Gui({
-            css: 'top: 0px; left: 250px;',
-            size: 500,
-            center: true
+            css: 'top: 0px; left: 0px;',
+            size: 512,
+            center: false,
+            color: 'rgba(224, 224, 224, 1.0)',
+            bg: 'rgba(40, 40, 40, 0.66)'
         });
-        this.animateNoise = true;
+        this.uiElemWidth = null;
+        this.uiElemHeight = null;
+        this.animateNoise = false;
     }
 
     PixelProtestApp.prototype.initAsyncContent = function() {
@@ -33,45 +37,88 @@ KSX.apps.demos.PixelProtestApp = (function () {
     };
 
     PixelProtestApp.prototype.initPreGL = function () {
+        this.initUI(this.app.canvas.getWidth() / 4.0, this.app.canvas.getWidth(),
+            this.app.canvas.getHeight() / 4.0, this.app.canvas.getHeight());
+    };
+
+    PixelProtestApp.prototype.initUI = function (width, maxWidth, height, maxHeight) {
         var scope = this;
+
+        scope.ui.clear();
 
         var adjustWidth = function (value) {
             scope.shader.uniforms.width.value = value;
+            scope.recalcRandom();
         };
         var adjustHeight = function (value) {
             scope.shader.uniforms.height.value = value;
+            scope.recalcRandom();
         };
         var enableNoiseAnimation = function (enabled) {
             scope.animateNoise = enabled;
+            scope.recalcRandom();
+        };
+        var enableR = function (enabled) {
+            scope.shader.uniforms.useR.value = enabled;
+        };
+        var enableG = function (enabled) {
+            scope.shader.uniforms.useG.value = enabled;
+        };
+        var enableB = function (enabled) {
+            scope.shader.uniforms.useB.value = enabled;
         };
 
-        this.ui.add('bool', {
+        scope.ui.add('bool', {
             name: 'Animate',
-            value: this.animateNoise,
-            callback: enableNoiseAnimation,
-            height: SLIDES_HEIGHT
+            value: scope.animateNoise,
+            callback: enableNoiseAnimation
         });
-        scope.ui.add('slide', {
+        if (width > maxWidth) {
+            width = maxWidth;
+        }
+        scope.uiElemWidth = scope.ui.add('slide', {
             name: 'Width',
             callback: adjustWidth,
-            min: 0,
-            max: this.app.canvas.getWidth(),
-            value: this.app.canvas.getWidth(),
-            precision: 1,
-            step: 1,
+            min: 2,
+            max: maxWidth,
+            value: width,
+            precision: 0,
+            step: 2,
             width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT
+            height: SLIDES_HEIGHT,
+            stype: 2,
+            bColor: 'rgba(255, 50, 50, 1.0)'
         });
-        scope.ui.add('slide', {
+        if (height > maxHeight) {
+            height = maxHeight;
+        }
+        scope.uiElemHeight = scope.ui.add('slide', {
             name: 'Height',
             callback: adjustHeight,
-            min: 0,
-            max: this.app.canvas.getHeight(),
-            value: this.app.canvas.getHeight(),
-            precision: 1,
-            step: 1,
+            min: 2,
+            max: maxHeight,
+            value: height,
+            precision: 0,
+            step: 2,
             width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT
+            height: SLIDES_HEIGHT,
+            stype: 2,
+            bColor: 'rgba(255, 50, 50, 1.0)'
+        });
+        scope.ui.add('bool', {
+            name: 'Use R',
+            value: scope.shader.uniforms.useR.value,
+            callback: enableR
+        });
+        scope.ui.add('bool', {
+            name: 'Use B',
+            value: scope.shader.uniforms.useG.value,
+            callback: enableG
+        });
+        scope.ui.add('bool', {
+            name: 'Use B',
+            value: scope.shader.uniforms.useB.value,
+            callback: enableB
         });
     };
 
@@ -90,14 +137,20 @@ KSX.apps.demos.PixelProtestApp = (function () {
     PixelProtestApp.prototype.resizeDisplayGL = function () {
         this.mesh.scale.x = this.app.canvas.getWidth();
         this.mesh.scale.y = this.app.canvas.getHeight();
+
+        this.initUI(this.uiElemWidth.value, this.app.canvas.getWidth(), this.uiElemHeight.value, this.app.canvas.getHeight());
     };
 
     PixelProtestApp.prototype.render = function () {
         if (this.animateNoise) {
-            this.shader.uniforms.offsetR.value = Math.random();
-            this.shader.uniforms.offsetG.value = Math.random();
-            this.shader.uniforms.offsetB.value = Math.random();
+            this.recalcRandom();
         }
+    };
+
+    PixelProtestApp.prototype.recalcRandom = function () {
+        this.shader.uniforms.offsetR.value = Math.random();
+        this.shader.uniforms.offsetG.value = Math.random();
+        this.shader.uniforms.offsetB.value = Math.random();
     };
 
     return PixelProtestApp;

@@ -9,13 +9,15 @@ KSX.apps.shader.PixelProtestShader = (function () {
     function PixelProtestShader(width, height) {
         KSX.apps.shader.ShaderBase.call(this);
 
-        var baseValue = Math.random();
         this.uniforms = {
-            offsetR : { type : 'f', value : baseValue },
-            offsetG : { type : 'f', value : baseValue },
-            offsetB : { type : 'f', value : baseValue },
-            width : { type : 'f', value : width },
-            height : { type : 'f', value : height }
+            offsetR : { type : 'f', value : Math.random() },
+            offsetG : { type : 'f', value : Math.random() },
+            offsetB : { type : 'f', value : Math.random() },
+            width : { type : 'f', value : width / 4.0 },
+            height : { type : 'f', value : height / 4.0 },
+            useR : { type : 'b', value : true },
+            useG : { type : 'b', value : true },
+            useB : { type : 'b', value : true }
         };
         this.vertexShader = null;
         this.fragmentShader = null;
@@ -33,17 +35,18 @@ KSX.apps.shader.PixelProtestShader = (function () {
     PixelProtestShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(3);
+        var promises = new Array(2);
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/noise2D.glsl', false, 'FS: Pure Noise');
-        promises[2] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise');
+        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise');
 
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
-                scope.fragmentShader = THREE.ShaderChunk[ "common" ] + '\n' + results[2];
+                var shaders = Array(2);
+                shaders['common'] = { name: 'common', value: THREE.ShaderChunk["common"] };
+                shaders['pureNoise'] = { name: 'pureNoise', value: results[1] };
+                scope.fragmentShader = scope.shaderTools.combineShader(shaders, true);
 
-                console.log('Combined FS:\n' + scope.fragmentShader);
                 callbackOnSuccess();
             }
         ).catch(

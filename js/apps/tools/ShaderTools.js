@@ -41,6 +41,22 @@ KSX.apps.tools.ShaderTools = (function () {
         return new Promise(promise);
     };
 
+    ShaderTools.prototype.combineShader = function (shaders, logResult) {
+        var all = "";
+        var shader = null;
+        for ( var key in shaders ) {
+            shader = shaders[key];
+            all += '\n//Shader: ' + shader.name + '\n' + shader.value;
+        }
+        all = all.trim() + '\n';
+
+        if (logResult) {
+            console.log('Combined Shader:\n' + all);
+        }
+
+        return all;
+    };
+
     ShaderTools.prototype.printShader = function (shaderObj, shaderName) {
         console.log(shaderName + ":");
         console.log(shaderObj);

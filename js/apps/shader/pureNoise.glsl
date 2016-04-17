@@ -5,14 +5,45 @@ uniform float offsetG;
 uniform float offsetB;
 uniform float width;
 uniform float height;
+uniform bool useR;
+uniform bool useG;
+uniform bool useB;
+
+float calcVUVShift (float colorOffset) {
+    float x = floor((vUv.x + floor(colorOffset * width)) * width) / width;
+    float y = floor((vUv.y + floor(colorOffset * height)) * height) / height;
+    vec2 vUvShif = vec2(x, y);
+    float shift = rand(vUvShif);
+    return shift;
+}
 
 void main()	{
-    vec2 rOffset = vec2(floor((vUv.x + offsetR) * width) / width, floor((vUv.y + offsetR) * height) / height);
-    vec2 gOffset = vec2(floor((vUv.x + offsetG) * width) / width, floor((vUv.y + offsetG) * height) / height);
-    vec2 bOffset = vec2(floor((vUv.x + offsetB) * width) / width, floor((vUv.y + offsetB) * height) / height);
 
-	gl_FragColor.r = rand(clamp(rOffset, 0.0, 255.0));
-	gl_FragColor.g = rand(clamp(gOffset, 0.0, 255.0));
-	gl_FragColor.b = rand(clamp(bOffset, 0.0, 255.0));
+	float randValShiftR = calcVUVShift(offsetR);
+	float randValShiftG = calcVUVShift(offsetG);
+	float randValShiftB = calcVUVShift(offsetB);
+
+    if (randValShiftR > 1.0) randValShiftR -= 1.0;
+    if (randValShiftG > 1.0) randValShiftG -= 1.0;
+    if (randValShiftB > 1.0) randValShiftB -= 1.0;
+
+    if (useR) {
+	    gl_FragColor.r = randValShiftR;
+	}
+	else {
+	    gl_FragColor.r = 0.0;
+	}
+	if (useG) {
+	    gl_FragColor.g = randValShiftG;
+	}
+    else {
+        gl_FragColor.g = 0.0;
+    }
+    if (useB) {
+        gl_FragColor.b = randValShiftB;
+    }
+    else {
+        gl_FragColor.b = 0.0;
+    }
 	gl_FragColor.a = 1.0;
 }
