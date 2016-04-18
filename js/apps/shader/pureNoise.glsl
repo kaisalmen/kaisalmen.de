@@ -12,34 +12,31 @@ uniform bool useB;
 float calcVUVShift (float colorOffset) {
     float x = floor((vUv.x + floor(colorOffset * width)) * width) / width;
     float y = floor((vUv.y + floor(colorOffset * height)) * height) / height;
-    vec2 vUvShif = vec2(x, y);
-    float shift = rand(vUvShif);
-    return shift;
+    return rand(vec2(x, y));
 }
 
 void main()	{
-
-	float randValShiftR = calcVUVShift(offsetR);
-	float randValShiftG = calcVUVShift(offsetG);
-	float randValShiftB = calcVUVShift(offsetB);
-
-    if (randValShiftR > 1.0) randValShiftR -= 1.0;
-    if (randValShiftG > 1.0) randValShiftG -= 1.0;
-    if (randValShiftB > 1.0) randValShiftB -= 1.0;
-
     if (useR) {
+        float randValShiftR = calcVUVShift(offsetR);
+        if (randValShiftR > 1.0) randValShiftR -= 1.0;
 	    gl_FragColor.r = randValShiftR;
 	}
 	else {
 	    gl_FragColor.r = 0.0;
 	}
+
 	if (useG) {
+	    float randValShiftG = calcVUVShift(offsetG);
+	    if (randValShiftG > 1.0) randValShiftG -= 1.0;
 	    gl_FragColor.g = randValShiftG;
 	}
     else {
         gl_FragColor.g = 0.0;
     }
+
     if (useB) {
+    	float randValShiftB = calcVUVShift(offsetB);
+        if (randValShiftB > 1.0) randValShiftB -= 1.0;
         gl_FragColor.b = randValShiftB;
     }
     else {

@@ -113,6 +113,8 @@ KSX.apps.core.ThreeJsApp = (function () {
 
         this.renderingEndabled = false;
         this.verbose = false;
+
+        this.frameNumber = 0;
     }
 
     ThreeJsApp.prototype.getAppName = function () {
@@ -199,6 +201,7 @@ KSX.apps.core.ThreeJsApp = (function () {
 
     ThreeJsApp.prototype.render = function () {
         if (this.renderingEndabled) {
+            this.frameNumber++;
             if (this.renderer.autoClear) {
                 this.renderer.clearDepth();
             }
