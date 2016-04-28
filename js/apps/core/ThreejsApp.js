@@ -41,6 +41,9 @@ var KSX = {
 
             }
         }
+    },
+    globals : {
+        basedir : '../../'
     }
 };
 
