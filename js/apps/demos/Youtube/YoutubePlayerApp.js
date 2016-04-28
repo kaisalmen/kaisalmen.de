@@ -22,6 +22,12 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         this.videoBuffer = document.getElementById(elementNameVideoBuffer);
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.texture = null;
+
+        this.cssRenderer = null;
+        this.cssScene = null;
+        this.cssCamera = null;
+
+        this.once = false;
     }
 
     YoutubePlayerApp.prototype.initAsyncContent = function () {
@@ -60,32 +66,66 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         this.texture.magFilter = THREE.LinearFilter;
         this.texture.format = THREE.RGBFormat;
 
-//        var geometry = new THREE.TorusGeometry(7, 2, 16, 100);
-        var geometry = new THREE.BoxGeometry(192, 108, 10);
+        var geometry = new THREE.PlaneGeometry(3712, 3712, 1, 1);
         var material = new THREE.MeshBasicMaterial({
-            color: 0xffffff,
-            map: this.texture
+            color: 0x000000,
+            opacity: 0,
+            blending: THREE.NoBlending
         });
-/*
-        var material = new THREE.ShaderMaterial({
-            uniforms: this.uniforms,
-            vertexShader: this.vertexShaderText,
-            fragmentShader: this.fragmentShaderText
-        });
-*/
-        var mesh =  new THREE.Mesh(geometry, material);
+        var mesh = new THREE.Mesh(geometry, material);
 
         this.app.scenePerspective.scene.add(mesh);
-        this.app.scenePerspective.camera.position.z = 150;
+        this.app.scenePerspective.camera.position.set( 0, 0, 750 );
+
+
+        var Element = function ( id, x, y, z, ry ) {
+            var div = document.createElement( 'div' );
+            div.style.width = '480px';
+            div.style.height = '360px';
+            div.style.backgroundColor = '#000';
+
+            var iframe = document.createElement( 'iframe' );
+            iframe.style.width = '480px';
+            iframe.style.height = '360px';
+            iframe.style.border = '0px';
+            iframe.src = [ 'http://www.youtube.com/embed/', id, '?rel=0?version=3&origin=http://localhost:8080?enablejsapi=1' ].join( '' );
+
+            div.appendChild( iframe );
+
+            var object = new THREE.CSS3DObject( div );
+            object.position.set( x, y, z );
+            object.rotation.y = ry;
+
+            return object;
+        };
+
+        var container = document.getElementById( 'player' );
+
+        this.cssCamera = new THREE.PerspectiveCamera( 50, window.innerWidth / window.innerHeight, 1, 5000 );
+        this.cssCamera.position.set( 0, 0, 750 );
+
+        this.cssScene = new THREE.Scene();
+
+        this.cssRenderer = new THREE.CSS3DRenderer();
+        this.cssRenderer.setSize( window.innerWidth, window.innerHeight );
+        this.cssRenderer.domElement.style.position = 'absolute';
+        this.cssRenderer.domElement.style.top = 0;
+
+        container.appendChild( this.cssRenderer.domElement );
+
+        var videoElem = new Element( 'M7lc1UVf-VE', 0, 0, 240, 0 );
+        this.cssScene.add( videoElem );
+
+        // Block iframe events when dragging camera
+        var blocker = document.getElementById( 'blocker' );
+        blocker.style.display = 'none';
+        
+        document.addEventListener( 'mousedown', function () { blocker.style.display = ''; } );
+        document.addEventListener( 'mouseup', function () { blocker.style.display = 'none'; } );
     };
 
     YoutubePlayerApp.prototype.render = function () {
-        if (this.video !== null && this.videoBufferContext !== null && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-            this.videoBufferContext.drawImage(this.video, 0, 0);
-            this.texture.needsUpdate = true;
-        }
-
-//        var youtubeObject = document.getElementById('youtubeVideo');
+        this.cssRenderer.render(this.cssScene, this.cssCamera);
     };
 
     return YoutubePlayerApp;

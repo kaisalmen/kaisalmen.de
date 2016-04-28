@@ -6,12 +6,14 @@
 </head>
 <body>
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/YoutubePlayer.css" type="text/css" rel="stylesheet"/>
 
     <!-- 1. The <iframe> (and video player) will replace this <div> tag. -->
     <div id="player"></div>
-
+    <div id="blocker"></div>
 
     <div id="DivGLFull">
+
         <canvas id="DivGLFullCanvas"></canvas>
 <!--
         <video id="DivGLFullVideo" autoplay loop muted controls>
@@ -19,17 +21,11 @@
         </video>
 -->
         <canvas id="DivGLFullVideoBuffer"></canvas>
-
     </div>
-<!--
-    <video width="640" height="360" id="youtubeVideo">
-        <param name="movie" value="http://www.youtube.com/embed/M7lc1UVf-VE?html5=1&amp;rel=0&amp;hl=en_US&amp;version=3"/>
-        <param name="allowFullScreen" value="true"/>
-        <param name="allowscriptaccess" value="always"/>
-        <embed width="640" height="360" src="http://www.youtube.com/embed/M7lc1UVf-VE?html5=1&amp;rel=0&amp;hl=en_US&amp;version=3" class="youtube-player" type="text/html" allowscriptaccess="always" allowfullscreen="true"/>
-    </video>
--->
+
     <script src="../../js/lib/ext/three.js"></script>
+    <script src="../../js/lib/ext/TrackballControls.js"></script>
+    <script src="../../js/lib/ext/CSS3DRenderer.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../js/apps/core/Canvas.js"></script>

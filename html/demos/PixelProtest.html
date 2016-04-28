@@ -1,0 +1,29 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pixel Protest</title>
+
+    <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+
+    <script src="../../js/lib/ext/three.min.js"></script>
+    <script src="../../js/lib/ext/uil.min.js"></script>
+    <script src="../../js/lib/ext/Detector.js"></script>
+    <script>
+        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+    </script>
+
+    <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/Canvas.js"></script>
+    <script src="../../js/apps/tools/ShaderTools.js"></script>
+    <script src="../../js/apps/tools/TextureTools.js"></script>
+
+    <script src="../../js/apps/shader/ShaderBase.js"></script>
+    <script src="../../js/apps/shader/PixelProtestShader.js"></script>
+    <script src="../../js/apps/demos/PixelProtest.js"></script>
+</body>
+</html>

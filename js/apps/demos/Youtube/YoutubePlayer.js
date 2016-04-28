@@ -27,13 +27,14 @@ KSX.apps.demos.YoutubePlayer = {
 };
 
 console.log('Starting application "Youtube Player"...');
-/*
+
 window.addEventListener( 'resize', KSX.apps.demos.YoutubePlayer.func.onWindowResize, false );
 
 KSX.apps.demos.YoutubePlayer.func.init();
 KSX.apps.demos.YoutubePlayer.func.render();
-*/
 
+
+/*
 var player;
 
 var ref;
@@ -54,8 +55,7 @@ function onYouTubeIframeAPIReady() {
         width: '640',
         videoId: 'M7lc1UVf-VE',
         playerVars: {
-            enablejsapi: 1,
-            origin: 'http://localhost:8080/'
+            enablejsapi: 1
         },
         events: {
             'onReady': onPlayerReady,
@@ -68,19 +68,10 @@ function onYouTubeIframeAPIReady() {
 function onPlayerReady(event) {
     window.addEventListener( 'resize', KSX.apps.demos.YoutubePlayer.func.onWindowResize, false );
 
-
-    KSX.apps.demos.YoutubePlayer.func.init();
-    KSX.apps.demos.YoutubePlayer.func.render();
-
     event.target.playVideo();
 
-
-    var iFrame = player.getIframe();
-/*
-    var contentWindow = iFrame.contentWindow;
-    var elem = contentWindow.getElementByName('html5-main-video');
-*/
-    console.log(player.getVideoUrl());
+//    KSX.apps.demos.YoutubePlayer.func.init();
+//    KSX.apps.demos.YoutubePlayer.func.render();
 }
 
 // 5. The API calls this function when the player's state changes.
@@ -94,7 +85,7 @@ function onPlayerStateChange(event) {
     }
 }
 
-
 function stopVideo() {
     player.stopVideo();
 }
+*/

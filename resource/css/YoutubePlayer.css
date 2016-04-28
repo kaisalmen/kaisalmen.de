@@ -1,0 +1,6 @@
+#DivGLFull,
+#DivGLFullCanvas,
+#DivGLFullVideoBuffer {
+    display: none;
+    background-color: #000000;
+}

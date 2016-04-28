@@ -17,7 +17,6 @@ KSX.apps.demos.PixelProtestApp = (function () {
         this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtestApp", elementToBindTo, false, true);
 
         this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
-        this.shader.setBaseDir('');
 
         UIL.BUTTON = '#FF4040';
         this.ui = new UIL.Gui({
@@ -237,7 +236,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
     };
 
     PixelProtestApp.prototype.recalcRandom = function () {
-        if (this.randomize) {
+            if (this.randomize) {
             this.shader.uniforms.offsetR.value = Math.random();
             this.randomR.setValue(this.shader.uniforms.offsetR.value);
 
@@ -274,6 +273,7 @@ KSX.apps.demos.PixelProtest = {
     }
 };
 
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
 console.log('Starting application "PixelProtest"...');
 window.addEventListener( 'resize', KSX.apps.demos.PixelProtest.func.onWindowResize, false );
