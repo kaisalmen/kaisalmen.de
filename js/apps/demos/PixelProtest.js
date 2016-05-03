@@ -8,6 +8,8 @@ KSX.apps.demos.PixelProtestApp = (function () {
 
     const SLIDES_WIDTH = 255;
     const SLIDES_HEIGHT = 32;
+    const BUTTON_WIDTH = 104;
+    const BUTTON_HEIGHT = 32;
     const GROUP_HEIGHT = 36;
     const BOOL_HEIGHT = 24;
     const NUMBER_PRECISION = 6;
@@ -29,13 +31,16 @@ KSX.apps.demos.PixelProtestApp = (function () {
         this.uiElemWidth = null;
         this.uiElemHeight = null;
         
-        this.animateNoise = false;
-        this.animationRate = 8;
+        this.animateNoise = true;
+        this.animationRate = 30;
 
         this.randomize = true;
         this.randomR = null;
         this.randomG = null;
         this.randomB = null;
+
+        this.saveImageData = false;
+        this.dataTools = new KSX.apps.tools.DataTools();
     }
 
     PixelProtestApp.prototype.initAsyncContent = function() {
@@ -93,6 +98,9 @@ KSX.apps.demos.PixelProtestApp = (function () {
         var enableB = function (enabled) {
             scope.shader.uniforms.useB.value = enabled;
         };
+        var saveImage = function () {
+            scope.saveImageData = true;
+        };
 
         var groupAnimation = scope.ui.add('group', {
             name: 'Animation Control',
@@ -116,6 +124,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
             height: SLIDES_HEIGHT,
             stype: SLIDER_TYPE
         });
+        groupAnimation.open();
 
         var groupDimensions = scope.ui.add('group', {
             name: 'Dimensions',
@@ -205,6 +214,12 @@ KSX.apps.demos.PixelProtestApp = (function () {
             callback: enableB,
             height: BOOL_HEIGHT
         });
+        scope.ui.add('button', {
+            name: 'Save Image',
+            callback: saveImage,
+            width: BUTTON_WIDTH,
+            height: BUTTON_HEIGHT
+        });
     };
 
     PixelProtestApp.prototype.initGL = function () {
@@ -231,6 +246,23 @@ KSX.apps.demos.PixelProtestApp = (function () {
             var proceed = this.app.frameNumber % this.animationRate === 0;
             if (proceed) {
                 this.recalcRandom();
+            }
+        }
+    };
+
+    PixelProtestApp.prototype.renderPost = function () {
+        if (this.saveImageData) {
+            // in case of error in sub-sequent section, this block will not be entered again
+            this.saveImageData = false;
+
+            var imgData = this.app.renderer.domElement.toDataURL();
+
+            var blob = this.dataTools.dataURItoBlob(imgData, 'image/png');
+            if (blob !== undefined) {
+                saveAs(blob, "Noise.png");
+            }
+            else {
+                alert('Unable to save canvas data to image file!');
             }
         }
     };

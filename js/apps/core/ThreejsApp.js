@@ -169,7 +169,6 @@ KSX.apps.core.ThreeJsApp = (function () {
             this.user.addEventHandlers();
         }
 
-
         console.log("SceneAppPerspective (" + this.name + "): initPostGL");
         if (typeof this.user.initPostGL == "function") {
             this.user.initPostGL();
@@ -222,6 +221,10 @@ KSX.apps.core.ThreeJsApp = (function () {
             if (this.useSceneOrtho) {
                 this.renderer.clearDepth();
                 this.renderer.render(this.sceneOrtho.scene, this.sceneOrtho.camera);
+            }
+
+            if (typeof this.user.renderPost == "function") {
+                this.user.renderPost();
             }
         }
     };
