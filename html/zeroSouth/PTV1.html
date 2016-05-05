@@ -19,6 +19,10 @@
     <script src="../../js/lib/ext/stats.min.js"></script>
     <script src="../../js/lib/ext/jszip.min.js"></script>
     <script src="../../js/lib/ext/bowser.min.js"></script>
+    <script src="../../js/lib/ext/Detector.js"></script>
+    <script>
+        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+    </script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../js/apps/core/Canvas.js"></script>
@@ -26,6 +30,7 @@
     <script src="../../js/apps/tools/webworker/WWUnzip.js"></script>
     <script src="../../js/apps/tools/ObjLoaderWW.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
+    <script src="../../js/apps/tools/BrowserSupport.js"></script>
 
     <script src="../../js/apps/demos/zeroSouth/impl/PTV1Loader.js"></script>
     <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>

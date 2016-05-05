@@ -6,14 +6,14 @@
 
 KSX.apps.demos.PixelProtestApp = (function () {
 
-    const SLIDES_WIDTH = 255;
-    const SLIDES_HEIGHT = 32;
-    const BUTTON_WIDTH = 104;
-    const BUTTON_HEIGHT = 32;
-    const GROUP_HEIGHT = 36;
-    const BOOL_HEIGHT = 24;
-    const NUMBER_PRECISION = 6;
-    const SLIDER_TYPE = 2;
+    var SLIDES_WIDTH = 255;
+    var SLIDES_HEIGHT = 32;
+    var BUTTON_WIDTH = 104;
+    var BUTTON_HEIGHT = 32;
+    var GROUP_HEIGHT = 36;
+    var BOOL_HEIGHT = 24;
+    var NUMBER_PRECISION = 6;
+    var SLIDER_TYPE = 2;
 
     function PixelProtestApp(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtestApp", elementToBindTo, false, true);
@@ -259,7 +259,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
 
             var blob = this.dataTools.dataURItoBlob(imgData, 'image/png');
             if (blob !== undefined) {
-                saveAs(blob, "Noise.png");
+                saveAs(blob, "PixelProtest.png");
             }
             else {
                 alert('Unable to save canvas data to image file!');
@@ -288,7 +288,19 @@ KSX.apps.demos.PixelProtest = {
         appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle")
     },
     func : {
+        checkBrowserSupport : function () {
+            var versions = {
+                msie : {
+                    supported : false
+                }
+            };
+            var browserSupport = new KSX.apps.tools.BrowserSupport(versions);
+            return browserSupport.checkSupport();
+        },
         init : function () {
+            console.log('Starting application "PixelProtest"...');
+            window.addEventListener( 'resize', KSX.apps.demos.PixelProtest.func.onWindowResize, false );
+
             var impl = new KSX.apps.demos.PixelProtestApp(document.getElementById("DivGLFullCanvas"));
             KSX.apps.demos.PixelProtest.glob.appLifecycle.addApp(impl.app);
 
@@ -305,9 +317,10 @@ KSX.apps.demos.PixelProtest = {
     }
 };
 
+
 if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
 
-console.log('Starting application "PixelProtest"...');
-window.addEventListener( 'resize', KSX.apps.demos.PixelProtest.func.onWindowResize, false );
-KSX.apps.demos.PixelProtest.func.init();
-KSX.apps.demos.PixelProtest.func.render();
+if (KSX.apps.demos.PixelProtest.func.checkBrowserSupport()) {
+    KSX.apps.demos.PixelProtest.func.init();
+    KSX.apps.demos.PixelProtest.func.render();
+}

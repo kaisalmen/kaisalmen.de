@@ -20,6 +20,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     var SLIDES_WIDTH = 100;
     var SLIDES_HEIGHT = 32;
+    var SLIDER_TYPE = 2;
+    var BOOL_HEIGHT = 24;
 
     function PTV1Loader(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, false, true);
@@ -47,11 +49,15 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
         this.skybox = null;
+        this.ground = null;
 
+        UIL.BUTTON = '#FF4040';
         this.ui = new UIL.Gui({
             css: 'top: 0px; right: 0px;',
-            size: 350,
-            center: true
+            size: 384,
+            center: false,
+            color: 'rgba(224, 224, 224, 1.0)',
+            bg: 'rgba(40, 40, 40, 0.66)'
         });
 
         this.stats = new Stats();
@@ -164,15 +170,15 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         helper.setColors( 0xFF4444, 0x404040 );
         scene.add(helper);
 
-        var plane = new THREE.CircleGeometry( 5000, 64 );
-        var planeMaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
-        var planeMesh = new THREE.Mesh(plane, planeMaterial);
-        planeMesh.rotateX( Math.PI / 2.0) ;
-        planeMesh.position.set( 0.0, -1.0, 0.0 );
-        planeMesh.receiveShadow = true;
-        planeMesh.castShadow = true;
+        var groundGeometry = new THREE.CircleGeometry( 5000, 64 );
+        var groundMaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
+        this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        this.ground.rotateX( Math.PI / 2.0) ;
+        this.ground.position.set( 0.0, -1.0, 0.0 );
+        this.ground.receiveShadow = true;
+        this.ground.castShadow = true;
 
-        scene.add(planeMesh);
+        scene.add(this.ground);
 
 
         // material adjustemnts
@@ -309,10 +315,19 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             scope.skybox.visible = enabled;
         };
         this.ui.add('bool', {
-            name: 'Skybox',
+            name: 'Enable Skybox',
             value: true,
             callback: enableSkybox,
-            height: SLIDES_HEIGHT
+            height: BOOL_HEIGHT
+        });
+        var enableGround = function (enabled) {
+            scope.ground.visible = enabled;
+        };
+        this.ui.add('bool', {
+            name: 'Enable Ground',
+            value: true,
+            callback: enableGround,
+            height: BOOL_HEIGHT
         });
 
 
@@ -357,7 +372,8 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             precision: 2,
             step: 0.01,
             width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT
+            height: SLIDES_HEIGHT,
+            stype: SLIDER_TYPE
         });
     };
 

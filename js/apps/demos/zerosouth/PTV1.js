@@ -6,10 +6,27 @@
 
 KSX.apps.zerosouth.PTV1 = {
     glob : {
-        go : false,
         appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle for PTV 1 loader")
     },
     func : {
+        checkBrowserSupport : function () {
+            var versions = {
+                msedge : {
+                    minVersion : 13.10586
+                },
+                msie : {
+                    supported : false
+                },
+                firefox : {
+                    mobileWarning : 'Mobile Firefox is considered unstable, but it may work!'
+                },
+                safari : {
+                    mobileWarning : 'Mobile Safari has memory issues and is considered unstable, but it may work!'
+                }
+            };
+            var browserSupport = new KSX.apps.tools.BrowserSupport(versions);
+            return browserSupport.checkSupport();
+        },
         init : function () {
             window.addEventListener( 'resize', KSX.apps.zerosouth.PTV1.func.onWindowResize, false );
 
@@ -27,43 +44,12 @@ KSX.apps.zerosouth.PTV1 = {
             KSX.apps.zerosouth.PTV1.glob.appLifecycle.resizeAll();
         }
     }
-}
+};
 
-if (bowser.msie) {
-    alert('Internet Explorer is not supported!\nPlease use Chrome 46+, Firefox 42+ or Edge 13+.');
-}
-else if (bowser.msedge && bowser.version < 13.10586) {
-    alert('Edge ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Edge 13+.');
-}
-else if (bowser.safari) {
-    if (bowser.version < 9.0) {
-        alert('Safari ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Safari 9+.');
-    }
-    else {
-        alert('Safari is considered unstable. It may or may not work (WIP)...');
-        KSX.apps.zerosouth.PTV1.glob.go = true;
-    }
-}
-else if (bowser.chrome && bowser.version < 46.0) {
-    alert('Chrome ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Safari 9+.');
-}
-else if (bowser.firefox) {
-    if (bowser.version < 37.0) {
-        alert('Firefox ' + bowser.version + ' is not supported!\nPlease use Chrome 46+, Firefox 42+ or Safari 9+.');
-    }
-    else if (bowser.mobile) {
-        alert('Mobile Firefox is considered unstable, but it may work');
-        KSX.apps.zerosouth.PTV1.glob.go = true;
-    }
-    else {
-        KSX.apps.zerosouth.PTV1.glob.go = true;
-    }
-}
-else {
-    KSX.apps.zerosouth.PTV1.glob.go = true;
-}
 
-if (KSX.apps.zerosouth.PTV1.glob.go) {
+if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+if (KSX.apps.zerosouth.PTV1.func.checkBrowserSupport()) {
     KSX.apps.zerosouth.PTV1.func.init();
     KSX.apps.zerosouth.PTV1.func.render();
 }
