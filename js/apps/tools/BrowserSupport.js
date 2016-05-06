@@ -46,16 +46,16 @@ KSX.apps.tools.BrowserSupport = (function () {
         };
 
         if (userVersions !== undefined) {
-            this.checkSingleBrowserSupport(this.versions.chrome, userVersions.chrome);
-            this.checkSingleBrowserSupport(this.versions.firefox, userVersions.firefox);
-            this.checkSingleBrowserSupport(this.versions.msie, userVersions.msie);
-            this.checkSingleBrowserSupport(this.versions.msedge, userVersions.msedge);
-            this.checkSingleBrowserSupport(this.versions.safari, userVersions.safari);
+            checkSingleBrowserSupport(this.versions.chrome, userVersions.chrome);
+            checkSingleBrowserSupport(this.versions.firefox, userVersions.firefox);
+            checkSingleBrowserSupport(this.versions.msie, userVersions.msie);
+            checkSingleBrowserSupport(this.versions.msedge, userVersions.msedge);
+            checkSingleBrowserSupport(this.versions.safari, userVersions.safari);
         }
         console.log(this.printSupportedBrowsers());
-   }
+    }
 
-    BrowserSupport.prototype.checkSingleBrowserSupport = function (browserPredefined, browserUser) {
+    var checkSingleBrowserSupport = function (browserPredefined, browserUser) {
         if (browserUser !== undefined) {
             var potentialValue;
 
@@ -69,32 +69,7 @@ KSX.apps.tools.BrowserSupport = (function () {
         }
     };
 
-    BrowserSupport.prototype.checkSupport = function () {
-        var haveGo = false;
-        if (bowser.chrome) {
-            haveGo = this.verifySupport(this.versions.chrome);
-        }
-        else if (bowser.firefox) {
-            haveGo = this.verifySupport(this.versions.firefox);
-        }
-        else if (bowser.msie) {
-            haveGo = this.verifySupport(this.versions.msie);
-        }
-        else if (bowser.msedge) {
-            haveGo = this.verifySupport(this.versions.msedge);
-        }
-        else if (bowser.safari) {
-            haveGo = this.verifySupport(this.versions.safari);
-        }
-        else {
-            alert('Browser is not tested. Wa');
-            haveGo = true;
-        }
-
-        return haveGo;
-    };
-
-    BrowserSupport.prototype.verifySupport = function (selectedBrowser) {
+    var verifySupport = function (browserSupportInstance, selectedBrowser) {
         var haveGo = false;
         if (selectedBrowser.supported) {
             if (bowser.version >= selectedBrowser.minVersion) {
@@ -106,7 +81,7 @@ KSX.apps.tools.BrowserSupport = (function () {
                         }
                     }
                     else {
-                        alert('Mobile version of ' + selectedBrowser.name + ' ' + bowser.version + ' is not supported!\n' + this.printSupportedBrowsers());
+                        alert('Mobile version of ' + selectedBrowser.name + ' ' + bowser.version + ' is not supported!\n' + browserSupportInstance.printSupportedBrowsers());
                     }
                 }
                 else {
@@ -114,17 +89,42 @@ KSX.apps.tools.BrowserSupport = (function () {
                 }
             }
             else {
-                alert(selectedBrowser.name + ' ' + bowser.version + ' is not supported!\n' + this.printSupportedBrowsers());
+                alert(selectedBrowser.name + ' ' + bowser.version + ' is not supported!\n' + browserSupportInstance.printSupportedBrowsers());
             }
         }
         else {
-            alert(selectedBrowser.name + ' is generally not supported!\n' + this.printSupportedBrowsers());
+            alert(selectedBrowser.name + ' is generally not supported!\n' + browserSupportInstance.printSupportedBrowsers());
         }
 
         return haveGo;
     };
 
-    BrowserSupport.prototype.printSupportedBrowsers = function (browserPredefined, browserUser) {
+    BrowserSupport.prototype.checkSupport = function () {
+        var haveGo = false;
+        if (bowser.chrome) {
+            haveGo = verifySupport(this, this.versions.chrome);
+        }
+        else if (bowser.firefox) {
+            haveGo = verifySupport(this, this.versions.firefox);
+        }
+        else if (bowser.msie) {
+            haveGo = verifySupport(this, this.versions.msie);
+        }
+        else if (bowser.msedge) {
+            haveGo = verifySupport(this, this.versions.msedge);
+        }
+        else if (bowser.safari) {
+            haveGo = verifySupport(this, this.versions.safari);
+        }
+        else {
+            alert('This browser is not tested. Application may not work properly');
+            haveGo = true;
+        }
+
+        return haveGo;
+    };
+
+    BrowserSupport.prototype.printSupportedBrowsers = function () {
         var supportedBrowsers = 'Supported Browsers with minimum versions are:\n';
         for (var version in this.versions) {
             var browserDesc = this.versions[version];
