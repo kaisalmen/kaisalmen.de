@@ -4,20 +4,34 @@
     <title>Pixel Protest</title>
 
     <link href="resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="resource/css/Index.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
+<!--
+        <video id="DivVideoBg" autoplay loop muted controls>
+            <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4" type="video/mp4">
+        </video>
+-->
+        <div id="LinkPixelProtest">
+            <h1>
+                <a  href="./html/demos/PixelProtest.html">Pixel Protest</a>
+            </h1>
+        </div>
+        <div id="LinkPTV1Loader">
+            <h1>
+                <a  href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
+            </h1>
+        </div>
     </div>
-
-    <script src="js/lib/ext/three.min.js"></script>
-    <script src="js/lib/ext/uil.min.js"></script>
-    <script src="js/lib/ext/bowser.min.js"></script>
     <script src="js/lib/ext/Detector.js"></script>
     <script>
         if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     </script>
-    <script src="js/lib/ext/FileSaver.min.js"></script>
+
+    <script src="js/lib/ext/three.min.js"></script>
+    <script src="js/lib/ext/bowser.min.js"></script>
 
     <script src="js/apps/core/ThreeJsApp.js"></script>
     <script>
@@ -30,7 +44,7 @@
     <script src="js/apps/tools/BrowserSupport.js"></script>
 
     <script src="js/apps/shader/ShaderBase.js"></script>
-    <script src="js/apps/shader/PixelProtestShader.js"></script>
-    <script src="js/apps/demos/PixelProtest.js"></script>
+    <script src="js/apps/shader/BlockShader.js"></script>
+    <script src="js/apps/demos/Home.js"></script>
 </body>
 </html>

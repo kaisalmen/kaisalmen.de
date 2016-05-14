@@ -1,0 +1,17 @@
+
+#LinkPixelProtest {
+    position: absolute;
+    left: 12%;
+    top: 8%;
+    color: white;
+    z-index: 1000;
+}
+
+
+#LinkPTV1Loader {
+    position: absolute;
+    right: 12%;
+    bottom: 12%;
+    color: white;
+    z-index: 1000;
+}

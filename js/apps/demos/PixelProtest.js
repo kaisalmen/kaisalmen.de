@@ -318,8 +318,6 @@ KSX.apps.demos.PixelProtest = {
 };
 
 
-if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-
 if (KSX.apps.demos.PixelProtest.func.checkBrowserSupport()) {
     KSX.apps.demos.PixelProtest.func.init();
     KSX.apps.demos.PixelProtest.func.render();
