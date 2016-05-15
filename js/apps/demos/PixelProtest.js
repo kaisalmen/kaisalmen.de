@@ -224,11 +224,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
 
     PixelProtestApp.prototype.initGL = function () {
         var geometry = new THREE.PlaneGeometry(1, 1, 1, 1);
-        var material = new THREE.ShaderMaterial({
-            uniforms: this.shader.uniforms,
-            vertexShader: this.shader.vertexShader,
-            fragmentShader: this.shader.fragmentShader
-        });
+        var material = this.shader.buildShaderMaterial();
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.app.sceneOrtho.scene.add(this.mesh);

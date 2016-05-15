@@ -9,18 +9,14 @@ KSX.apps.shader.PixelProtestShader = (function () {
     function PixelProtestShader(width, height) {
         KSX.apps.shader.ShaderBase.call(this);
 
-        this.uniforms = {
-            offsetR : { type : 'f', value : Math.random() },
-            offsetG : { type : 'f', value : Math.random() },
-            offsetB : { type : 'f', value : Math.random() },
-            width : { type : 'f', value : width / 4.0 },
-            height : { type : 'f', value : height / 4.0 },
-            useR : { type : 'b', value : true },
-            useG : { type : 'b', value : true },
-            useB : { type : 'b', value : true }
-        };
-        this.vertexShader = null;
-        this.fragmentShader = null;
+        this.uniforms['offsetR'] = { type : 'f', value : Math.random() };
+        this.uniforms['offsetG'] = { type : 'f', value : Math.random() };
+        this.uniforms['offsetB'] = { type : 'f', value : Math.random() };
+        this.uniforms['width'] = { type : 'f', value : width / 4.0 };
+        this.uniforms['height'] = { type : 'f', value : height / 4.0 };
+        this.uniforms['useR'] = { type : 'b', value : true };
+        this.uniforms['useG'] = { type : 'b', value : true };
+        this.uniforms['useB'] = { type : 'b', value : true };
     }
 
     PixelProtestShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {

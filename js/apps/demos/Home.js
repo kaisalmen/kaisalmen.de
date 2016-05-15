@@ -30,6 +30,13 @@ KSX.apps.demos.HomeApp = (function () {
         var scenePerspective = this.app.scenePerspective;
         var sceneOrtho = this.app.sceneOrtho;
 
+        var gl = renderer.getContext();
+
+        var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        if (result != 0) {
+            console.log("Vertex shader is able to read texture: " + result);
+        }
+
         renderer.setClearColor( 0x3B3B3B );
         renderer.autoClear = false;
 
@@ -40,11 +47,14 @@ KSX.apps.demos.HomeApp = (function () {
         helper.setColors( 0xFF4444, 0x404040 );
         scenePerspective.scene.add(helper);
 
-        var materialBlockShader = new THREE.ShaderMaterial({
-            uniforms: this.shader.uniforms,
-            vertexShader: this.shader.vertexShader,
-            fragmentShader: this.shader.fragmentShader
-        });
+        var geometry = new THREE.BoxBufferGeometry( 48, 1, 48, 48, 1, 48 );
+        var material = new THREE.MeshBasicMaterial( {color: 0x00ff00} );
+        material.wireframe = true;
+        var cube = new THREE.Mesh( geometry, material );
+        scenePerspective.scene.add( cube );
+
+
+        var materialBlockShader = this.shader.buildShaderMaterial();
     };
 
     HomeApp.prototype.resizeDisplayGL = function () {

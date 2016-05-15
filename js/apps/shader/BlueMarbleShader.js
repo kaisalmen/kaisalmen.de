@@ -9,16 +9,12 @@ KSX.apps.shader.BlueMarbleShader = (function () {
     function BlueMarbleShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
-        this.uniforms = {
-            blendFactor : { type : 'f', value : 1.0 },
-            alphaColor : { type : 'fv1', value : [1.0, 1.0, 1.0] },
-            lowerBoundary : { type: 'f', value: 50.0 / MAX_VALUE },
-            upperBoundary : { type: 'f', value: 127.0 / MAX_VALUE },
-            textureMarble : { type : 't', value : null },
-            textureSat : { type : 't', value : null }
-        };
-        this.vertexShader = null;
-        this.fragmentShader = null;
+        this.uniforms['blendFactor'] = { type : 'f', value : 1.0 };
+        this.uniforms['alphaColor'] = { type : 'fv1', value : [1.0, 1.0, 1.0] };
+        this.uniforms['lowerBoundary'] = { type: 'f', value: 50.0 / 255.0 };
+        this.uniforms['upperBoundary'] = { type: 'f', value: 127.0 / 255.0 };
+        this.uniforms['textureMarble'] = { type : 't', value : null },
+        this.uniforms['textureSat'] = { type : 't', value : null };
     }
 
     BlueMarbleShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {

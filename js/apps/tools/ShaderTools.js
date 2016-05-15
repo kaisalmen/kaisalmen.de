@@ -51,7 +51,7 @@ KSX.apps.tools.ShaderTools = (function () {
         all = all.trim() + '\n';
 
         if (logResult) {
-            console.log('Combined Shader:\n' + all);
+            this.printShader(all, 'Combined Shader');
         }
 
         return all;

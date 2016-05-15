@@ -26,11 +26,7 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         camera.position.set( 0, 0, 250 );
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
-        var material = new THREE.ShaderMaterial({
-            uniforms: this.shader.uniforms,
-            vertexShader: this.shader.vertexShader,
-            fragmentShader: this.shader.fragmentShader
-        });
+        var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.app.scenePerspective.scene.add(this.mesh);

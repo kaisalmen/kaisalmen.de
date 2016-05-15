@@ -213,11 +213,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         }
 
         var geometry = new THREE.PlaneGeometry(3712, 3712, 1, 1);
-        var material = new THREE.ShaderMaterial({
-            uniforms: this.shader.uniforms,
-            vertexShader: this.shader.vertexShader,
-            fragmentShader: this.shader.fragmentShader
-        });
+        var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.app.sceneOrtho.scene.add(this.mesh);

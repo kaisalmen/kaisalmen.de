@@ -9,13 +9,9 @@ KSX.apps.shader.TextureWithNoiseShader = (function () {
     function TextureWithNoiseShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
-        this.uniforms = {
-            blendFactor : { type: 'f', value: 1.0 },
-            colorFactor : { type: 'fv1', value: [1.0, 1.0, 1.0] },
-            texture1: { type: 't', value: null }
-        };
-        this.vertexShader = null;
-        this.fragmentShader = null;
+        this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
+        this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };
+        this.uniforms['texture1'] = { type: 't', value: null };
     }
 
     TextureWithNoiseShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {

@@ -47,13 +47,8 @@ KSX.apps.demos.HelloOOVideo = (function () {
             color: 0xffffff,
             map: this.texture
         });
-/*
-        var material = new THREE.ShaderMaterial({
-            uniforms: this.shader.uniforms,
-            vertexShader: this.shader.vertexShader,
-            fragmentShader: this.shader.fragmentShader
-        });
-*/
+
+//        var material = this.shader.buildShaderMaterial();
         var mesh =  new THREE.Mesh(geometry, material);
 
         this.app.scenePerspective.scene.add(mesh);
