@@ -1,5 +1,3 @@
-#include <common>
-
 #define NOISE_DAMPER    2.5
 
 uniform sampler2D texture1;

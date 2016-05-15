@@ -34,7 +34,11 @@ KSX.apps.shader.TextureWithNoiseShader = (function () {
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
-                scope.fragmentShader = results[1];
+
+                var shaders = Array(2);
+                shaders['common'] = { name: 'common', value: THREE.ShaderChunk["common"] };
+                shaders['textureNoise'] = { name: 'textureNoise', value: results[1] };
+                scope.fragmentShader = scope.shaderTools.combineShader(shaders, false);
                 scope.uniforms.texture1.value = results[2];
 
                 callbackOnSuccess();
