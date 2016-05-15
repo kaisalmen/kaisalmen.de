@@ -9,6 +9,8 @@ KSX.apps.shader.BlockShader = (function () {
     function BlockShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
+        this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
+        this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };
         this.uniforms['texture1'] = { type: 't', value: null };
     }
 
@@ -26,17 +28,17 @@ KSX.apps.shader.BlockShader = (function () {
 
         var promises = new Array(2);
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/deformGeometryFromTexture.glsl', false, 'VS: Deform Geometry according Texture');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise');
+        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', false, 'FS: Simple Texture');
         promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
 
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
-                scope.shaderTools.printShader(scope.vertexShader, 'Vertex Shader');
+//                scope.shaderTools.printShader(scope.vertexShader, 'Vertex Shader');
 
                 var shaders = Array(2);
                 shaders['common'] = { name: 'common', value: THREE.ShaderChunk["common"] };
-                shaders['pureNoise'] = { name: 'pureNoise', value: results[1] };
+                shaders['texture'] = { name: 'texture', value: results[1] };
                 scope.fragmentShader = scope.shaderTools.combineShader(shaders, false);
 
                 scope.uniforms.texture1.value = results[2];
