@@ -7,11 +7,7 @@
 var KSX = {
     apps : {
         core : {
-            AppLifecycle : null,
-            ThreeJsApp : {
-                ScenePerspective : null,
-                SceneOrtho : null
-            }
+
         },
         demos : {
             impl : {
@@ -43,14 +39,15 @@ var KSX = {
         }
     },
     globals : {
-        basedir : '../../'
+        basedir : '../../',
+        browserVersions : undefined,
+        preChecksOk : true
     }
 };
 
 KSX.apps.core.AppLifecycle = (function () {
 
-    function AppLifecycle(name) {
-        this.name = name;
+    function AppLifecycle() {
         this.apps = new Array();
     }
 
@@ -72,20 +69,30 @@ KSX.apps.core.AppLifecycle = (function () {
         }
     };
 
-    AppLifecycle.prototype.renderAllApps = function () {
-        for (var i = 0; i < this.apps.length; i++) {
-            this.apps[i].render();
+    AppLifecycle.prototype.renderAllApps = function (scope) {
+        if (scope === undefined) {
+            scope = this;
+        }
+        for (var i = 0; i < scope.apps.length; i++) {
+            scope.apps[i].render();
         }
     };
 
-    AppLifecycle.prototype.resizeAll = function () {
-        for (var i = 0; i < this.apps.length; i++) {
-            this.apps[i].resizeDisplayGL();
+    AppLifecycle.prototype.resizeAll = function (scope) {
+        if (scope === undefined) {
+            scope = this;
+        }
+        for (var i = 0; i < scope.apps.length; i++) {
+            scope.apps[i].resizeDisplayGL();
         }
     };
 
     return AppLifecycle;
+
 })();
+
+KSX.globals.lifecycleInstance = new KSX.apps.core.AppLifecycle();
+
 
 KSX.apps.core.ThreeJsApp = (function () {
 
@@ -243,6 +250,7 @@ KSX.apps.core.ThreeJsApp = (function () {
 }
 )();
 
+
 KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
     var DEFAULT_NEAR = 0.1;
@@ -297,6 +305,7 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
 })();
 
+
 KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
 
     var DEFAULT_NEAR = 10;
@@ -333,5 +342,48 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
     };
 
     return SceneOrtho;
+
+})();
+
+KSX.apps.demos.AppRunner = (function () {
+
+    function AppRunner(implementations) {
+        this.implementations = implementations;
+    }
+
+    AppRunner.prototype.init = function (startRenderLoop) {
+        var resizeWindow = function () {
+            KSX.globals.lifecycleInstance.resizeAll(KSX.globals.lifecycleInstance);
+        };
+        window.addEventListener('resize', resizeWindow, false);
+
+        for (var i = 0; i < this.implementations.length; i++) {
+            var impl = this.implementations[i];
+            console.log('Starting application: ' + impl.app.name);
+            KSX.globals.lifecycleInstance.addApp(impl.app);
+        }
+
+        // kicks init and prepares resources
+        KSX.globals.lifecycleInstance.initAsync();
+
+        if (startRenderLoop) {
+            this.startRenderLoop();
+        }
+    };
+
+    AppRunner.prototype.startRenderLoop = function () {
+        var scope = this;
+        var render = function () {
+            requestAnimationFrame(render);
+            scope.render();
+        };
+        render();
+    };
+
+    AppRunner.prototype.render = function () {
+        KSX.globals.lifecycleInstance.renderAllApps(KSX.globals.lifecycleInstance);
+    };
+
+    return AppRunner;
 
 })();

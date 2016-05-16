@@ -19,8 +19,15 @@
 
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/ImageBaseGeometryTransformShader.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/ImageBasedGeometryTransform.js"></script>
-    <script src="../../js/apps/demos/HelloOO/HelloOO.js"></script>
+    <script src="../../js/apps/demos/HelloOO/ImageBasedGeometryTransform.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.demos.ImageBasedGeometryTransform(document.getElementById("DivGLFullCanvas")));
+            var appRunner = new KSX.apps.demos.AppRunner(implementations);
+            appRunner.init(true);
+        }
+    </script>
 
 </body>
 </html>

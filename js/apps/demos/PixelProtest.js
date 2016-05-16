@@ -16,7 +16,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
     var SLIDER_TYPE = 2;
 
     function PixelProtestApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtestApp", elementToBindTo, false, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtest", elementToBindTo, false, true);
 
         this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
 
@@ -279,42 +279,11 @@ KSX.apps.demos.PixelProtestApp = (function () {
     return PixelProtestApp;
 })();
 
-KSX.apps.demos.PixelProtest = {
-    glob : {
-        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle")
-    },
-    func : {
-        checkBrowserSupport : function () {
-            var versions = {
-                msie : {
-                    supported : false
-                }
-            };
-            var browserSupport = new KSX.apps.tools.BrowserSupport(versions);
-            return browserSupport.checkSupport();
-        },
-        init : function () {
-            console.log('Starting application "PixelProtest"...');
-            window.addEventListener( 'resize', KSX.apps.demos.PixelProtest.func.onWindowResize, false );
-
-            var impl = new KSX.apps.demos.PixelProtestApp(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.demos.PixelProtest.glob.appLifecycle.addApp(impl.app);
-
-            // kicks init and starts rendering
-            KSX.apps.demos.PixelProtest.glob.appLifecycle.initAsync();
-        },
-        render : function () {
-            requestAnimationFrame(KSX.apps.demos.PixelProtest.func.render);
-            KSX.apps.demos.PixelProtest.glob.appLifecycle.renderAllApps();
-        },
-        onWindowResize : function () {
-            KSX.apps.demos.PixelProtest.glob.appLifecycle.resizeAll();
-        }
-    }
-};
 
 
-if (KSX.apps.demos.PixelProtest.func.checkBrowserSupport()) {
-    KSX.apps.demos.PixelProtest.func.init();
-    KSX.apps.demos.PixelProtest.func.render();
+if (KSX.globals.preChecksOk) {
+    var implementations = new Array();
+    implementations.push(new KSX.apps.demos.PixelProtestApp(document.getElementById("DivGLFullCanvas")));
+    var appRunner = new KSX.apps.demos.AppRunner(implementations);
+    appRunner.init(true);
 }

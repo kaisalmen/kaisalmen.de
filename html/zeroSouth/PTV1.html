@@ -25,6 +25,22 @@
     </script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script>
+        KSX.globals.browserVersions = {
+            msedge : {
+                minVersion : 13.10586
+            },
+            msie : {
+                supported : false
+            },
+            firefox : {
+                mobileWarning : 'Mobile Firefox is considered unstable, but it may work!'
+            },
+            safari : {
+                mobileWarning : 'Mobile Safari has memory issues and is considered unstable, but it may work!'
+            }
+        };
+    </script>
     <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/webworker/WWObjParser.js"></script>
     <script src="../../js/apps/tools/webworker/WWUnzip.js"></script>
@@ -32,7 +48,6 @@
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/BrowserSupport.js"></script>
 
-    <script src="../../js/apps/demos/zeroSouth/impl/PTV1Loader.js"></script>
     <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>
 </body>
 </html>

@@ -121,6 +121,7 @@ KSX.apps.tools.BrowserSupport = (function () {
             haveGo = true;
         }
 
+        KSX.globals.preChecksOk = haveGo;
         return haveGo;
     };
 
@@ -139,3 +140,6 @@ KSX.apps.tools.BrowserSupport = (function () {
 
     return BrowserSupport;
 })();
+
+var browserSupport = new KSX.apps.tools.BrowserSupport(KSX.globals.browserVersions);
+browserSupport.checkSupport();

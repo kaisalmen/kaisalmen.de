@@ -23,8 +23,15 @@
 
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/SimpleTextureShader.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/HelloOOVideo.js"></script>
-    <script src="../../js/apps/demos/HelloOO/VideoPlayer.js"></script>
+    <script src="../../js/apps/demos/HelloOO/HelloOOVideo.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGLFullCanvas"), "DivGLFullVideo", "DivGLFullVideoBuffer"));
+            var appRunner = new KSX.apps.demos.AppRunner(implementations);
+            appRunner.init(true);
+        }
+    </script>
 
 </body>
 </html>

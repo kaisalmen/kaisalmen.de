@@ -8,7 +8,7 @@
 KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
 
     function SkyboxCubeMapApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'SkyboxCubeMapApp', elementToBindTo, true, false, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, 'SkyboxCubeMap', elementToBindTo, true, false, true);
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
@@ -55,13 +55,6 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         scenePerspective.updateCamera();
 
         this.controls = new THREE.TrackballControls(camera);
-        this.controls.rotateSpeed = 0.5;
-        this.controls.zoomSpeed = 1.0;
-        this.controls.panSpeed = 0.8;
-        this.controls.staticMoving = true;
-        this.controls.dynamicDampingFactor = 0.3;
-        this.controls.keys = [ 65, 83, 68 ];
-
 
         var ambient = new THREE.AmbientLight(0x404040);
         scene.add(ambient);
@@ -104,33 +97,11 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
 
 })();
 
-KSX.apps.demos.SkyboxCubeMap = {
-    glob : {
-        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle")
-    },
-    func : {
-        init : function () {
-            var impl = new KSX.apps.demos.impl.SkyboxCubeMapApp(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.demos.SkyboxCubeMap.glob.appLifecycle.addApp(impl.app);
-
-            // kicks init and starts rendering
-            KSX.apps.demos.SkyboxCubeMap.glob.appLifecycle.initAsync();
-        },
-        render : function () {
-            requestAnimationFrame(KSX.apps.demos.SkyboxCubeMap.func.render);
-            KSX.apps.demos.SkyboxCubeMap.glob.appLifecycle.renderAllApps();
-        },
-        onWindowResize : function () {
-            KSX.apps.demos.SkyboxCubeMap.glob.appLifecycle.resizeAll();
-        }
-    }
-};
 
 
-console.log('Starting application "SkyboxCubeMapApp"');
-
-window.addEventListener( 'resize', KSX.apps.demos.SkyboxCubeMap.func.onWindowResize, false );
-
-KSX.apps.demos.SkyboxCubeMap.func.init();
-KSX.apps.demos.SkyboxCubeMap.func.render();
-
+if (KSX.globals.preChecksOk) {
+    var implementations = new Array();
+    implementations.push(new KSX.apps.demos.impl.SkyboxCubeMapApp(document.getElementById("DivGLFullCanvas")));
+    var appRunner = new KSX.apps.demos.AppRunner(implementations);
+    appRunner.init(true);
+}

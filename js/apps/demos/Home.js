@@ -7,7 +7,7 @@
 KSX.apps.demos.HomeApp = (function () {
 
     function HomeApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "HomeApp", elementToBindTo, true, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, true, false);
 
         this.shader = new KSX.apps.shader.BlockShader();
 
@@ -45,14 +45,7 @@ KSX.apps.demos.HomeApp = (function () {
         scenePerspective.updateCamera();
 
         this.controls = new THREE.TrackballControls(scenePerspective.camera);
-/*
-        this.controls.rotateSpeed = 0.5;
-        this.controls.zoomSpeed = 1.0;
-        this.controls.panSpeed = 0.8;
-        this.controls.staticMoving = true;
-        this.controls.dynamicDampingFactor = 0.3;
-        this.controls.keys = [ 65, 83, 68 ];
-*/
+
         var lightColor = 0xE0E0E0;
         var lightPos = new THREE.Vector3(100, 100, 100);
         var directionalLight = new THREE.DirectionalLight(lightColor);
@@ -140,49 +133,10 @@ KSX.apps.demos.HomeApp = (function () {
     return HomeApp;
 })();
 
-KSX.apps.demos.Home = {
-    glob : {
-        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle")
-    },
-    func : {
-        checkBrowserSupport : function () {
-            var versions = {
-                msie : {
-                    supported : false
-                }
-            };
-            var browserSupport = new KSX.apps.tools.BrowserSupport(versions);
-            return browserSupport.checkSupport();
-        },
-        init : function () {
-            console.log('Starting application: Home');
 
-            if (KSX.apps.demos.Home.func.checkBrowserSupport()) {
-                window.addEventListener('resize', KSX.apps.demos.Home.func.onWindowResize, false);
-
-                var impl = new KSX.apps.demos.HomeApp(document.getElementById("DivGLFullCanvas"));
-                KSX.apps.demos.Home.glob.appLifecycle.addApp(impl.app);
-
-                // kicks init and prepares resources
-                KSX.apps.demos.Home.glob.appLifecycle.initAsync();
-
-                return true;
-            }
-            else {
-                return false;
-            }
-        },
-        render : function () {
-            requestAnimationFrame(KSX.apps.demos.Home.func.render);
-            KSX.apps.demos.Home.glob.appLifecycle.renderAllApps();
-        },
-        onWindowResize : function () {
-            KSX.apps.demos.Home.glob.appLifecycle.resizeAll();
-        }
-    }
-};
-
-
-if (KSX.apps.demos.Home.func.init()) {
-    KSX.apps.demos.Home.func.render();
+if (KSX.globals.preChecksOk) {
+    var implementations = new Array();
+    implementations.push(new KSX.apps.demos.HomeApp(document.getElementById("DivGLFullCanvas")));
+    var appRunner = new KSX.apps.demos.AppRunner(implementations);
+    appRunner.init(true);
 }

@@ -40,10 +40,23 @@
 
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/TextureWithNoiseShader.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/HelloOOSimple.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/TextureWithNoiseShaderApp.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/HelloOOVideo.js"></script>
-    <script src="../../js/apps/demos/HelloOO/impl/HelloOOText.js"></script>
-    <script src="../../js/apps/demos/HelloOO/HelloOOMulti.js"></script>
+    <script src="../../js/apps/shader/SimpleTextureShader.js"></script>
+    <script src="../../js/apps/demos/HelloOO/HelloOOSimple.js"></script>
+    <script src="../../js/apps/demos/HelloOO/TextureWithNoiseShaderApp.js"></script>
+    <script src="../../js/apps/demos/HelloOO/HelloOOVideo.js"></script>
+    <script src="../../js/apps/demos/HelloOO/HelloOOText.js"></script>
+    <script>
+        console.log('Starting multiple applications...');
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas")));
+            implementations.push(new KSX.apps.demos.TextureWithNoiseShaderApp(document.getElementById("DivGL2Canvas")));
+            implementations.push(new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas"), "DivGL3Video", "DivGL3VideoBuffer"));
+            implementations.push(new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas")));
+
+            var appRunner = new KSX.apps.demos.AppRunner(implementations);
+            appRunner.init(true);
+        }
+    </script>
 </body>
 </html>
