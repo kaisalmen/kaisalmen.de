@@ -4,7 +4,9 @@ uniform sampler2D texture1;
 void main()	{
 	vUv = uv;
 	vec4 texValue = texture2D(texture1, vUv);
-	//vec4 modifiedPosition = vec4(position.x, position.y, position.z + texValue.b, 1.0);
-	vec4 modifiedPosition = vec4(position.x, position.y, position.z, 1.0);
-	gl_Position = projectionMatrix * modelViewMatrix * modifiedPosition;
+	float modifiedZ = position.z;
+	if (modifiedZ > 0.0) {
+        modifiedZ += (texValue.r + texValue.g + texValue.b) / 3.0;
+	}
+	gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y, modifiedZ, 1.0);
 }

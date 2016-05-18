@@ -4,9 +4,10 @@
 
 'use strict';
 
-KSX.apps.demos.HomeApp = (function () {
 
-    function HomeApp(elementToBindTo) {
+KSX.apps.demos.Home = (function () {
+
+    function Home(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, true, false);
 
         this.shader = new KSX.apps.shader.BlockShader();
@@ -15,7 +16,7 @@ KSX.apps.demos.HomeApp = (function () {
         this.mesh = null;
     }
 
-    HomeApp.prototype.initAsyncContent = function() {
+    Home.prototype.initAsyncContent = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {
@@ -24,11 +25,11 @@ KSX.apps.demos.HomeApp = (function () {
         this.shader.loadResources(callbackOnSuccess);
     };
 
-    HomeApp.prototype.initPreGL = function () {
+    Home.prototype.initPreGL = function () {
 
     };
 
-    HomeApp.prototype.initGL = function () {
+    Home.prototype.initGL = function () {
         var renderer = this.app.renderer;
         var scenePerspective = this.app.scenePerspective;
 
@@ -56,13 +57,49 @@ KSX.apps.demos.HomeApp = (function () {
         helper.setColors( 0xFF4444, 0x404040 );
         scenePerspective.scene.add(helper);
 
-        var geometryFallback = new THREE.BoxBufferGeometry( 48, 1, 48, 2, 1, 2 );
-        var vertices = new Float32Array( [
-            -1.0, -1.0,  1.0,
-             1.0, -1.0,  1.0,
-             1.0,  1.0,  1.0,
+//        var geometryFallback = new THREE.BoxBufferGeometry( 48, 1, 48, 2, 1, 2 );
+        var boxBuilder = new KSX.apps.demos.Home.BoxBuilder();
+        var geometry = boxBuilder.buildBox();
 
-             1.0,  1.0,  1.0,
+        var material = this.shader.buildShaderMaterial();
+        //material.wireframe = true;
+        material.side = THREE.DoubleSide;
+        this.mesh = new THREE.Mesh( geometry, material );
+        scenePerspective.scene.add( this.mesh );
+    };
+
+    Home.prototype.resizeDisplayGL = function () {
+        this.controls.handleResize();
+    };
+
+    Home.prototype.render = function () {
+//        this.mesh.rotation.y += 0.01;
+        this.controls.update();
+    };
+
+    Home.prototype.renderPost = function () {
+    };
+
+    return Home;
+})();
+
+
+KSX.apps.demos.Home.BoxBuilder = (function () {
+
+    function BoxBuilder() {
+        this.geometry = new THREE.BufferGeometry();
+        this.vertices = new Float32Array(108);
+        this.uvs = new Float32Array(72);
+        this.normals = new Float32Array(108);
+    }
+
+    BoxBuilder.prototype.buildBox = function() {
+        this.vertices.set( [
+            -1.0, -1.0,  1.0,
+            1.0, -1.0,  1.0,
+            1.0,  1.0,  1.0,
+
+            1.0,  1.0,  1.0,
             -1.0,  1.0,  1.0,
             -1.0, -1.0,  1.0,
 
@@ -74,15 +111,39 @@ KSX.apps.demos.HomeApp = (function () {
             -1.0,  1.0,  1.0,
             -1.0,  1.0, -1.0,
 
-             1.0, -1.0,  1.0,
-             1.0,  1.0,  1.0,
-             1.0, -1.0, -1.0,
+            1.0, -1.0,  1.0,
+            1.0,  1.0,  1.0,
+            1.0, -1.0, -1.0,
 
-             1.0, -1.0, -1.0,
-             1.0,  1.0,  1.0,
-             1.0,  1.0, -1.0
+            1.0, -1.0, -1.0,
+            1.0,  1.0,  1.0,
+            1.0,  1.0, -1.0,
+
+            -1.0,  1.0,  1.0,
+            1.0,  1.0,  1.0,
+            1.0,  1.0, -1.0,
+
+            -1.0,  1.0,  1.0,
+            1.0,  1.0, -1.0,
+            -1.0,  1.0, -1.0,
+
+            -1.0, -1.0,  1.0,
+            1.0, -1.0,  1.0,
+            1.0, -1.0, -1.0,
+
+            -1.0, -1.0,  1.0,
+            1.0, -1.0, -1.0,
+            -1.0, -1.0, -1.0,
+
+            -1.0, -1.0, -1.0,
+            1.0, -1.0, -1.0,
+            1.0,  1.0, -1.0,
+
+            1.0,  1.0, -1.0,
+            -1.0,  1.0, -1.0,
+            -1.0, -1.0, -1.0
         ] );
-        var uvs = new Float32Array( [
+        this.uvs.set( [
             0.0, 0.0,
             1.0, 0.0,
             1.0, 1.0,
@@ -105,38 +166,47 @@ KSX.apps.demos.HomeApp = (function () {
 
             1.0, 0.0,
             1.0, 1.0,
-            1.0, 1.0
+            1.0, 1.0,
+
+            0.0, 1.0,
+            1.0, 1.0,
+            1.0, 1.0,
+
+            0.0, 1.0,
+            1.0, 1.0,
+            0.0, 1.0,
+
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 0.0,
+
+            0.0, 0.0,
+            1.0, 0.0,
+            0.0, 0.0,
+
+            0.0, 0.0,
+            1.0, 0.0,
+            1.0, 1.0,
+
+            1.0, 1.0,
+            0.0, 1.0,
+            0.0, 0.0
         ] );
-        var geometry = new THREE.BufferGeometry();
-        geometry.addAttribute( 'position', new THREE.BufferAttribute( vertices, 3 ) );
-        geometry.addAttribute( 'uv', new THREE.BufferAttribute( uvs, 2 ) );
 
-        var material = this.shader.buildShaderMaterial();
-        //material.wireframe = true;
-        material.side = THREE.DoubleSide;
-        this.mesh = new THREE.Mesh( geometry, material );
-        scenePerspective.scene.add( this.mesh );
+        this.geometry.addAttribute( 'position', new THREE.BufferAttribute( this.vertices, 3 ) );
+        this.geometry.addAttribute( 'uv', new THREE.BufferAttribute( this.uvs, 2 ) );
+
+        return this.geometry;
     };
 
-    HomeApp.prototype.resizeDisplayGL = function () {
-        this.controls.handleResize();
-    };
-
-    HomeApp.prototype.render = function () {
-//        this.mesh.rotation.y += 0.01;
-        this.controls.update();
-    };
-
-    HomeApp.prototype.renderPost = function () {
-    };
-
-    return HomeApp;
+    return BoxBuilder;
 })();
+
 
 
 if (KSX.globals.preChecksOk) {
     var implementations = new Array();
-    implementations.push(new KSX.apps.demos.HomeApp(document.getElementById("DivGLFullCanvas")));
+    implementations.push(new KSX.apps.demos.Home(document.getElementById("DivGLFullCanvas")));
     var appRunner = new KSX.apps.demos.AppRunner(implementations);
     appRunner.init(true);
 }
