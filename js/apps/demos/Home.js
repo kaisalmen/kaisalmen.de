@@ -13,7 +13,11 @@ KSX.apps.demos.Home = (function () {
         this.shader = new KSX.apps.shader.BlockShader();
 
         this.controls = null;
-        this.mesh = null;
+
+        this.vertices = new Array();
+        this.normals = new Array();
+        this.uvs = new Array();
+        this.index = new Array();
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -57,15 +61,44 @@ KSX.apps.demos.Home = (function () {
         helper.setColors( 0xFF4444, 0x404040 );
         scenePerspective.scene.add(helper);
 
-//        var geometryFallback = new THREE.BoxBufferGeometry( 48, 1, 48, 2, 1, 2 );
-        var boxBuilder = new KSX.apps.demos.Home.BoxBuilder();
-        var geometry = boxBuilder.buildBox();
-
         var material = this.shader.buildShaderMaterial();
-        //material.wireframe = true;
-        material.side = THREE.DoubleSide;
-        this.mesh = new THREE.Mesh( geometry, material );
-        scenePerspective.scene.add( this.mesh );
+//        material.wireframe = true;
+//        material.side = THREE.DoubleSide;
+
+        var uVar = 0.0;
+        var vVar = 0.0;
+        var posX = 0.0;
+        var posY = 0.0;
+        var gridSizeU = 512;
+        var gridSizeV = 512;
+        var i = 0;
+        var j = 0;
+        var boxCount = 0;
+
+        while (i < gridSizeU) {
+            while (j < gridSizeV) {
+                //KSX.apps.demos.Home.BoxBuilder.buildBox(this, posX, posY, 0.0, uVar, 1.0, vVar, 1.0);
+                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, posX, posY, 0.0, uVar, uVar, vVar, vVar);
+                uVar += 1.0 / gridSizeU;
+                posX += 2.0;
+                j++;
+                boxCount++;
+            }
+            j = 0;
+            uVar = 0.0;
+            vVar += 1.0 / gridSizeV;
+            posX = 0.0;
+            posY += 2.0;
+            i++;
+        }
+
+        var superGeometry = new THREE.BufferGeometry();
+        superGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(this.vertices), 3 ) );
+        superGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(this.uvs), 2 ) );
+        superGeometry.setIndex( new THREE.BufferAttribute( new Uint32Array(this.index), 1 ) );
+
+        var superBox = new THREE.Mesh(superGeometry, material);
+        scenePerspective.scene.add(superBox);
     };
 
     Home.prototype.resizeDisplayGL = function () {
@@ -73,7 +106,6 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.render = function () {
-//        this.mesh.rotation.y += 0.01;
         this.controls.update();
     };
 
@@ -84,123 +116,71 @@ KSX.apps.demos.Home = (function () {
 })();
 
 
-KSX.apps.demos.Home.BoxBuilder = (function () {
+KSX.apps.demos.Home.BoxBuilder = {
+    buildBox: function (scope, count, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
 
-    function BoxBuilder() {
-        this.geometry = new THREE.BufferGeometry();
-        this.vertices = new Float32Array(108);
-        this.uvs = new Float32Array(72);
-        this.normals = new Float32Array(108);
+        scope.vertices.push(
+            -1.0 + xOffset, -1.0 + yOffset,  1.0 + zOffset, //0
+             1.0 + xOffset, -1.0 + yOffset,  1.0 + zOffset, //1
+             1.0 + xOffset,  1.0 + yOffset,  1.0 + zOffset, //2
+            -1.0 + xOffset,  1.0 + yOffset,  1.0 + zOffset, //3
+
+             1.0 + xOffset, -1.0 + yOffset, -1.0 + zOffset, //4
+            -1.0 + xOffset, -1.0 + yOffset, -1.0 + zOffset, //5
+            -1.0 + xOffset,  1.0 + yOffset, -1.0 + zOffset, //6
+             1.0 + xOffset,  1.0 + yOffset, -1.0 + zOffset  //h
+        );
+
+        scope.normals.push();
+
+        scope.uvs.push(
+            uvMinU, uvMinV,
+            uvMaxU, uvMinV,
+            uvMaxU, uvMaxV,
+            uvMinU, uvMaxV,
+
+            uvMaxU, uvMinV,
+            uvMinU, uvMinV,
+            uvMinU, uvMaxV,
+            uvMaxU, uvMaxV
+        );
+
+        var a = 0 + 8 * count;
+        var b = 1 + 8 * count;
+        var c = 2 + 8 * count;
+        var d = 3 + 8 * count;
+        var e = 4 + 8 * count;
+        var f = 5 + 8 * count;
+        var g = 6 + 8 * count;
+        var h = 7 + 8 * count;
+        scope.index.push(
+            // front
+            a, b, c,
+            a, c, d,
+
+            // back
+            e, f, g,
+            e, g, h,
+
+            //left
+            f, a, d,
+            f, d, g,
+
+            // right
+            b, e, h,
+            b, h, c,
+
+            // top
+            d, c, h,
+            d, h, g,
+
+            // bottom
+            a, e, b,
+            a, f, e
+        );
+
     }
-
-    BoxBuilder.prototype.buildBox = function() {
-        this.vertices.set( [
-            -1.0, -1.0,  1.0,
-            1.0, -1.0,  1.0,
-            1.0,  1.0,  1.0,
-
-            1.0,  1.0,  1.0,
-            -1.0,  1.0,  1.0,
-            -1.0, -1.0,  1.0,
-
-            -1.0, -1.0,  1.0,
-            -1.0,  1.0,  1.0,
-            -1.0, -1.0, -1.0,
-
-            -1.0, -1.0, -1.0,
-            -1.0,  1.0,  1.0,
-            -1.0,  1.0, -1.0,
-
-            1.0, -1.0,  1.0,
-            1.0,  1.0,  1.0,
-            1.0, -1.0, -1.0,
-
-            1.0, -1.0, -1.0,
-            1.0,  1.0,  1.0,
-            1.0,  1.0, -1.0,
-
-            -1.0,  1.0,  1.0,
-            1.0,  1.0,  1.0,
-            1.0,  1.0, -1.0,
-
-            -1.0,  1.0,  1.0,
-            1.0,  1.0, -1.0,
-            -1.0,  1.0, -1.0,
-
-            -1.0, -1.0,  1.0,
-            1.0, -1.0,  1.0,
-            1.0, -1.0, -1.0,
-
-            -1.0, -1.0,  1.0,
-            1.0, -1.0, -1.0,
-            -1.0, -1.0, -1.0,
-
-            -1.0, -1.0, -1.0,
-            1.0, -1.0, -1.0,
-            1.0,  1.0, -1.0,
-
-            1.0,  1.0, -1.0,
-            -1.0,  1.0, -1.0,
-            -1.0, -1.0, -1.0
-        ] );
-        this.uvs.set( [
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-
-            1.0, 1.0,
-            0.0, 1.0,
-            0.0, 0.0,
-
-            0.0, 0.0,
-            0.0, 1.0,
-            0.0, 0.0,
-
-            0.0, 0.0,
-            0.0, 1.0,
-            0.0, 1.0,
-
-            1.0, 0.0,
-            1.0, 1.0,
-            1.0, 0.0,
-
-            1.0, 0.0,
-            1.0, 1.0,
-            1.0, 1.0,
-
-            0.0, 1.0,
-            1.0, 1.0,
-            1.0, 1.0,
-
-            0.0, 1.0,
-            1.0, 1.0,
-            0.0, 1.0,
-
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 0.0,
-
-            0.0, 0.0,
-            1.0, 0.0,
-            0.0, 0.0,
-
-            0.0, 0.0,
-            1.0, 0.0,
-            1.0, 1.0,
-
-            1.0, 1.0,
-            0.0, 1.0,
-            0.0, 0.0
-        ] );
-
-        this.geometry.addAttribute( 'position', new THREE.BufferAttribute( this.vertices, 3 ) );
-        this.geometry.addAttribute( 'uv', new THREE.BufferAttribute( this.uvs, 2 ) );
-
-        return this.geometry;
-    };
-
-    return BoxBuilder;
-})();
+};
 
 
 
