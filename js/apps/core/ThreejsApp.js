@@ -285,18 +285,22 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     ScenePerspective.prototype.resetCamera = function () {
         this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
         this.cameraTarget = DEFAULT_POS_CAM_TARGET;
-        this.camera.lookAt(this.cameraTarget);
-        this.camera.updateProjectionMatrix();
+        if (this.useCube) {
+            this.cameraCube.position.set(DEFAULT_POS_CAM_CUBE.x, DEFAULT_POS_CAM_CUBE.y, DEFAULT_POS_CAM_CUBE.z);
+        }
+        this.camera.updateCamera();
     };
 
     ScenePerspective.prototype.updateCamera = function () {
         this.camera.aspect = this.canvas.aspectRatio;
         this.camera.lookAt(this.cameraTarget);
+        this.camera.updateMatrixWorld();
         this.camera.updateProjectionMatrix();
 
         if (this.useCube) {
             this.cameraCube.rotation.copy( this.camera.rotation );
             this.cameraCube.aspectRatio = this.canvas.aspectRatio;
+            this.cameraCube.updateMatrixWorld();
             this.cameraCube.updateProjectionMatrix();
         }
     };

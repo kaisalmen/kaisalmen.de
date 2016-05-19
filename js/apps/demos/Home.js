@@ -46,7 +46,8 @@ KSX.apps.demos.Home = (function () {
 
         renderer.setClearColor( 0x202020 );
 
-        scenePerspective.camera.position.set( -6, 4, 6 );
+        scenePerspective.camera.position.set( 128, 128, 256 );
+//        scenePerspective.cameraTarget = new THREE.Vector3( 128, 128, 0 );
         scenePerspective.updateCamera();
 
         this.controls = new THREE.TrackballControls(scenePerspective.camera);
@@ -56,39 +57,39 @@ KSX.apps.demos.Home = (function () {
         var directionalLight = new THREE.DirectionalLight(lightColor);
         directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
         scenePerspective.scene.add(directionalLight);
-
+/*
         var helper = new THREE.GridHelper( 100, 2 );
         helper.setColors( 0xFF4444, 0x404040 );
         scenePerspective.scene.add(helper);
-
+*/
         var material = this.shader.buildShaderMaterial();
-//        material.wireframe = true;
-//        material.side = THREE.DoubleSide;
+        material.wireframe = true;
 
         var uVar = 0.0;
         var vVar = 0.0;
-        var posX = 0.0;
-        var posY = 0.0;
         var gridSizeU = 512;
         var gridSizeV = 512;
+        var posX = -gridSizeU / 4.0;
+        var posY = -gridSizeV / 4.0;
+        var posOffset = 0.5;
+
         var i = 0;
         var j = 0;
         var boxCount = 0;
 
         while (i < gridSizeU) {
             while (j < gridSizeV) {
-                //KSX.apps.demos.Home.BoxBuilder.buildBox(this, posX, posY, 0.0, uVar, 1.0, vVar, 1.0);
-                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, posX, posY, 0.0, uVar, uVar, vVar, vVar);
+                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, posOffset / 2.0, posX, posY, 0.0, uVar, uVar, vVar, vVar);
                 uVar += 1.0 / gridSizeU;
-                posX += 2.0;
+                posX += posOffset;
                 j++;
                 boxCount++;
             }
             j = 0;
             uVar = 0.0;
             vVar += 1.0 / gridSizeV;
-            posX = 0.0;
-            posY += 2.0;
+            posX = -gridSizeU / 4.0;
+            posY += posOffset;
             i++;
         }
 
@@ -117,18 +118,18 @@ KSX.apps.demos.Home = (function () {
 
 
 KSX.apps.demos.Home.BoxBuilder = {
-    buildBox: function (scope, count, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
+    buildBox: function (scope, count, cubeDimension, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
 
         scope.vertices.push(
-            -1.0 + xOffset, -1.0 + yOffset,  1.0 + zOffset, //0
-             1.0 + xOffset, -1.0 + yOffset,  1.0 + zOffset, //1
-             1.0 + xOffset,  1.0 + yOffset,  1.0 + zOffset, //2
-            -1.0 + xOffset,  1.0 + yOffset,  1.0 + zOffset, //3
+            -cubeDimension + xOffset, -cubeDimension + yOffset,  cubeDimension + zOffset, //0
+             cubeDimension + xOffset, -cubeDimension + yOffset,  cubeDimension + zOffset, //1
+             cubeDimension + xOffset,  cubeDimension + yOffset,  cubeDimension + zOffset, //2
+            -cubeDimension + xOffset,  cubeDimension + yOffset,  cubeDimension + zOffset, //3
 
-             1.0 + xOffset, -1.0 + yOffset, -1.0 + zOffset, //4
-            -1.0 + xOffset, -1.0 + yOffset, -1.0 + zOffset, //5
-            -1.0 + xOffset,  1.0 + yOffset, -1.0 + zOffset, //6
-             1.0 + xOffset,  1.0 + yOffset, -1.0 + zOffset  //h
+             cubeDimension + xOffset, -cubeDimension + yOffset, -cubeDimension + zOffset, //4
+            -cubeDimension + xOffset, -cubeDimension + yOffset, -cubeDimension + zOffset, //5
+            -cubeDimension + xOffset,  cubeDimension + yOffset, -cubeDimension + zOffset, //6
+             cubeDimension + xOffset,  cubeDimension + yOffset, -cubeDimension + zOffset  //h
         );
 
         scope.normals.push();
