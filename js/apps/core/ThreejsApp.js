@@ -125,6 +125,7 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.verbose = false;
 
         this.frameNumber = 0;
+        this.initError = false;
     }
 
     ThreeJsApp.prototype.getAppName = function () {
@@ -169,22 +170,24 @@ KSX.apps.core.ThreeJsApp = (function () {
         }
 
         this.user.initGL();
-        this.resizeDisplayGL();
 
-        console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
-        if (typeof this.user.addEventHandlers == "function") {
-            this.user.addEventHandlers();
+        if (!this.initError) {
+            this.resizeDisplayGL();
+
+            console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
+            if (typeof this.user.addEventHandlers == "function") {
+                this.user.addEventHandlers();
+            }
+
+            console.log("SceneAppPerspective (" + this.name + "): initPostGL");
+            if (typeof this.user.initPostGL == "function") {
+                this.user.initPostGL();
+            }
+
+            console.log("SceneAppPerspective (" + this.name + "): Ready to start render loop!");
+
+            this.renderingEndabled = true;
         }
-
-        console.log("SceneAppPerspective (" + this.name + "): initPostGL");
-        if (typeof this.user.initPostGL == "function") {
-            this.user.initPostGL();
-        }
-
-        console.log("SceneAppPerspective (" + this.name + "): Ready to start render loop!");
-
-
-        this.renderingEndabled = true;
     };
 
     ThreeJsApp.prototype.resizeDisplayGL = function () {

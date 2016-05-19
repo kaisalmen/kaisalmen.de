@@ -43,6 +43,11 @@ KSX.apps.demos.Home = (function () {
         if (result != 0) {
             console.log("Vertex shader is able to read texture: " + result);
         }
+        else {
+            alert("Vertex shader is unable to access textures. Aborting...");
+            this.app.initError = true;
+            return;
+        }
 
         renderer.setClearColor( 0x202020 );
 
@@ -100,6 +105,11 @@ KSX.apps.demos.Home = (function () {
 
         var superBox = new THREE.Mesh(superGeometry, material);
         scenePerspective.scene.add(superBox);
+
+        this.vertices = null;
+        this.normals = null;
+        this.uvs = null;
+        this.index = null;
     };
 
     Home.prototype.resizeDisplayGL = function () {
