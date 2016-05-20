@@ -53,7 +53,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
         UIL.BUTTON = '#FF4040';
         this.ui = new UIL.Gui({
-            css: 'top: 0px; right: 0px;',
+            css: 'top: 0px; left: 0px;',
             size: 384,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
@@ -61,6 +61,10 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         });
 
         this.stats = new Stats();
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.left = '';
+        this.stats.domElement.style.right = '0px';
+        this.stats.domElement.style.top = '0px';
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -90,7 +94,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         };
         this.objLoaderWW.registerProgressCallback(progressUpdate);
 
-        this.stats.setMode(0);
+        this.stats.showPanel(0);
         document.body.appendChild(this.stats.domElement);
     };
 

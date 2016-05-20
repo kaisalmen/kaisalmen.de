@@ -21,13 +21,19 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
 
         this.shader = new KSX.apps.shader.BlueMarbleShader();
 
+        UIL.BUTTON = '#FF4040';
         this.ui = new UIL.Gui({
-            css: 'top: 0px; left: 225px;',
+            css: 'top: 0px; left: 0px;',
             size: 450,
-            center: true
+            center: false,
+            color: 'rgba(224, 224, 224, 1.0)',
+            bg: 'rgba(40, 40, 40, 0.66)'
         });
 
         this.stats = new Stats();
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.left = '450px';
+        this.stats.domElement.style.top = '0px';
 
         this.zoom = 1.0;
         this.divScale = 1.0;
@@ -201,7 +207,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
             height: SLIDES_HEIGHT
         });
 
-        scope.stats.setMode(0);
+        scope.stats.showPanel(0);
         document.body.appendChild(scope.stats.domElement);
     }
 

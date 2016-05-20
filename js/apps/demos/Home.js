@@ -7,6 +7,15 @@
 
 KSX.apps.demos.Home = (function () {
 
+    var SLIDES_WIDTH = 255;
+    var SLIDES_HEIGHT = 32;
+
+    var BUTTON_WIDTH = 104;
+    var BUTTON_HEIGHT = 32;
+
+    var MIN_VALUE = 0.0;
+    var MAX_VALUE = 255.0;
+
     function Home(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, true, false);
 
@@ -18,6 +27,21 @@ KSX.apps.demos.Home = (function () {
         this.normals = new Array();
         this.uvs = new Array();
         this.index = new Array();
+
+        UIL.BUTTON = '#FF4040';
+        this.ui = new UIL.Gui({
+            css: 'top: 0px; left: 0px;',
+            size: 384,
+            center: false,
+            color: 'rgba(224, 224, 224, 1.0)',
+            bg: 'rgba(40, 40, 40, 0.66)'
+        });
+
+        this.stats = new Stats();
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.left = '';
+        this.stats.domElement.style.right = '0px';
+        this.stats.domElement.style.top = '0px';
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -30,7 +54,35 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.initPreGL = function () {
+        var scope = this;
 
+        scope.stats.showPanel(0);
+        document.body.appendChild(scope.stats.domElement);
+
+        var adjustHeightFactor = function (value) {
+            scope.shader.uniforms.heightFactor.value = value;
+        };
+        var resetCamera = function () {
+            scope.controls.reset();
+        };
+
+        scope.ui.add('slide', {
+            name: 'heightFactor',
+            callback: adjustHeightFactor,
+            min: MIN_VALUE,
+            max: MAX_VALUE,
+            value: scope.shader.uniforms.heightFactor.value,
+            precision: 1,
+            step: 1,
+            width: SLIDES_WIDTH,
+            height: SLIDES_HEIGHT
+        });
+        scope.ui.add('button', {
+            name: 'Reset Camera',
+            callback: resetCamera,
+            width: BUTTON_WIDTH,
+            height: BUTTON_HEIGHT
+        });
     };
 
     Home.prototype.initGL = function () {
@@ -51,9 +103,7 @@ KSX.apps.demos.Home = (function () {
 
         renderer.setClearColor( 0x202020 );
 
-        scenePerspective.camera.position.set( 128, 128, 256 );
-//        scenePerspective.cameraTarget = new THREE.Vector3( 128, 128, 0 );
-        scenePerspective.updateCamera();
+        scenePerspective.setDefaults(new THREE.Vector3(128, 128, 256), null, new THREE.Vector3(128, 128, 0));
 
         this.controls = new THREE.TrackballControls(scenePerspective.camera);
 
@@ -68,7 +118,7 @@ KSX.apps.demos.Home = (function () {
         scenePerspective.scene.add(helper);
 */
         var material = this.shader.buildShaderMaterial();
-        material.wireframe = true;
+//        material.wireframe = true;
 
         var uVar = 0.0;
         var vVar = 0.0;
@@ -118,6 +168,7 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.render = function () {
         this.controls.update();
+        this.stats.update();
     };
 
     Home.prototype.renderPost = function () {

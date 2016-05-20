@@ -11,10 +11,3 @@
 #DivGLFull {
     overflow: auto;
 }
-
-#stats {
-    position: absolute;
-    left: 450px;
-    top: 0px;
-    z-index: 1000;
-}

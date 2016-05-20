@@ -259,51 +259,69 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     var DEFAULT_NEAR = 0.1;
     var DEFAULT_FAR = 10000;
     var DEFAULT_FOV = 45;
-    var DEFAULT_POS_CAM = new THREE.Vector3(100, 100, 100);
-    var DEFAULT_POS_CAM_TARGET = new THREE.Vector3(0, 0, 0);
-    var DEFAULT_POS_CAM_CUBE = new THREE.Vector3(0, 0, 0);
 
     function ScenePerspective(canvas) {
         this.canvas = canvas;
         this.verbose = false;
         this.camera = null;
-        this.cameraTarget = null;
         this.useCube = false;
         this.cameraCube = null;
+
+        this.defaultPosCamera = new THREE.Vector3(100, 100, 100);
+        this.defaultUpVector = new THREE.Vector3(0, 1, 0);
+        this.defaultPosCameraTarget = new THREE.Vector3(0, 0, 0);
+        this.defaultPosCameraCube = new THREE.Vector3(0, 0, 0);
+
+        this.cameraTarget = this.defaultPosCameraTarget;
     }
+
+    ScenePerspective.prototype.setDefaults = function (defaultPosCamera, defaultUpVector, defaultPosCameraTarget, defaultPosCameraCube) {
+        if (defaultPosCamera !== undefined && defaultPosCamera !== null) {
+            this.defaultPosCamera = defaultPosCamera;
+        }
+        if (defaultUpVector !== undefined && defaultUpVector !== null) {
+            this.defaultUpVector = defaultUpVector;
+        }
+        if (defaultPosCameraTarget !== undefined && defaultPosCameraTarget !== null) {
+            this.defaultPosCameraTarget = defaultPosCameraTarget;
+        }
+        if (defaultPosCameraCube !== undefined && defaultPosCameraCube !== null) {
+            this.defaultPosCameraCube = defaultPosCameraCube;
+        }
+        this.resetCamera();
+    };
+
     ScenePerspective.prototype.initGL = function () {
         this.scene = new THREE.Scene();
 
         this.camera = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
-        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
-        this.cameraTarget = DEFAULT_POS_CAM_TARGET;
 
         if (this.useCube) {
             this.cameraCube = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
-            this.cameraCube.position.set(DEFAULT_POS_CAM_CUBE.x, DEFAULT_POS_CAM_CUBE.y, DEFAULT_POS_CAM_CUBE.z);
             this.sceneCube = new THREE.Scene();
         }
+        this.resetCamera();
     };
 
     ScenePerspective.prototype.resetCamera = function () {
-        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
-        this.cameraTarget = DEFAULT_POS_CAM_TARGET;
+        this.camera.position.set(this.defaultPosCamera.x, this.defaultPosCamera.y, this.defaultPosCamera.z);
+        this.camera.up = this.defaultUpVector;
+        this.cameraTarget = this.defaultPosCameraTarget;
+
         if (this.useCube) {
-            this.cameraCube.position.set(DEFAULT_POS_CAM_CUBE.x, DEFAULT_POS_CAM_CUBE.y, DEFAULT_POS_CAM_CUBE.z);
+            this.cameraCube.position.set(this.defaultPosCameraCube.x, this.defaultPosCameraCube.y, this.defaultPosCameraCube.z);
         }
-        this.camera.updateCamera();
+        this.updateCamera();
     };
 
     ScenePerspective.prototype.updateCamera = function () {
         this.camera.aspect = this.canvas.aspectRatio;
         this.camera.lookAt(this.cameraTarget);
-        this.camera.updateMatrixWorld();
         this.camera.updateProjectionMatrix();
 
         if (this.useCube) {
             this.cameraCube.rotation.copy( this.camera.rotation );
             this.cameraCube.aspectRatio = this.canvas.aspectRatio;
-            this.cameraCube.updateMatrixWorld();
             this.cameraCube.updateProjectionMatrix();
         }
     };

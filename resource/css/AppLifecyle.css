@@ -148,10 +148,3 @@ body {
     height: 100%;
     z-index: 0;
 }
-
-#stats {
-    position: absolute;
-    left: 0px;
-    top: 0px;
-    z-index: 1000;
-}
