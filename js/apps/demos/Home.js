@@ -42,6 +42,26 @@ KSX.apps.demos.Home = (function () {
         this.stats.domElement.style.left = '';
         this.stats.domElement.style.right = '0px';
         this.stats.domElement.style.top = '0px';
+
+        this.gridParams = {
+            sizeX : 512,
+            sizeY : 512,
+            uMin : 0.0,
+            vMin : 0.0,
+            uMax : 1.0,
+            vMax : 1.0,
+            cubeEdgeLength : 0.5,
+            posStartX : -512.0 / (2.0 / 0.5),
+            posStartY : -512.0 / (2.0 / 0.5)
+        };
+
+        if (bowser.mobile) {
+            this.gridParams.sizeX = 128;
+            this.gridParams.sizeY = 128;
+            this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
+            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5)
+            this.shader.uniforms.heightFactor.value = 24.0;
+        }
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -91,6 +111,7 @@ KSX.apps.demos.Home = (function () {
 
         var gl = renderer.getContext();
 
+
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
             console.log("Vertex shader is able to read texture: " + result);
@@ -102,49 +123,50 @@ KSX.apps.demos.Home = (function () {
         }
 
         renderer.setClearColor( 0x202020 );
-
-        scenePerspective.setDefaults(new THREE.Vector3(128, 128, 256), null, new THREE.Vector3(128, 128, 0));
+        scenePerspective.setCameraDefaults(
+            new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, this.gridParams.sizeY / 2.0),
+            null,
+            new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, 0));
 
         this.controls = new THREE.TrackballControls(scenePerspective.camera);
-
+/*
         var lightColor = 0xE0E0E0;
         var lightPos = new THREE.Vector3(100, 100, 100);
         var directionalLight = new THREE.DirectionalLight(lightColor);
         directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
         scenePerspective.scene.add(directionalLight);
-/*
+
         var helper = new THREE.GridHelper( 100, 2 );
         helper.setColors( 0xFF4444, 0x404040 );
         scenePerspective.scene.add(helper);
-*/
+ */
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
 
-        var uVar = 0.0;
-        var vVar = 0.0;
-        var gridSizeU = 512;
-        var gridSizeV = 512;
-        var posX = -gridSizeU / 4.0;
-        var posY = -gridSizeV / 4.0;
-        var posOffset = 0.5;
+        var uVar = this.gridParams.uMin;
+        var vVar = this.gridParams.vMin;
+        var posX = this.gridParams.posStartX;
+        var posY = this.gridParams.posStartY;
 
         var i = 0;
         var j = 0;
         var boxCount = 0;
 
-        while (i < gridSizeU) {
-            while (j < gridSizeV) {
-                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, posOffset / 2.0, posX, posY, 0.0, uVar, uVar, vVar, vVar);
-                uVar += 1.0 / gridSizeU;
-                posX += posOffset;
+        while (i < this.gridParams.sizeX) {
+            while (j < this.gridParams.sizeY) {
+                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, this.gridParams.cubeEdgeLength, posX, posY, 0.0, uVar, uVar, vVar, vVar);
+                uVar += this.gridParams.uMax / this.gridParams.sizeX;
+                posX += this.gridParams.cubeEdgeLength;
                 j++;
                 boxCount++;
             }
+
+            uVar = this.gridParams.uMin;
+            vVar += this.gridParams.vMax / this.gridParams.sizeY;
+            posX = this.gridParams.posStartX;
+            posY += this.gridParams.cubeEdgeLength;
+
             j = 0;
-            uVar = 0.0;
-            vVar += 1.0 / gridSizeV;
-            posX = -gridSizeU / 4.0;
-            posY += posOffset;
             i++;
         }
 
@@ -181,16 +203,17 @@ KSX.apps.demos.Home = (function () {
 KSX.apps.demos.Home.BoxBuilder = {
     buildBox: function (scope, count, cubeDimension, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
 
+        var vertexValue = cubeDimension / 2.0;
         scope.vertices.push(
-            -cubeDimension + xOffset, -cubeDimension + yOffset,  cubeDimension + zOffset, //0
-             cubeDimension + xOffset, -cubeDimension + yOffset,  cubeDimension + zOffset, //1
-             cubeDimension + xOffset,  cubeDimension + yOffset,  cubeDimension + zOffset, //2
-            -cubeDimension + xOffset,  cubeDimension + yOffset,  cubeDimension + zOffset, //3
+            -vertexValue + xOffset, -vertexValue + yOffset,  vertexValue + zOffset, //0
+             vertexValue + xOffset, -vertexValue + yOffset,  vertexValue + zOffset, //1
+             vertexValue + xOffset,  vertexValue + yOffset,  vertexValue + zOffset, //2
+            -vertexValue + xOffset,  vertexValue + yOffset,  vertexValue + zOffset, //3
 
-             cubeDimension + xOffset, -cubeDimension + yOffset, -cubeDimension + zOffset, //4
-            -cubeDimension + xOffset, -cubeDimension + yOffset, -cubeDimension + zOffset, //5
-            -cubeDimension + xOffset,  cubeDimension + yOffset, -cubeDimension + zOffset, //6
-             cubeDimension + xOffset,  cubeDimension + yOffset, -cubeDimension + zOffset  //h
+             vertexValue + xOffset, -vertexValue + yOffset, -vertexValue + zOffset, //4
+            -vertexValue + xOffset, -vertexValue + yOffset, -vertexValue + zOffset, //5
+            -vertexValue + xOffset,  vertexValue + yOffset, -vertexValue + zOffset, //6
+             vertexValue + xOffset,  vertexValue + yOffset, -vertexValue + zOffset  //7
         );
 
         scope.normals.push();

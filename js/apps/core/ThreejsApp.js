@@ -275,7 +275,7 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
         this.cameraTarget = this.defaultPosCameraTarget;
     }
 
-    ScenePerspective.prototype.setDefaults = function (defaultPosCamera, defaultUpVector, defaultPosCameraTarget, defaultPosCameraCube) {
+    ScenePerspective.prototype.setCameraDefaults = function (defaultPosCamera, defaultUpVector, defaultPosCameraTarget, defaultPosCameraCube) {
         if (defaultPosCamera !== undefined && defaultPosCamera !== null) {
             this.defaultPosCamera = defaultPosCamera;
         }
