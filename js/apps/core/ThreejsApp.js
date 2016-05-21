@@ -96,11 +96,11 @@ KSX.globals.lifecycleInstance = new KSX.apps.core.AppLifecycle();
 
 KSX.apps.core.ThreeJsApp = (function () {
 
-    function ThreeJsApp(user, name, divGLCanvas, useScenePerspective, useSceneOrtho, useCube) {
+    function ThreeJsApp(user, name, htmlCanvas, antialias, useScenePerspective, useSceneOrtho, useCube) {
         this.user = user;
         this.name = name;
 
-        this.canvas = new KSX.apps.core.Canvas(divGLCanvas);
+        this.canvas = new KSX.apps.core.Canvas(htmlCanvas);
 
         this.useScenePerspective = useScenePerspective;
         if (this.useScenePerspective) {
@@ -118,7 +118,7 @@ KSX.apps.core.ThreeJsApp = (function () {
 
         this.renderer = new THREE.WebGLRenderer({
             canvas: this.canvas.htmlCanvas,
-            antialias: true
+            antialias: antialias
         });
 
         this.renderingEndabled = false;

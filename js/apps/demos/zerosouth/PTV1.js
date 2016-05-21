@@ -24,7 +24,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
     var BOOL_HEIGHT = 24;
 
     function PTV1Loader(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, false, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, true, false, true);
         this.controls = null;
 
         var pathToObj = '../../resource/models/';

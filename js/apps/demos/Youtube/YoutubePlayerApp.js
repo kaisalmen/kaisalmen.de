@@ -7,7 +7,7 @@
 KSX.apps.demos.YoutubePlayerApp = (function () {
 
     function YoutubePlayerApp(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "YoutubePlayerApp", elementToBindTo, true, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "YoutubePlayerApp", elementToBindTo, true, true, false);
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.vertexShaderText = null;

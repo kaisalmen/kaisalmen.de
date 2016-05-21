@@ -16,7 +16,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
     var SLIDER_TYPE = 2;
 
     function PixelProtestApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtest", elementToBindTo, false, true);
+        this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtest", elementToBindTo, true, false, true);
 
         this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
 

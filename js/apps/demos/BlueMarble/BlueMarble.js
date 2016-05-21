@@ -17,7 +17,7 @@ const NORMAL_HEIGHT = 3712.0;
 KSX.apps.demos.impl.BlueMarbleApp = (function () {
 
     function BlueMarbleApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'BlueMarbleApp', elementToBindTo, false, true, false);
+        this.app = new KSX.apps.core.ThreeJsApp(this, 'BlueMarbleApp', elementToBindTo, true, false, true, false);
 
         this.shader = new KSX.apps.shader.BlueMarbleShader();
 
