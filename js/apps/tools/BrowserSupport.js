@@ -65,6 +65,9 @@ KSX.apps.tools.BrowserSupport = (function () {
                 if (potentialValue !== undefined) {
                     browserPredefined[predefined] = potentialValue;
                 }
+                else {
+                    browserUser[predefined] = browserPredefined[predefined];
+                }
             }
         }
     };

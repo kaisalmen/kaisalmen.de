@@ -49,6 +49,9 @@ KSX.apps.tools.UiTools = (function () {
                 if (potentialValue !== undefined) {
                     paramsPredefined[predefined] = potentialValue;
                 }
+                else {
+                    paramsUser[predefined] = paramsPredefined[predefined];
+                }
             }
         }
     };

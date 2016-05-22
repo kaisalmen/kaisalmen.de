@@ -8,7 +8,20 @@
 KSX.apps.demos.Home = (function () {
 
     function Home(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, false, true, false);
+
+        var userDefinition = {
+            user : this,
+            name : 'Home',
+            htmlCanvas : elementToBindTo,
+            renderers : {
+                regular : {
+                    canvas : elementToBindTo,
+                    antialias : false
+                }
+            },
+            useScenePerspective : true,
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.BlockShader();
 
