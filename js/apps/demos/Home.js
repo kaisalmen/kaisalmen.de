@@ -7,15 +7,6 @@
 
 KSX.apps.demos.Home = (function () {
 
-    var SLIDES_WIDTH = 255;
-    var SLIDES_HEIGHT = 32;
-
-    var BUTTON_WIDTH = 104;
-    var BUTTON_HEIGHT = 32;
-
-    var MIN_VALUE = 0.0;
-    var MAX_VALUE = 255.0;
-
     function Home(elementToBindTo) {
         this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, false, true, false);
 
@@ -29,38 +20,47 @@ KSX.apps.demos.Home = (function () {
         this.useIndices = false;
         this.index = new Array();
 
-        UIL.BUTTON = '#FF4040';
-        this.ui = new UIL.Gui({
+        var uiParams = {
             css: 'top: 0px; left: 0px;',
             size: 384,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'
-        });
-
+        };
+        var paramsDimension = {
+            desktop : {
+                slidesHeight : 32
+            },
+            mobile : {
+                slidesHeight : 128
+            }
+        }
+        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
+        
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '';
         this.stats.domElement.style.right = '0px';
         this.stats.domElement.style.top = '0px';
 
+        var gridSize = 512;
         this.gridParams = {
-            sizeX : 512,
-            sizeY : 512,
+            sizeX : gridSize,
+            sizeY : gridSize,
             uMin : 0.0,
             vMin : 0.0,
             uMax : 1.0,
             vMax : 1.0,
             cubeEdgeLength : 0.5,
-            posStartX : -512.0 / (2.0 / 0.5),
-            posStartY : -512.0 / (2.0 / 0.5)
+            posStartX : -gridSize / (2.0 / 0.5),
+            posStartY : -gridSize / (2.0 / 0.5)
         };
 
         if (bowser.mobile) {
             this.gridParams.sizeX = 128;
             this.gridParams.sizeY = 128;
             this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
-            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5)
+            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
             this.shader.uniforms.heightFactor.value = 24.0;
         }
     }
@@ -87,22 +87,24 @@ KSX.apps.demos.Home = (function () {
             scope.controls.reset();
         };
 
-        scope.ui.add('slide', {
+        var ui = scope.uiTools.ui;
+        var paramsDimension = this.uiTools.paramsDimension;
+        ui.add('slide', {
             name: 'heightFactor',
             callback: adjustHeightFactor,
-            min: MIN_VALUE,
-            max: MAX_VALUE,
+            min: this.uiTools.paramsDimension.minValue,
+            max: this.uiTools.paramsDimension.maxValue,
             value: scope.shader.uniforms.heightFactor.value,
             precision: 1,
             step: 1,
-            width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT
+            width: this.uiTools.paramsDimension.slidesWidth,
+            height: this.uiTools.paramsDimension.slidesHeight
         });
-        scope.ui.add('button', {
+        ui.add('button', {
             name: 'Reset Camera',
             callback: resetCamera,
-            width: BUTTON_WIDTH,
-            height: BUTTON_HEIGHT
+            width: this.uiTools.paramsDimension.buttomWidth,
+            height: this.uiTools.paramsDimension.buttomHeight
         });
     };
 
@@ -201,55 +203,61 @@ KSX.apps.demos.Home = (function () {
     return Home;
 })();
 
-
 KSX.apps.demos.Home.BoxBuilder = {
     buildBox: function (scope, count, cubeDimension, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
 
         var vertexValue = cubeDimension / 2.0;
-        var v0 = new THREE.Vector3(-vertexValue + xOffset, -vertexValue + yOffset,  vertexValue + zOffset);
-        var v1 = new THREE.Vector3( vertexValue + xOffset, -vertexValue + yOffset,  vertexValue + zOffset);
-        var v2 = new THREE.Vector3( vertexValue + xOffset,  vertexValue + yOffset,  vertexValue + zOffset);
-        var v3 = new THREE.Vector3(-vertexValue + xOffset,  vertexValue + yOffset,  vertexValue + zOffset);
-        var v4 = new THREE.Vector3( vertexValue + xOffset, -vertexValue + yOffset, -vertexValue + zOffset);
-        var v5 = new THREE.Vector3(-vertexValue + xOffset, -vertexValue + yOffset, -vertexValue + zOffset);
-        var v6 = new THREE.Vector3(-vertexValue + xOffset,  vertexValue + yOffset, -vertexValue + zOffset);
-        var v7 = new THREE.Vector3( vertexValue + xOffset,  vertexValue + yOffset, -vertexValue + zOffset);
-
-        var uv0 = new THREE.Vector2(uvMinU, uvMinV);
-        var uv1 = new THREE.Vector2(uvMaxU, uvMinV);
-        var uv2 = new THREE.Vector2(uvMaxU, uvMaxV);
-        var uv3 = new THREE.Vector2(uvMinU, uvMaxV);
-        var uv4 = new THREE.Vector2(uvMaxU, uvMinV);
-        var uv5 = new THREE.Vector2(uvMinU, uvMinV);
-        var uv6 = new THREE.Vector2(uvMinU, uvMaxV);
-        var uv7 = new THREE.Vector2(uvMaxU, uvMaxV);
+        var v0x = -vertexValue + xOffset;
+        var v0y = -vertexValue + yOffset;
+        var v0z =  vertexValue + zOffset;
+        var v1x =  vertexValue + xOffset;
+        var v1y = -vertexValue + yOffset;
+        var v1z =  vertexValue + zOffset;
+        var v2x =  vertexValue + xOffset;
+        var v2y =  vertexValue + yOffset;
+        var v2z =  vertexValue + zOffset;
+        var v3x = -vertexValue + xOffset;
+        var v3y =  vertexValue + yOffset;
+        var v3z =  vertexValue + zOffset;
+        var v4x =  vertexValue + xOffset;
+        var v4y = -vertexValue + yOffset;
+        var v4z = -vertexValue + zOffset;
+        var v5x = -vertexValue + xOffset;
+        var v5y = -vertexValue + yOffset;
+        var v5z = -vertexValue + zOffset;
+        var v6x = -vertexValue + xOffset;
+        var v6y =  vertexValue + yOffset;
+        var v6z = -vertexValue + zOffset;
+        var v7x =  vertexValue + xOffset;
+        var v7y =  vertexValue + yOffset;
+        var v7z = -vertexValue + zOffset;
 
         if (this.useIndices) {
             scope.vertices.push(
-                v0.x, v0.y, v0.z,
-                v1.x, v1.y, v1.z,
-                v2.x, v2.y, v2.z,
-                v3.x, v3.y, v3.z,
-                v4.x, v4.y, v4.z,
-                v5.x, v5.y, v5.z,
-                v6.x, v6.y, v6.z,
-                v7.x, v7.y, v7.z
+                v0x, v0y, v0z,
+                v1x, v1y, v1z,
+                v2x, v2y, v2z,
+                v3x, v3y, v3z,
+                v4x, v4y, v4z,
+                v5x, v5y, v5z,
+                v6x, v6y, v6z,
+                v7x, v7y, v7z
             );
 
             scope.normals.push();
 
             scope.uvs.push(
-                uv0.x, uv0.y,
-                uv1.x, uv1.y,
-                uv2.x, uv2.y,
-                uv3.x, uv3.y,
-                uv4.x, uv4.y,
-                uv5.x, uv5.y,
-                uv6.x, uv6.y,
-                uv7.x, uv7.y
+                uvMinU, uvMinV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMinV,
+                uvMinU, uvMinV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMaxV
             );
 
-            var i0 = 0 + 8 * count;
+            var i0 = 8 * count;
             var i1 = 1 + 8 * count;
             var i2 = 2 + 8 * count;
             var i3 = 3 + 8 * count;
@@ -285,86 +293,86 @@ KSX.apps.demos.Home.BoxBuilder = {
         }
         else {
             scope.vertices.push(
-                v0.x, v0.y, v0.z,
-                v1.x, v1.y, v1.z,
-                v2.x, v2.y, v2.z,
-                v0.x, v0.y, v0.z,
-                v2.x, v2.y, v2.z,
-                v3.x, v3.y, v3.z,
+                v0x, v0y, v0z,
+                v1x, v1y, v1z,
+                v2x, v2y, v2z,
+                v0x, v0y, v0z,
+                v2x, v2y, v2z,
+                v3x, v3y, v3z,
 
-                v4.x, v4.y, v4.z,
-                v5.x, v5.y, v5.z,
-                v6.x, v6.y, v6.z,
-                v4.x, v4.y, v4.z,
-                v6.x, v6.y, v6.z,
-                v7.x, v7.y, v7.z,
+                v4x, v4y, v4z,
+                v5x, v5y, v5z,
+                v6x, v6y, v6z,
+                v4x, v4y, v4z,
+                v6x, v6y, v6z,
+                v7x, v7y, v7z,
 
-                v5.x, v5.y, v5.z,
-                v0.x, v0.y, v0.z,
-                v3.x, v3.y, v3.z,
-                v5.x, v5.y, v5.z,
-                v3.x, v3.y, v3.z,
-                v6.x, v6.y, v6.z,
+                v5x, v5y, v5z,
+                v0x, v0y, v0z,
+                v3x, v3y, v3z,
+                v5x, v5y, v5z,
+                v3x, v3y, v3z,
+                v6x, v6y, v6z,
 
-                v1.x, v1.y, v1.z,
-                v4.x, v4.y, v4.z,
-                v7.x, v7.y, v7.z,
-                v1.x, v1.y, v1.z,
-                v7.x, v7.y, v7.z,
-                v2.x, v2.y, v2.z,
+                v1x, v1y, v1z,
+                v4x, v4y, v4z,
+                v7x, v7y, v7z,
+                v1x, v1y, v1z,
+                v7x, v7y, v7z,
+                v2x, v2y, v2z,
 
-                v3.x, v3.y, v3.z,
-                v2.x, v2.y, v2.z,
-                v7.x, v7.y, v7.z,
-                v3.x, v3.y, v3.z,
-                v7.x, v7.y, v7.z,
-                v6.x, v6.y, v6.z,
+                v3x, v3y, v3z,
+                v2x, v2y, v2z,
+                v7x, v7y, v7z,
+                v3x, v3y, v3z,
+                v7x, v7y, v7z,
+                v6x, v6y, v6z,
 
-                v0.x, v0.y, v0.z,
-                v4.x, v4.y, v4.z,
-                v1.x, v1.y, v1.z,
-                v0.x, v0.y, v0.z,
-                v5.x, v5.y, v5.z,
-                v4.x, v4.y, v4.z
+                v0x, v0y, v0z,
+                v4x, v4y, v4z,
+                v1x, v1y, v1z,
+                v0x, v0y, v0z,
+                v5x, v5y, v5z,
+                v4x, v4y, v4z
             );
 
             scope.uvs.push(
-                uv0.x, uv0.y,
-                uv1.x, uv1.y,
-                uv2.x, uv2.y,
-                uv0.x, uv0.y,
-                uv2.x, uv2.y,
-                uv3.x, uv3.y,
-                uv4.x, uv4.y,
-                uv5.x, uv5.y,
-                uv6.x, uv6.y,
-                uv4.x, uv4.y,
-                uv6.x, uv6.y,
-                uv7.x, uv7.y,
-                uv5.x, uv5.y,
-                uv0.x, uv0.y,
-                uv3.x, uv3.y,
-                uv5.x, uv5.y,
-                uv3.x, uv3.y,
-                uv6.x, uv6.y,
-                uv1.x, uv1.y,
-                uv4.x, uv4.y,
-                uv7.x, uv7.y,
-                uv1.x, uv1.y,
-                uv7.x, uv7.y,
-                uv2.x, uv2.y,
-                uv3.x, uv3.y,
-                uv2.x, uv2.y,
-                uv7.x, uv7.y,
-                uv3.x, uv3.y,
-                uv7.x, uv7.y,
-                uv6.x, uv6.y,
-                uv0.x, uv0.y,
-                uv4.x, uv4.y,
-                uv1.x, uv1.y,
-                uv0.x, uv0.y,
-                uv5.x, uv5.y,
-                uv4.x, uv4.y
+                uvMinU, uvMinV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMinV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMinV,
+                uvMinU, uvMinV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMinV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMinV,
+                uvMinU, uvMinV,
+                uvMinU, uvMaxV,
+                uvMinU, uvMinV,
+                uvMinU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMaxV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMaxV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMaxV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMaxU, uvMaxV,
+                uvMinU, uvMaxV,
+                uvMinU, uvMinV,
+                uvMaxU, uvMinV,
+                uvMaxU, uvMinV,
+                uvMinU, uvMinV,
+                uvMinU, uvMinV,
+                uvMaxU, uvMinV
             );
         }
     }
