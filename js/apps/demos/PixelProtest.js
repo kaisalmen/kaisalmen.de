@@ -6,28 +6,36 @@
 
 KSX.apps.demos.PixelProtestApp = (function () {
 
-    var SLIDES_WIDTH = 255;
-    var SLIDES_HEIGHT = 32;
-    var BUTTON_WIDTH = 104;
-    var BUTTON_HEIGHT = 32;
-    var GROUP_HEIGHT = 36;
-    var BOOL_HEIGHT = 24;
-    var NUMBER_PRECISION = 6;
-    var SLIDER_TYPE = 2;
-
     function PixelProtestApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "PixelProtest", elementToBindTo, true, false, true);
+        var userDefinition = {
+            user : this,
+            name : 'PixelProtest',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : false,
+            useSceneOrtho : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
 
-        UIL.BUTTON = '#FF4040';
-        this.ui = new UIL.Gui({
+        var uiParams = {
             css: 'top: 0px; left: 0px;',
             size: 512,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'
-        });
+        };
+        var paramsDimension = {
+            desktop : {
+                numberPrecision : 6
+            },
+            mobile : {
+                slidesHeight : 96,
+                numberPrecision : 6
+            }
+        };
+        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
+
         this.uiElemWidth = null;
         this.uiElemHeight = null;
         
@@ -59,8 +67,9 @@ KSX.apps.demos.PixelProtestApp = (function () {
 
     PixelProtestApp.prototype.initUI = function (width, maxWidth, height, maxHeight) {
         var scope = this;
+        var ui = scope.uiTools.ui;
 
-        scope.ui.clear();
+        ui.clear();
 
         var enableNoiseAnimation = function (enabled) {
             scope.animateNoise = enabled;
@@ -102,15 +111,15 @@ KSX.apps.demos.PixelProtestApp = (function () {
             scope.saveImageData = true;
         };
 
-        var groupAnimation = scope.ui.add('group', {
+        var groupAnimation = ui.add('group', {
             name: 'Animation Control',
-            height: GROUP_HEIGHT
+            height: scope.uiTools.paramsDimension.groupHeight
         });
         groupAnimation.add('bool', {
             name: 'Animate',
             value: scope.animateNoise,
             callback: enableNoiseAnimation,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         groupAnimation.add('slide', {
             name: 'Change nth frame',
@@ -120,15 +129,15 @@ KSX.apps.demos.PixelProtestApp = (function () {
             value: scope.animationRate,
             precision: 0,
             step: 1,
-            width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT,
-            stype: SLIDER_TYPE
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
         });
         groupAnimation.open();
 
-        var groupDimensions = scope.ui.add('group', {
+        var groupDimensions = ui.add('group', {
             name: 'Dimensions',
-            height: GROUP_HEIGHT
+            height: scope.uiTools.paramsDimension.groupHeight
         });
         if (width > maxWidth) {
             width = maxWidth;
@@ -141,9 +150,9 @@ KSX.apps.demos.PixelProtestApp = (function () {
             value: Math.round(width),
             precision: 0,
             step: 1,
-            width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT,
-            stype: SLIDER_TYPE
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
         });
         if (height > maxHeight) {
             height = maxHeight;
@@ -156,27 +165,27 @@ KSX.apps.demos.PixelProtestApp = (function () {
             value: Math.round(height),
             precision: 0,
             step: 1,
-            width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT,
-            stype: SLIDER_TYPE
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
         });
         groupDimensions.open();
 
-        var groupChannels = scope.ui.add('group', {
+        var groupChannels = ui.add('group', {
             name: 'Channels',
-            height: GROUP_HEIGHT
+            height: scope.uiTools.paramsDimension.groupHeight
         });
         groupChannels.add('bool', {
             name: 'Randomize on change',
             value: scope.randomize,
             callback: enableRandomize,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         scope.randomR = groupChannels.add('number', {
             name: 'Random Offset R',
             value: this.shader.uniforms.offsetR.value,
             callback: adjustRandomizeR,
-            precision: NUMBER_PRECISION,
+            precision: scope.uiTools.paramsDimension.numberPrecision,
             min: 0,
             max: 1
         });
@@ -184,7 +193,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
             name: 'Random Offset G',
             value: this.shader.uniforms.offsetG.value,
             callback: adjustRandomizeG,
-            precision: NUMBER_PRECISION,
+            precision: scope.uiTools.paramsDimension.numberPrecision,
             min: 0,
             max: 1
         });
@@ -192,7 +201,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
             name: 'Random Offset B',
             value: this.shader.uniforms.offsetB.value,
             callback: adjustRandomizeB,
-            precision: NUMBER_PRECISION,
+            precision: scope.uiTools.paramsDimension.numberPrecision,
             min: 0,
             max: 1
         });
@@ -200,25 +209,25 @@ KSX.apps.demos.PixelProtestApp = (function () {
             name: 'Use R',
             value: scope.shader.uniforms.useR.value,
             callback: enableR,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         groupChannels.add('bool', {
             name: 'Use B',
             value: scope.shader.uniforms.useG.value,
             callback: enableG,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         groupChannels.add('bool', {
             name: 'Use B',
             value: scope.shader.uniforms.useB.value,
             callback: enableB,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
-        scope.ui.add('button', {
+        ui.add('button', {
             name: 'Save Image',
             callback: saveImage,
-            width: BUTTON_WIDTH,
-            height: BUTTON_HEIGHT
+            width: scope.uiTools.paramsDimension.buttonWidth,
+            height: scope.uiTools.paramsDimension.buttonHeight
         });
     };
 

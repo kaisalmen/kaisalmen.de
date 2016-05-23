@@ -14,11 +14,21 @@
     <script src="../../js/lib/ext/three.min.js"></script>
     <script src="../../js/lib/ext/uil.min.js"></script>
     <script src="../../js/lib/ext/stats.min.js"></script>
+    <script src="../../js/lib/ext/bowser.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script>
+        KSX.globals.browserVersions = {
+            msie: {
+                supported: false
+            }
+        };
+    </script>
     <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
+    <script src="../../js/apps/tools/BrowserSupport.js"></script>
+    <script src="../../js/apps/tools/UiTools.js"></script>
 
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/BlueMarbleShader.js"></script>

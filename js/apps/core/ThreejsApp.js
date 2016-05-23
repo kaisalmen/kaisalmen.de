@@ -53,7 +53,7 @@ KSX.apps.core.AppLifecycle = (function () {
 
     AppLifecycle.prototype.addApp = function (app) {
         this.apps.push(app);
-        console.log("Added app: " + app.getAppName())
+        console.log("Added app: " + app.definition.name)
     };
 
     AppLifecycle.prototype.initAsync = function () {
@@ -63,7 +63,7 @@ KSX.apps.core.AppLifecycle = (function () {
         for (var i = 0; i < this.apps.length; i++) {
             currentScene = this.apps[i];
             currentScene.browserContext = this;
-            console.log("Registering: " + currentScene.name);
+            console.log("Registering: " + currentScene.definition.name);
 
             currentScene.initAsync();
         }
@@ -97,9 +97,8 @@ KSX.globals.lifecycleInstance = new KSX.apps.core.AppLifecycle();
 KSX.apps.core.ThreeJsApp = (function () {
 
     function ThreeJsApp(userDefinition) {
-        this.definition = {};
+        this.definition = userDefinition;
         fillDefinition(KSX.apps.core.ThreeJsApp.DefaultDefinition, this.definition);
-        fillDefinition(this.definition, userDefinition);
 
         this.canvas = new KSX.apps.core.Canvas(this.definition.htmlCanvas);
 
@@ -128,47 +127,45 @@ KSX.apps.core.ThreeJsApp = (function () {
     }
 
     var fillDefinition = function (paramsPredefined, paramsUser) {
-        if (paramsUser !== undefined) {
-            var potentialValue;
+        var potentialValue;
 
-            for (var predefined in paramsPredefined) {
-                potentialValue = paramsUser[predefined];
+        for (var predefined in paramsPredefined) {
+            potentialValue = paramsUser[predefined];
 
-                // renderers definition: special case
-                if (predefined === 'renderers') {
-                    var predefinedRenderers = paramsPredefined[predefined];
+            // renderer definitions: special treatment as object fields need to be copied (no-refs)
+            if (predefined === 'renderers') {
+                var predefinedRenderers = paramsPredefined[predefined];
 
-                    var userRenderers = paramsUser[predefined];
-                    if (userRenderers === undefined) {
-                        paramsUser[predefined] = {};
-                        userRenderers = paramsUser[predefined];
+                var userRenderers = paramsUser[predefined];
+                if (userRenderers === undefined) {
+                    paramsUser[predefined] = {};
+                    userRenderers = paramsUser[predefined];
+                }
+
+                for (var predefinedRendererName in predefinedRenderers) {
+                    var predefinedRenderer = predefinedRenderers[predefinedRendererName];
+                    var userRenderer = userRenderers[predefinedRendererName];
+
+                    if (userRenderer === undefined) {
+                        userRenderers[predefinedRendererName] = {};
+                        userRenderer = userRenderers[predefinedRendererName];
                     }
+                    fillDefinition(predefinedRenderer, userRenderer);
+                }
 
-                    for (var predefinedRendererName in predefinedRenderers) {
-                        var predefinedRenderer = predefinedRenderers[predefinedRendererName];
-                        var userRenderer = userRenderers[predefinedRendererName];
-
-                        if (userRenderer === undefined) {
-                            userRenderers[predefinedRendererName] = {};
-                            userRenderer = userRenderers[predefinedRendererName];
-                        }
-                        fillDefinition(predefinedRenderer, userRenderer);
-                    }
+                if (userRenderers['regular'].canvas === undefined) {
+                    userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
+                }
+            }
+            else {
+                if (potentialValue !== undefined) {
+                    paramsPredefined[predefined] = potentialValue;
                 }
                 else {
-                    if (potentialValue !== undefined) {
-                        paramsPredefined[predefined] = potentialValue;
-                    }
-                    else {
-                        paramsUser[predefined] = paramsPredefined[predefined];
-                    }
+                    paramsUser[predefined] = paramsPredefined[predefined];
                 }
             }
         }
-    };
-
-    ThreeJsApp.prototype.getAppName = function () {
-        return this.definition.name;
     };
 
     ThreeJsApp.prototype.setVerbose = function (enabled) {
@@ -438,7 +435,7 @@ KSX.apps.demos.AppRunner = (function () {
 
         for (var i = 0; i < this.implementations.length; i++) {
             var impl = this.implementations[i];
-            console.log('Starting application: ' + impl.app.name);
+            console.log('Starting application: ' + impl.app.definition.name);
             KSX.globals.lifecycleInstance.addApp(impl.app);
         }
 

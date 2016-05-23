@@ -18,13 +18,15 @@ KSX.apps.tools.MeshInfo = (function () {
 
 KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
-    var SLIDES_WIDTH = 100;
-    var SLIDES_HEIGHT = 32;
-    var SLIDER_TYPE = 2;
-    var BOOL_HEIGHT = 24;
-
     function PTV1Loader(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'PTV1Loader', elementToBindTo, true, true, false, true);
+        var userDefinition = {
+            user : this,
+            name : 'PTV1Loader',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true,
+            useCube : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
         this.controls = null;
 
         var pathToObj = '../../resource/models/';
@@ -51,14 +53,23 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.skybox = null;
         this.ground = null;
 
-        UIL.BUTTON = '#FF4040';
-        this.ui = new UIL.Gui({
+        var uiParams = {
             css: 'top: 0px; left: 0px;',
             size: 384,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'
-        });
+            bg: 'rgba(40, 40, 40, 0.66)'    
+        };
+        var paramsDimension = {
+            desktop : {
+                slidesWidth : 100
+            },
+            mobile : {
+                slidesWidth : 100,
+                slidesHeight : 96
+            }
+        };
+        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
 
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
@@ -307,24 +318,25 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     PTV1Loader.prototype.initPostGL = function() {
         var scope = this;
+        var ui = scope.uiTools.ui;
 
         var enableSkybox = function (enabled) {
             scope.skybox.visible = enabled;
         };
-        this.ui.add('bool', {
+        ui.add('bool', {
             name: 'Enable Skybox',
             value: true,
             callback: enableSkybox,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         var enableGround = function (enabled) {
             scope.ground.visible = enabled;
         };
-        this.ui.add('bool', {
+        ui.add('bool', {
             name: 'Enable Ground',
             value: true,
             callback: enableGround,
-            height: BOOL_HEIGHT
+            height: scope.uiTools.paramsDimension.boolHeight
         });
 
 
@@ -360,7 +372,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 }
             }
         };
-        scope.ui.add('slide', {
+        ui.add('slide', {
             name: 'Opacity',
             callback: adjustOpacity,
             min: 0.0,
@@ -368,9 +380,9 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             value: 1.0,
             precision: 2,
             step: 0.01,
-            width: SLIDES_WIDTH,
-            height: SLIDES_HEIGHT,
-            stype: SLIDER_TYPE
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
         });
     };
 

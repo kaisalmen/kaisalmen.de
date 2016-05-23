@@ -6,55 +6,64 @@
 
 KSX.apps.tools.UiTools = (function () {
 
-    var allDimensionParams = {
-        desktop : {
-            slidesWidth: 255,
-            slidesHeight: 32,
-            buttomWidth: 104,
-            buttomHeight: 32,
-            minValue: 0.0,
-            maxValue: 255.0
-        },
-        mobile : {
-            slidesWidth: 255,
-            slidesHeight: 128,
-            buttomWidth: 104,
-            buttomHeight: 128,
-            minValue: 0.0,
-            maxValue: 255.0
-        }
-    };
-
     function UiTools(params, paramsDimension, mobile) {
         UIL.BUTTON = '#FF4040';
         this.ui = new UIL.Gui(params);
 
         if (mobile) {
-            checkParams(allDimensionParams.mobile, paramsDimension.mobile);
-            this.paramsDimension = allDimensionParams.mobile;
+            this.paramsDimension = paramsDimension.mobile;
+            if (this.paramsDimension === undefined) {
+                this.paramsDimension = {};
+            }
+            checkParams(KSX.apps.tools.UiTools.DefaultParams.mobile, this.paramsDimension);
         }
         else {
-            checkParams(allDimensionParams.desktop, paramsDimension.desktop);
-            this.paramsDimension = allDimensionParams.desktop;
+            this.paramsDimension = paramsDimension.desktop;
+            if (this.paramsDimension === undefined) {
+                this.paramsDimension = {};
+            }
+            checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
         }
     }
 
     var checkParams = function (paramsPredefined, paramsUser) {
-        if (paramsUser !== undefined) {
-            var potentialValue;
+        var potentialValue;
+        for (var predefined in paramsPredefined) {
+            potentialValue = paramsUser[predefined];
 
-            for (var predefined in paramsPredefined) {
-                potentialValue = paramsUser[predefined];
-
-                if (potentialValue !== undefined) {
-                    paramsPredefined[predefined] = potentialValue;
-                }
-                else {
-                    paramsUser[predefined] = paramsPredefined[predefined];
-                }
+            if (potentialValue !== undefined) {
+                paramsPredefined[predefined] = potentialValue;
+            }
+            else {
+                paramsUser[predefined] = paramsPredefined[predefined];
             }
         }
     };
 
     return UiTools;
 })();
+
+KSX.apps.tools.UiTools.DefaultParams = {
+    desktop : {
+        slidesWidth : 255,
+        slidesHeight : 32,
+        sliderType : 2,
+        buttonWidth : 104,
+        buttonHeight : 32,
+        minValue : 0.0,
+        maxValue : 255.0,
+        groupHeight : 36,
+        boolHeight : 24
+    },
+    mobile : {
+        slidesWidth : 255,
+        slidesHeight : 96,
+        sliderType : 2,
+        buttonWidth : 104,
+        buttonHeight : 96,
+        minValue : 0.0,
+        maxValue : 255.0,
+        groupHeight : 36,
+        boolHeight : 24
+    }
+};
