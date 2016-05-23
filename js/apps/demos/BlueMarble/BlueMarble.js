@@ -6,8 +6,6 @@
 
 KSX.apps.demos.impl.BlueMarbleApp = (function () {
 
-    var MAX_VALUE = 255.0;
-
     var NORMAL_WIDTH = 3712.0;
     var NORMAL_HEIGHT = 3712.0;
 

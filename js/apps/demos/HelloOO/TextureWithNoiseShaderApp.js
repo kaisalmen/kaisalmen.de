@@ -7,7 +7,13 @@
 KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
 
     function TextureWithNoiseShaderApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'TextureWithNoiseShaderApp', elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'TextureWithNoiseShaderApp',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.TextureWithNoiseShader();
     }

@@ -8,7 +8,14 @@
 KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
 
     function SkyboxCubeMapApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, 'SkyboxCubeMap', elementToBindTo, true, false, true);
+        var userDefinition = {
+            user : this,
+            name : 'SkyboxCubeMap',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true,
+            useCube : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
