@@ -15,3 +15,13 @@
     color: white;
     z-index: 1000;
 }
+
+#LinkNone {
+    position: absolute;
+    left: 40%;
+    top: 45%;
+    color: white;
+    z-index: 1000;
+    width: 20%;
+    height: 10%;
+}

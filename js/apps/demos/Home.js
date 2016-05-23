@@ -210,6 +210,10 @@ KSX.apps.demos.Home = (function () {
     Home.prototype.renderPost = function () {
     };
 
+    Home.prototype.flipTexture = function (name) {
+        this.shader.uniforms.texture1.value = this.shader.textures[name];
+    };
+
     return Home;
 })();
 
@@ -389,10 +393,23 @@ KSX.apps.demos.Home.BoxBuilder = {
 };
 
 
-
 if (KSX.globals.preChecksOk) {
     var implementations = new Array();
-    implementations.push(new KSX.apps.demos.Home(document.getElementById("DivGLFullCanvas")));
+    var home = new KSX.apps.demos.Home(document.getElementById("DivGLFullCanvas"));
+    implementations.push(home);
     var appRunner = new KSX.apps.demos.AppRunner(implementations);
     appRunner.init(true);
+
+    var exchangeImageLinkPTV1 = function () {
+        home.flipTexture('linkPTV1');
+    };
+
+    var exchangeImageLinkPixelProtest = function () {
+        home.flipTexture('linkPixelProtest');
+    };
+
+    var exchangeImageDefault = function () {
+        home.flipTexture('default');
+    };
 }
+
