@@ -1,27 +1,20 @@
 
 #LinkPixelProtest {
     position: absolute;
-    left: 12%;
-    top: 8%;
+    right: 12%;
+    top: 12%;
+    width: 24%;
+    height: 12%;
     color: white;
     z-index: 1000;
 }
-
 
 #LinkPTV1Loader {
     position: absolute;
     right: 12%;
     bottom: 12%;
+    width: 24%;
+    height: 12%;
     color: white;
     z-index: 1000;
-}
-
-#LinkNone {
-    position: absolute;
-    left: 40%;
-    top: 45%;
-    color: white;
-    z-index: 1000;
-    width: 20%;
-    height: 10%;
 }

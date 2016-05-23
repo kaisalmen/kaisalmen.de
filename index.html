@@ -9,19 +9,16 @@
 <body>
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
-<!--
-        <video id="DivVideoBg" autoplay loop muted controls>
+        <video id="DivGLFullVideo" loop muted controls>
             <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4" type="video/mp4">
         </video>
--->
-        <div id="LinkPixelProtest" onmouseenter="exchangeImageLinkPixelProtest()">
+        <canvas id="DivGLFullVideoBuffer"></canvas>
+        <div id="LinkPixelProtest" onmouseenter="exchangeImageLinkPixelProtest()" onmouseleave="exchangeImageDefault()">
             <h1>
                 <a  href="./html/demos/PixelProtest.html">Pixel Protest</a>
             </h1>
         </div>
-        <div id="LinkNone" onmouseenter="exchangeImageDefault()">
-        </div>
-        <div id="LinkPTV1Loader" onmouseenter="exchangeImageLinkPTV1()">
+        <div id="LinkPTV1Loader" onmouseenter="exchangeImageLinkPTV1()" onmouseleave="exchangeImageDefault()">
             <h1>
                 <a href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
             </h1>

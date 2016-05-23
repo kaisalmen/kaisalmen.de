@@ -7,7 +7,7 @@
 
 KSX.apps.demos.Home = (function () {
 
-    function Home(elementToBindTo) {
+    function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
 
         var userDefinition = {
             user : this,
@@ -24,6 +24,14 @@ KSX.apps.demos.Home = (function () {
         this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.BlockShader();
+
+        this.video = elementNameVideo;
+        this.videoBuffer = elementNameVideoBuffer;
+        this.videoBufferContext = this.videoBuffer.getContext("2d");
+        this.videoTexture = null;
+        this.videoTextureEnabled = false;
+
+        this.animate = false;
 
         this.controls = null;
 
@@ -73,6 +81,8 @@ KSX.apps.demos.Home = (function () {
             this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
             this.shader.uniforms.heightFactor.value = 24.0;
         }
+
+        this.superBox;
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -94,8 +104,16 @@ KSX.apps.demos.Home = (function () {
         var adjustHeightFactor = function (value) {
             scope.shader.uniforms.heightFactor.value = value;
         };
-        var resetCamera = function () {
+        var resetView = function () {
             scope.controls.reset();
+            scope.superBox.rotation.y = 0;
+        };
+        var enableVideo = function (enabled) {
+            scope.videoTextureEnabled = enabled;
+            scope.checkVideo();
+        };
+        var enableAnimation = function (enabled) {
+            scope.animate = enabled;
         };
 
         ui.add('slide', {
@@ -110,11 +128,23 @@ KSX.apps.demos.Home = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
+        ui.add('bool', {
+            name: 'Animate',
+            value: scope.animate,
+            callback: enableAnimation,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
         ui.add('button', {
-            name: 'Reset Camera',
-            callback: resetCamera,
+            name: 'Reset View',
+            callback: resetView,
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
+        });
+        ui.add('bool', {
+            name: 'Enable Video',
+            value: scope.videoTextureEnabled,
+            callback: enableVideo,
+            height: scope.uiTools.paramsDimension.boolHeight
         });
     };
 
@@ -141,6 +171,16 @@ KSX.apps.demos.Home = (function () {
             new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, 0));
 
         this.controls = new THREE.TrackballControls(scenePerspective.camera);
+
+        this.videoBuffer.width = 1920;
+        this.videoBuffer.height = 1080;
+        this.videoBufferContext.fillStyle = "#000000";
+        this.videoBufferContext.fillRect(0, 0, 1920, 1080);
+
+        this.videoTexture = new THREE.Texture(this.videoBuffer);
+        this.videoTexture.minFilter = THREE.LinearFilter;
+        this.videoTexture.magFilter = THREE.LinearFilter;
+        this.videoTexture.format = THREE.RGBFormat;
 /*
         var lightColor = 0xE0E0E0;
         var lightPos = new THREE.Vector3(100, 100, 100);
@@ -189,8 +229,8 @@ KSX.apps.demos.Home = (function () {
             superGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(this.index), 1));
         }
 
-        var superBox = new THREE.Mesh(superGeometry, material);
-        scenePerspective.scene.add(superBox);
+        this.superBox = new THREE.Mesh(superGeometry, material);
+        scenePerspective.scene.add(this.superBox);
 
         this.vertices = null;
         this.normals = null;
@@ -203,15 +243,40 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.render = function () {
+        if (this.animate && this.superBox !== undefined) {
+            this.superBox.rotateY(0.001);
+        }
         this.controls.update();
         this.stats.update();
+
+        if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+            this.videoBufferContext.drawImage(this.video, 0, 0);
+            this.videoTexture.needsUpdate = true;
+        }
     };
 
     Home.prototype.renderPost = function () {
     };
 
+    Home.prototype.checkVideo = function () {
+        if (this.videoTextureEnabled) {
+            this.video.play();
+            this.shader.uniforms.texture1.value = this.videoTexture;
+        }
+        else {
+            this.video.pause();
+            this.shader.uniforms.texture1.value = this.shader.textures['default'];
+        }
+    };
+
     Home.prototype.flipTexture = function (name) {
-        this.shader.uniforms.texture1.value = this.shader.textures[name];
+        var texture = this.shader.textures[name];
+        if (texture !== undefined) {
+            if (this.videoTextureEnabled) {
+                this.video.pause();
+            }
+            this.shader.uniforms.texture1.value = texture;
+        }
     };
 
     return Home;
@@ -395,7 +460,11 @@ KSX.apps.demos.Home.BoxBuilder = {
 
 if (KSX.globals.preChecksOk) {
     var implementations = new Array();
-    var home = new KSX.apps.demos.Home(document.getElementById("DivGLFullCanvas"));
+    var home = new KSX.apps.demos.Home(
+        document.getElementById("DivGLFullCanvas"),
+        document.getElementById("DivGLFullVideo"),
+        document.getElementById("DivGLFullVideoBuffer")
+    );
     implementations.push(home);
     var appRunner = new KSX.apps.demos.AppRunner(implementations);
     appRunner.init(true);
@@ -409,7 +478,7 @@ if (KSX.globals.preChecksOk) {
     };
 
     var exchangeImageDefault = function () {
-        home.flipTexture('default');
+        home.checkVideo();
     };
 }
 
