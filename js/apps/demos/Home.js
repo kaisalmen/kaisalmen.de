@@ -8,7 +8,20 @@
 KSX.apps.demos.Home = (function () {
 
     function Home(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "Home", elementToBindTo, false, true, false);
+
+        var userDefinition = {
+            user : this,
+            name : 'Home',
+            htmlCanvas : elementToBindTo,
+            renderers : {
+                regular : {
+                    canvas : elementToBindTo,
+                    antialias : false
+                }
+            },
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.BlockShader();
 
@@ -28,13 +41,10 @@ KSX.apps.demos.Home = (function () {
             bg: 'rgba(40, 40, 40, 0.66)'
         };
         var paramsDimension = {
-            desktop : {
-                slidesHeight : 32
-            },
             mobile : {
-                slidesHeight : 128
+                slidesHeight : 96
             }
-        }
+        };
         this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
         
         this.stats = new Stats();
@@ -76,6 +86,7 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.initPreGL = function () {
         var scope = this;
+        var ui = scope.uiTools.ui;
 
         scope.stats.showPanel(0);
         document.body.appendChild(scope.stats.domElement);
@@ -87,24 +98,23 @@ KSX.apps.demos.Home = (function () {
             scope.controls.reset();
         };
 
-        var ui = scope.uiTools.ui;
-        var paramsDimension = this.uiTools.paramsDimension;
         ui.add('slide', {
             name: 'heightFactor',
             callback: adjustHeightFactor,
-            min: this.uiTools.paramsDimension.minValue,
-            max: this.uiTools.paramsDimension.maxValue,
+            min: scope.uiTools.paramsDimension.minValue,
+            max: scope.uiTools.paramsDimension.maxValue,
             value: scope.shader.uniforms.heightFactor.value,
             precision: 1,
             step: 1,
-            width: this.uiTools.paramsDimension.slidesWidth,
-            height: this.uiTools.paramsDimension.slidesHeight
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
         });
         ui.add('button', {
             name: 'Reset Camera',
             callback: resetCamera,
-            width: this.uiTools.paramsDimension.buttomWidth,
-            height: this.uiTools.paramsDimension.buttomHeight
+            width: scope.uiTools.paramsDimension.buttonWidth,
+            height: scope.uiTools.paramsDimension.buttonHeight
         });
     };
 

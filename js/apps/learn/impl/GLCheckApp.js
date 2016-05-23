@@ -7,7 +7,13 @@
 KSX.apps.learn.impl.GLCheckApp = (function () {
 
     function GLCheckApp(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "GLCheckApp", elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'GLCheckApp',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
     }
 
     GLCheckApp.prototype.initAsyncContent = function() {

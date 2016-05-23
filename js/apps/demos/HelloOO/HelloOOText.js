@@ -7,7 +7,13 @@
 KSX.apps.demos.HelloOOText = (function () {
 
     function HelloOOText(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOText", elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'HelloOOText',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.textStorage = new KSX.apps.core.Text2d();
         this.text = this.textStorage.addText("Hello", "Hello world. This text fills the line as much as possible!", new THREE.MeshBasicMaterial(), 0.1, 10);

@@ -7,7 +7,13 @@
 KSX.apps.demos.HelloOOVideo = (function () {
 
     function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOVideo", elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'HelloOOVideo',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.SimpleTextureShader();
         

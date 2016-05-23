@@ -7,7 +7,13 @@
 KSX.apps.demos.ImageBasedGeometryTransform = (function () {
 
     function ImageBasedGeometryTransform(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "ImageBasedGeometryTransform", elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'ImageBasedGeometryTransform',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
 
         this.shader = new KSX.apps.shader.ImageBaseGeometryTransformShader();
     }

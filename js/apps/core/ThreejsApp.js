@@ -53,7 +53,7 @@ KSX.apps.core.AppLifecycle = (function () {
 
     AppLifecycle.prototype.addApp = function (app) {
         this.apps.push(app);
-        console.log("Added app: " + app.getAppName())
+        console.log("Added app: " + app.definition.name)
     };
 
     AppLifecycle.prototype.initAsync = function () {
@@ -63,7 +63,7 @@ KSX.apps.core.AppLifecycle = (function () {
         for (var i = 0; i < this.apps.length; i++) {
             currentScene = this.apps[i];
             currentScene.browserContext = this;
-            console.log("Registering: " + currentScene.name);
+            console.log("Registering: " + currentScene.definition.name);
 
             currentScene.initAsync();
         }
@@ -96,29 +96,27 @@ KSX.globals.lifecycleInstance = new KSX.apps.core.AppLifecycle();
 
 KSX.apps.core.ThreeJsApp = (function () {
 
-    function ThreeJsApp(user, name, htmlCanvas, antialias, useScenePerspective, useSceneOrtho, useCube) {
-        this.user = user;
-        this.name = name;
+    function ThreeJsApp(userDefinition) {
+        this.definition = userDefinition;
+        fillDefinition(KSX.apps.core.ThreeJsApp.DefaultDefinition, this.definition);
 
-        this.canvas = new KSX.apps.core.Canvas(htmlCanvas);
+        this.canvas = new KSX.apps.core.Canvas(this.definition.htmlCanvas);
 
-        this.useScenePerspective = useScenePerspective;
-        if (this.useScenePerspective) {
+        if (this.definition.useScenePerspective) {
             this.scenePerspective = new KSX.apps.core.ThreeJsApp.ScenePerspective(this.canvas);
         }
 
-        this.useSceneOrtho = useSceneOrtho;
-        if (this.useSceneOrtho) {
+        if (this.definition.useSceneOrtho) {
             this.sceneOrtho = new KSX.apps.core.ThreeJsApp.SceneOrtho(this.canvas);
         }
 
-        if (this.useScenePerspective && useCube) {
+        if (this.definition.useScenePerspective && this.definition.useCube) {
             this.scenePerspective.useCube = true;
         }
 
         this.renderer = new THREE.WebGLRenderer({
-            canvas: this.canvas.htmlCanvas,
-            antialias: antialias
+            canvas: this.definition.renderers.regular.canvas,
+            antialias: this.definition.renderers.regular.antialias
         });
 
         this.renderingEndabled = false;
@@ -128,26 +126,64 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.initError = false;
     }
 
-    ThreeJsApp.prototype.getAppName = function () {
-        return this.name;
+    var fillDefinition = function (paramsPredefined, paramsUser) {
+        var potentialValue;
+
+        for (var predefined in paramsPredefined) {
+            potentialValue = paramsUser[predefined];
+
+            // renderer definitions: special treatment as object fields need to be copied (no-refs)
+            if (predefined === 'renderers') {
+                var predefinedRenderers = paramsPredefined[predefined];
+
+                var userRenderers = paramsUser[predefined];
+                if (userRenderers === undefined) {
+                    paramsUser[predefined] = {};
+                    userRenderers = paramsUser[predefined];
+                }
+
+                for (var predefinedRendererName in predefinedRenderers) {
+                    var predefinedRenderer = predefinedRenderers[predefinedRendererName];
+                    var userRenderer = userRenderers[predefinedRendererName];
+
+                    if (userRenderer === undefined) {
+                        userRenderers[predefinedRendererName] = {};
+                        userRenderer = userRenderers[predefinedRendererName];
+                    }
+                    fillDefinition(predefinedRenderer, userRenderer);
+                }
+
+                if (userRenderers['regular'].canvas === undefined) {
+                    userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
+                }
+            }
+            else {
+                if (potentialValue !== undefined) {
+                    paramsPredefined[predefined] = potentialValue;
+                }
+                else {
+                    paramsUser[predefined] = paramsPredefined[predefined];
+                }
+            }
+        }
     };
 
     ThreeJsApp.prototype.setVerbose = function (enabled) {
         this.verbose = enabled;
         this.canvas.verbose = enabled;
-        if (this.useScenePerspective) {
+        if (this.definition.useScenePerspective) {
             this.scenePerspective.verbose = enabled;
         }
 
-        if (this.useSceneOrtho) {
+        if (this.definition.useSceneOrtho) {
             this.sceneOrtho.verbose = enabled;
         }
     };
 
     ThreeJsApp.prototype.initAsync = function () {
-        console.log("SceneAppPerspective (" + this.name + "): initAsyncContent");
-        if (typeof this.user.initAsyncContent == "function") {
-            this.user.initAsyncContent();
+        console.log("SceneAppPerspective (" + this.definition.name + "): initAsyncContent");
+        if (typeof this.definition.user.initAsyncContent == "function") {
+            this.definition.user.initAsyncContent();
         }
         else {
             this.initSynchronuous();
@@ -155,36 +191,36 @@ KSX.apps.core.ThreeJsApp = (function () {
     };
 
     ThreeJsApp.prototype.initSynchronuous = function () {
-        console.log("SceneAppPerspective (" + this.name + "): initPreGL");
-        if (typeof this.user.initPreGL == "function") {
-            this.user.initPreGL();
+        console.log("SceneAppPerspective (" + this.definition.name + "): initPreGL");
+        if (typeof this.definition.user.initPreGL == "function") {
+            this.definition.user.initPreGL();
         }
 
-        console.log("SceneAppPerspective (" + this.name + "): initGL");
+        console.log("SceneAppPerspective (" + this.definition.name + "): initGL");
 
-        if (this.useScenePerspective) {
+        if (this.definition.useScenePerspective) {
             this.scenePerspective.initGL();
         }
-        if (this.useSceneOrtho) {
+        if (this.definition.useSceneOrtho) {
             this.sceneOrtho.initGL();
         }
 
-        this.user.initGL();
+        this.definition.user.initGL();
 
         if (!this.initError) {
             this.resizeDisplayGL();
 
-            console.log("SceneAppPerspective (" + this.name + "): addEventHandlers");
-            if (typeof this.user.addEventHandlers == "function") {
-                this.user.addEventHandlers();
+            console.log("SceneAppPerspective (" + this.definition.name + "): addEventHandlers");
+            if (typeof this.definition.user.addEventHandlers == "function") {
+                this.definition.user.addEventHandlers();
             }
 
-            console.log("SceneAppPerspective (" + this.name + "): initPostGL");
-            if (typeof this.user.initPostGL == "function") {
-                this.user.initPostGL();
+            console.log("SceneAppPerspective (" + this.definition.name + "): initPostGL");
+            if (typeof this.definition.user.initPostGL == "function") {
+                this.definition.user.initPostGL();
             }
 
-            console.log("SceneAppPerspective (" + this.name + "): Ready to start render loop!");
+            console.log("SceneAppPerspective (" + this.definition.name + "): Ready to start render loop!");
 
             this.renderingEndabled = true;
         }
@@ -194,19 +230,19 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.canvas.recalcAspectRatio();
 
         if (this.verbose) {
-            console.log("SceneAppPerspective (" + this.name + "): resizeDisplayGL");
+            console.log("SceneAppPerspective (" + this.definition.name + "): resizeDisplayGL");
         }
-        if (typeof this.user.resizeDisplayGL == "function") {
-            this.user.resizeDisplayGL();
+        if (typeof this.definition.user.resizeDisplayGL == "function") {
+            this.definition.user.resizeDisplayGL();
         }
 
         this.renderer.setSize(this.canvas.getWidth(), this.canvas.getHeight(), false);
 
-        if (this.useScenePerspective) {
+        if (this.definition.useScenePerspective) {
             this.scenePerspective.updateCamera();
         }
 
-        if (this.useSceneOrtho) {
+        if (this.definition.useSceneOrtho) {
             this.sceneOrtho.updateCamera();
         }
     };
@@ -217,9 +253,9 @@ KSX.apps.core.ThreeJsApp = (function () {
             if (this.renderer.autoClear) {
                 this.renderer.clearDepth();
             }
-            this.user.render();
+            this.definition.user.render();
 
-            if (this.useScenePerspective) {
+            if (this.definition.useScenePerspective) {
                 if (this.scenePerspective.useCube) {
                     this.scenePerspective.cameraCube.rotation.copy( this.scenePerspective.camera.rotation );
                     this.renderer.render(this.scenePerspective.sceneCube, this.scenePerspective.cameraCube);
@@ -228,30 +264,45 @@ KSX.apps.core.ThreeJsApp = (function () {
                 this.renderer.render(this.scenePerspective.scene, this.scenePerspective.camera);
             }
 
-            if (this.useSceneOrtho) {
+            if (this.definition.useSceneOrtho) {
                 this.renderer.clearDepth();
                 this.renderer.render(this.sceneOrtho.scene, this.sceneOrtho.camera);
             }
 
-            if (typeof this.user.renderPost == "function") {
-                this.user.renderPost();
+            if (typeof this.definition.user.renderPost == "function") {
+                this.definition.user.renderPost();
             }
         }
     };
 
     ThreeJsApp.prototype.resetCamera = function () {
-        if (this.useScenePerspective) {
+        if (this.definition.useScenePerspective) {
             this.scenePerspective.resetCamera();
         }
 
-        if (this.useSceneOrtho) {
+        if (this.definition.useSceneOrtho) {
             this.sceneOrtho.resetCamera();
         }
     };
 
     return ThreeJsApp;
-}
-)();
+})();
+
+
+KSX.apps.core.ThreeJsApp.DefaultDefinition = {
+    user : undefined,
+    name : 'None',
+    htmlCanvas : undefined,
+    renderers : {
+        regular : {
+            canvas : undefined,
+            antialias : true
+        }
+    },
+    useScenePerspective : true,
+    useSceneOrtho : false,
+    useCube : false
+};
 
 
 KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
@@ -384,7 +435,7 @@ KSX.apps.demos.AppRunner = (function () {
 
         for (var i = 0; i < this.implementations.length; i++) {
             var impl = this.implementations[i];
-            console.log('Starting application: ' + impl.app.name);
+            console.log('Starting application: ' + impl.app.definition.name);
             KSX.globals.lifecycleInstance.addApp(impl.app);
         }
 

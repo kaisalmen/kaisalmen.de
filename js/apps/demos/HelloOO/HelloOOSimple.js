@@ -7,7 +7,14 @@
 KSX.apps.demos.HelloOOSimple = (function () {
 
     function HelloOOSimple(elementToBindTo) {
-        this.app = new KSX.apps.core.ThreeJsApp(this, "HelloOOSimple", elementToBindTo, true, true, false);
+        var userDefinition = {
+            user : this,
+            name : 'HelloOOSimple',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        };
+        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
