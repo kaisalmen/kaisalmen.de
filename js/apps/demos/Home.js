@@ -35,12 +35,6 @@ KSX.apps.demos.Home = (function () {
 
         this.controls = null;
 
-        this.vertices = new Array();
-        this.normals = new Array();
-        this.uvs = new Array();
-        this.useIndices = false;
-        this.index = new Array();
-
         var uiParams = {
             css: 'top: 0px; left: 0px;',
             size: 384,
@@ -61,17 +55,17 @@ KSX.apps.demos.Home = (function () {
         this.stats.domElement.style.right = '0px';
         this.stats.domElement.style.top = '0px';
 
-        var gridSize = 512;
         this.gridParams = {
-            sizeX : gridSize,
-            sizeY : gridSize,
+            sizeX : 300,
+            sizeY : 600,
             uMin : 0.0,
             vMin : 0.0,
             uMax : 1.0,
             vMax : 1.0,
             cubeEdgeLength : 0.5,
-            posStartX : -gridSize / (2.0 / 0.5),
-            posStartY : -gridSize / (2.0 / 0.5)
+            posStartX : 0.0,
+            posStartY : 0.0,
+            useIndices : false
         };
 
         if (bowser.mobile) {
@@ -80,6 +74,11 @@ KSX.apps.demos.Home = (function () {
             this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
             this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
             this.shader.uniforms.heightFactor.value = 24.0;
+        }
+        else {
+            this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
+            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
+            this.shader.uniforms.heightFactor.value = 6.0;
         }
 
         this.superBox;
@@ -149,10 +148,7 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.initGL = function () {
-        var renderer = this.app.renderer;
-        var scenePerspective = this.app.scenePerspective;
-
-        var gl = renderer.getContext();
+        var gl = this.app.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
@@ -163,14 +159,14 @@ KSX.apps.demos.Home = (function () {
             this.app.initError = true;
             return;
         }
-        renderer.setClearColor( 0x202020 );
+        this.app.renderer.setClearColor(0x202020);
 
-        scenePerspective.setCameraDefaults(
+        this.app.scenePerspective.setCameraDefaults(
             new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, this.gridParams.sizeY / 2.0),
             null,
             new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, 0));
 
-        this.controls = new THREE.TrackballControls(scenePerspective.camera);
+        this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
 
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 1080;
@@ -181,61 +177,248 @@ KSX.apps.demos.Home = (function () {
         this.videoTexture.minFilter = THREE.LinearFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
-/*
-        var lightColor = 0xE0E0E0;
-        var lightPos = new THREE.Vector3(100, 100, 100);
-        var directionalLight = new THREE.DirectionalLight(lightColor);
-        directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
-        scenePerspective.scene.add(directionalLight);
+        /*
+         var lightColor = 0xE0E0E0;
+         var lightPos = new THREE.Vector3(100, 100, 100);
+         var directionalLight = new THREE.DirectionalLight(lightColor);
+         directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
+         scenePerspective.scene.add(directionalLight);
 
-        var helper = new THREE.GridHelper( 100, 2 );
-        helper.setColors( 0xFF4444, 0x404040 );
-        scenePerspective.scene.add(helper);
- */
-        var material = this.shader.buildShaderMaterial();
+         var helper = new THREE.GridHelper( 100, 2 );
+         helper.setColors( 0xFF4444, 0x404040 );
+         scenePerspective.scene.add(helper);
+         */
+
+        var material = this.shader.buildShaderMaterial()
 //        material.wireframe = true;
+        this.buildSuperBox(this.gridParams, material);
+    };
 
-        var uVar = this.gridParams.uMin;
-        var vVar = this.gridParams.vMin;
-        var posX = this.gridParams.posStartX;
-        var posY = this.gridParams.posStartY;
+    Home.prototype.buildSuperBox = function (gridParams, material) {
+
+        var boxBuildParams = {
+            count : 0,
+            cubeDimension : gridParams.cubeEdgeLength,
+            xOffset : gridParams.posStartX,
+            yOffset : gridParams.posStartY,
+            zOffset : 0.0,
+            uVar : gridParams.uMin,
+            vVar : gridParams.vMin,
+            uvLocalMinU : gridParams.uMin,
+            uvLocalMaxU : gridParams.uMin,
+            uvLocalMinV : gridParams.vMin,
+            uvLocalMaxV : gridParams.vMin,
+            vertices : new Array(),
+            normals : new Array(),
+            uvs : new Array(),
+            useIndices : gridParams.useIndices,
+            indices : new Array()
+        };
 
         var i = 0;
         var j = 0;
-        var boxCount = 0;
-
-        while (i < this.gridParams.sizeX) {
-            while (j < this.gridParams.sizeY) {
-                KSX.apps.demos.Home.BoxBuilder.buildBox(this, boxCount, this.gridParams.cubeEdgeLength, posX, posY, 0.0, uVar, uVar, vVar, vVar);
-                uVar += this.gridParams.uMax / this.gridParams.sizeX;
-                posX += this.gridParams.cubeEdgeLength;
+        while (i < gridParams.sizeX) {
+            while (j < gridParams.sizeY) {
+                boxBuildParams.uvLocalMinU = boxBuildParams.uVar;
+                boxBuildParams.uvLocalMaxU = boxBuildParams.uVar;
+                boxBuildParams.uvLocalMinV = boxBuildParams.vVar;
+                boxBuildParams.uvLocalMaxV = boxBuildParams.vVar;
+                this.buildSingleBox(boxBuildParams);
+                boxBuildParams.uVar += gridParams.uMax / gridParams.sizeY;
+                boxBuildParams.xOffset += gridParams.cubeEdgeLength;
+                boxBuildParams.count++;
                 j++;
-                boxCount++;
             }
 
-            uVar = this.gridParams.uMin;
-            vVar += this.gridParams.vMax / this.gridParams.sizeY;
-            posX = this.gridParams.posStartX;
-            posY += this.gridParams.cubeEdgeLength;
-
+            boxBuildParams.uVar = gridParams.uMin;
+            boxBuildParams.vVar += gridParams.vMax / gridParams.sizeX;
+            boxBuildParams.xOffset = gridParams.posStartX;
+            boxBuildParams.yOffset += gridParams.cubeEdgeLength;
             j = 0;
             i++;
         }
 
         var superGeometry = new THREE.BufferGeometry();
-        superGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(this.vertices), 3 ) );
-        superGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(this.uvs), 2 ) );
-        if (this.useIndices) {
-            superGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(this.index), 1));
+        superGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array(boxBuildParams.vertices), 3 ) );
+        superGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array(boxBuildParams.uvs), 2 ) );
+        if (boxBuildParams.useIndices) {
+            superGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(boxBuildParams.indices), 1));
         }
 
         this.superBox = new THREE.Mesh(superGeometry, material);
-        scenePerspective.scene.add(this.superBox);
+        this.app.scenePerspective.scene.add(this.superBox);
+    };
 
-        this.vertices = null;
-        this.normals = null;
-        this.uvs = null;
-        this.index = null;
+    Home.prototype.buildSingleBox = function (boxBuildParams) {
+        var vertexValue = boxBuildParams.cubeDimension / 2.0;
+        var v0x = -vertexValue + boxBuildParams.xOffset;
+        var v0y = -vertexValue + boxBuildParams.yOffset;
+        var v0z =  vertexValue + boxBuildParams.zOffset;
+        var v1x =  vertexValue + boxBuildParams.xOffset;
+        var v1y = -vertexValue + boxBuildParams.yOffset;
+        var v1z =  vertexValue + boxBuildParams.zOffset;
+        var v2x =  vertexValue + boxBuildParams.xOffset;
+        var v2y =  vertexValue + boxBuildParams.yOffset;
+        var v2z =  vertexValue + boxBuildParams.zOffset;
+        var v3x = -vertexValue + boxBuildParams.xOffset;
+        var v3y =  vertexValue + boxBuildParams.yOffset;
+        var v3z =  vertexValue + boxBuildParams.zOffset;
+        var v4x =  vertexValue + boxBuildParams.xOffset;
+        var v4y = -vertexValue + boxBuildParams.yOffset;
+        var v4z = -vertexValue + boxBuildParams.zOffset;
+        var v5x = -vertexValue + boxBuildParams.xOffset;
+        var v5y = -vertexValue + boxBuildParams.yOffset;
+        var v5z = -vertexValue + boxBuildParams.zOffset;
+        var v6x = -vertexValue + boxBuildParams.xOffset;
+        var v6y =  vertexValue + boxBuildParams.yOffset;
+        var v6z = -vertexValue + boxBuildParams.zOffset;
+        var v7x =  vertexValue + boxBuildParams.xOffset;
+        var v7y =  vertexValue + boxBuildParams.yOffset;
+        var v7z = -vertexValue + boxBuildParams.zOffset;
+
+        if (boxBuildParams.useIndices) {
+            boxBuildParams.vertices.push(
+                v0x, v0y, v0z,
+                v1x, v1y, v1z,
+                v2x, v2y, v2z,
+                v3x, v3y, v3z,
+                v4x, v4y, v4z,
+                v5x, v5y, v5z,
+                v6x, v6y, v6z,
+                v7x, v7y, v7z
+            );
+
+            boxBuildParams.normals.push();
+
+            boxBuildParams.uvs.push(
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV
+            );
+
+            var i0 = 8 * boxBuildParams.count;
+            var i1 = 1 + 8 * boxBuildParams.count;
+            var i2 = 2 + 8 * boxBuildParams.count;
+            var i3 = 3 + 8 * boxBuildParams.count;
+            var i4 = 4 + 8 * boxBuildParams.count;
+            var i5 = 5 + 8 * boxBuildParams.count;
+            var i6 = 6 + 8 * boxBuildParams.count;
+            var i7 = 7 + 8 * boxBuildParams.count;
+            boxBuildParams.indices.push(
+                // front
+                i0, i1, i2,
+                i0, i2, i3,
+
+                // back
+                i4, i5, i6,
+                i4, i6, i7,
+
+                // left
+                i5, i0, i3,
+                i5, i3, i6,
+
+                // right
+                i1, i4, i7,
+                i1, i7, i2,
+
+                // top
+                i3, i2, i7,
+                i3, i7, i6,
+
+                // bottom
+                i0, i4, i1,
+                i0, i5, i4
+            );
+        }
+        else {
+            boxBuildParams.vertices.push(
+                v0x, v0y, v0z,
+                v1x, v1y, v1z,
+                v2x, v2y, v2z,
+                v0x, v0y, v0z,
+                v2x, v2y, v2z,
+                v3x, v3y, v3z,
+
+                v4x, v4y, v4z,
+                v5x, v5y, v5z,
+                v6x, v6y, v6z,
+                v4x, v4y, v4z,
+                v6x, v6y, v6z,
+                v7x, v7y, v7z,
+
+                v5x, v5y, v5z,
+                v0x, v0y, v0z,
+                v3x, v3y, v3z,
+                v5x, v5y, v5z,
+                v3x, v3y, v3z,
+                v6x, v6y, v6z,
+
+                v1x, v1y, v1z,
+                v4x, v4y, v4z,
+                v7x, v7y, v7z,
+                v1x, v1y, v1z,
+                v7x, v7y, v7z,
+                v2x, v2y, v2z,
+
+                v3x, v3y, v3z,
+                v2x, v2y, v2z,
+                v7x, v7y, v7z,
+                v3x, v3y, v3z,
+                v7x, v7y, v7z,
+                v6x, v6y, v6z,
+
+                v0x, v0y, v0z,
+                v4x, v4y, v4z,
+                v1x, v1y, v1z,
+                v0x, v0y, v0z,
+                v5x, v5y, v5z,
+                v4x, v4y, v4z
+            );
+
+            boxBuildParams.uvs.push(
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMaxV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMinU, boxBuildParams.uvLocalMinV,
+                boxBuildParams.uvLocalMaxU, boxBuildParams.uvLocalMinV
+            );
+        }
     };
 
     Home.prototype.resizeDisplayGL = function () {
@@ -281,181 +464,6 @@ KSX.apps.demos.Home = (function () {
 
     return Home;
 })();
-
-KSX.apps.demos.Home.BoxBuilder = {
-    buildBox: function (scope, count, cubeDimension, xOffset, yOffset, zOffset, uvMinU, uvMaxU, uvMinV, uvMaxV) {
-
-        var vertexValue = cubeDimension / 2.0;
-        var v0x = -vertexValue + xOffset;
-        var v0y = -vertexValue + yOffset;
-        var v0z =  vertexValue + zOffset;
-        var v1x =  vertexValue + xOffset;
-        var v1y = -vertexValue + yOffset;
-        var v1z =  vertexValue + zOffset;
-        var v2x =  vertexValue + xOffset;
-        var v2y =  vertexValue + yOffset;
-        var v2z =  vertexValue + zOffset;
-        var v3x = -vertexValue + xOffset;
-        var v3y =  vertexValue + yOffset;
-        var v3z =  vertexValue + zOffset;
-        var v4x =  vertexValue + xOffset;
-        var v4y = -vertexValue + yOffset;
-        var v4z = -vertexValue + zOffset;
-        var v5x = -vertexValue + xOffset;
-        var v5y = -vertexValue + yOffset;
-        var v5z = -vertexValue + zOffset;
-        var v6x = -vertexValue + xOffset;
-        var v6y =  vertexValue + yOffset;
-        var v6z = -vertexValue + zOffset;
-        var v7x =  vertexValue + xOffset;
-        var v7y =  vertexValue + yOffset;
-        var v7z = -vertexValue + zOffset;
-
-        if (this.useIndices) {
-            scope.vertices.push(
-                v0x, v0y, v0z,
-                v1x, v1y, v1z,
-                v2x, v2y, v2z,
-                v3x, v3y, v3z,
-                v4x, v4y, v4z,
-                v5x, v5y, v5z,
-                v6x, v6y, v6z,
-                v7x, v7y, v7z
-            );
-
-            scope.normals.push();
-
-            scope.uvs.push(
-                uvMinU, uvMinV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMinV,
-                uvMinU, uvMinV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMaxV
-            );
-
-            var i0 = 8 * count;
-            var i1 = 1 + 8 * count;
-            var i2 = 2 + 8 * count;
-            var i3 = 3 + 8 * count;
-            var i4 = 4 + 8 * count;
-            var i5 = 5 + 8 * count;
-            var i6 = 6 + 8 * count;
-            var i7 = 7 + 8 * count;
-            scope.index.push(
-                // front
-                i0, i1, i2,
-                i0, i2, i3,
-
-                // back
-                i4, i5, i6,
-                i4, i6, i7,
-
-                // left
-                i5, i0, i3,
-                i5, i3, i6,
-
-                // right
-                i1, i4, i7,
-                i1, i7, i2,
-
-                // top
-                i3, i2, i7,
-                i3, i7, i6,
-
-                // bottom
-                i0, i4, i1,
-                i0, i5, i4
-            );
-        }
-        else {
-            scope.vertices.push(
-                v0x, v0y, v0z,
-                v1x, v1y, v1z,
-                v2x, v2y, v2z,
-                v0x, v0y, v0z,
-                v2x, v2y, v2z,
-                v3x, v3y, v3z,
-
-                v4x, v4y, v4z,
-                v5x, v5y, v5z,
-                v6x, v6y, v6z,
-                v4x, v4y, v4z,
-                v6x, v6y, v6z,
-                v7x, v7y, v7z,
-
-                v5x, v5y, v5z,
-                v0x, v0y, v0z,
-                v3x, v3y, v3z,
-                v5x, v5y, v5z,
-                v3x, v3y, v3z,
-                v6x, v6y, v6z,
-
-                v1x, v1y, v1z,
-                v4x, v4y, v4z,
-                v7x, v7y, v7z,
-                v1x, v1y, v1z,
-                v7x, v7y, v7z,
-                v2x, v2y, v2z,
-
-                v3x, v3y, v3z,
-                v2x, v2y, v2z,
-                v7x, v7y, v7z,
-                v3x, v3y, v3z,
-                v7x, v7y, v7z,
-                v6x, v6y, v6z,
-
-                v0x, v0y, v0z,
-                v4x, v4y, v4z,
-                v1x, v1y, v1z,
-                v0x, v0y, v0z,
-                v5x, v5y, v5z,
-                v4x, v4y, v4z
-            );
-
-            scope.uvs.push(
-                uvMinU, uvMinV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMinV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMinV,
-                uvMinU, uvMinV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMinV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMinV,
-                uvMinU, uvMinV,
-                uvMinU, uvMaxV,
-                uvMinU, uvMinV,
-                uvMinU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMaxV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMaxV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMaxV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMaxU, uvMaxV,
-                uvMinU, uvMaxV,
-                uvMinU, uvMinV,
-                uvMaxU, uvMinV,
-                uvMaxU, uvMinV,
-                uvMinU, uvMinV,
-                uvMinU, uvMinV,
-                uvMaxU, uvMinV
-            );
-        }
-    }
-};
 
 
 if (KSX.globals.preChecksOk) {
