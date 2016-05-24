@@ -56,8 +56,8 @@ KSX.apps.demos.Home = (function () {
         this.stats.domElement.style.top = '0px';
 
         this.gridParams = {
-            sizeX : 300,
-            sizeY : 600,
+            sizeX : 360,
+            sizeY : 640,
             uMin : 0.0,
             vMin : 0.0,
             uMax : 1.0,
@@ -81,7 +81,7 @@ KSX.apps.demos.Home = (function () {
             this.shader.uniforms.heightFactor.value = 6.0;
         }
 
-        this.superBox;
+        this.superBoxGroup = null;
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -103,16 +103,27 @@ KSX.apps.demos.Home = (function () {
         var adjustHeightFactor = function (value) {
             scope.shader.uniforms.heightFactor.value = value;
         };
+        var enableAnimation = function (enabled) {
+            scope.animate = enabled;
+        };
         var resetView = function () {
             scope.controls.reset();
-            scope.superBox.rotation.y = 0;
+            scope.superBoxGroup.rotation.y = 0;
         };
         var enableVideo = function (enabled) {
             scope.videoTextureEnabled = enabled;
             scope.checkVideo();
         };
-        var enableAnimation = function (enabled) {
-            scope.animate = enabled;
+        var playVideo = function () {
+            if (scope.videoTextureEnabled) {
+                scope.video.play();
+            }
+            scope.checkVideo();
+        };
+        var pauseVideo = function () {
+            if (scope.videoTextureEnabled) {
+                scope.video.pause();
+            }            
         };
 
         ui.add('slide', {
@@ -139,12 +150,29 @@ KSX.apps.demos.Home = (function () {
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
         });
-        ui.add('bool', {
+        var groupVideo = ui.add('group', {
+            name: 'Video Control',
+            height: scope.uiTools.paramsDimension.groupHeight
+        });
+        groupVideo.add('bool', {
             name: 'Enable Video',
             value: scope.videoTextureEnabled,
             callback: enableVideo,
             height: scope.uiTools.paramsDimension.boolHeight
         });
+        groupVideo.add('button', {
+            name: 'Play Video',
+            callback: playVideo,
+            width: scope.uiTools.paramsDimension.buttonWidth,
+            height: scope.uiTools.paramsDimension.buttonHeight
+        });
+        groupVideo.add('button', {
+            name: 'Pause Video',
+            callback: pauseVideo,
+            width: scope.uiTools.paramsDimension.buttonWidth,
+            height: scope.uiTools.paramsDimension.buttonHeight
+        });
+        groupVideo.open();
     };
 
     Home.prototype.initGL = function () {
@@ -191,49 +219,86 @@ KSX.apps.demos.Home = (function () {
 
         var material = this.shader.buildShaderMaterial()
 //        material.wireframe = true;
-        this.buildSuperBox(this.gridParams, material);
+
+        this.superBoxGroup = new THREE.Group();
+        this.app.scenePerspective.scene.add(this.superBoxGroup);
+
+        this.gridParams.uMin = 0.0;
+        this.gridParams.vMin = 0.0;
+        this.gridParams.uMax = 0.5;
+        this.gridParams.vMax = 0.5;
+        var box = this.buildSuperBox(this.gridParams, material);
+        this.superBoxGroup.add(box);
+
+        this.gridParams.uMin = 0.5;
+        this.gridParams.vMin = 0.0;
+        this.gridParams.uMax = 1.0;
+        this.gridParams.vMax = 0.5;
+        box = this.buildSuperBox(this.gridParams, material);
+        box.translateX(320);
+        this.superBoxGroup.add(box);
+
+
+        this.gridParams.uMin = 0.0;
+        this.gridParams.vMin = 0.5;
+        this.gridParams.uMax = 0.5;
+        this.gridParams.vMax = 1.0;
+        box = this.buildSuperBox(this.gridParams, material);
+        box.translateY(180);
+        this.superBoxGroup.add(box);
+
+        this.gridParams.uMin = 0.5;
+        this.gridParams.vMin = 0.5;
+        this.gridParams.uMax = 1.0;
+        this.gridParams.vMax = 1.0;
+        box = this.buildSuperBox(this.gridParams, material);
+        box.translateX(320);
+        box.translateY(180);
+        this.superBoxGroup.add(box);
     };
 
-    Home.prototype.buildSuperBox = function (gridParams, material) {
+    Home.prototype.buildSuperBox = function (globalParams, material) {
 
         var boxBuildParams = {
             count : 0,
-            cubeDimension : gridParams.cubeEdgeLength,
-            xOffset : gridParams.posStartX,
-            yOffset : gridParams.posStartY,
+            cubeDimension : globalParams.cubeEdgeLength,
+            xOffset : globalParams.posStartX,
+            yOffset : globalParams.posStartY,
             zOffset : 0.0,
-            uVar : gridParams.uMin,
-            vVar : gridParams.vMin,
-            uvLocalMinU : gridParams.uMin,
-            uvLocalMaxU : gridParams.uMin,
-            uvLocalMinV : gridParams.vMin,
-            uvLocalMaxV : gridParams.vMin,
+            uVar : globalParams.uMin,
+            vVar : globalParams.vMin,
+            uvLocalMinU : globalParams.uMin,
+            uvLocalMaxU : globalParams.uMin,
+            uvLocalMinV : globalParams.vMin,
+            uvLocalMaxV : globalParams.vMin,
             vertices : new Array(),
             normals : new Array(),
             uvs : new Array(),
-            useIndices : gridParams.useIndices,
+            useIndices : globalParams.useIndices,
             indices : new Array()
         };
 
         var i = 0;
         var j = 0;
-        while (i < gridParams.sizeX) {
-            while (j < gridParams.sizeY) {
+        var uDiff = (globalParams.uMax - globalParams.uMin);
+        var vDiff = (globalParams.vMax - globalParams.vMin);
+        while (i < globalParams.sizeX) {
+            while (j < globalParams.sizeY) {
                 boxBuildParams.uvLocalMinU = boxBuildParams.uVar;
                 boxBuildParams.uvLocalMaxU = boxBuildParams.uVar;
                 boxBuildParams.uvLocalMinV = boxBuildParams.vVar;
                 boxBuildParams.uvLocalMaxV = boxBuildParams.vVar;
                 this.buildSingleBox(boxBuildParams);
-                boxBuildParams.uVar += gridParams.uMax / gridParams.sizeY;
-                boxBuildParams.xOffset += gridParams.cubeEdgeLength;
+                boxBuildParams.uVar += uDiff / globalParams.sizeY;
+                boxBuildParams.xOffset += globalParams.cubeEdgeLength;
                 boxBuildParams.count++;
                 j++;
             }
 
-            boxBuildParams.uVar = gridParams.uMin;
-            boxBuildParams.vVar += gridParams.vMax / gridParams.sizeX;
-            boxBuildParams.xOffset = gridParams.posStartX;
-            boxBuildParams.yOffset += gridParams.cubeEdgeLength;
+            boxBuildParams.uVar = globalParams.uMin;
+            boxBuildParams.vVar += vDiff / globalParams.sizeX;
+            boxBuildParams.xOffset = globalParams.posStartX;
+            boxBuildParams.yOffset += globalParams.cubeEdgeLength;
             j = 0;
             i++;
         }
@@ -245,8 +310,7 @@ KSX.apps.demos.Home = (function () {
             superGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(boxBuildParams.indices), 1));
         }
 
-        this.superBox = new THREE.Mesh(superGeometry, material);
-        this.app.scenePerspective.scene.add(this.superBox);
+        return new THREE.Mesh(superGeometry, material);
     };
 
     Home.prototype.buildSingleBox = function (boxBuildParams) {
@@ -426,8 +490,8 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.render = function () {
-        if (this.animate && this.superBox !== undefined) {
-            this.superBox.rotateY(0.001);
+        if (this.animate && this.superBoxGroup !== undefined) {
+            this.superBoxGroup.rotateY(0.001);
         }
         this.controls.update();
         this.stats.update();
@@ -443,7 +507,6 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.checkVideo = function () {
         if (this.videoTextureEnabled) {
-            this.video.play();
             this.shader.uniforms.texture1.value = this.videoTexture;
         }
         else {
@@ -455,9 +518,6 @@ KSX.apps.demos.Home = (function () {
     Home.prototype.flipTexture = function (name) {
         var texture = this.shader.textures[name];
         if (texture !== undefined) {
-            if (this.videoTextureEnabled) {
-                this.video.pause();
-            }
             this.shader.uniforms.texture1.value = texture;
         }
     };
