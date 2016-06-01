@@ -10,7 +10,7 @@
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
-            <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4" type="video/mp4">
+            <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4#t=30,730" type="video/mp4">
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
         <div id="LinkPixelProtest" onmouseenter="exchangeImageLinkPixelProtest()" onmouseleave="exchangeImageDefault()">
@@ -35,6 +35,10 @@
     <script src="js/lib/ext/TrackballControls.js"></script>
     <script src="js/lib/ext/bowser.min.js"></script>
 
+    <script src="js/lib/ext/legacy/FontUtils.js"></script>
+    <script src="js/lib/ext/legacy/TextGeometry.js"></script>
+    <script src="resource/fonts/ubuntu_mono_regular.typeface.js"></script>
+
     <script src="js/apps/core/ThreeJsApp.js"></script>
     <script>
         KSX.globals.basedir = '';
@@ -46,6 +50,8 @@
         };
     </script>
     <script src="js/apps/core/Canvas.js"></script>
+    <script src="js/apps/core/Text2d.js"></script>
+    <script src="js/apps/core/TextUnit.js"></script>
     <script src="js/apps/tools/ShaderTools.js"></script>
     <script src="js/apps/tools/TextureTools.js"></script>
     <script src="js/apps/tools/BrowserSupport.js"></script>

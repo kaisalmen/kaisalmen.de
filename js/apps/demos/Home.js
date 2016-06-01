@@ -29,7 +29,7 @@ KSX.apps.demos.Home = (function () {
         this.videoBuffer = elementNameVideoBuffer;
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.videoTexture = null;
-        this.videoTextureEnabled = false;
+        this.videoTextureEnabled = true;
 
         this.animate = false;
 
@@ -82,6 +82,8 @@ KSX.apps.demos.Home = (function () {
         }
 
         this.superBoxGroup = null;
+
+        this.textStorage = new KSX.apps.core.Text2d();
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -197,9 +199,9 @@ KSX.apps.demos.Home = (function () {
         this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
 
         this.videoBuffer.width = 1920;
-        this.videoBuffer.height = 1080;
+        this.videoBuffer.height = 804;
         this.videoBufferContext.fillStyle = "#000000";
-        this.videoBufferContext.fillRect(0, 0, 1920, 1080);
+        this.videoBufferContext.fillRect(0, 0, 1920, 804);
 
         this.videoTexture = new THREE.Texture(this.videoBuffer);
         this.videoTexture.minFilter = THREE.LinearFilter;
@@ -217,8 +219,9 @@ KSX.apps.demos.Home = (function () {
          scenePerspective.scene.add(helper);
          */
 
-        var material = this.shader.buildShaderMaterial()
+        var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
+        this.checkVideo();
 
         this.superBoxGroup = new THREE.Group();
         this.app.scenePerspective.scene.add(this.superBoxGroup);
@@ -255,6 +258,15 @@ KSX.apps.demos.Home = (function () {
         box.translateX(320);
         box.translateY(180);
         this.superBoxGroup.add(box);
+
+        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome to', new THREE.MeshBasicMaterial(), 100, 10);
+        textWelcome.mesh.position.set(200, 0, 100);
+        var textDomain = this.textStorage.addText( 'Domaine', 'www.kaisalmen.de', new THREE.MeshBasicMaterial(), 100, 10);
+        textDomain.mesh.position.set(0, -200, 100);
+        this.app.scenePerspective.scene.add(textWelcome.mesh);
+        this.app.scenePerspective.scene.add(textDomain.mesh);
+
+        new THREE.TextGeometry();
     };
 
     Home.prototype.buildSuperBox = function (globalParams, material) {
@@ -507,6 +519,7 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.checkVideo = function () {
         if (this.videoTextureEnabled) {
+            this.video.play();
             this.shader.uniforms.texture1.value = this.videoTexture;
         }
         else {
