@@ -32,8 +32,15 @@
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
 
-    <script src="../../js/apps/demos/Youtube/YoutubePlayerApp.js"></script>
     <script src="../../js/apps/demos/Youtube/YoutubePlayer.js"></script>
+    <script>
+    if (KSX.globals.preChecksOk) {
+        var implementations = new Array();
+        implementations.push(new KSX.apps.demos.YoutubePlayerApp(document.getElementById("DivGLFullCanvas"), "DivGLFullVideo", "DivGLFullVideoBuffer"));
+        var appRunner = new KSX.apps.demos.AppRunner(implementations);
+        appRunner.init(true);
+    }
+    </script>
 
 </body>
 </html>

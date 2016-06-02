@@ -266,7 +266,7 @@ KSX.apps.demos.Home = (function () {
         this.app.scenePerspective.scene.add(textWelcome.mesh);
         this.app.scenePerspective.scene.add(textDomain.mesh);
 
-        new THREE.TextGeometry();
+        //new THREE.TextGeometry();
     };
 
     Home.prototype.buildSuperBox = function (globalParams, material) {
