@@ -256,7 +256,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                         }
                     }
                     materialCount++;
-                };
+                }
                 console.log('Overall number of materials: ' + materialCount);
             }
         };
@@ -280,11 +280,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 }
             }
 
+            var meshInfo;
             if (replacedMaterial !== null) {
-                var meshInfo = new KSX.apps.tools.MeshInfo(meshName, replacedMaterial.name);
+                meshInfo = new KSX.apps.tools.MeshInfo(meshName, replacedMaterial.name);
             }
             else {
-                var meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
+                meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
             }
 
             scope.meshInfos.push(meshInfo);
@@ -344,7 +345,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             var scene = scope.app.scenePerspective.scene;
             var mesh;
             var dontAlter;
-            var transparent = value < 1.0 ? true : false;
+            var transparent = value < 1.0;
             var side = value < 1.0 ? THREE.DoubleSide : THREE.FrontSide;
             var maxOpacity = 1.0;
 

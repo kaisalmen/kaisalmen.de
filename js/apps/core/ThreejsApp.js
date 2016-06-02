@@ -82,39 +82,41 @@ KSX.apps.core.ThreeJsApp = (function () {
         var potentialValue;
 
         for (var predefined in paramsPredefined) {
-            potentialValue = paramsUser[predefined];
+            if (paramsPredefined.hasOwnProperty(predefined)) {
 
-            // renderer definitions: special treatment as object fields need to be copied (no-refs)
-            if (predefined === 'renderers') {
-                var predefinedRenderers = paramsPredefined[predefined];
-
-                var userRenderers = paramsUser[predefined];
-                if (userRenderers === undefined) {
-                    paramsUser[predefined] = {};
-                    userRenderers = paramsUser[predefined];
-                }
-
-                for (var predefinedRendererName in predefinedRenderers) {
-                    var predefinedRenderer = predefinedRenderers[predefinedRendererName];
-                    var userRenderer = userRenderers[predefinedRendererName];
-
-                    if (userRenderer === undefined) {
-                        userRenderers[predefinedRendererName] = {};
-                        userRenderer = userRenderers[predefinedRendererName];
+                // renderer definitions: special treatment as object fields need to be copied (no-refs)
+                if (predefined === 'renderers') {
+                    var userRenderers = paramsUser.hasOwnProperty(predefined) ? paramsUser[predefined] : undefined;
+                    if (userRenderers === undefined) {
+                        paramsUser[predefined] = {};
+                        userRenderers = paramsUser[predefined];
                     }
-                    fillDefinition(predefinedRenderer, userRenderer);
-                }
 
-                if (userRenderers['regular'].canvas === undefined) {
-                    userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
-                }
-            }
-            else {
-                if (potentialValue !== undefined) {
-                    paramsPredefined[predefined] = potentialValue;
+                    if (paramsPredefined.hasOwnProperty(predefined)) {
+                        var predefinedRenderers = paramsPredefined[predefined];
+
+                        for (var predefinedRendererName in predefinedRenderers) {
+                            var predefinedRenderer = predefinedRenderers[predefinedRendererName];
+                            var userRenderer = userRenderers[predefinedRendererName];
+
+                            if (userRenderer === undefined) {
+                                userRenderers[predefinedRendererName] = {};
+                                userRenderer = userRenderers[predefinedRendererName];
+                            }
+                            fillDefinition(predefinedRenderer, userRenderer);
+                        }
+                    }
+                    if (userRenderers['regular'].canvas === undefined) {
+                        userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
+                    }
                 }
                 else {
-                    paramsUser[predefined] = paramsPredefined[predefined];
+                    if (paramsUser.hasOwnProperty(predefined)) {
+                        paramsPredefined[predefined] = paramsUser[predefined];
+                    }
+                    else {
+                        paramsUser[predefined] = paramsPredefined[predefined];
+                    }
                 }
             }
         }
