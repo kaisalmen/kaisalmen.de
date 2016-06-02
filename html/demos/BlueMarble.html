@@ -33,5 +33,13 @@
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/BlueMarbleShader.js"></script>
     <script src="../../js/apps/demos/BlueMarble/BlueMarble.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.demos.impl.BlueMarbleApp(document.getElementById("DivGLCanvasFixed")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>

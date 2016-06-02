@@ -27,8 +27,8 @@
         if (KSX.globals.preChecksOk) {
             var implementations = new Array();
             implementations.push(new KSX.apps.learn.GLCheckApp(document.getElementById("DivGLFullCanvas")));
-            var appRunner = new KSX.apps.demos.AppRunner(implementations);
-            appRunner.init(true);
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
         }
     </script>
 </body>

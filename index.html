@@ -60,5 +60,30 @@
     <script src="js/apps/shader/BlockShader.js"></script>
 
     <script src="js/apps/demos/Home.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            var home = new KSX.apps.demos.Home(
+                    document.getElementById("DivGLFullCanvas"),
+                    document.getElementById("DivGLFullVideo"),
+                    document.getElementById("DivGLFullVideoBuffer")
+            );
+            implementations.push(home);
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+
+            var exchangeImageLinkPTV1 = function () {
+                home.flipTexture('linkPTV1');
+            };
+
+            var exchangeImageLinkPixelProtest = function () {
+                home.flipTexture('linkPixelProtest');
+            };
+
+            var exchangeImageDefault = function () {
+                home.checkVideo();
+            };
+        }
+    </script>
 </body>
 </html>

@@ -37,5 +37,13 @@
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/PixelProtestShader.js"></script>
     <script src="../../js/apps/demos/PixelProtest.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.demos.PixelProtestApp(document.getElementById("DivGLFullCanvas")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>

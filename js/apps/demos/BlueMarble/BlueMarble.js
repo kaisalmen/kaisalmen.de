@@ -246,12 +246,3 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
     return BlueMarbleApp;
 
 })();
-
-
-
-if (KSX.globals.preChecksOk) {
-    var implementations = new Array();
-    implementations.push(new KSX.apps.demos.impl.BlueMarbleApp(document.getElementById("DivGLCanvasFixed")));
-    var appRunner = new KSX.apps.demos.AppRunner(implementations);
-    appRunner.init(true);
-}

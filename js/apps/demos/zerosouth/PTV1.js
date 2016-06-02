@@ -399,12 +399,3 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     return PTV1Loader;
 })();
-
-
-
-if (KSX.globals.preChecksOk) {
-    var implementations = new Array();
-    implementations.push(new KSX.apps.zerosouth.impl.PTV1Loader(document.getElementById("DivGLFullCanvas")));
-    var appRunner = new KSX.apps.demos.AppRunner(implementations);
-    appRunner.init(true);
-}

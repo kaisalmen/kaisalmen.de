@@ -40,59 +40,11 @@ var KSX = {
     },
     globals : {
         basedir : '../../',
+        appRunner : undefined,
         browserVersions : undefined,
         preChecksOk : true
     }
 };
-
-KSX.apps.core.AppLifecycle = (function () {
-
-    function AppLifecycle() {
-        this.apps = new Array();
-    }
-
-    AppLifecycle.prototype.addApp = function (app) {
-        this.apps.push(app);
-        console.log("Added app: " + app.definition.name)
-    };
-
-    AppLifecycle.prototype.initAsync = function () {
-        console.log("Starting global initialisation phase...");
-
-        var currentScene;
-        for (var i = 0; i < this.apps.length; i++) {
-            currentScene = this.apps[i];
-            currentScene.browserContext = this;
-            console.log("Registering: " + currentScene.definition.name);
-
-            currentScene.initAsync();
-        }
-    };
-
-    AppLifecycle.prototype.renderAllApps = function (scope) {
-        if (scope === undefined) {
-            scope = this;
-        }
-        for (var i = 0; i < scope.apps.length; i++) {
-            scope.apps[i].render();
-        }
-    };
-
-    AppLifecycle.prototype.resizeAll = function (scope) {
-        if (scope === undefined) {
-            scope = this;
-        }
-        for (var i = 0; i < scope.apps.length; i++) {
-            scope.apps[i].resizeDisplayGL();
-        }
-    };
-
-    return AppLifecycle;
-
-})();
-
-KSX.globals.lifecycleInstance = new KSX.apps.core.AppLifecycle();
-
 
 KSX.apps.core.ThreeJsApp = (function () {
 
@@ -421,26 +373,35 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
 
 })();
 
-KSX.apps.demos.AppRunner = (function () {
 
-    function AppRunner(implementations) {
-        this.implementations = implementations;
+KSX.apps.core.AppRunner = (function () {
+
+    function AppRunner() {
     }
 
-    AppRunner.prototype.init = function (startRenderLoop) {
+    AppRunner.prototype.addImplementations = function (implementations) {
+        this.implementations = implementations;
+    };
+
+    AppRunner.prototype.run = function (startRenderLoop) {
         var resizeWindow = function () {
-            KSX.globals.lifecycleInstance.resizeAll(KSX.globals.lifecycleInstance);
+            for (var i = 0; i < this.implementations.length; i++) {
+                this.implementations[i].app.resizeDisplayGL();
+            }
         };
         window.addEventListener('resize', resizeWindow, false);
 
-        for (var i = 0; i < this.implementations.length; i++) {
-            var impl = this.implementations[i];
-            console.log('Starting application: ' + impl.app.definition.name);
-            KSX.globals.lifecycleInstance.addApp(impl.app);
-        }
-
         // kicks init and prepares resources
-        KSX.globals.lifecycleInstance.initAsync();
+        console.log("Starting global initialisation phase...");
+
+        var implementation;
+        for (var i = 0; i < this.implementations.length; i++) {
+            implementation = this.implementations[i];
+            implementation.browserContext = this;
+            console.log("Registering: " + implementation.app.definition.name);
+
+            implementation.app.initAsync();
+        }
 
         if (startRenderLoop) {
             this.startRenderLoop();
@@ -457,9 +418,13 @@ KSX.apps.demos.AppRunner = (function () {
     };
 
     AppRunner.prototype.render = function () {
-        KSX.globals.lifecycleInstance.renderAllApps(KSX.globals.lifecycleInstance);
+        for (var i = 0; i < this.implementations.length; i++) {
+            this.implementations[i].app.render();
+        }
     };
 
     return AppRunner;
 
 })();
+
+KSX.globals.appRunner = new KSX.apps.core.AppRunner();

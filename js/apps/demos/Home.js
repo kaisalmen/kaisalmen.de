@@ -537,29 +537,3 @@ KSX.apps.demos.Home = (function () {
 
     return Home;
 })();
-
-
-if (KSX.globals.preChecksOk) {
-    var implementations = new Array();
-    var home = new KSX.apps.demos.Home(
-        document.getElementById("DivGLFullCanvas"),
-        document.getElementById("DivGLFullVideo"),
-        document.getElementById("DivGLFullVideoBuffer")
-    );
-    implementations.push(home);
-    var appRunner = new KSX.apps.demos.AppRunner(implementations);
-    appRunner.init(true);
-
-    var exchangeImageLinkPTV1 = function () {
-        home.flipTexture('linkPTV1');
-    };
-
-    var exchangeImageLinkPixelProtest = function () {
-        home.flipTexture('linkPixelProtest');
-    };
-
-    var exchangeImageDefault = function () {
-        home.checkVideo();
-    };
-}
-
