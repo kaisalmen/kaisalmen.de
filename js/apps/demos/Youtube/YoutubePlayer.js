@@ -131,7 +131,7 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         document.addEventListener( 'mouseup', function () { blocker.style.display = 'none'; } );
     };
 
-    YoutubePlayerApp.prototype.render = function () {
+    YoutubePlayerApp.prototype.renderPre = function () {
         this.cssRenderer.render(this.cssScene, this.cssCamera);
     };
 

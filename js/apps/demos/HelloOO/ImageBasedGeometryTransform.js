@@ -39,7 +39,7 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         this.app.scenePerspective.camera.position.z = 25;
     };
 
-    ImageBasedGeometryTransform.prototype.render = function () {
+    ImageBasedGeometryTransform.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
     };

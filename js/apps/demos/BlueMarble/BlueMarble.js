@@ -239,7 +239,11 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         this.app.sceneOrtho.scene.add(this.mesh);
     };
 
-    BlueMarbleApp.prototype.render = function () {
+    BlueMarbleApp.prototype.renderPre = function () {
+
+    };
+
+    BlueMarbleApp.prototype.renderPost = function () {
         this.stats.update();
     };
 

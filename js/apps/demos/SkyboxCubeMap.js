@@ -91,8 +91,11 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         sceneCube.add( meshCube );
     };
 
-    SkyboxCubeMapApp.prototype.render = function () {
+    SkyboxCubeMapApp.prototype.renderPre = function () {
         this.controls.update();
+    };
+
+    SkyboxCubeMapApp.prototype.renderPost = function () {
         this.stats.update();
     };
 

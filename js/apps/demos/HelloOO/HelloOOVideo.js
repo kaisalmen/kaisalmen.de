@@ -61,7 +61,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
         this.app.scenePerspective.camera.position.z = 150;
     };
 
-    HelloOOVideo.prototype.render = function () {
+    HelloOOVideo.prototype.renderPre = function () {
         if (this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
             this.videoBufferContext.drawImage(this.video, 0, 0);
             this.texture.needsUpdate = true;

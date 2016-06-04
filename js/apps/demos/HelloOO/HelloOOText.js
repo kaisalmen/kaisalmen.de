@@ -39,7 +39,7 @@ KSX.apps.demos.HelloOOText = (function () {
         this.app.scenePerspective.scene.add(this.text.mesh);
     };
 
-    HelloOOText.prototype.render = function () {
+    HelloOOText.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.02;
         this.mesh.rotation.y += 0.02;
     };

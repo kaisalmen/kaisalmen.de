@@ -246,7 +246,7 @@ KSX.apps.demos.PixelProtestApp = (function () {
         this.initUI(this.uiElemWidth.value, this.app.canvas.getWidth(), this.uiElemHeight.value, this.app.canvas.getHeight());
     };
 
-    PixelProtestApp.prototype.render = function () {
+    PixelProtestApp.prototype.renderPre = function () {
         if (this.animateNoise) {
             var proceed = this.app.frameNumber % this.animationRate === 0;
             if (proceed) {

@@ -33,7 +33,7 @@ KSX.apps.demos.HelloOOSimple = (function () {
         this.app.scenePerspective.camera.position.z = 5;
     };
 
-    HelloOOSimple.prototype.render = function () {
+    HelloOOSimple.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.1;
         this.mesh.rotation.y += 0.1;
     };

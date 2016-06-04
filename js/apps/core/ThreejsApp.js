@@ -212,7 +212,10 @@ KSX.apps.core.ThreeJsApp = (function () {
             if (this.renderer.autoClear) {
                 this.renderer.clearDepth();
             }
-            this.definition.user.render();
+
+            if (typeof this.definition.user.renderPre == "function") {
+                this.definition.user.renderPre();
+            }
 
             if (this.definition.useScenePerspective) {
                 if (this.scenePerspective.useCube) {

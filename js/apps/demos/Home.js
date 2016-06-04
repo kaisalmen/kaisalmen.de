@@ -501,12 +501,11 @@ KSX.apps.demos.Home = (function () {
         this.controls.handleResize();
     };
 
-    Home.prototype.render = function () {
+    Home.prototype.renderPre = function () {
         if (this.animate && this.superBoxGroup !== undefined) {
             this.superBoxGroup.rotateY(0.001);
         }
         this.controls.update();
-        this.stats.update();
 
         if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
             this.videoBufferContext.drawImage(this.video, 0, 0);
@@ -514,7 +513,8 @@ KSX.apps.demos.Home = (function () {
         }
     };
 
-    Home.prototype.renderPost = function () {
+    Home.prototype.renderPrePost = function () {
+        this.stats.update();
     };
 
     Home.prototype.checkVideo = function () {

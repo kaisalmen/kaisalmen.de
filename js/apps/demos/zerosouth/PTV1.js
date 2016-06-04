@@ -248,11 +248,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 var materialCount = 0;
 
                 for ( matName in materials ) {
-                    alter = scope.alterMaterials[matName];
-                    material =  materials[matName];
-                    if (alter !== undefined) {
-                        for (prop in alter ) {
-                            material[prop] = alter[prop];
+                    if (scope.alterMaterials.hasOwnProperty(matName) && materials.hasOwnProperty(matName)) {
+                        alter = scope.alterMaterials[matName];
+                        material =  materials[matName];
+
+                        for ( prop in alter ) {
+                            if (material.hasOwnProperty(prop) && alter.hasOwnProperty(prop)) {
+                                material[prop] = alter[prop];
+                            }
                         }
                     }
                     materialCount++;
@@ -387,11 +390,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         });
     };
 
-    PTV1Loader.prototype.render = function() {
+    PTV1Loader.prototype.renderPre = function() {
         this.controls.update();
-        this.stats.update();
         this.app.renderer.clearDepth();
         this.app.renderer.clearColor();
+    };
+
+    PTV1Loader.prototype.renderPost = function() {
+        this.stats.update();
     };
 
     PTV1Loader.prototype.resizeDisplayGL = function() {

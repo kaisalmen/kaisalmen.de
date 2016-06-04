@@ -30,9 +30,6 @@ KSX.apps.learn.GLCheckApp = (function () {
         }
     };
 
-    GLCheckApp.prototype.render = function () {
-    };
-
     return GLCheckApp;
 })();
 
