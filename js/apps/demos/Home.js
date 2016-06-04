@@ -84,6 +84,15 @@ KSX.apps.demos.Home = (function () {
         this.superBoxGroup = null;
 
         this.textStorage = new KSX.apps.core.Text2d();
+
+        this.rtt = {
+            scene : null,
+            camera : null,
+            directionalLight : null,
+            helper : null,
+            mesh : null,
+            texture : null
+        }
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -207,17 +216,43 @@ KSX.apps.demos.Home = (function () {
         this.videoTexture.minFilter = THREE.LinearFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
-        /*
-         var lightColor = 0xE0E0E0;
-         var lightPos = new THREE.Vector3(100, 100, 100);
-         var directionalLight = new THREE.DirectionalLight(lightColor);
-         directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
-         scenePerspective.scene.add(directionalLight);
 
-         var helper = new THREE.GridHelper( 100, 2 );
-         helper.setColors( 0xFF4444, 0x404040 );
-         scenePerspective.scene.add(helper);
-         */
+        this.rtt.scene = new THREE.Scene();
+        this.rtt.camera = new THREE.PerspectiveCamera();
+//        this.rtt.camera.copy(this.app.scenePerspective.camera);
+        this.rtt.camera.position.set( 0, 10, 20 );
+        this.rtt.camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+/*
+        var lightColor = 0xE0E0E0;
+        var lightPos = new THREE.Vector3(100, 100, 100);
+        this.rtt.directionalLight = new THREE.DirectionalLight(lightColor);
+        this.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
+        this.rtt.scene.add(this.rtt.directionalLight);
+*/
+        this.rtt.helper = new THREE.GridHelper( 20, 1, 0xFF4444, 0x404040 );
+        this.rtt.scene.add(this.rtt.helper);
+/*
+        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome to', new THREE.MeshBasicMaterial(), 100, 10);
+        textWelcome.mesh.position.set(200, 0, 100);
+        var textDomain = this.textStorage.addText( 'Domaine', 'www.kaisalmen.de', new THREE.MeshBasicMaterial(), 100, 10);
+        textDomain.mesh.position.set(0, -200, 100);
+        this.rtt.scene.add(textWelcome.mesh);
+        this.rtt.scene.add(textDomain.mesh);
+*/
+        var geometry = new THREE.SphereGeometry(1, 32, 32);
+        var material = new THREE.MeshNormalMaterial();
+        this.rtt.mesh = new THREE.Mesh(geometry, material);
+        this.rtt.scene.add(this.rtt.mesh);
+
+        this.rtt.texture = new THREE.WebGLRenderTarget(
+            this.videoBuffer.width,
+            this.videoBuffer.height,
+            {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.NearestFilter,
+                format: THREE.RGBFormat
+            }
+        );
 
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
@@ -258,13 +293,6 @@ KSX.apps.demos.Home = (function () {
         box.translateX(320);
         box.translateY(180);
         this.superBoxGroup.add(box);
-
-        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome to', new THREE.MeshBasicMaterial(), 100, 10);
-        textWelcome.mesh.position.set(200, 0, 100);
-        var textDomain = this.textStorage.addText( 'Domaine', 'www.kaisalmen.de', new THREE.MeshBasicMaterial(), 100, 10);
-        textDomain.mesh.position.set(0, -200, 100);
-        this.app.scenePerspective.scene.add(textWelcome.mesh);
-        this.app.scenePerspective.scene.add(textDomain.mesh);
 
         //new THREE.TextGeometry();
     };
@@ -511,9 +539,15 @@ KSX.apps.demos.Home = (function () {
             this.videoBufferContext.drawImage(this.video, 0, 0);
             this.videoTexture.needsUpdate = true;
         }
+
+        this.app.renderer.setClearColor(0x000000);
+        this.rtt.mesh.position.set(Math.sin(this.app.frameNumber / 10), Math.cos(this.app.frameNumber / 10), 0);
+        this.app.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
+
+        this.app.renderer.setClearColor(0x202020);
     };
 
-    Home.prototype.renderPrePost = function () {
+    Home.prototype.renderPost = function () {
         this.stats.update();
     };
 
@@ -526,6 +560,7 @@ KSX.apps.demos.Home = (function () {
             this.video.pause();
             this.shader.uniforms.texture1.value = this.shader.textures['default'];
         }
+        this.shader.uniforms.texture1.value = this.rtt.texture.texture;
     };
 
     Home.prototype.flipTexture = function (name) {
