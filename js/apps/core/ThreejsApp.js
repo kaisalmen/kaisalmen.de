@@ -79,44 +79,49 @@ KSX.apps.core.ThreeJsApp = (function () {
     }
 
     var fillDefinition = function (paramsPredefined, paramsUser) {
-        var potentialValue;
 
         for (var predefined in paramsPredefined) {
-            if (paramsPredefined.hasOwnProperty(predefined)) {
+            // early exit
+            if (!paramsPredefined.hasOwnProperty(predefined)) {
+                continue;
+            }
 
-                // renderer definitions: special treatment as object fields need to be copied (no-refs)
-                if (predefined === 'renderers') {
-                    var userRenderers = paramsUser.hasOwnProperty(predefined) ? paramsUser[predefined] : undefined;
-                    if (userRenderers === undefined) {
-                        paramsUser[predefined] = {};
-                        userRenderers = paramsUser[predefined];
-                    }
+            // renderer definitions: special treatment as object fields need to be copied (no-refs)
+            if (predefined === 'renderers') {
 
-                    if (paramsPredefined.hasOwnProperty(predefined)) {
-                        var predefinedRenderers = paramsPredefined[predefined];
+                if (!paramsUser.hasOwnProperty(predefined)) {
+                    paramsUser[predefined] = {};
+                }
+                var userRenderers = paramsUser[predefined];
 
-                        for (var predefinedRendererName in predefinedRenderers) {
-                            var predefinedRenderer = predefinedRenderers[predefinedRendererName];
-                            var userRenderer = userRenderers[predefinedRendererName];
+                if (paramsPredefined.hasOwnProperty(predefined)) {
+                    var predefinedRenderers = paramsPredefined[predefined];
 
-                            if (userRenderer === undefined) {
-                                userRenderers[predefinedRendererName] = {};
-                                userRenderer = userRenderers[predefinedRendererName];
-                            }
-                            fillDefinition(predefinedRenderer, userRenderer);
+                    for (var predefinedRendererName in predefinedRenderers) {
+                        // early exit
+                        if (!predefinedRenderers.hasOwnProperty(predefinedRendererName)) {
+                            continue;
                         }
-                    }
-                    if (userRenderers['regular'].canvas === undefined) {
-                        userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
+
+                        if (!userRenderers.hasOwnProperty(predefinedRendererName)) {
+                            userRenderers[predefinedRendererName] = {};
+                        }
+
+                        var predefinedRenderer = predefinedRenderers[predefinedRendererName];
+                        var userRenderer = userRenderers[predefinedRendererName];
+                        fillDefinition(predefinedRenderer, userRenderer);
                     }
                 }
+                if (userRenderers['regular'].canvas === undefined) {
+                    userRenderers['regular'].canvas = paramsUser['htmlCanvas'];
+                }
+            }
+            else {
+                if (paramsUser.hasOwnProperty(predefined)) {
+                    paramsPredefined[predefined] = paramsUser[predefined];
+                }
                 else {
-                    if (paramsUser.hasOwnProperty(predefined)) {
-                        paramsPredefined[predefined] = paramsUser[predefined];
-                    }
-                    else {
-                        paramsUser[predefined] = paramsPredefined[predefined];
-                    }
+                    paramsUser[predefined] = paramsPredefined[predefined];
                 }
             }
         }
@@ -386,9 +391,10 @@ KSX.apps.core.AppRunner = (function () {
     };
 
     AppRunner.prototype.run = function (startRenderLoop) {
+        var scope = this;
         var resizeWindow = function () {
-            for (var i = 0; i < this.implementations.length; i++) {
-                this.implementations[i].app.resizeDisplayGL();
+            for (var i = 0; i < scope.implementations.length; i++) {
+                scope.implementations[i].app.resizeDisplayGL();
             }
         };
         window.addEventListener('resize', resizeWindow, false);
