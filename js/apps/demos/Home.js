@@ -32,6 +32,7 @@ KSX.apps.demos.Home = (function () {
         this.videoTextureEnabled = true;
 
         this.animate = false;
+        this.invert = false;
 
         this.controls = null;
 
@@ -114,11 +115,16 @@ KSX.apps.demos.Home = (function () {
         var adjustHeightFactor = function (value) {
             scope.shader.uniforms.heightFactor.value = value;
         };
+        var invertShader = function (value) {
+            scope.shader.uniforms.invert.value = value;
+        };
         var enableAnimation = function (enabled) {
             scope.animate = enabled;
         };
         var resetView = function () {
+            scope.app.scenePerspective.resetCamera();
             scope.controls.reset();
+            scope.controls.target = scope.app.scenePerspective.cameraTarget;
             scope.superBoxGroup.rotation.y = 0;
         };
         var enableVideo = function (enabled) {
@@ -148,6 +154,12 @@ KSX.apps.demos.Home = (function () {
             width: scope.uiTools.paramsDimension.slidesWidth,
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
+        });
+        ui.add('bool', {
+            name: 'Invert',
+            value: scope.invert,
+            callback: invertShader,
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         ui.add('bool', {
             name: 'Animate',
@@ -198,14 +210,16 @@ KSX.apps.demos.Home = (function () {
             this.app.initError = true;
             return;
         }
-        this.app.renderer.setClearColor(0x202020);
+        this.app.renderer.setClearColor(0x101010);
 
+        var camTarget = new THREE.Vector3(this.gridParams.sizeX * 0.6, 0.0, 0.0);
         this.app.scenePerspective.setCameraDefaults(
-            new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, this.gridParams.sizeY / 2.0),
+            new THREE.Vector3(this.gridParams.sizeX * 0.6, this.gridParams.sizeY * 0.333, this.gridParams.sizeY * 0.75 ),
             null,
-            new THREE.Vector3(this.gridParams.sizeX / 4.0, this.gridParams.sizeY / 4.0, 0));
+            camTarget);
 
         this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
+        this.controls.target = camTarget;
 
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 804;
@@ -222,23 +236,23 @@ KSX.apps.demos.Home = (function () {
 //        this.rtt.camera.copy(this.app.scenePerspective.camera);
         this.rtt.camera.position.set( 0, 10, 20 );
         this.rtt.camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
-/*
+
         var lightColor = 0xE0E0E0;
         var lightPos = new THREE.Vector3(100, 100, 100);
         this.rtt.directionalLight = new THREE.DirectionalLight(lightColor);
         this.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
         this.rtt.scene.add(this.rtt.directionalLight);
-*/
+
         this.rtt.helper = new THREE.GridHelper( 20, 1, 0xFF4444, 0x404040 );
         this.rtt.scene.add(this.rtt.helper);
-/*
-        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome to', new THREE.MeshBasicMaterial(), 100, 10);
-        textWelcome.mesh.position.set(200, 0, 100);
-        var textDomain = this.textStorage.addText( 'Domaine', 'www.kaisalmen.de', new THREE.MeshBasicMaterial(), 100, 10);
-        textDomain.mesh.position.set(0, -200, 100);
+
+        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
+        textWelcome.mesh.position.set(-5, 3, 0);
+        var textDomain = this.textStorage.addText( 'Domain', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
+        textDomain.mesh.position.set(-5, -3, 0);
         this.rtt.scene.add(textWelcome.mesh);
         this.rtt.scene.add(textDomain.mesh);
-*/
+
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.rtt.mesh = new THREE.Mesh(geometry, material);
@@ -257,6 +271,9 @@ KSX.apps.demos.Home = (function () {
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
         this.checkVideo();
+
+        var helper = new THREE.GridHelper( 2000, 10, 0xFF4444, 0x404040 );
+        this.app.scenePerspective.scene.add(helper);
 
         this.superBoxGroup = new THREE.Group();
         this.app.scenePerspective.scene.add(this.superBoxGroup);
@@ -354,7 +371,7 @@ KSX.apps.demos.Home = (function () {
     };
 
     Home.prototype.buildSingleBox = function (boxBuildParams) {
-        var vertexValue = boxBuildParams.cubeDimension / 2.0;
+        var vertexValue = 0.95 * boxBuildParams.cubeDimension / 2.0;
         var v0x = -vertexValue + boxBuildParams.xOffset;
         var v0y = -vertexValue + boxBuildParams.yOffset;
         var v0z =  vertexValue + boxBuildParams.zOffset;
@@ -531,7 +548,7 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.renderPre = function () {
         if (this.animate && this.superBoxGroup !== undefined) {
-            this.superBoxGroup.rotateY(0.001);
+            this.superBoxGroup.rotateY(0.005);
         }
         this.controls.update();
 
@@ -541,7 +558,7 @@ KSX.apps.demos.Home = (function () {
         }
 
         this.app.renderer.setClearColor(0x000000);
-        this.rtt.mesh.position.set(Math.sin(this.app.frameNumber / 10), Math.cos(this.app.frameNumber / 10), 0);
+        this.rtt.mesh.position.set(3 * Math.sin(this.app.frameNumber / 10), 0, 3 * Math.cos(this.app.frameNumber / 10));
         this.app.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
 
         this.app.renderer.setClearColor(0x202020);

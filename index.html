@@ -10,7 +10,10 @@
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
+<!--
             <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4#t=30,730" type="video/mp4">
+-->
+            <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4" type="video/mp4">
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
         <div id="LinkPixelProtest" onmouseenter="exchangeImageLinkPixelProtest()" onmouseleave="exchangeImageDefault()">
@@ -29,7 +32,7 @@
         if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
     </script>
 
-    <script src="js/lib/ext/three.min.js"></script>
+    <script src="js/lib/ext/three.js"></script>
     <script src="js/lib/ext/uil.min.js"></script>
     <script src="js/lib/ext/stats.min.js"></script>
     <script src="js/lib/ext/TrackballControls.js"></script>
