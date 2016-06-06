@@ -10,24 +10,13 @@ var KSX = {
 
         },
         demos : {
-            impl : {
 
-            }
         },
         learn : {
-            impl : {
 
-            },
-            worker : {
-                impl : {
-
-                }
-            }
         },
         zerosouth : {
-            impl : {
 
-            }
         },
         shader : {
 
@@ -290,16 +279,16 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
     ScenePerspective.prototype.setCameraDefaults = function (defaultPosCamera, defaultUpVector, defaultPosCameraTarget, defaultPosCameraCube) {
         if (defaultPosCamera !== undefined && defaultPosCamera !== null) {
-            this.defaultPosCamera = defaultPosCamera;
+            this.defaultPosCamera.copy(defaultPosCamera);
         }
         if (defaultUpVector !== undefined && defaultUpVector !== null) {
-            this.defaultUpVector = defaultUpVector;
+            this.defaultUpVector.copy(defaultUpVector);
         }
         if (defaultPosCameraTarget !== undefined && defaultPosCameraTarget !== null) {
-            this.defaultPosCameraTarget = defaultPosCameraTarget;
+            this.defaultPosCameraTarget.copy(defaultPosCameraTarget);
         }
         if (defaultPosCameraCube !== undefined && defaultPosCameraCube !== null) {
-            this.defaultPosCameraCube = defaultPosCameraCube;
+            this.defaultPosCameraCube.copy(defaultPosCameraCube);
         }
         this.resetCamera();
     };
@@ -317,12 +306,12 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     };
 
     ScenePerspective.prototype.resetCamera = function () {
-        this.camera.position.set(this.defaultPosCamera.x, this.defaultPosCamera.y, this.defaultPosCamera.z);
-        this.camera.up = this.defaultUpVector;
-        this.cameraTarget = this.defaultPosCameraTarget;
+        this.camera.position.copy(this.defaultPosCamera);
+        this.camera.up.copy(this.defaultUpVector);
+        this.cameraTarget.copy(this.defaultPosCameraTarget);
 
         if (this.useCube) {
-            this.cameraCube.position.set(this.defaultPosCameraCube.x, this.defaultPosCameraCube.y, this.defaultPosCameraCube.z);
+            this.cameraCube.position.copy(this.defaultPosCameraCube);
         }
         this.updateCamera();
     };
