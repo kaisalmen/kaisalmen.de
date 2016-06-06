@@ -16,7 +16,7 @@ KSX.apps.tools.MeshInfo = (function () {
 })();
 
 
-KSX.apps.zerosouth.impl.PTV1Loader = (function () {
+KSX.apps.zerosouth.PTV1Loader = (function () {
 
     function PTV1Loader(elementToBindTo) {
         var userDefinition = {

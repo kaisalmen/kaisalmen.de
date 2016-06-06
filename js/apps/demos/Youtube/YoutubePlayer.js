@@ -4,12 +4,12 @@
 
 "use strict";
 
-KSX.apps.demos.YoutubePlayerApp = (function () {
+KSX.apps.demos.YoutubePlayer = (function () {
 
-    function YoutubePlayerApp(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
+    function YoutubePlayer(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
         var userDefinition = {
             user : this,
-            name : 'YoutubePlayerApp',
+            name : 'YoutubePlayer',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
         };
@@ -37,7 +37,7 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         this.once = false;
     }
 
-    YoutubePlayerApp.prototype.initAsyncContent = function () {
+    YoutubePlayer.prototype.initAsyncContent = function () {
         var scope = this;
 
         var promises = new Array(3);
@@ -59,7 +59,7 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         );
     };
 
-    YoutubePlayerApp.prototype.initGL = function () {
+    YoutubePlayer.prototype.initGL = function () {
         var camera = this.app.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
@@ -131,11 +131,11 @@ KSX.apps.demos.YoutubePlayerApp = (function () {
         document.addEventListener( 'mouseup', function () { blocker.style.display = 'none'; } );
     };
 
-    YoutubePlayerApp.prototype.renderPre = function () {
+    YoutubePlayer.prototype.renderPre = function () {
         this.cssRenderer.render(this.cssScene, this.cssCamera);
     };
 
-    return YoutubePlayerApp;
+    return YoutubePlayer;
 })();
 
 

@@ -5,9 +5,9 @@
 
 "use strict";
 
-KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
+KSX.apps.demos.impl.SkyboxCubeMap = (function () {
 
-    function SkyboxCubeMapApp(elementToBindTo) {
+    function SkyboxCubeMap(elementToBindTo) {
         var userDefinition = {
             user : this,
             name : 'SkyboxCubeMap',
@@ -22,7 +22,7 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         this.stats = new Stats();
     }
 
-    SkyboxCubeMapApp.prototype.initAsyncContent = function () {
+    SkyboxCubeMap.prototype.initAsyncContent = function () {
         var scope = this;
 
 
@@ -43,12 +43,12 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         );
     };
 
-    SkyboxCubeMapApp.prototype.initPreGL = function () {
+    SkyboxCubeMap.prototype.initPreGL = function () {
         this.stats.setMode(0);
         document.body.appendChild(this.stats.domElement);
     };
 
-    SkyboxCubeMapApp.prototype.initGL = function () {
+    SkyboxCubeMap.prototype.initGL = function () {
         var renderer = this.app.renderer;
         var scenePerspective = this.app.scenePerspective;
         var sceneCube = scenePerspective.sceneCube;
@@ -91,18 +91,18 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         sceneCube.add( meshCube );
     };
 
-    SkyboxCubeMapApp.prototype.renderPre = function () {
+    SkyboxCubeMap.prototype.renderPre = function () {
         this.controls.update();
     };
 
-    SkyboxCubeMapApp.prototype.renderPost = function () {
+    SkyboxCubeMap.prototype.renderPost = function () {
         this.stats.update();
     };
 
-    SkyboxCubeMapApp.prototype.resizeDisplayGL = function() {
+    SkyboxCubeMap.prototype.resizeDisplayGL = function() {
         this.controls.handleResize();
     };
 
-    return SkyboxCubeMapApp;
+    return SkyboxCubeMap;
 
 })();

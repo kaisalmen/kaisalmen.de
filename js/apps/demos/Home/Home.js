@@ -210,10 +210,10 @@ KSX.apps.demos.home.Main = (function () {
             this.app.initError = true;
             return;
         }
-        this.app.renderer.setClearColor(0x101010);
+        this.app.renderer.setClearColor(0x0B0B0B);
 
         // init camera and bind to controls
-        var camPos = new THREE.Vector3(0.0, this.gridParams.sizeY * 0.333, this.gridParams.sizeY * 0.75);
+        var camPos = new THREE.Vector3(0.0, -this.gridParams.sizeY * 0.25, this.gridParams.sizeY * 0.75);
         this.app.scenePerspective.setCameraDefaults(camPos);
         this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
 
@@ -242,8 +242,10 @@ KSX.apps.demos.home.Main = (function () {
         this.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
         this.rtt.scene.add(this.rtt.directionalLight);
 
-        this.rtt.helper = new THREE.GridHelper(20, 1, 0xFF4444, 0x404040);
-        this.rtt.scene.add(this.rtt.helper);
+        if (this.debug) {
+            this.rtt.helper = new THREE.GridHelper(20, 1, 0xFF4444, 0x404040);
+            this.rtt.scene.add(this.rtt.helper);
+        }
 
         var textWelcome = this.rtt.textStorage.addText('Welcome', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
         textWelcome.mesh.position.set(-5, 3, 0);
@@ -338,11 +340,11 @@ KSX.apps.demos.home.Main = (function () {
             this.videoTexture.needsUpdate = true;
         }
 
-        this.app.renderer.setClearColor(0x000000);
+        this.app.renderer.setClearColor(0x202020);
         this.rtt.mesh.position.set(3 * Math.sin(this.app.frameNumber / 10), 0, 3 * Math.cos(this.app.frameNumber / 10));
         this.app.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
 
-        this.app.renderer.setClearColor(0x202020);
+        this.app.renderer.setClearColor(0x0B0B0B);
     };
 
     Home.prototype.renderPost = function () {

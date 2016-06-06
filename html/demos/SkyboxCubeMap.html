@@ -22,7 +22,7 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = new Array();
-            implementations.push(new KSX.apps.demos.impl.SkyboxCubeMapApp(document.getElementById("DivGLFullCanvas")));
+            implementations.push(new KSX.apps.demos.impl.SkyboxCubeMap(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
         }

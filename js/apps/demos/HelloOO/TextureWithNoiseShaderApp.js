@@ -4,12 +4,12 @@
 
 'use strict';
 
-KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
+KSX.apps.demos.TextureWithNoiseShader = (function () {
 
-    function TextureWithNoiseShaderApp(elementToBindTo) {
+    function TextureWithNoiseShader(elementToBindTo) {
         var userDefinition = {
             user : this,
-            name : 'TextureWithNoiseShaderApp',
+            name : 'TextureWithNoiseShader',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
         };
@@ -18,7 +18,7 @@ KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
         this.shader = new KSX.apps.shader.TextureWithNoiseShader();
     }
 
-    TextureWithNoiseShaderApp.prototype.initAsyncContent = function() {
+    TextureWithNoiseShader.prototype.initAsyncContent = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {
@@ -27,7 +27,7 @@ KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
         this.shader.loadResources(callbackOnSuccess);
     };
 
-    TextureWithNoiseShaderApp.prototype.initGL = function () {
+    TextureWithNoiseShader.prototype.initGL = function () {
         var camera = this.app.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
@@ -39,10 +39,10 @@ KSX.apps.demos.TextureWithNoiseShaderApp = (function () {
         this.app.scenePerspective.camera.position.z = 25;
     };
 
-    TextureWithNoiseShaderApp.prototype.renderPre = function () {
+    TextureWithNoiseShader.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
     };
 
-    return TextureWithNoiseShaderApp;
+    return TextureWithNoiseShader;
 })();

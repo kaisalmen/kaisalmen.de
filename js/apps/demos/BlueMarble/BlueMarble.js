@@ -4,12 +4,12 @@
 
 "use strict";
 
-KSX.apps.demos.impl.BlueMarbleApp = (function () {
+KSX.apps.demos.BlueMarble = (function () {
 
     var NORMAL_WIDTH = 3712.0;
     var NORMAL_HEIGHT = 3712.0;
 
-    function BlueMarbleApp(elementToBindTo) {
+    function BlueMarble(elementToBindTo) {
         var userDefinition = {
             user : this,
             name : 'BlueMarble',
@@ -53,7 +53,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         this.divScale = 1.0;
     }
 
-    BlueMarbleApp.prototype.initAsyncContent = function () {
+    BlueMarble.prototype.initAsyncContent = function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
@@ -62,7 +62,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         this.shader.loadResources(callbackOnSuccess);
     };
 
-    BlueMarbleApp.prototype.initPreGL = function () {
+    BlueMarble.prototype.initPreGL = function () {
         var scope = this;
         var ui = scope.uiTools.ui;
 
@@ -224,7 +224,7 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         document.body.appendChild(scope.stats.domElement);
     }
 
-    BlueMarbleApp.prototype.initGL = function () {
+    BlueMarble.prototype.initGL = function () {
         var gl = this.app.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
@@ -239,14 +239,14 @@ KSX.apps.demos.impl.BlueMarbleApp = (function () {
         this.app.sceneOrtho.scene.add(this.mesh);
     };
 
-    BlueMarbleApp.prototype.renderPre = function () {
+    BlueMarble.prototype.renderPre = function () {
 
     };
 
-    BlueMarbleApp.prototype.renderPost = function () {
+    BlueMarble.prototype.renderPost = function () {
         this.stats.update();
     };
 
-    return BlueMarbleApp;
+    return BlueMarble;
 
 })();
