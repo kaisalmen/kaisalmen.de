@@ -4,8 +4,11 @@
 
 'use strict';
 
+if (KSX.apps.demos.home === undefined) {
+    KSX.apps.demos.home = {};
+}
 
-KSX.apps.demos.Home = (function () {
+KSX.apps.demos.home.Main = (function () {
 
     function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
 
@@ -29,7 +32,7 @@ KSX.apps.demos.Home = (function () {
         this.videoBuffer = elementNameVideoBuffer;
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.videoTexture = null;
-        this.videoTextureEnabled = true;
+        this.videoTextureEnabled = false;
 
         this.animate = false;
         this.invert = false;
@@ -72,19 +75,13 @@ KSX.apps.demos.Home = (function () {
         if (bowser.mobile) {
             this.gridParams.sizeX = 128;
             this.gridParams.sizeY = 128;
-            this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
-            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
             this.shader.uniforms.heightFactor.value = 24.0;
         }
         else {
-            this.gridParams.posStartX = -this.gridParams.sizeX / (2.0 / 0.5);
-            this.gridParams.posStartY = -this.gridParams.sizeY / (2.0 / 0.5);
             this.shader.uniforms.heightFactor.value = 6.0;
         }
 
         this.superBoxGroup = null;
-
-        this.textStorage = new KSX.apps.core.Text2d();
 
         this.rtt = {
             scene : null,
@@ -92,8 +89,11 @@ KSX.apps.demos.Home = (function () {
             directionalLight : null,
             helper : null,
             mesh : null,
-            texture : null
+            texture : null,
+            textStorage : new KSX.apps.core.Text2d()
         }
+
+        this.debug = false;
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -125,7 +125,7 @@ KSX.apps.demos.Home = (function () {
             scope.app.scenePerspective.resetCamera();
             scope.controls.reset();
             scope.controls.target = scope.app.scenePerspective.cameraTarget;
-            scope.superBoxGroup.rotation.y = 0;
+            scope.superBoxPivot.rotation.y = 0;
         };
         var enableVideo = function (enabled) {
             scope.videoTextureEnabled = enabled;
@@ -212,15 +212,13 @@ KSX.apps.demos.Home = (function () {
         }
         this.app.renderer.setClearColor(0x101010);
 
-        var camTarget = new THREE.Vector3(this.gridParams.sizeX * 0.6, 0.0, 0.0);
-        this.app.scenePerspective.setCameraDefaults(
-            new THREE.Vector3(this.gridParams.sizeX * 0.6, this.gridParams.sizeY * 0.333, this.gridParams.sizeY * 0.75 ),
-            null,
-            camTarget);
-
+        // init camera and bind to controls
+        var camPos = new THREE.Vector3(0.0, this.gridParams.sizeY * 0.333, this.gridParams.sizeY * 0.75);
+        this.app.scenePerspective.setCameraDefaults(camPos);
         this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
-        this.controls.target = camTarget;
 
+
+        // init video texture and params
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 804;
         this.videoBufferContext.fillStyle = "#000000";
@@ -231,11 +229,12 @@ KSX.apps.demos.Home = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
+
+        // setup RTT
         this.rtt.scene = new THREE.Scene();
         this.rtt.camera = new THREE.PerspectiveCamera();
-//        this.rtt.camera.copy(this.app.scenePerspective.camera);
-        this.rtt.camera.position.set( 0, 10, 20 );
-        this.rtt.camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+        this.rtt.camera.position.set(0, 10, 20);
+        this.rtt.camera.lookAt(new THREE.Vector3(0, 0, 0));
 
         var lightColor = 0xE0E0E0;
         var lightPos = new THREE.Vector3(100, 100, 100);
@@ -243,12 +242,12 @@ KSX.apps.demos.Home = (function () {
         this.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
         this.rtt.scene.add(this.rtt.directionalLight);
 
-        this.rtt.helper = new THREE.GridHelper( 20, 1, 0xFF4444, 0x404040 );
+        this.rtt.helper = new THREE.GridHelper(20, 1, 0xFF4444, 0x404040);
         this.rtt.scene.add(this.rtt.helper);
 
-        var textWelcome = this.textStorage.addText( 'Welcome', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
+        var textWelcome = this.rtt.textStorage.addText('Welcome', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
         textWelcome.mesh.position.set(-5, 3, 0);
-        var textDomain = this.textStorage.addText( 'Domain', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
+        var textDomain = this.rtt.textStorage.addText('Domain', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
         textDomain.mesh.position.set(-5, -3, 0);
         this.rtt.scene.add(textWelcome.mesh);
         this.rtt.scene.add(textDomain.mesh);
@@ -267,18 +266,22 @@ KSX.apps.demos.Home = (function () {
                 format: THREE.RGBFormat
             }
         );
+        this.shader.textures['rtt'] = this.rtt.texture.texture;
+
 
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
         this.checkVideo();
 
-        var helper = new THREE.GridHelper( 2000, 10, 0xFF4444, 0x404040 );
-        this.app.scenePerspective.scene.add(helper);
 
-        var pixelBoxesBuilder = new KSX.apps.demos.PixelBoxesBuilder();
+        var pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder();
 
+        this.superBoxPivot = new THREE.Object3D();
         this.superBoxGroup = new THREE.Group();
-        this.app.scenePerspective.scene.add(this.superBoxGroup);
+        this.superBoxGroup.translateX(-320);
+        this.superBoxGroup.translateY(-180);
+        this.superBoxPivot.add(this.superBoxGroup);
+        this.app.scenePerspective.scene.add(this.superBoxPivot);
 
         this.gridParams.uMin = 0.0;
         this.gridParams.vMin = 0.0;
@@ -295,7 +298,6 @@ KSX.apps.demos.Home = (function () {
         box.translateX(320);
         this.superBoxGroup.add(box);
 
-
         this.gridParams.uMin = 0.0;
         this.gridParams.vMin = 0.5;
         this.gridParams.uMax = 0.5;
@@ -308,11 +310,15 @@ KSX.apps.demos.Home = (function () {
         this.gridParams.vMin = 0.5;
         this.gridParams.uMax = 1.0;
         this.gridParams.vMax = 1.0;
-        box = pixelBoxesBuilder .buildSuperBox(this.gridParams, material);
+        box = pixelBoxesBuilder.buildSuperBox(this.gridParams, material);
         box.translateX(320);
         box.translateY(180);
         this.superBoxGroup.add(box);
 
+        if (this.debug) {
+            var helper = new THREE.GridHelper(1000, 10, 0xFF4444, 0x404040);
+            this.app.scenePerspective.scene.add(helper);
+        }
         //new THREE.TextGeometry();
     };
 
@@ -323,7 +329,7 @@ KSX.apps.demos.Home = (function () {
 
     Home.prototype.renderPre = function () {
         if (this.animate && this.superBoxGroup !== undefined) {
-            this.superBoxGroup.rotateY(0.005);
+            this.superBoxPivot.rotateY(0.005);
         }
         this.controls.update();
 
@@ -350,9 +356,8 @@ KSX.apps.demos.Home = (function () {
         }
         else {
             this.video.pause();
-            this.shader.uniforms.texture1.value = this.shader.textures['default'];
+            this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
         }
-        this.shader.uniforms.texture1.value = this.rtt.texture.texture;
     };
 
     Home.prototype.flipTexture = function (name) {

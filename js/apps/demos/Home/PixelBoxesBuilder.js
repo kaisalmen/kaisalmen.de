@@ -4,7 +4,11 @@
 
 'use strict';
 
-KSX.apps.demos.PixelBoxesBuilder = (function () {
+if (KSX.apps.demos.home === undefined) {
+    KSX.apps.demos.home = {};
+}
+
+KSX.apps.demos.home.PixelBoxesBuilder = (function () {
 
     function PixelBoxesBuilder() {
 
@@ -67,7 +71,7 @@ KSX.apps.demos.PixelBoxesBuilder = (function () {
     };
 
     PixelBoxesBuilder.prototype.buildSingleBox = function (boxBuildParams) {
-        var vertexValue = 0.95 * boxBuildParams.cubeDimension / 2.0;
+        var vertexValue = 0.975 * boxBuildParams.cubeDimension / 2.0;
         var v0x = -vertexValue + boxBuildParams.xOffset;
         var v0y = -vertexValue + boxBuildParams.yOffset;
         var v0z =  vertexValue + boxBuildParams.zOffset;
