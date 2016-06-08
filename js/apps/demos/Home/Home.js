@@ -90,8 +90,8 @@ KSX.apps.demos.home.Main = (function () {
             helper : null,
             mesh : null,
             texture : null,
-            textStorage : new KSX.apps.core.Text2d()
-        }
+            textStorage : new KSX.apps.tools.text.Text()
+        };
 
         this.debug = false;
     }
@@ -100,9 +100,17 @@ KSX.apps.demos.home.Main = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            var listOfFonts = new Array(2);
+            listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
+            listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
+
+            var callbackOnSuccess = function () {
+                scope.app.initSynchronuous();
+            };
+            scope.rtt.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
-        this.shader.loadResources(callbackOnSuccess);
+
+        scope.shader.loadResources(callbackOnSuccess);
     };
 
     Home.prototype.initPreGL = function () {
@@ -210,7 +218,7 @@ KSX.apps.demos.home.Main = (function () {
             this.app.initError = true;
             return;
         }
-        this.app.renderer.setClearColor(0x0B0B0B);
+        this.app.renderer.setClearColor(0x141414);
 
         // init camera and bind to controls
         var camPos = new THREE.Vector3(0.0, -this.gridParams.sizeY * 0.25, this.gridParams.sizeY * 0.75);
@@ -247,9 +255,9 @@ KSX.apps.demos.home.Main = (function () {
             this.rtt.scene.add(this.rtt.helper);
         }
 
-        var textWelcome = this.rtt.textStorage.addText('Welcome', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
+        var textWelcome = this.rtt.textStorage.addText('Welcome', 'ubuntu_mono_regular', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
         textWelcome.mesh.position.set(-5, 3, 0);
-        var textDomain = this.rtt.textStorage.addText('Domain', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
+        var textDomain = this.rtt.textStorage.addText('Domain', 'droid_sans_mono_regular', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
         textDomain.mesh.position.set(-5, -3, 0);
         this.rtt.scene.add(textWelcome.mesh);
         this.rtt.scene.add(textDomain.mesh);
@@ -321,7 +329,6 @@ KSX.apps.demos.home.Main = (function () {
             var helper = new THREE.GridHelper(1000, 10, 0xFF4444, 0x404040);
             this.app.scenePerspective.scene.add(helper);
         }
-        //new THREE.TextGeometry();
     };
 
 
