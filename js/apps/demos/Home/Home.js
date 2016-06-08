@@ -10,6 +10,9 @@ if (KSX.apps.demos.home === undefined) {
 
 KSX.apps.demos.home.Main = (function () {
 
+    var MAIN_CLEAR_COLOR = 0x202020;
+    var RTT_CLEAR_COLOR = 0x0B0B0B;
+
     function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
 
         var userDefinition = {
@@ -100,7 +103,7 @@ KSX.apps.demos.home.Main = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            var listOfFonts = new Array(2);
+            var listOfFonts = [];
             listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
             listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
 
@@ -218,7 +221,7 @@ KSX.apps.demos.home.Main = (function () {
             this.app.initError = true;
             return;
         }
-        this.app.renderer.setClearColor(0x141414);
+        this.app.renderer.setClearColor(MAIN_CLEAR_COLOR);
 
         // init camera and bind to controls
         var camPos = new THREE.Vector3(0.0, -this.gridParams.sizeY * 0.25, this.gridParams.sizeY * 0.75);
@@ -347,11 +350,11 @@ KSX.apps.demos.home.Main = (function () {
             this.videoTexture.needsUpdate = true;
         }
 
-        this.app.renderer.setClearColor(0x202020);
+        this.app.renderer.setClearColor(RTT_CLEAR_COLOR);
         this.rtt.mesh.position.set(3 * Math.sin(this.app.frameNumber / 10), 0, 3 * Math.cos(this.app.frameNumber / 10));
         this.app.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
 
-        this.app.renderer.setClearColor(0x0B0B0B);
+        this.app.renderer.setClearColor(MAIN_CLEAR_COLOR);
     };
 
     Home.prototype.renderPost = function () {

@@ -28,6 +28,11 @@ KSX.apps.tools.text.Text = (function () {
     }
 
     Text.prototype.loadListOfFonts = function (basedir, fontList, callback) {
+        if (fontList === undefined || fontList === null) {
+            console.error('Provided fontList is empty. Aborting...');
+            return;
+        }
+
         var scope = this;
         var fontLoader = new KSX.apps.tools.text.FontLoader();
         var promises = [];
@@ -51,7 +56,7 @@ KSX.apps.tools.text.Text = (function () {
             }
         ).catch(
             function (error) {
-                console.log('The following error occurred: ', error);
+                console.error('The following error occurred: ', error);
             }
         );
     };
