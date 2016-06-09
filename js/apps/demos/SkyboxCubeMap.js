@@ -5,17 +5,27 @@
 
 "use strict";
 
-KSX.apps.demos.impl.SkyboxCubeMap = (function () {
+KSX.apps.demos.SkyboxCubeMap = (function () {
+
+    SkyboxCubeMap.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: SkyboxCubeMap,
+            writable: true
+        }
+    });
 
     function SkyboxCubeMap(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'SkyboxCubeMap',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
             useCube : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
@@ -34,7 +44,7 @@ KSX.apps.demos.impl.SkyboxCubeMap = (function () {
         Promise.all(promises).then(
             function (results) {
                 scope.textureCubeLoader = results[0];
-                scope.app.initSynchronuous();
+                scope.initSynchronuous();
             }
         ).catch(
             function (error) {
@@ -49,8 +59,8 @@ KSX.apps.demos.impl.SkyboxCubeMap = (function () {
     };
 
     SkyboxCubeMap.prototype.initGL = function () {
-        var renderer = this.app.renderer;
-        var scenePerspective = this.app.scenePerspective;
+        var renderer = this.renderer;
+        var scenePerspective = this.scenePerspective;
         var sceneCube = scenePerspective.sceneCube;
         var scene = scenePerspective.scene;
         var camera = scenePerspective.camera;

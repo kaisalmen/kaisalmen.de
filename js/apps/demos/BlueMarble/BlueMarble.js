@@ -9,15 +9,25 @@ KSX.apps.demos.BlueMarble = (function () {
     var NORMAL_WIDTH = 3712.0;
     var NORMAL_HEIGHT = 3712.0;
 
+    BlueMarble.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: BlueMarble,
+            writable: true
+        }
+    });
+
     function BlueMarble(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'BlueMarble',
             htmlCanvas : elementToBindTo,
             useScenePerspective : false,
             useSceneOrtho : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shader = new KSX.apps.shader.BlueMarbleShader();
 
@@ -57,7 +67,7 @@ KSX.apps.demos.BlueMarble = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            scope.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
     };
@@ -84,29 +94,29 @@ KSX.apps.demos.BlueMarble = (function () {
         var changeDiv = function (value) {
             scope.divScale = value;
 
-            if (scope.app.renderingEndabled) {
-                scope.app.canvas.resetWidth(NORMAL_WIDTH * value, NORMAL_HEIGHT * value);
-                scope.app.resizeDisplayGL();
+            if (scope.renderingEndabled) {
+                scope.canvas.resetWidth(NORMAL_WIDTH * value, NORMAL_HEIGHT * value);
+                scope.resizeDisplayGL();
             }
         };
         var zoomMarble = function (value) {
             scope.zoom = value;
 
-            if (scope.app.renderingEndabled) {
+            if (scope.renderingEndabled) {
                 scope.mesh.scale.x = value;
                 scope.mesh.scale.y = value;
                 scope.mesh.scale.z = value;
             }
         };
         var moveCameraX = function (value) {
-            if (scope.app.renderingEndabled) {
-                var dimX = -scope.app.canvas.getWidth() * 0.5 / scope.divScale;
+            if (scope.renderingEndabled) {
+                var dimX = -scope.canvas.getWidth() * 0.5 / scope.divScale;
                 scope.mesh.position.x = dimX * scope.zoom * value;
             }
         };
         var moveCameraY = function (value) {
-            if (scope.app.renderingEndabled) {
-                var dimY = -scope.app.canvas.getHeight() * 0.5 / scope.divScale;
+            if (scope.renderingEndabled) {
+                var dimY = -scope.canvas.getHeight() * 0.5 / scope.divScale;
                 scope.mesh.position.y = dimY * scope.zoom * value;
             }
         };
@@ -225,7 +235,7 @@ KSX.apps.demos.BlueMarble = (function () {
     }
 
     BlueMarble.prototype.initGL = function () {
-        var gl = this.app.renderer.getContext();
+        var gl = this.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
@@ -236,7 +246,7 @@ KSX.apps.demos.BlueMarble = (function () {
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
-        this.app.sceneOrtho.scene.add(this.mesh);
+        this.sceneOrtho.scene.add(this.mesh);
     };
 
     BlueMarble.prototype.renderPre = function () {

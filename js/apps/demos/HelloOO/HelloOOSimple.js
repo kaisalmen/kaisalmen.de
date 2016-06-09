@@ -6,31 +6,37 @@
 
 KSX.apps.demos.HelloOOSimple = (function () {
 
+    HelloOOSimple.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: HelloOOSimple,
+            writable: true
+        }
+    });
+
     function HelloOOSimple(elementToBindTo) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
         var userDefinition = {
             user : this,
             name : 'HelloOOSimple',
             htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            useScenePerspective : true,
+            loader: true
         };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        this.configure(userDefinition);
+    }
+
+    HelloOOSimple.prototype.initGL = function () {
+        this.scenePerspective.camera.position.set( 0, 0, 250 );
+        this.scenePerspective.camera.position.z = 5;
 
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
-    }
 
-    HelloOOSimple.prototype.initAsyncContent = function() {
-        console.log("HelloOOSimple.initAsyncContent is not required!");
-        this.app.initSynchronuous();
-    };
-
-    HelloOOSimple.prototype.initGL = function () {
-        var camera = this.app.scenePerspective.camera;
-        camera.position.set( 0, 0, 250 );
-
-        this.app.scenePerspective.scene.add(this.mesh);
-        this.app.scenePerspective.camera.position.z = 5;
+        this.scenePerspective.scene.add(this.mesh);
     };
 
     HelloOOSimple.prototype.renderPre = function () {

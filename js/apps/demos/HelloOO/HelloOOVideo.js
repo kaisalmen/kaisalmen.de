@@ -6,14 +6,24 @@
 
 KSX.apps.demos.HelloOOVideo = (function () {
 
+    HelloOOVideo.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: HelloOOVideo,
+            writable: true
+        }
+    });
+
     function HelloOOVideo(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'HelloOOVideo',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shader = new KSX.apps.shader.SimpleTextureShader();
         
@@ -27,14 +37,14 @@ KSX.apps.demos.HelloOOVideo = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            scope.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
     };
 
 
     HelloOOVideo.prototype.initGL = function () {
-        var camera = this.app.scenePerspective.camera;
+        var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
         this.videoBuffer.width = 1920;
@@ -57,8 +67,8 @@ KSX.apps.demos.HelloOOVideo = (function () {
 //        var material = this.shader.buildShaderMaterial();
         var mesh =  new THREE.Mesh(geometry, material);
 
-        this.app.scenePerspective.scene.add(mesh);
-        this.app.scenePerspective.camera.position.z = 150;
+        this.scenePerspective.scene.add(mesh);
+        this.scenePerspective.camera.position.z = 150;
     };
 
     HelloOOVideo.prototype.renderPre = function () {

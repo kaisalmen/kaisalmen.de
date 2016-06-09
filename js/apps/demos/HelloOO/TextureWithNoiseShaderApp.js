@@ -6,14 +6,24 @@
 
 KSX.apps.demos.TextureWithNoiseShader = (function () {
 
+    TextureWithNoiseShader.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: TextureWithNoiseShader,
+            writable: true
+        }
+    });
+
     function TextureWithNoiseShader(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'TextureWithNoiseShader',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shader = new KSX.apps.shader.TextureWithNoiseShader();
     }
@@ -22,21 +32,21 @@ KSX.apps.demos.TextureWithNoiseShader = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            scope.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
     };
 
     TextureWithNoiseShader.prototype.initGL = function () {
-        var camera = this.app.scenePerspective.camera;
+        var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
-        this.app.scenePerspective.scene.add(this.mesh);
-        this.app.scenePerspective.camera.position.z = 25;
+        this.scenePerspective.scene.add(this.mesh);
+        this.scenePerspective.camera.position.z = 25;
     };
 
     TextureWithNoiseShader.prototype.renderPre = function () {

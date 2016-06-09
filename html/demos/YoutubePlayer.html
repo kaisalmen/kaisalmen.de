@@ -28,14 +28,13 @@
     <script src="../../js/lib/ext/CSS3DRenderer.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
 
     <script src="../../js/apps/demos/Youtube/YoutubePlayer.js"></script>
     <script>
     if (KSX.globals.preChecksOk) {
-        var implementations = new Array();
+        var implementations = [];
         implementations.push(new KSX.apps.demos.YoutubePlayer(document.getElementById("DivGLFullCanvas"), "DivGLFullVideo", "DivGLFullVideoBuffer"));
         KSX.globals.appRunner.addImplementations(implementations);
         KSX.globals.appRunner.run(true);

@@ -9,6 +9,7 @@
 <body>
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
+        <canvas id="DivGLFullCanvasLoad"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
 <!--
             <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4#t=30,730" type="video/mp4">
@@ -48,7 +49,6 @@
             }
         };
     </script>
-    <script src="js/apps/core/Canvas.js"></script>
     <script src="js/apps/tools/TextTools.js"></script>
     <script src="js/apps/tools/ShaderTools.js"></script>
     <script src="js/apps/tools/TextureTools.js"></script>
@@ -57,17 +57,19 @@
     <script src="js/apps/shader/ShaderBase.js"></script>
     <script src="js/apps/shader/BlockShader.js"></script>
 
+    <script src="js/apps/demos/HelloOO/HelloOOSimple.js"></script>
     <script src="js/apps/demos/Home/PixelBoxesBuilder.js"></script>
     <script src="js/apps/demos/Home/Home.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
+            var implementations = [];
             var home = new KSX.apps.demos.home.Main(
                     document.getElementById("DivGLFullCanvas"),
                     document.getElementById("DivGLFullVideo"),
                     document.getElementById("DivGLFullVideoBuffer")
             );
             implementations.push(home);
+            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGLFullCanvasLoad")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
 

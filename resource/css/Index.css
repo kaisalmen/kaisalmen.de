@@ -26,3 +26,12 @@
     width: 1920px;
     height: 804px;
 }
+
+#DivGLFullCanvas {
+    z-index: 0;
+}
+
+#DivGLFullCanvasLoad {
+    z-index: 1000;
+    position: absolute;
+}

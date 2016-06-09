@@ -4,25 +4,30 @@
 
 "use strict";
 
-KSX.apps.learn.GLCheckApp = (function () {
+KSX.apps.learn.GLCheck = (function () {
 
-    function GLCheckApp(elementToBindTo) {
-        var userDefinition = {
+    GLCheck.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: GLCheck,
+            writable: true
+        }
+    });
+
+    function GLCheck(elementToBindTo) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'GLCheckApp',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
     }
 
-    GLCheckApp.prototype.initAsyncContent = function() {
-        console.log("GLCheckApp.initAsyncContent is not required!");
-        this.app.initSynchronuous();
-    };
-
-    GLCheckApp.prototype.initGL = function () {
-        var gl = this.app.renderer.getContext();
+    GLCheck.prototype.initGL = function () {
+        var gl = this.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
@@ -30,6 +35,6 @@ KSX.apps.learn.GLCheckApp = (function () {
         }
     };
 
-    return GLCheckApp;
+    return GLCheck;
 })();
 

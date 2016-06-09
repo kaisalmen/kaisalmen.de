@@ -6,14 +6,25 @@
 
 KSX.apps.demos.YoutubePlayer = (function () {
 
+
+    YoutubePlayer.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: YoutubePlayer,
+            writable: true
+        }
+    });
+
     function YoutubePlayer(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'YoutubePlayer',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shaderTools = new KSX.apps.tools.ShaderTools();
         this.textureTools = new KSX.apps.tools.TextureTools();
@@ -50,7 +61,7 @@ KSX.apps.demos.YoutubePlayer = (function () {
                 scope.vertexShaderText = results[0];
                 scope.fragmentShaderText = results[1];
                 scope.uniforms.texture1.value = results[2];
-                scope.app.initSynchronuous();
+                scope.initSynchronuous();
             }
         ).catch(
             function (error) {
@@ -60,7 +71,7 @@ KSX.apps.demos.YoutubePlayer = (function () {
     };
 
     YoutubePlayer.prototype.initGL = function () {
-        var camera = this.app.scenePerspective.camera;
+        var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
         this.videoBuffer.width = 1920;
@@ -81,8 +92,8 @@ KSX.apps.demos.YoutubePlayer = (function () {
         });
         var mesh = new THREE.Mesh(geometry, material);
 
-        this.app.scenePerspective.scene.add(mesh);
-        this.app.scenePerspective.camera.position.set( 0, 0, 750 );
+        this.scenePerspective.scene.add(mesh);
+        this.scenePerspective.camera.position.set( 0, 0, 750 );
 
 
         var Element = function ( id, x, y, z, ry ) {

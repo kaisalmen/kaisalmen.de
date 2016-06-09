@@ -13,9 +13,19 @@ KSX.apps.demos.home.Main = (function () {
     var MAIN_CLEAR_COLOR = 0x202020;
     var RTT_CLEAR_COLOR = 0x0B0B0B;
 
-    function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
+    Home.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: Home,
+            writable: true
+        }
+    });
 
-        var userDefinition = {
+    function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'Home',
             htmlCanvas : elementToBindTo,
@@ -26,8 +36,7 @@ KSX.apps.demos.home.Main = (function () {
                 }
             },
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shader = new KSX.apps.shader.BlockShader();
 
@@ -108,7 +117,7 @@ KSX.apps.demos.home.Main = (function () {
             listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
 
             var callbackOnSuccess = function () {
-                scope.app.initSynchronuous();
+                scope.initSynchronuous();
             };
             scope.rtt.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
@@ -133,9 +142,9 @@ KSX.apps.demos.home.Main = (function () {
             scope.animate = enabled;
         };
         var resetView = function () {
-            scope.app.scenePerspective.resetCamera();
+            scope.scenePerspective.resetCamera();
             scope.controls.reset();
-            scope.controls.target = scope.app.scenePerspective.cameraTarget;
+            scope.controls.target = scope.scenePerspective.cameraTarget;
             scope.superBoxPivot.rotation.y = 0;
         };
         var enableVideo = function (enabled) {
@@ -210,7 +219,7 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initGL = function () {
-        var gl = this.app.renderer.getContext();
+        var gl = this.renderer.getContext();
 
         var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
         if (result != 0) {
@@ -218,15 +227,15 @@ KSX.apps.demos.home.Main = (function () {
         }
         else {
             alert("Vertex shader is unable to access textures. Aborting...");
-            this.app.initError = true;
+            this.initError = true;
             return;
         }
-        this.app.renderer.setClearColor(MAIN_CLEAR_COLOR);
+        this.renderer.setClearColor(MAIN_CLEAR_COLOR);
 
         // init camera and bind to controls
         var camPos = new THREE.Vector3(0.0, -this.gridParams.sizeY * 0.25, this.gridParams.sizeY * 0.75);
-        this.app.scenePerspective.setCameraDefaults(camPos);
-        this.controls = new THREE.TrackballControls(this.app.scenePerspective.camera);
+        this.scenePerspective.setCameraDefaults(camPos);
+        this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
 
         // init video texture and params
@@ -260,7 +269,7 @@ KSX.apps.demos.home.Main = (function () {
 
         var textWelcome = this.rtt.textStorage.addText('Welcome', 'ubuntu_mono_regular', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
         textWelcome.mesh.position.set(-5, 3, 0);
-        var textDomain = this.rtt.textStorage.addText('Domain', 'droid_sans_mono_regular', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
+        var textDomain = this.rtt.textStorage.addText('Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
         textDomain.mesh.position.set(-5, -3, 0);
         this.rtt.scene.add(textWelcome.mesh);
         this.rtt.scene.add(textDomain.mesh);
@@ -294,7 +303,7 @@ KSX.apps.demos.home.Main = (function () {
         this.superBoxGroup.translateX(-320);
         this.superBoxGroup.translateY(-180);
         this.superBoxPivot.add(this.superBoxGroup);
-        this.app.scenePerspective.scene.add(this.superBoxPivot);
+        this.scenePerspective.scene.add(this.superBoxPivot);
 
         this.gridParams.uMin = 0.0;
         this.gridParams.vMin = 0.0;
@@ -330,7 +339,7 @@ KSX.apps.demos.home.Main = (function () {
 
         if (this.debug) {
             var helper = new THREE.GridHelper(1000, 10, 0xFF4444, 0x404040);
-            this.app.scenePerspective.scene.add(helper);
+            this.scenePerspective.scene.add(helper);
         }
     };
 
@@ -350,11 +359,11 @@ KSX.apps.demos.home.Main = (function () {
             this.videoTexture.needsUpdate = true;
         }
 
-        this.app.renderer.setClearColor(RTT_CLEAR_COLOR);
-        this.rtt.mesh.position.set(3 * Math.sin(this.app.frameNumber / 10), 0, 3 * Math.cos(this.app.frameNumber / 10));
-        this.app.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
+        this.renderer.setClearColor(RTT_CLEAR_COLOR);
+        this.rtt.mesh.position.set(3 * Math.sin(this.frameNumber / 10), 0, 3 * Math.cos(this.frameNumber / 10));
+        this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
 
-        this.app.renderer.setClearColor(MAIN_CLEAR_COLOR);
+        this.renderer.setClearColor(MAIN_CLEAR_COLOR);
     };
 
     Home.prototype.renderPost = function () {

@@ -59,7 +59,8 @@ body {
     overflow: hidden;
 }
 #DivGLFull,
-#DivGLFullCanvas {
+#DivGLFullCanvas,
+#DivGLFullCanvasLoad {
     margin: inherit;
     padding: inherit;
     width: 100%;

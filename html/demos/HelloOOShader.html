@@ -13,7 +13,6 @@
     <script src="../../js/lib/ext/three.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
 
@@ -22,8 +21,8 @@
     <script src="../../js/apps/demos/HelloOO/TextureWithNoiseShaderApp.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
-            implementations.push(new KSX.apps.demos.TextureWithNoiseShaderApp(document.getElementById("DivGLFullCanvas")));
+            var implementations = [];
+            implementations.push(new KSX.apps.demos.TextureWithNoiseShader(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
         }

@@ -6,14 +6,24 @@
 
 KSX.apps.demos.ImageBasedGeometryTransform = (function () {
 
+    ImageBasedGeometryTransform.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: ImageBasedGeometryTransform,
+            writable: true
+        }
+    });
+
     function ImageBasedGeometryTransform(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'ImageBasedGeometryTransform',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.shader = new KSX.apps.shader.ImageBaseGeometryTransformShader();
     }
@@ -22,21 +32,21 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            scope.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
     };
 
     ImageBasedGeometryTransform.prototype.initGL = function () {
-        var camera = this.app.scenePerspective.camera;
+        var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
-        this.app.scenePerspective.scene.add(this.mesh);
-        this.app.scenePerspective.camera.position.z = 25;
+        this.scenePerspective.scene.add(this.mesh);
+        this.scenePerspective.camera.position.z = 25;
     };
 
     ImageBasedGeometryTransform.prototype.renderPre = function () {

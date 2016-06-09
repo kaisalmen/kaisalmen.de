@@ -6,17 +6,27 @@
 
 KSX.apps.demos.PixelProtest = (function () {
 
+    PixelProtest.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: PixelProtest,
+            writable: true
+        }
+    });
+
     function PixelProtest(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'PixelProtest',
             htmlCanvas : elementToBindTo,
             useScenePerspective : false,
             useSceneOrtho : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
-        this.shader = new KSX.apps.shader.PixelProtestShader(this.app.canvas.getWidth(), this.app.canvas.getHeight());
+        this.shader = new KSX.apps.shader.PixelProtestShader(this.canvas.getWidth(), this.canvas.getHeight());
 
         var uiParams = {
             css: 'top: 0px; left: 0px;',
@@ -55,14 +65,14 @@ KSX.apps.demos.PixelProtest = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.app.initSynchronuous();
+            scope.initSynchronuous();
         };
         this.shader.loadResources(callbackOnSuccess);
     };
 
     PixelProtest.prototype.initPreGL = function () {
-        this.initUI(this.app.canvas.getWidth() / 4.0, this.app.canvas.getWidth(),
-            this.app.canvas.getHeight() / 4.0, this.app.canvas.getHeight());
+        this.initUI(this.canvas.getWidth() / 4.0, this.canvas.getWidth(),
+            this.canvas.getHeight() / 4.0, this.canvas.getHeight());
     };
 
     PixelProtest.prototype.initUI = function (width, maxWidth, height, maxHeight) {
@@ -236,19 +246,19 @@ KSX.apps.demos.PixelProtest = (function () {
         var material = this.shader.buildShaderMaterial();
         this.mesh = new THREE.Mesh(geometry, material);
 
-        this.app.sceneOrtho.scene.add(this.mesh);
+        this.sceneOrtho.scene.add(this.mesh);
     };
 
     PixelProtest.prototype.resizeDisplayGL = function () {
-        this.mesh.scale.x = this.app.canvas.getWidth();
-        this.mesh.scale.y = this.app.canvas.getHeight();
+        this.mesh.scale.x = this.canvas.getWidth();
+        this.mesh.scale.y = this.canvas.getHeight();
 
-        this.initUI(this.uiElemWidth.value, this.app.canvas.getWidth(), this.uiElemHeight.value, this.app.canvas.getHeight());
+        this.initUI(this.uiElemWidth.value, this.canvas.getWidth(), this.uiElemHeight.value, this.canvas.getHeight());
     };
 
     PixelProtest.prototype.renderPre = function () {
         if (this.animateNoise) {
-            var proceed = this.app.frameNumber % this.animationRate === 0;
+            var proceed = this.frameNumber % this.animationRate === 0;
             if (proceed) {
                 this.recalcRandom();
             }
@@ -260,7 +270,7 @@ KSX.apps.demos.PixelProtest = (function () {
             // in case of error in sub-sequent section, this block will not be entered again
             this.saveImageData = false;
 
-            var imgData = this.app.renderer.domElement.toDataURL();
+            var imgData = this.renderer.domElement.toDataURL();
 
             var blob = this.dataTools.dataURItoBlob(imgData, 'image/png');
             if (blob !== undefined) {
