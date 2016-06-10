@@ -51,7 +51,7 @@
     <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
+            var implementations = [];
             implementations.push(new KSX.apps.zerosouth.PTV1Loader(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);

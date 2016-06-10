@@ -38,10 +38,12 @@ var KSX = {
 KSX.apps.core.ThreeJsApp = (function () {
 
     function ThreeJsApp() {
-        this.renderingEndabled = false;
+        this.renderingEnabled = false;
 
         this.frameNumber = 0;
         this.initError = false;
+
+        this.asyncDone = false;
     }
 
     ThreeJsApp.prototype.configure = function (userDefinition) {
@@ -136,31 +138,47 @@ KSX.apps.core.ThreeJsApp = (function () {
     };
 
     ThreeJsApp.prototype.initSynchronuous = function () {
-        console.log("ThreeJsApp (" + this.definition.name + "): initPreGL");
-        this.initPreGL();
+        var scope = this;
 
-        console.log("ThreeJsApp (" + this.definition.name + "): initGL");
-        if (this.definition.useScenePerspective) {
-            this.scenePerspective.initGL();
-        }
-        if (this.definition.useSceneOrtho) {
-            this.sceneOrtho.initGL();
-        }
+        var init = function () {
+            console.log("ThreeJsApp (" + scope.definition.name + "): initPreGL");
+            scope.initPreGL();
 
-        this.initGL();
+            console.log("ThreeJsApp (" + scope.definition.name + "): initGL");
+            if (scope.definition.useScenePerspective) {
+                scope.scenePerspective.initGL();
+            }
+            if (scope.definition.useSceneOrtho) {
+                scope.sceneOrtho.initGL();
+            }
 
-        if ( !this.initError ) {
-            console.log("ThreeJsApp (" + this.definition.name + "): resizeDisplayGLBase");
-            this.resizeDisplayGLBase();
+            scope.initGL();
 
-            console.log("ThreeJsApp (" + this.definition.name + "): addEventHandlers");
-            this.addEventHandlers();
+            if ( !scope.initError ) {
+                console.log("ThreeJsApp (" + scope.definition.name + "): resizeDisplayGLBase");
+                scope.resizeDisplayGLBase();
 
-            console.log("ThreeJsApp (" + this.definition.name + "): initPostGL");
-            this.renderingEndabled = this.initPostGL();
+                console.log("ThreeJsApp (" + scope.definition.name + "): addEventHandlers");
+                scope.addEventHandlers();
 
-            if ( this.renderingEndabled ) {
-                console.log("ThreeJsApp (" + this.definition.name + "): Ready to start render loop!");
+                console.log("ThreeJsApp (" + scope.definition.name + "): initPostGL");
+                scope.renderingEnabled = scope.initPostGL();
+
+                if ( scope.renderingEnabled ) {
+                    console.log("ThreeJsApp (" + scope.definition.name + "): Ready to start render loop!");
+                }
+            }
+        };
+
+        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, 100);
+
+        function checkAsyncStatusTimer() {
+            if ( scope.asyncDone ) {
+                clearInterval(checkAsyncStatus);
+                init();
+            }
+            else {
+                console.log( 'waiting' );
             }
         }
     };
@@ -182,7 +200,7 @@ KSX.apps.core.ThreeJsApp = (function () {
     };
 
     ThreeJsApp.prototype.render = function () {
-        if (this.renderingEndabled) {
+        if (this.renderingEnabled) {
             this.frameNumber++;
             if (this.renderer.autoClear) {
                 this.renderer.clearDepth();
@@ -486,10 +504,13 @@ KSX.apps.core.AppRunner = (function () {
         var implementation;
         for ( var i = 0; i < implementations.length; i++ ) {
             implementation = implementations[i];
+
             if ( implementation.definition.loader ) {
+                console.log("AppRunner: Registering as loader: " + implementation.definition.name);
                 this.loader = implementation;
             }
             else {
+                console.log("AppRunner: Registering: " + implementation.definition.name);
                 this.implementations.push(implementation);
             }
         }
@@ -501,6 +522,9 @@ KSX.apps.core.AppRunner = (function () {
             for ( var i = 0; i < scope.implementations.length; i++ ) {
                 scope.implementations[i].resizeDisplayGLBase();
             }
+            if ( scope.loader !== undefined ) {
+                scope.loader.resizeDisplayGLBase();
+            }
         };
         window.addEventListener('resize', resizeWindow, false);
 
@@ -508,19 +532,39 @@ KSX.apps.core.AppRunner = (function () {
         console.log("AppRunner: Starting global initialisation phase...");
 
         var implementation;
-        for ( var i = 0; i < this.implementations.length; i++ ) {
-            implementation = this.implementations[i];
-            implementation.browserContext = this;
-            console.log("AppRunner: Registering: " + implementation.definition.name);
+        var promises = [];
 
-            implementation.initAsyncContent();
+        for ( var i = 0; i < scope.implementations.length; i++ ) {
+            implementation = scope.implementations[i];
+
+            var promise = function (resolve, reject) {
+                implementation.initAsyncContent();
+                resolve( implementation.definition.name );
+            };
+            promises.push(new Promise(promise));
         }
-        if ( this.loader !== undefined ) {
-            this.loader.initAsyncContent();
+        if ( scope.loader !== undefined ) {
+            var promise = function (resolve, reject) {
+                scope.loader.initAsyncContent();
+                resolve( implementation.definition.name );
+            };
+            promises.push(new Promise(promise));
         }
+
+        Promise.all( promises ).then(
+            function ( results ) {
+                for ( var result of results ) {
+                    console.log( 'AppRunner: Successfully initialised app: ' + result );
+                }
+            }
+        ).catch(
+            function (error) {
+                console.error( 'AppRunner: The following error occurred during initialisation of application: ', error );
+            }
+        );
 
         if ( startRenderLoop ) {
-            this.startRenderLoop();
+            scope.startRenderLoop();
         }
     };
 
@@ -534,13 +578,14 @@ KSX.apps.core.AppRunner = (function () {
     };
 
     AppRunner.prototype.render = function () {
+        console.log( 'RENDER' );
         if ( this.loader !== undefined ) {
             var allReady = true;
             var implementation;
 
             for ( var i = 0; i < this.implementations.length; i++ ) {
                 implementation = this.implementations[i];
-                implementation.renderingEndabled ? implementation.render() : allReady = false;
+                implementation.renderingEnabled ? implementation.render() : allReady = false;
             }
 
             if ( !allReady ) {

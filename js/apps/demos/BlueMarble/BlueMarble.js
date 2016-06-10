@@ -94,7 +94,7 @@ KSX.apps.demos.BlueMarble = (function () {
         var changeDiv = function (value) {
             scope.divScale = value;
 
-            if (scope.renderingEndabled) {
+            if (scope.renderingEnabled) {
                 scope.canvas.resetWidth(NORMAL_WIDTH * value, NORMAL_HEIGHT * value);
                 scope.resizeDisplayGL();
             }
@@ -102,20 +102,20 @@ KSX.apps.demos.BlueMarble = (function () {
         var zoomMarble = function (value) {
             scope.zoom = value;
 
-            if (scope.renderingEndabled) {
+            if (scope.renderingEnabled) {
                 scope.mesh.scale.x = value;
                 scope.mesh.scale.y = value;
                 scope.mesh.scale.z = value;
             }
         };
         var moveCameraX = function (value) {
-            if (scope.renderingEndabled) {
+            if (scope.renderingEnabled) {
                 var dimX = -scope.canvas.getWidth() * 0.5 / scope.divScale;
                 scope.mesh.position.x = dimX * scope.zoom * value;
             }
         };
         var moveCameraY = function (value) {
-            if (scope.renderingEndabled) {
+            if (scope.renderingEnabled) {
                 var dimY = -scope.canvas.getHeight() * 0.5 / scope.divScale;
                 scope.mesh.position.y = dimY * scope.zoom * value;
             }

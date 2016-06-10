@@ -18,15 +18,15 @@
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/shader/ShaderBase.js"></script>
 
-    <script src="../../js/apps/shader/ImageBaseGeometryTransformShader.js"></script>
-    <script src="../../js/apps/demos/HelloOO/ImageBasedGeometryTransform.js"></script>
+    <script src="../../js/apps/shader/SpinningCubeShader.js"></script>
+    <script src="../../js/apps/demos/HelloOO/SpinningCube.js"></script>
     <!--
         <script src="../../js/apps/demos/HelloOO/HelloOOSimple.js"></script>
     -->
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var helloOOSimple = new KSX.apps.demos.ImageBasedGeometryTransform(document.getElementById("DivGLFullCanvas"));
+            var helloOOSimple = new KSX.apps.demos.SpinningCube(document.getElementById("DivGLFullCanvas"), false);
             implementations.push(helloOOSimple);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);

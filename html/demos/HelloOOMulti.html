@@ -43,7 +43,7 @@
         console.log('Starting multiple applications...');
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas")));
+            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas"), false));
             implementations.push(new KSX.apps.demos.TextureWithNoiseShader(document.getElementById("DivGL2Canvas")));
             implementations.push(new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas"), "DivGL3Video", "DivGL3VideoBuffer"));
             implementations.push(new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas")));

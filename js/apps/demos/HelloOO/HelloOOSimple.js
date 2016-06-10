@@ -15,7 +15,7 @@ KSX.apps.demos.HelloOOSimple = (function () {
         }
     });
 
-    function HelloOOSimple(elementToBindTo) {
+    function HelloOOSimple(elementToBindTo, loader) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         var userDefinition = {
@@ -23,7 +23,7 @@ KSX.apps.demos.HelloOOSimple = (function () {
             name : 'HelloOOSimple',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
-            loader: true
+            loader: loader
         };
         this.configure(userDefinition);
     }

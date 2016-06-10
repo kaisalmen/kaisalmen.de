@@ -117,12 +117,14 @@ KSX.apps.demos.home.Main = (function () {
             listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
 
             var callbackOnSuccess = function () {
-                scope.initSynchronuous();
+                scope.asyncDone = true;
             };
             scope.rtt.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
 
         scope.shader.loadResources(callbackOnSuccess);
+
+        scope.initSynchronuous();
     };
 
     Home.prototype.initPreGL = function () {
@@ -293,57 +295,82 @@ KSX.apps.demos.home.Main = (function () {
 
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
-        this.checkVideo();
+        this.checkVideo(material);
 
-
-        var pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder();
-
-        this.superBoxPivot = new THREE.Object3D();
-        this.superBoxGroup = new THREE.Group();
-        this.superBoxGroup.translateX(-320);
-        this.superBoxGroup.translateY(-180);
-        this.superBoxPivot.add(this.superBoxGroup);
-        this.scenePerspective.scene.add(this.superBoxPivot);
-
-        this.gridParams.uMin = 0.0;
-        this.gridParams.vMin = 0.0;
-        this.gridParams.uMax = 0.5;
-        this.gridParams.vMax = 0.5;
-        var box = pixelBoxesBuilder.buildSuperBox(this.gridParams, material);
-        this.superBoxGroup.add(box);
-
-        this.gridParams.uMin = 0.5;
-        this.gridParams.vMin = 0.0;
-        this.gridParams.uMax = 1.0;
-        this.gridParams.vMax = 0.5;
-        box = pixelBoxesBuilder.buildSuperBox(this.gridParams, material);
-        box.translateX(320);
-        this.superBoxGroup.add(box);
-
-        this.gridParams.uMin = 0.0;
-        this.gridParams.vMin = 0.5;
-        this.gridParams.uMax = 0.5;
-        this.gridParams.vMax = 1.0;
-        box = pixelBoxesBuilder.buildSuperBox(this.gridParams, material);
-        box.translateY(180);
-        this.superBoxGroup.add(box);
-
-        this.gridParams.uMin = 0.5;
-        this.gridParams.vMin = 0.5;
-        this.gridParams.uMax = 1.0;
-        this.gridParams.vMax = 1.0;
-        box = pixelBoxesBuilder.buildSuperBox(this.gridParams, material);
-        box.translateX(320);
-        box.translateY(180);
-        this.superBoxGroup.add(box);
 
         if (this.debug) {
             var helper = new THREE.GridHelper(1000, 10, 0xFF4444, 0x404040);
             this.scenePerspective.scene.add(helper);
         }
+
+        createBoxes(this, material);
     };
 
+    var createBoxes = function (scope, material) {
+        var pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder();
 
+        scope.superBoxPivot = new THREE.Object3D();
+        scope.superBoxGroup = new THREE.Group();
+        scope.superBoxGroup.translateX(-320);
+        scope.superBoxGroup.translateY(-180);
+        scope.superBoxPivot.add(scope.superBoxGroup);
+        scope.scenePerspective.scene.add(scope.superBoxPivot);
+
+        scope.gridParams.uMin = 0.0;
+        scope.gridParams.vMin = 0.0;
+        scope.gridParams.uMax = 0.5;
+        scope.gridParams.vMax = 0.5;
+        var box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
+        scope.superBoxGroup.add(box);
+
+        scope.gridParams.uMin = 0.5;
+        scope.gridParams.vMin = 0.0;
+        scope.gridParams.uMax = 1.0;
+        scope.gridParams.vMax = 0.5;
+        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
+        box.translateX(320);
+        scope.superBoxGroup.add(box);
+
+        scope.gridParams.uMin = 0.0;
+        scope.gridParams.vMin = 0.5;
+        scope.gridParams.uMax = 0.5;
+        scope.gridParams.vMax = 1.0;
+        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
+        box.translateY(180);
+        scope.superBoxGroup.add(box);
+
+        scope.gridParams.uMin = 0.5;
+        scope.gridParams.vMin = 0.5;
+        scope.gridParams.uMax = 1.0;
+        scope.gridParams.vMax = 1.0;
+        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
+        box.translateX(320);
+        box.translateY(180);
+        scope.superBoxGroup.add(box);
+    };
+/*
+            resolve();
+        };
+
+        var promises = [];
+        promises.push(new Promise(promise));
+
+        Promise.all( promises ).then(
+            function ( results ) {
+                console.log( 'Successfully created all boxes!' );
+                scope.renderingEnabled = true;
+            }
+        ).catch(
+            function (error) {
+                console.error('The following error occurred during creation of boxes: ', error);
+            }
+        );
+    };
+
+    Home.prototype.initPostGL = function() {
+        return false;
+    };
+*/
     Home.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
     };

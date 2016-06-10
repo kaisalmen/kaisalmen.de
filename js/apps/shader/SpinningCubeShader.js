@@ -4,9 +4,9 @@
 
 'use strict';
 
-KSX.apps.shader.ImageBaseGeometryTransformShader = (function () {
+KSX.apps.shader.SpinningCubeShader = (function () {
 
-    function ImageBaseGeometryTransformShader() {
+    function SpinningCubeShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
@@ -14,16 +14,16 @@ KSX.apps.shader.ImageBaseGeometryTransformShader = (function () {
         this.uniforms['texture1'] = { type: 't', value: null };
     }
 
-    ImageBaseGeometryTransformShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
+    SpinningCubeShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
         constructor: {
             configurable: true,
             enumerable: true,
-            value: ImageBaseGeometryTransformShader,
+            value: SpinningCubeShader,
             writable: true
         }
     });
 
-    ImageBaseGeometryTransformShader.prototype.loadResources = function (callbackOnSuccess) {
+    SpinningCubeShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
         var promises = new Array(3);
@@ -46,5 +46,5 @@ KSX.apps.shader.ImageBaseGeometryTransformShader = (function () {
         );
     };
 
-    return ImageBaseGeometryTransformShader;
+    return SpinningCubeShader;
 })();

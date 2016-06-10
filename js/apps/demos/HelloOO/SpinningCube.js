@@ -4,40 +4,43 @@
 
 "use strict";
 
-KSX.apps.demos.ImageBasedGeometryTransform = (function () {
+KSX.apps.demos.SpinningCube = (function () {
 
-    ImageBasedGeometryTransform.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+    SpinningCube.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
             configurable: true,
             enumerable: true,
-            value: ImageBasedGeometryTransform,
+            value: SpinningCube,
             writable: true
         }
     });
 
-    function ImageBasedGeometryTransform(elementToBindTo) {
+    function SpinningCube(elementToBindTo, loader) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
             user : this,
-            name : 'ImageBasedGeometryTransform',
+            name : 'SpinningCube',
             htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            useScenePerspective : true,
+            loader: loader
         });
 
-        this.shader = new KSX.apps.shader.ImageBaseGeometryTransformShader();
+        this.shader = new KSX.apps.shader.SpinningCubeShader();
     }
 
-    ImageBasedGeometryTransform.prototype.initAsyncContent = function() {
+    SpinningCube.prototype.initAsyncContent = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.initSynchronuous();
+            scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
+        
+        this.initSynchronuous();
     };
 
-    ImageBasedGeometryTransform.prototype.initGL = function () {
+    SpinningCube.prototype.initGL = function () {
         var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 250 );
 
@@ -49,10 +52,10 @@ KSX.apps.demos.ImageBasedGeometryTransform = (function () {
         this.scenePerspective.camera.position.z = 25;
     };
 
-    ImageBasedGeometryTransform.prototype.renderPre = function () {
+    SpinningCube.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.01;
         this.mesh.rotation.y += 0.01;
     };
 
-    return ImageBasedGeometryTransform;
+    return SpinningCube;
 })();
