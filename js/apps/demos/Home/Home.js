@@ -308,55 +308,13 @@ KSX.apps.demos.home.Main = (function () {
         this.superBoxGroup.translateY(-180);
         this.superBoxPivot.add(this.superBoxGroup);
         this.scenePerspective.scene.add(this.superBoxPivot);
+
         this.pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder( KSX.globals.basedir, material, this.superBoxGroup );
-
-        createBoxes( this, 0 );
-    };
-
-    var createBoxes = function ( scope, count ) {
-        switch ( count ) {
-            case 0:
-                scope.gridParams.uMin = 0.0;
-                scope.gridParams.vMin = 0.0;
-                scope.gridParams.uMax = 0.5;
-                scope.gridParams.vMax = 0.5;
-                scope.pixelBoxesBuilder.buildSuperBox(scope.gridParams );
-                break;
-            case 1:
-                scope.gridParams.uMin = 0.5;
-                scope.gridParams.vMin = 0.0;
-                scope.gridParams.uMax = 1.0;
-                scope.gridParams.vMax = 0.5;
-                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { x: 320 } );
-                break;
-            case 2:
-                scope.gridParams.uMin = 0.0;
-                scope.gridParams.vMin = 0.5;
-                scope.gridParams.uMax = 0.5;
-                scope.gridParams.vMax = 1.0;
-                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { y: 180 }  );
-                break;
-            case 3:
-                scope.gridParams.uMin = 0.5;
-                scope.gridParams.vMin = 0.5;
-                scope.gridParams.uMax = 1.0;
-                scope.gridParams.vMax = 1.0;
-                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { x: 320, y: 180 }  );
-                scope.pixelBoxesBuilder.setComplete();
-                break;
-            default:
-                console.error( 'You should never be here!' );
-        };
+        this.pixelBoxesBuilder.buildSuperBoxSeries( 2, 2, 640, 360, 0.5 );
     };
 
     Home.prototype.addEventHandlers = function () {
         var scope = this;
-
-        var eatIntermediate =  function ( event ) {
-            console.log( 'Received event "intermediate" with count:' + event.count );
-            createBoxes( scope, event.count );
-        };
-        document.addEventListener( 'intermediate', eatIntermediate, false );
 
         var eatComplete =  function ( event ) {
             console.log( 'Received event "complete"!' );

@@ -58,6 +58,9 @@ var buildSuperBox = function ( gridParams ) {
         self.postMessage({
             'cmd': 'objData',
             useIndices: true,
+            translationX: gridParams.translationX,
+            translationY: gridParams.translationY,
+            translationZ: gridParams.translationZ,
             vertices: verticesOut,
             uvs: uvsOut,
             indices: indicesOut
@@ -67,6 +70,9 @@ var buildSuperBox = function ( gridParams ) {
         self.postMessage({
             'cmd': 'objData',
             useIndices: false,
+            translationX: gridParams.translationX,
+            translationY: gridParams.translationY,
+            translationZ: gridParams.translationZ,
             vertices: verticesOut,
             uvs: uvsOut
         }, [verticesOut.buffer], [uvsOut.buffer] );
@@ -74,7 +80,7 @@ var buildSuperBox = function ( gridParams ) {
 };
 
 var buildSingleBox = function ( boxBuildParams ) {
-    var vertexValue = 0.975 * boxBuildParams.cubeDimension / 2.0;
+    var vertexValue = boxBuildParams.cubeDimension / 2.0;
     var v0x = -vertexValue + boxBuildParams.xOffset;
     var v0y = -vertexValue + boxBuildParams.yOffset;
     var v0z =  vertexValue + boxBuildParams.zOffset;
@@ -260,7 +266,10 @@ var createBoxes = function ( event ) {
                 cubeEdgeLength: payload.cubeEdgeLength,
                 posStartX: payload.posStartX,
                 posStartY: payload.posStartY,
-                useIndices: payload.useIndices
+                useIndices: payload.useIndices,
+                translationX: payload.translationX,
+                translationY: payload.translationY,
+                translationZ: payload.translationZ
             };
 
             buildSuperBox( gridParams );

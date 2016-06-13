@@ -23,14 +23,9 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
         };
         this.worker.addEventListener( 'message', scopeFunction, false );
 
-        this.translation = {
-            x: 0,
-            y: 0,
-            z: 0
-        };
-
         this.count = 0;
         this.complete = false;
+        this.processList = [];
     }
 
     PixelBoxesBuilder.prototype.processObjData = function ( event ) {
@@ -45,22 +40,15 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
                     geometry.setIndex( new THREE.BufferAttribute( new Uint32Array( payload.indices ), 1 ));
                 }
                 var mesh = new THREE.Mesh( geometry, this.material );
-                mesh.translateX( this.translation.x );
-                mesh.translateY( this.translation.y );
-                mesh.translateZ( this.translation.z );
+                mesh.translateX( payload.translationX );
+                mesh.translateY( payload.translationY );
+                mesh.translateZ( payload.translationZ );
 
                 this.objGroup.add( mesh );
                 this.count++;
 
-                var event;
-                if ( this.complete ) {
-                    event = new Event( 'complete' );
-                }
-                else {
-                    event = new Event( 'intermediate' );
-                    event.count = this.count;
-                }
-                document.dispatchEvent( event );
+                this.workOnProcessList();
+
                 break;
             default:
                 console.error('Received unknown command: ' + payload.cmd);
@@ -69,13 +57,77 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
     };
 
 
+    PixelBoxesBuilder.prototype.buildSuperBoxSeries = function ( countU, countV, pixelU, pixelV, cubeEdgeLength ) {
+        var uAdd = 1.0 / countU;
+        var vAdd = 1.0 / countV;
+
+         // initial parameters
+         var gridParams = {
+             sizeX : pixelV,
+             sizeY : pixelU,
+             uMin : 0.0,
+             uMax : uAdd,
+             vMin : 0.0,
+             vMax : vAdd,
+             cubeEdgeLength : cubeEdgeLength,
+             posStartX : 0.0,
+             posStartY : 0.0,
+             useIndices : false
+         };
+
+        var translateXAdd = pixelU * cubeEdgeLength;
+        var translateYAdd = pixelV * cubeEdgeLength;
+        var translation = {
+            x: 0.0,
+            y: 0.0,
+            z: 0.0
+        };
+
+        for ( var j = 0; j < countV; j++ ) {
+            for ( var i = 0; i < countU; i++ ) {
+                var localGridParams = {};
+                for ( var param in gridParams ) {
+                    if ( gridParams.hasOwnProperty(param) ) {
+                        localGridParams[param] = gridParams[param];
+                    }
+                }
+                var localTranslation = {};
+                for ( var param in translation ) {
+                    if ( translation.hasOwnProperty(param) ) {
+                        localTranslation[param] = translation[param];
+                    }
+                }
+                this.processList.push( {gridParams: localGridParams, translation: localTranslation} )
+                gridParams.uMin += uAdd;
+                gridParams.uMax += uAdd;
+                translation.x += translateXAdd;
+            }
+            gridParams.uMin = 0.0;
+            gridParams.uMax = uAdd;
+            gridParams.vMin += vAdd;
+            gridParams.vMax += vAdd;
+            translation.x = 0.0;
+            translation.y += translateYAdd;
+        }
+        this.workOnProcessList();
+    };
+
+    PixelBoxesBuilder.prototype.workOnProcessList = function () {
+        if ( this.count < this.processList.length ) {
+            var processObj = this.processList[this.count];
+            this.buildSuperBox( processObj.gridParams, processObj.translation );
+        }
+        else {
+            var event = new Event( 'complete' );
+            document.dispatchEvent( event );
+        }
+    };
+
     PixelBoxesBuilder.prototype.buildSuperBox = function ( gridParams, translation ) {
         if ( translation !== undefined ) {
-            this.translation = {
-                x: translation.x === undefined ? 0 : translation.x,
-                y: translation.y === undefined ? 0 : translation.y,
-                z: translation.z === undefined ? 0 : translation.z
-            }
+            translation.x = translation.x === undefined ? 0.0 : translation.x;
+            translation.y = translation.y === undefined ? 0.0 : translation.y;
+            translation.z = translation.z === undefined ? 0.0 : translation.z;
         }
 
         this.worker.postMessage({
@@ -89,7 +141,10 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
             "cubeEdgeLength": gridParams.cubeEdgeLength,
             "posStartX": gridParams.posStartX,
             "posStartY": gridParams.posStartY,
-            "useIndices": gridParams.useIndices
+            "useIndices": gridParams.useIndices,
+            "translationX": translation.x,
+            "translationY": translation.y,
+            "translationZ": translation.z
         });
     };
 
