@@ -106,8 +106,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 console.log('The following error occurred: ', error);
             }
         );
-
-        scope.initSynchronuous();
     };
 
     PTV1Loader.prototype.initPreGL = function () {

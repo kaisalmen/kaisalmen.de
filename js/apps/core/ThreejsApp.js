@@ -128,19 +128,12 @@ KSX.apps.core.ThreeJsApp = (function () {
         }
     };
 
-    /**
-     * Default implementation just calls the synchronous init function
-     */
-    ThreeJsApp.prototype.initAsyncContent = function () {
-        console.log("ThreeJsApp (" + this.definition.name + "): initAsyncContent");
-
-        this.initSynchronuous();
-    };
-
-    ThreeJsApp.prototype.initSynchronuous = function () {
+    ThreeJsApp.prototype.init = function () {
         var scope = this;
 
-        var init = function () {
+        scope.initAsyncContent();
+
+        var initSync = function () {
             console.log("ThreeJsApp (" + scope.definition.name + "): initPreGL");
             scope.initPreGL();
 
@@ -170,12 +163,12 @@ KSX.apps.core.ThreeJsApp = (function () {
             }
         };
 
-        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, 100);
+        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, 10);
 
         function checkAsyncStatusTimer() {
             if ( scope.asyncDone ) {
                 clearInterval(checkAsyncStatus);
-                init();
+                initSync();
             }
             else {
                 console.log( 'waiting' );
@@ -237,10 +230,10 @@ KSX.apps.core.ThreeJsApp = (function () {
     };
 
     /**
-     * default implementation
+     * Default implementation
      */
-    ThreeJsApp.prototype.addEventHandlers = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): addEventHandlers");
+    ThreeJsApp.prototype.initAsyncContent = function () {
+        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initAsyncContent");
     };
 
     /**
@@ -255,6 +248,13 @@ KSX.apps.core.ThreeJsApp = (function () {
      */
     ThreeJsApp.prototype.initGL = function () {
         console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initGL");
+    };
+
+    /**
+     * default implementation
+     */
+    ThreeJsApp.prototype.addEventHandlers = function () {
+        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): addEventHandlers");
     };
 
     /**
@@ -506,11 +506,11 @@ KSX.apps.core.AppRunner = (function () {
             implementation = implementations[i];
 
             if ( implementation.definition.loader ) {
-                console.log("AppRunner: Registering as loader: " + implementation.definition.name);
+                console.log("AppRunner: Registering app as loader: " + implementation.definition.name);
                 this.loader = implementation;
             }
             else {
-                console.log("AppRunner: Registering: " + implementation.definition.name);
+                console.log("AppRunner: Registering app: " + implementation.definition.name);
                 this.implementations.push(implementation);
             }
         }
@@ -538,14 +538,14 @@ KSX.apps.core.AppRunner = (function () {
             implementation = scope.implementations[i];
 
             var promise = function (resolve, reject) {
-                implementation.initAsyncContent();
+                implementation.init();
                 resolve( implementation.definition.name );
             };
             promises.push(new Promise(promise));
         }
         if ( scope.loader !== undefined ) {
             var promise = function (resolve, reject) {
-                scope.loader.initAsyncContent();
+                scope.loader.init();
                 resolve( implementation.definition.name );
             };
             promises.push(new Promise(promise));
@@ -578,7 +578,7 @@ KSX.apps.core.AppRunner = (function () {
     };
 
     AppRunner.prototype.render = function () {
-        console.log( 'RENDER' );
+//        console.log( 'RENDER' );
         if ( this.loader !== undefined ) {
             var allReady = true;
             var implementation;

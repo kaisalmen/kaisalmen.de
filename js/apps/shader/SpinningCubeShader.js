@@ -27,8 +27,8 @@ KSX.apps.shader.SpinningCubeShader = (function () {
         var scope = this;
 
         var promises = new Array(3);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', true, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture');
+        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
+        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', false, 'FS: Simple Texture');
         promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
 
         Promise.all( promises ).then(

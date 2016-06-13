@@ -106,6 +106,7 @@ KSX.apps.demos.home.Main = (function () {
         };
 
         this.debug = false;
+        this.pixelBoxesBuilder = null;
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -123,8 +124,6 @@ KSX.apps.demos.home.Main = (function () {
         };
 
         scope.shader.loadResources(callbackOnSuccess);
-
-        scope.initSynchronuous();
     };
 
     Home.prototype.initPreGL = function () {
@@ -303,74 +302,73 @@ KSX.apps.demos.home.Main = (function () {
             this.scenePerspective.scene.add(helper);
         }
 
-        createBoxes(this, material);
+        this.superBoxPivot = new THREE.Object3D();
+        this.superBoxGroup = new THREE.Group();
+        this.superBoxGroup.translateX(-320);
+        this.superBoxGroup.translateY(-180);
+        this.superBoxPivot.add(this.superBoxGroup);
+        this.scenePerspective.scene.add(this.superBoxPivot);
+        this.pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder( KSX.globals.basedir, material, this.superBoxGroup );
+
+        createBoxes( this, 0 );
     };
 
-    var createBoxes = function (scope, material) {
-        var pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder();
-
-        scope.superBoxPivot = new THREE.Object3D();
-        scope.superBoxGroup = new THREE.Group();
-        scope.superBoxGroup.translateX(-320);
-        scope.superBoxGroup.translateY(-180);
-        scope.superBoxPivot.add(scope.superBoxGroup);
-        scope.scenePerspective.scene.add(scope.superBoxPivot);
-
-        scope.gridParams.uMin = 0.0;
-        scope.gridParams.vMin = 0.0;
-        scope.gridParams.uMax = 0.5;
-        scope.gridParams.vMax = 0.5;
-        var box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
-        scope.superBoxGroup.add(box);
-
-        scope.gridParams.uMin = 0.5;
-        scope.gridParams.vMin = 0.0;
-        scope.gridParams.uMax = 1.0;
-        scope.gridParams.vMax = 0.5;
-        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
-        box.translateX(320);
-        scope.superBoxGroup.add(box);
-
-        scope.gridParams.uMin = 0.0;
-        scope.gridParams.vMin = 0.5;
-        scope.gridParams.uMax = 0.5;
-        scope.gridParams.vMax = 1.0;
-        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
-        box.translateY(180);
-        scope.superBoxGroup.add(box);
-
-        scope.gridParams.uMin = 0.5;
-        scope.gridParams.vMin = 0.5;
-        scope.gridParams.uMax = 1.0;
-        scope.gridParams.vMax = 1.0;
-        box = pixelBoxesBuilder.buildSuperBox(scope.gridParams, material);
-        box.translateX(320);
-        box.translateY(180);
-        scope.superBoxGroup.add(box);
-    };
-/*
-            resolve();
+    var createBoxes = function ( scope, count ) {
+        switch ( count ) {
+            case 0:
+                scope.gridParams.uMin = 0.0;
+                scope.gridParams.vMin = 0.0;
+                scope.gridParams.uMax = 0.5;
+                scope.gridParams.vMax = 0.5;
+                scope.pixelBoxesBuilder.buildSuperBox(scope.gridParams );
+                break;
+            case 1:
+                scope.gridParams.uMin = 0.5;
+                scope.gridParams.vMin = 0.0;
+                scope.gridParams.uMax = 1.0;
+                scope.gridParams.vMax = 0.5;
+                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { x: 320 } );
+                break;
+            case 2:
+                scope.gridParams.uMin = 0.0;
+                scope.gridParams.vMin = 0.5;
+                scope.gridParams.uMax = 0.5;
+                scope.gridParams.vMax = 1.0;
+                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { y: 180 }  );
+                break;
+            case 3:
+                scope.gridParams.uMin = 0.5;
+                scope.gridParams.vMin = 0.5;
+                scope.gridParams.uMax = 1.0;
+                scope.gridParams.vMax = 1.0;
+                scope.pixelBoxesBuilder.buildSuperBox( scope.gridParams, { x: 320, y: 180 }  );
+                scope.pixelBoxesBuilder.setComplete();
+                break;
+            default:
+                console.error( 'You should never be here!' );
         };
+    };
 
-        var promises = [];
-        promises.push(new Promise(promise));
+    Home.prototype.addEventHandlers = function () {
+        var scope = this;
 
-        Promise.all( promises ).then(
-            function ( results ) {
-                console.log( 'Successfully created all boxes!' );
-                scope.renderingEnabled = true;
-            }
-        ).catch(
-            function (error) {
-                console.error('The following error occurred during creation of boxes: ', error);
-            }
-        );
+        var eatIntermediate =  function ( event ) {
+            console.log( 'Received event "intermediate" with count:' + event.count );
+            createBoxes( scope, event.count );
+        };
+        document.addEventListener( 'intermediate', eatIntermediate, false );
+
+        var eatComplete =  function ( event ) {
+            console.log( 'Received event "complete"!' );
+            scope.renderingEnabled = true;
+        };
+        document.addEventListener( 'complete', eatComplete, false );
     };
 
     Home.prototype.initPostGL = function() {
         return false;
     };
-*/
+
     Home.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
     };

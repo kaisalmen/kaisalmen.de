@@ -36,8 +36,6 @@ KSX.apps.demos.SpinningCube = (function () {
             scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
-        
-        this.initSynchronuous();
     };
 
     SpinningCube.prototype.initGL = function () {
