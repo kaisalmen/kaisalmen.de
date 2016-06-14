@@ -9,7 +9,7 @@ KSX.apps.shader.BlockShader = (function () {
     function BlockShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
-        this.uniforms['heightFactor'] = { type: 'f', value: 48.0 };
+        this.uniforms['heightFactor'] = { type: 'f', value: 24.0 };
         this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
         this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };

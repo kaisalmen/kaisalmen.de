@@ -87,10 +87,6 @@ KSX.apps.demos.home.Main = (function () {
         if (bowser.mobile) {
             this.gridParams.sizeX = 128;
             this.gridParams.sizeY = 128;
-            this.shader.uniforms.heightFactor.value = 24.0;
-        }
-        else {
-            this.shader.uniforms.heightFactor.value = 6.0;
         }
 
         this.superBoxGroup = null;
@@ -310,7 +306,7 @@ KSX.apps.demos.home.Main = (function () {
         this.scenePerspective.scene.add(this.superBoxPivot);
 
         this.pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder( KSX.globals.basedir, material, this.superBoxGroup );
-        this.pixelBoxesBuilder.buildSuperBoxSeries( 2, 2, 640, 360, 0.5 );
+        this.pixelBoxesBuilder.buildSuperBoxSeries( 1280, 720, 48, 30, 0.5 );
     };
 
     Home.prototype.addEventHandlers = function () {

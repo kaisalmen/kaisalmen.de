@@ -57,14 +57,22 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
     };
 
 
-    PixelBoxesBuilder.prototype.buildSuperBoxSeries = function ( countU, countV, pixelU, pixelV, cubeEdgeLength ) {
+    PixelBoxesBuilder.prototype.buildSuperBoxSeries = function ( pixelU, pixelV, countU, countV, cubeEdgeLength ) {
+        if ( countU % 2 !== 0 ) {
+            console.error( 'countU cannot be divided by 2! Aborting...' );
+            return;
+        }
+        if ( countV % 2 !== 0 ) {
+            console.error( 'countV cannot be divided by 2! Aborting...' );
+            return;
+        }
         var uAdd = 1.0 / countU;
         var vAdd = 1.0 / countV;
 
          // initial parameters
          var gridParams = {
-             sizeX : pixelV,
-             sizeY : pixelU,
+             sizeX : Math.round(pixelV / countV),
+             sizeY : Math.round(pixelU / countU),
              uMin : 0.0,
              uMax : uAdd,
              vMin : 0.0,
@@ -75,8 +83,11 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
              useIndices : false
          };
 
-        var translateXAdd = pixelU * cubeEdgeLength;
-        var translateYAdd = pixelV * cubeEdgeLength;
+        console.log( 'sizeX: ' + gridParams.sizeX );
+        console.log( 'sizeY: ' + gridParams.sizeY );
+
+        var translateXAdd = gridParams.sizeY * cubeEdgeLength;
+        var translateYAdd = gridParams.sizeX * cubeEdgeLength;
         var translation = {
             x: 0.0,
             y: 0.0,
@@ -85,19 +96,13 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
 
         for ( var j = 0; j < countV; j++ ) {
             for ( var i = 0; i < countU; i++ ) {
-                var localGridParams = {};
-                for ( var param in gridParams ) {
-                    if ( gridParams.hasOwnProperty(param) ) {
-                        localGridParams[param] = gridParams[param];
-                    }
-                }
-                var localTranslation = {};
-                for ( var param in translation ) {
-                    if ( translation.hasOwnProperty(param) ) {
-                        localTranslation[param] = translation[param];
-                    }
-                }
-                this.processList.push( {gridParams: localGridParams, translation: localTranslation} )
+                var localGridParams = copyObjectValues( gridParams );
+                var localTranslation = copyObjectValues( translation );
+                this.processList.push({
+                    gridParams: localGridParams,
+                    translation: localTranslation
+                });
+
                 gridParams.uMin += uAdd;
                 gridParams.uMax += uAdd;
                 translation.x += translateXAdd;
@@ -109,7 +114,20 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
             translation.x = 0.0;
             translation.y += translateYAdd;
         }
+
+        console.log( 'Created process list with ' + this.processList.length + ' entries.' );
         this.workOnProcessList();
+    };
+
+    var copyObjectValues = function ( params ) {
+        var localParams = {};
+        for ( var param in params ) {
+            if ( params.hasOwnProperty( param )) {
+                localParams[param] = params[param];
+            }
+        }
+
+        return localParams;
     };
 
     PixelBoxesBuilder.prototype.workOnProcessList = function () {
