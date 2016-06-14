@@ -13,16 +13,18 @@
         </div>
     </div>
     <script src="../../js/lib/ext/three.js"></script>
-    <script src="../../js/lib/ext/legacy/FontUtils.js"></script>
-    <script src="../../js/lib/ext/legacy/TextGeometry.js"></script>
-
-    <script src="../../resource/fonts/ubuntu_mono_regular.typeface.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
 
-    <script src="../../js/apps/learn/impl/GLCheckApp.js"></script>
     <script src="../../js/apps/learn/GLCheck.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = new Array();
+            implementations.push(new KSX.apps.learn.GLCheck(document.getElementById("DivGLFullCanvas")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>

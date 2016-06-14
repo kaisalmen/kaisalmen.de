@@ -25,16 +25,10 @@
             <canvas id="DivGL4Canvas"></canvas>
         </div>
     </div>
-    <script src="../../js/lib/ext/three.js"></script>
-    <script src="../../js/lib/ext/legacy/FontUtils.js"></script>
-    <script src="../../js/lib/ext/legacy/TextGeometry.js"></script>
-
-    <script src="../../resource/fonts/ubuntu_mono_regular.typeface.js"></script>
+    <script src="../../js/lib/ext/three.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
-    <script src="../../js/apps/core/Canvas.js"></script>
-    <script src="../../js/apps/core/Text2d.js"></script>
-    <script src="../../js/apps/core/TextUnit.js"></script>
+    <script src="../../js/apps/tools/TextTools.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
 
@@ -48,14 +42,14 @@
     <script>
         console.log('Starting multiple applications...');
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
-            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas")));
-            implementations.push(new KSX.apps.demos.TextureWithNoiseShaderApp(document.getElementById("DivGL2Canvas")));
+            var implementations = [];
+            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGL1Canvas"), false));
+            implementations.push(new KSX.apps.demos.TextureWithNoiseShader(document.getElementById("DivGL2Canvas")));
             implementations.push(new KSX.apps.demos.HelloOOVideo(document.getElementById("DivGL3Canvas"), "DivGL3Video", "DivGL3VideoBuffer"));
             implementations.push(new KSX.apps.demos.HelloOOText(document.getElementById("DivGL4Canvas")));
 
-            var appRunner = new KSX.apps.demos.AppRunner(implementations);
-            appRunner.init(true);
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
         }
     </script>
 </body>

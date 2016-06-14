@@ -99,7 +99,7 @@ KSX.apps.tools.ObjLoaderWW = (function () {
         };
 
         var onError = function (event) {
-            console.log("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
+            console.error("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
         };
 
         var scopeFunction = function (e) {

@@ -63,7 +63,7 @@ KSX.apps.tools.TextureTools = (function () {
             };
 
             var onError = function (event) {
-                console.log("Error of type '" + event.type + "' occurred when trying to load images from: " + basePath);
+                console.error("Error of type '" + event.type + "' occurred when trying to load images from: " + basePath);
                 reject(event);
             };
 

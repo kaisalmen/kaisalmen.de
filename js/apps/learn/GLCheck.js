@@ -4,30 +4,37 @@
 
 "use strict";
 
-KSX.apps.learn.GLCheck = {
-    glob : {
-        appLifecycle : new KSX.apps.core.AppLifecycle("App Lifecycle for GLCheck")
-    },
-    func : {
-        init : function () {
-            var impl = new KSX.apps.learn.impl.GLCheckApp(document.getElementById("DivGLFullCanvas"));
-            KSX.apps.learn.GLCheck.glob.appLifecycle.addApp(impl.app);
+KSX.apps.learn.GLCheck = (function () {
 
-            // kicks init and starts rendering
-            KSX.apps.learn.GLCheck.glob.appLifecycle.initAsync();
-        },
-        render : function () {
-            requestAnimationFrame(KSX.apps.learn.GLCheck.func.render);
-            KSX.apps.learn.GLCheck.glob.appLifecycle.renderAllApps();
-        },
-        onWindowResize : function () {
-            KSX.apps.demos.HelloOOMulti.glob.appLifecycle.resizeAll();
+    GLCheck.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: GLCheck,
+            writable: true
         }
+    });
+
+    function GLCheck(elementToBindTo) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
+            user : this,
+            name : 'GLCheckApp',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        });
     }
-}
 
+    GLCheck.prototype.initGL = function () {
+        var gl = this.renderer.getContext();
 
-console.log('Starting application "GLCheck"...');
-window.addEventListener( 'resize', KSX.apps.learn.GLCheck.func.onWindowResize, false );
-KSX.apps.learn.GLCheck.func.init();
-KSX.apps.learn.GLCheck.func.render();
+        var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
+        if (result != 0) {
+            console.log("Vertex shader is able to read texture: " + result);
+        }
+    };
+
+    return GLCheck;
+})();
+

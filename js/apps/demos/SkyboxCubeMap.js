@@ -5,24 +5,34 @@
 
 "use strict";
 
-KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
+KSX.apps.demos.SkyboxCubeMap = (function () {
 
-    function SkyboxCubeMapApp(elementToBindTo) {
-        var userDefinition = {
+    SkyboxCubeMap.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: SkyboxCubeMap,
+            writable: true
+        }
+    });
+
+    function SkyboxCubeMap(elementToBindTo) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'SkyboxCubeMap',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
             useCube : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
         this.stats = new Stats();
     }
 
-    SkyboxCubeMapApp.prototype.initAsyncContent = function () {
+    SkyboxCubeMap.prototype.initAsyncContent = function () {
         var scope = this;
 
 
@@ -34,7 +44,7 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         Promise.all(promises).then(
             function (results) {
                 scope.textureCubeLoader = results[0];
-                scope.app.initSynchronuous();
+                scope.initSynchronuous();
             }
         ).catch(
             function (error) {
@@ -43,14 +53,14 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         );
     };
 
-    SkyboxCubeMapApp.prototype.initPreGL = function () {
+    SkyboxCubeMap.prototype.initPreGL = function () {
         this.stats.setMode(0);
         document.body.appendChild(this.stats.domElement);
     };
 
-    SkyboxCubeMapApp.prototype.initGL = function () {
-        var renderer = this.app.renderer;
-        var scenePerspective = this.app.scenePerspective;
+    SkyboxCubeMap.prototype.initGL = function () {
+        var renderer = this.renderer;
+        var scenePerspective = this.scenePerspective;
         var sceneCube = scenePerspective.sceneCube;
         var scene = scenePerspective.scene;
         var camera = scenePerspective.camera;
@@ -91,24 +101,18 @@ KSX.apps.demos.impl.SkyboxCubeMapApp = (function () {
         sceneCube.add( meshCube );
     };
 
-    SkyboxCubeMapApp.prototype.render = function () {
+    SkyboxCubeMap.prototype.renderPre = function () {
         this.controls.update();
+    };
+
+    SkyboxCubeMap.prototype.renderPost = function () {
         this.stats.update();
     };
 
-    SkyboxCubeMapApp.prototype.resizeDisplayGL = function() {
+    SkyboxCubeMap.prototype.resizeDisplayGL = function() {
         this.controls.handleResize();
     };
 
-    return SkyboxCubeMapApp;
+    return SkyboxCubeMap;
 
 })();
-
-
-
-if (KSX.globals.preChecksOk) {
-    var implementations = new Array();
-    implementations.push(new KSX.apps.demos.impl.SkyboxCubeMapApp(document.getElementById("DivGLFullCanvas")));
-    var appRunner = new KSX.apps.demos.AppRunner(implementations);
-    appRunner.init(true);
-}

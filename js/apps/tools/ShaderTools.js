@@ -31,7 +31,7 @@ KSX.apps.tools.ShaderTools = (function () {
             };
 
             var onError = function (event) {
-                console.log("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
+                console.error("Error of type '" + event.type + "' occurred when trying to load: " + event.src);
                 reject(event);
             };
 

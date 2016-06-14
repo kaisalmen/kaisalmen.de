@@ -41,7 +41,6 @@
             }
         };
     </script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/webworker/WWObjParser.js"></script>
     <script src="../../js/apps/tools/webworker/WWUnzip.js"></script>
     <script src="../../js/apps/tools/ObjLoaderWW.js"></script>
@@ -50,5 +49,13 @@
     <script src="../../js/apps/tools/UiTools.js"></script>
 
     <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            implementations.push(new KSX.apps.zerosouth.PTV1Loader(document.getElementById("DivGLFullCanvas")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>

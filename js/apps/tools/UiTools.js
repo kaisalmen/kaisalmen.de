@@ -51,7 +51,7 @@ KSX.apps.tools.UiTools.DefaultParams = {
         buttonWidth : 104,
         buttonHeight : 32,
         minValue : 0.0,
-        maxValue : 255.0,
+        maxValue : 128.0,
         groupHeight : 36,
         boolHeight : 24
     },
@@ -62,7 +62,7 @@ KSX.apps.tools.UiTools.DefaultParams = {
         buttonWidth : 104,
         buttonHeight : 96,
         minValue : 0.0,
-        maxValue : 255.0,
+        maxValue : 128.0,
         groupHeight : 36,
         boolHeight : 24
     }

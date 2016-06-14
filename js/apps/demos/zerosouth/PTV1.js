@@ -16,17 +16,27 @@ KSX.apps.tools.MeshInfo = (function () {
 })();
 
 
-KSX.apps.zerosouth.impl.PTV1Loader = (function () {
+KSX.apps.zerosouth.PTV1Loader = (function () {
+
+    PTV1Loader.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: PTV1Loader,
+            writable: true
+        }
+    });
 
     function PTV1Loader(elementToBindTo) {
-        var userDefinition = {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
             user : this,
             name : 'PTV1Loader',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
             useCube : true
-        };
-        this.app = new KSX.apps.core.ThreeJsApp(userDefinition);
+        });
         this.controls = null;
 
         var pathToObj = '../../resource/models/';
@@ -89,7 +99,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         Promise.all(promises).then(
             function (results) {
                 scope.textureCubeLoader = results[0];
-                scope.app.initSynchronuous();
+                scope.asyncDone = true;
             }
         ).catch(
             function (error) {
@@ -111,24 +121,18 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     PTV1Loader.prototype.initGL = function () {
         var scope = this;
-        var renderer = this.app.renderer;
-        var scenePerspective = this.app.scenePerspective;
-        var scene = scenePerspective.scene;
-        var sceneCube = scenePerspective.sceneCube;
-        var camera = scenePerspective.camera;
-        var cameraTarget = scenePerspective.cameraTarget;
 
-        renderer.setClearColor(0x3B3B3B);
-        renderer.autoClear = false;
+        this.renderer.setClearColor(0x3B3B3B);
+        this.renderer.autoClear = false;
 
-        camera.position.set( 600, 350, 600);
-        cameraTarget.y = 500;
-        scenePerspective.updateCamera();
+        this.scenePerspective.camera.position.set( 600, 350, 600);
+        this.scenePerspective.cameraTarget.y = 500;
+        this.scenePerspective.updateCamera();
 
-        this.controls = new THREE.TrackballControls(camera);
+        this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
         var ambientLight = new THREE.AmbientLight(0x707070);
-        scene.add(ambientLight);
+        this.scenePerspective.scene.add(ambientLight);
 
         var posLight1 = new THREE.Vector3(-500, 500, 500);
         var posLight2 = new THREE.Vector3(500, 200, -500);
@@ -147,11 +151,11 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         var geoLight = new THREE.SphereGeometry(5, 32, 32);
         var light1Mesh = new THREE.Mesh(geoLight, emissiveMat1);
         light1Mesh.position.set(posLight1.x, posLight1.y, posLight1.z);
-        scene.add(light1Mesh);
+        this.scenePerspective.scene.add(light1Mesh);
 
         var light2Mesh = new THREE.Mesh(geoLight, emissiveMat2);
         light2Mesh.position.set(posLight2.x, posLight2.y, posLight2.z);
-        scene.add(light2Mesh);
+        this.scenePerspective.scene.add(light2Mesh);
 
         var directionalLight1 = new THREE.DirectionalLight(light1Color);
         directionalLight1.position.set(posLight1.x, posLight1.y, posLight1.z);
@@ -161,22 +165,21 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         directionalLight1.shadow.camera.fov = 50;
         directionalLight1.shadow.mapSize.width = 2048;
         directionalLight1.shadow.mapSize.height = 2048;
-        scene.add(directionalLight1);
+        this.scenePerspective.scene.add(directionalLight1);
 
         var directionalLight2 = new THREE.DirectionalLight(light2Color);
         directionalLight2.position.set(posLight2.x, posLight2.y, posLight2.z);
         directionalLight2.castShadow = true;
-        scene.add(directionalLight2);
+        this.scenePerspective.scene.add(directionalLight2);
 
         var dHelp1 = new THREE.DirectionalLightHelper(directionalLight1, 40);
-        scene.add(dHelp1);
+        this.scenePerspective.scene.add(dHelp1);
 
         var dHelp2 = new THREE.DirectionalLightHelper(directionalLight2, 40);
-        scene.add(dHelp2);
+        this.scenePerspective.scene.add(dHelp2);
 
-        var helper = new THREE.GridHelper( 2400, 100 );
-        helper.setColors( 0xFF4444, 0x404040 );
-        scene.add(helper);
+        var helper = new THREE.GridHelper( 2400, 100, 0xFF4444, 0x404040 );
+        this.scenePerspective.scene.add(helper);
 
         var groundGeometry = new THREE.CircleGeometry( 5000, 64 );
         var groundMaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
@@ -186,7 +189,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.ground.receiveShadow = true;
         this.ground.castShadow = true;
 
-        scene.add(this.ground);
+        this.scenePerspective.scene.add(this.ground);
 
 
         // material adjustemnts
@@ -219,7 +222,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
-        scene.add(this.objGroup);
+        this.scenePerspective.scene.add(this.objGroup);
 
         this.objLoaderWW.setObjGroup(this.objGroup);
 
@@ -237,7 +240,7 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             side: THREE.BackSide
         });
         this.skybox = new THREE.Mesh(box, materialCube);
-        sceneCube.add( this.skybox );
+        this.scenePerspective.sceneCube.add( this.skybox );
 
         var callbackMaterialsLoaded = function (materials) {
             if (materials !== null) {
@@ -248,15 +251,18 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 var materialCount = 0;
 
                 for ( matName in materials ) {
-                    alter = scope.alterMaterials[matName];
-                    material =  materials[matName];
-                    if (alter !== undefined) {
-                        for (prop in alter ) {
-                            material[prop] = alter[prop];
+                    if (scope.alterMaterials.hasOwnProperty(matName) && materials.hasOwnProperty(matName)) {
+                        alter = scope.alterMaterials[matName];
+                        material =  materials[matName];
+
+                        for ( prop in alter ) {
+                            if (material.hasOwnProperty(prop) && alter.hasOwnProperty(prop)) {
+                                material[prop] = alter[prop];
+                            }
                         }
                     }
                     materialCount++;
-                };
+                }
                 console.log('Overall number of materials: ' + materialCount);
             }
         };
@@ -280,11 +286,12 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
                 }
             }
 
+            var meshInfo;
             if (replacedMaterial !== null) {
-                var meshInfo = new KSX.apps.tools.MeshInfo(meshName, replacedMaterial.name);
+                meshInfo = new KSX.apps.tools.MeshInfo(meshName, replacedMaterial.name);
             }
             else {
-                var meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
+                meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
             }
 
             scope.meshInfos.push(meshInfo);
@@ -341,15 +348,14 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
 
         var adjustOpacity = function (value) {
-            var scene = scope.app.scenePerspective.scene;
             var mesh;
             var dontAlter;
-            var transparent = value < 1.0 ? true : false;
+            var transparent = value < 1.0;
             var side = value < 1.0 ? THREE.DoubleSide : THREE.FrontSide;
             var maxOpacity = 1.0;
 
             for (var meshInfo of scope.meshInfos) {
-                mesh = scene.getObjectByName(meshInfo.meshName);
+                mesh = scope.scenePerspective.scene.getObjectByName(meshInfo.meshName);
                 dontAlter = scope.replaceObjectMaterials[meshInfo.meshName];
 
                 if (dontAlter === undefined && mesh !== undefined) {
@@ -384,13 +390,18 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
+
+        return true;
     };
 
-    PTV1Loader.prototype.render = function() {
+    PTV1Loader.prototype.renderPre = function() {
         this.controls.update();
+        this.renderer.clearDepth();
+        this.renderer.clearColor();
+    };
+
+    PTV1Loader.prototype.renderPost = function() {
         this.stats.update();
-        this.app.renderer.clearDepth();
-        this.app.renderer.clearColor();
     };
 
     PTV1Loader.prototype.resizeDisplayGL = function() {
@@ -399,12 +410,3 @@ KSX.apps.zerosouth.impl.PTV1Loader = (function () {
 
     return PTV1Loader;
 })();
-
-
-
-if (KSX.globals.preChecksOk) {
-    var implementations = new Array();
-    implementations.push(new KSX.apps.zerosouth.impl.PTV1Loader(document.getElementById("DivGLFullCanvas")));
-    var appRunner = new KSX.apps.demos.AppRunner(implementations);
-    appRunner.init(true);
-}

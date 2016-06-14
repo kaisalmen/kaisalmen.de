@@ -27,7 +27,6 @@
             }
         };
     </script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/DataTools.js"></script>
@@ -37,5 +36,13 @@
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/PixelProtestShader.js"></script>
     <script src="../../js/apps/demos/PixelProtest.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            implementations.push(new KSX.apps.demos.PixelProtest(document.getElementById("DivGLFullCanvas")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>

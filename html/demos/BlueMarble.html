@@ -24,7 +24,6 @@
             }
         };
     </script>
-    <script src="../../js/apps/core/Canvas.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/BrowserSupport.js"></script>
@@ -33,5 +32,13 @@
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/BlueMarbleShader.js"></script>
     <script src="../../js/apps/demos/BlueMarble/BlueMarble.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            implementations.push(new KSX.apps.demos.BlueMarble(document.getElementById("DivGLCanvasFixed")));
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
 </body>
 </html>
