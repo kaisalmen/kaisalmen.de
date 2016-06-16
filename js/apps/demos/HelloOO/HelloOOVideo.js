@@ -37,7 +37,7 @@ KSX.apps.demos.HelloOOVideo = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.initSynchronuous();
+            scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
     };

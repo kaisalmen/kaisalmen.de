@@ -35,7 +35,7 @@ KSX.apps.demos.HelloOOText = (function () {
         listOfFonts['helvetiker_regular'] = 'resource/fonts/helvetiker_regular.typeface.json';
 
         var callbackOnSuccess = function () {
-            scope.initSynchronuous();
+            scope.asyncDone = true;
         };
         scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
     };

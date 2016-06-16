@@ -61,7 +61,8 @@ KSX.apps.demos.YoutubePlayer = (function () {
                 scope.vertexShaderText = results[0];
                 scope.fragmentShaderText = results[1];
                 scope.uniforms.texture1.value = results[2];
-                scope.initSynchronuous();
+                
+                scope.asyncDone = true;
             }
         ).catch(
             function (error) {

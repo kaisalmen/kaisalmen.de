@@ -67,7 +67,7 @@ KSX.apps.demos.BlueMarble = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.initSynchronuous();
+            scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
     };

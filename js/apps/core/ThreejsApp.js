@@ -233,35 +233,34 @@ KSX.apps.core.ThreeJsApp = (function () {
      * Default implementation
      */
     ThreeJsApp.prototype.initAsyncContent = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initAsyncContent");
+        this.asyncDone = true;
     };
 
     /**
      * default implementation
      */
     ThreeJsApp.prototype.initPreGL = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initPreGL");
+
     };
 
     /**
      * default implementation
      */
     ThreeJsApp.prototype.initGL = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initGL");
+
     };
 
     /**
      * default implementation
      */
     ThreeJsApp.prototype.addEventHandlers = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): addEventHandlers");
+
     };
 
     /**
      * default implementation
      */
     ThreeJsApp.prototype.initPostGL = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): initPostGL");
         return true;
     };
 
@@ -269,7 +268,7 @@ KSX.apps.core.ThreeJsApp = (function () {
      * default implementation
      */
     ThreeJsApp.prototype.resizeDisplayGL = function () {
-        console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): resizeDisplayGL");
+
     };
 
     /**

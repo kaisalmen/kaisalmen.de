@@ -24,7 +24,6 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
         this.worker.addEventListener( 'message', scopeFunction, false );
 
         this.count = 0;
-        this.complete = false;
         this.processList = [];
     }
 
@@ -83,9 +82,6 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
              useIndices : false
          };
 
-        console.log( 'sizeX: ' + gridParams.sizeX );
-        console.log( 'sizeY: ' + gridParams.sizeY );
-
         var translateXAdd = gridParams.sizeY * cubeEdgeLength;
         var translateYAdd = gridParams.sizeX * cubeEdgeLength;
         var translation = {
@@ -115,7 +111,7 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
             translation.y += translateYAdd;
         }
 
-        console.log( 'Created process list with ' + this.processList.length + ' entries.' );
+        console.log( 'Created process list with ' + this.processList.length + ' entries. Box size is: ' + gridParams.sizeX + 'x' + gridParams.sizeY);
         this.workOnProcessList();
     };
 
@@ -164,10 +160,6 @@ KSX.apps.demos.home.PixelBoxesBuilder = (function () {
             "translationY": translation.y,
             "translationZ": translation.z
         });
-    };
-
-    PixelBoxesBuilder.prototype.setComplete = function () {
-        this.complete = true;
     };
 
     return PixelBoxesBuilder;
