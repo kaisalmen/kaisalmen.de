@@ -69,6 +69,11 @@ KSX.apps.core.ThreeJsApp = (function () {
             antialias: this.definition.renderers.regular.antialias
         });
 
+        // auto-clear must not be used when both perspective and ortho scenes are active
+        // otherwise: renderer clears 3d content
+        if ( this.definition.useScenePerspective && this.definition.useSceneOrtho ) {
+            this.renderer.autoClear = false;
+        }
 
         if ( this.definition.verbose ) {
             this.canvas.verbose = this.definition.verbose;
@@ -195,8 +200,8 @@ KSX.apps.core.ThreeJsApp = (function () {
     ThreeJsApp.prototype.render = function () {
         if (this.renderingEnabled) {
             this.frameNumber++;
-            if (this.renderer.autoClear) {
-                this.renderer.clearDepth();
+            if ( !this.renderer.autoClear ) {
+                this.renderer.clear();
             }
 
             this.renderPre();
@@ -211,7 +216,6 @@ KSX.apps.core.ThreeJsApp = (function () {
             }
 
             if (this.definition.useSceneOrtho) {
-                this.renderer.clearDepth();
                 this.renderer.render(this.sceneOrtho.scene, this.sceneOrtho.camera);
             }
 

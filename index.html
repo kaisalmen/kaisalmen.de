@@ -22,12 +22,13 @@
     <script>
         KSX.globals.basedir = '';
     </script>
+    <script src="js/apps/tools/TextTools.js"></script>
     <script src="js/apps/tools/BrowserSupport.js"></script>
-    <script src="js/apps/demos/HelloOO/HelloOOSimple.js"></script>
+    <script src="js/apps/demos/Home/Intermediate.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var simple = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGLFullCanvas"));
+            var simple = new KSX.apps.demos.home.Intermediate(document.getElementById("DivGLFullCanvas"));
             implementations.push(simple);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
