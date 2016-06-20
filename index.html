@@ -1,0 +1,37 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>www.kaisalmen.de</title>
+
+    <link href="resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="resource/css/Index.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <script src="js/lib/threejs/Detector.js"></script>
+    <script>
+        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+    </script>
+
+    <script src="js/lib/threejs/three.js"></script>
+    <script src="js/lib/ext/bowser.min.js"></script>
+
+    <script src="js/apps/core/ThreeJsApp.js"></script>
+    <script>
+        KSX.globals.basedir = '';
+    </script>
+    <script src="js/apps/tools/BrowserSupport.js"></script>
+    <script src="js/apps/demos/HelloOO/HelloOOSimple.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            var simple = new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGLFullCanvas"));
+            implementations.push(simple);
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
+</body>
+</html>
