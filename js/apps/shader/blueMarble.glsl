@@ -1,3 +1,7 @@
+/**
+ * @author Kai Salmen / www.kaisalmen.de
+ */
+
 uniform sampler2D textureMarble;
 uniform sampler2D textureSat;
 uniform float blendFactor;

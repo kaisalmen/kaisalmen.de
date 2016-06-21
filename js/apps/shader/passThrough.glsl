@@ -1,3 +1,7 @@
+/**
+ * @author Kai Salmen / www.kaisalmen.de
+ */
+
 varying vec2 vUv;
 		
 void main()	{

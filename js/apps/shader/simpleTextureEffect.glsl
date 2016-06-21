@@ -1,3 +1,7 @@
+/**
+ * @author Kai Salmen / www.kaisalmen.de
+ */
+
 uniform sampler2D texture1;
 uniform float blendFactor;
 uniform float colorFactor[3];

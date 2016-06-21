@@ -1,8 +1,8 @@
 /**
- * Created by Kai Salmen.
+ * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 var KSPG = {
     Polygon : (function () {

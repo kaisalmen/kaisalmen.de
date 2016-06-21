@@ -1,3 +1,7 @@
+/**
+ * @author Kai Salmen / www.kaisalmen.de
+ */
+
 varying vec2 vUv;
 uniform sampler2D texture1;
 uniform float heightFactor;

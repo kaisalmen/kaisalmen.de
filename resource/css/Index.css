@@ -34,4 +34,5 @@
 #DivGLFullCanvasLoad {
     z-index: 1000;
     position: absolute;
+//    display: none;
 }

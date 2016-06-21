@@ -1,8 +1,8 @@
 /**
- * Created by Kai on 19.09.2015.
+ * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 class Polygon {
 

@@ -1,8 +1,8 @@
 /**
- * Created by Kai Salmen.
+ * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 if (KSX.apps.tools.text === undefined) {
     KSX.apps.tools.text = {};

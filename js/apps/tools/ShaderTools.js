@@ -1,8 +1,8 @@
 /**
- * Created by Kai on 2014.03.17
+ * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 KSX.apps.tools.ShaderTools = (function () {
 
