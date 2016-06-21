@@ -30,44 +30,56 @@ KSX.apps.demos.home.Intermediate = (function () {
             useSceneOrtho : true
         });
 
-        this.mesh3d = null;
         this.textStorage = new KSX.apps.tools.text.Text();
+
+        this.shader = new KSX.apps.shader.BoxInstancesShader();
     }
 
     Intermediate.prototype.initAsyncContent = function() {
         var scope = this;
-        var listOfFonts = [];
-        listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
 
-        var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+        var callbackOnShaderSuccess = function () {
+            var listOfFonts = [];
+            listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
+
+            var callbackOnSuccess = function () {
+                scope.asyncDone = true;
+            };
+            scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
-        scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
+
+        scope.shader.loadResources(callbackOnShaderSuccess);
     };
 
     Intermediate.prototype.initGL = function () {
+        if ( !this.verifyHwInstancingSupport( true ) ) {
+            return;
+        }
+
         var camera = this.scenePerspective.camera;
         camera.position.set( 0, 0, 10 );
 
-        var geometry = new THREE.BoxGeometry(1, 2, 1);
-        var material = new THREE.MeshNormalMaterial();
-        this.mesh3d = new THREE.Mesh(geometry, material);
-        this.scenePerspective.scene.add( this.mesh3d );
-
-        var text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', new THREE.MeshBasicMaterial(), 50, 10);
+        var material = new THREE.MeshBasicMaterial();
+        var text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', material, 50, 10);
         text.mesh.position.set( -700.0, 0.0, 0.0 );
         this.sceneOrtho.scene.add( text.mesh );
-/*
-        var geometry = new THREE.PlaneGeometry(10, 10, 1, 1);
-        var material = new THREE.MeshNormalMaterial();
-        var mesh2d =  new THREE.Mesh(geometry, material);
-        this.sceneOrtho.scene.add( mesh2d );
-*/
-    };
 
-    Intermediate.prototype.renderPre = function () {
-        this.mesh3d.rotation.x += 0.02;
-        this.mesh3d.rotation.y += 0.02;
+
+        var geometry = new THREE.InstancedBufferGeometry();
+        geometry.copy( new THREE.BoxBufferGeometry( 1, 1, 1 ) );
+
+        var objectCount = 12;
+        var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
+        var a = 0;
+        for ( var i = 0; i < offsets.count; i++ ) {
+            offsets.setXYZ( i, a * 0.25, a * 0.1, a * 0.1 );
+            a++;
+        }
+        geometry.addAttribute( 'offset', offsets );
+
+        var shaderMaterial = this.shader.buildShaderMaterial();
+        var meshInstances = new THREE.Mesh( geometry, shaderMaterial );
+        this.scenePerspective.scene.add( meshInstances );
     };
 
     return Intermediate;

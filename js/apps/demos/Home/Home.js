@@ -108,7 +108,7 @@ KSX.apps.demos.home.Main = (function () {
     Home.prototype.initAsyncContent = function() {
         var scope = this;
 
-        var callbackOnSuccess = function () {
+        var callbackOnShaderSuccess = function () {
             var listOfFonts = [];
             listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
             listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
@@ -119,7 +119,7 @@ KSX.apps.demos.home.Main = (function () {
             scope.rtt.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
 
-        scope.shader.loadResources(callbackOnSuccess);
+        scope.shader.loadResources(callbackOnShaderSuccess);
     };
 
     Home.prototype.initPreGL = function () {
@@ -224,7 +224,7 @@ KSX.apps.demos.home.Main = (function () {
         }
         else {
             alert("Vertex shader is unable to access textures. Aborting...");
-            this.initError = true;
+            this.initOk = false;
             return;
         }
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);

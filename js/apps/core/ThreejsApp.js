@@ -41,7 +41,7 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.renderingEnabled = false;
 
         this.frameNumber = 0;
-        this.initError = false;
+        this.initOk = true;
 
         this.asyncDone = false;
     }
@@ -142,29 +142,32 @@ KSX.apps.core.ThreeJsApp = (function () {
             console.log("ThreeJsApp (" + scope.definition.name + "): initPreGL");
             scope.initPreGL();
 
+            if ( !scope.initOk ) { return; }
             console.log("ThreeJsApp (" + scope.definition.name + "): initGL");
             if (scope.definition.useScenePerspective) {
                 scope.scenePerspective.initGL();
+                if ( !scope.initOk ) { return; }
             }
             if (scope.definition.useSceneOrtho) {
                 scope.sceneOrtho.initGL();
+                if ( !scope.initOk ) { return; }
             }
 
             scope.initGL();
+            if ( !scope.initOk ) { return; }
 
-            if ( !scope.initError ) {
-                console.log("ThreeJsApp (" + scope.definition.name + "): resizeDisplayGLBase");
-                scope.resizeDisplayGLBase();
+            console.log("ThreeJsApp (" + scope.definition.name + "): resizeDisplayGLBase");
+            scope.resizeDisplayGLBase();
 
-                console.log("ThreeJsApp (" + scope.definition.name + "): addEventHandlers");
-                scope.addEventHandlers();
+            console.log("ThreeJsApp (" + scope.definition.name + "): addEventHandlers");
+            scope.addEventHandlers();
 
-                console.log("ThreeJsApp (" + scope.definition.name + "): initPostGL");
-                scope.renderingEnabled = scope.initPostGL();
+            console.log("ThreeJsApp (" + scope.definition.name + "): initPostGL");
+            scope.renderingEnabled = scope.initPostGL();
+            if ( !scope.initOk ) { return; }
 
-                if ( scope.renderingEnabled ) {
-                    console.log("ThreeJsApp (" + scope.definition.name + "): Ready to start render loop!");
-                }
+            if ( scope.renderingEnabled ) {
+                console.log("ThreeJsApp (" + scope.definition.name + "): Ready to start render loop!");
             }
         };
 
@@ -179,6 +182,28 @@ KSX.apps.core.ThreeJsApp = (function () {
                 console.log( 'waiting' );
             }
         }
+    };
+
+    ThreeJsApp.prototype.verifyHwInstancingSupport = function ( setGlobalInitFlag ) {
+        var supported = true;
+
+        var resInstancedArrays = this.renderer.extensions.get( 'ANGLE_instanced_arrays' );
+        if ( resInstancedArrays === undefined || resInstancedArrays === null ) {
+            var divNotSupported = document.getElementById('DivNotSupported');
+            if ( divNotSupported !== undefined && divNotSupported !== null ) {
+                divNotSupported.style.display = "";
+            }
+            else {
+                console.error( 'Div "DivNotSupported" for showing error message does not exist!' );
+            }
+            supported = false;
+        }
+
+        if ( setGlobalInitFlag ) {
+            this.initOk = supported;
+        }
+
+        return supported;
     };
 
     ThreeJsApp.prototype.resizeDisplayGLBase = function () {

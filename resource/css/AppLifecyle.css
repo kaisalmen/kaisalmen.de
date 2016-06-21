@@ -149,3 +149,15 @@ body {
     height: 100%;
     z-index: 0;
 }
+
+#DivNotSupported {
+    position: absolute;
+    color: rgba(80, 255, 80, 0.8);
+    width: 50%;
+    right: 25%;
+    left: 25%;
+    text-align: center;
+    margin-top: 100px;
+    border: 2px red solid;
+    padding: 10px;
+}

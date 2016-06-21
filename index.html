@@ -8,6 +8,7 @@
 </head>
 <body>
     <div id="DivGLFull">
+        <div id="DivNotSupported" style="display:none">Sorry your graphics card + browser does not support hardware instancing</div>
         <canvas id="DivGLFullCanvas"></canvas>
     </div>
     <script src="js/lib/threejs/Detector.js"></script>
@@ -24,6 +25,10 @@
     </script>
     <script src="js/apps/tools/TextTools.js"></script>
     <script src="js/apps/tools/BrowserSupport.js"></script>
+    <script src="js/apps/tools/ShaderTools.js"></script>
+    <script src="js/apps/tools/TextureTools.js"></script>
+    <script src="js/apps/shader/ShaderBase.js"></script>
+    <script src="js/apps/shader/BoxInstancesShader.js"></script>
     <script src="js/apps/demos/Home/Intermediate.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
