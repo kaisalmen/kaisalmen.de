@@ -35,7 +35,7 @@ var buildSuperBox = function ( gridParams ) {
             boxBuildParams.uvLocalMaxU = boxBuildParams.uVar;
             boxBuildParams.uvLocalMinV = boxBuildParams.vVar;
             boxBuildParams.uvLocalMaxV = boxBuildParams.vVar;
-            buildSingleBox(boxBuildParams);
+            buildSingleBoxWW(boxBuildParams);
             boxBuildParams.uVar += uDiff / gridParams.sizeY;
             boxBuildParams.xOffset += gridParams.cubeEdgeLength;
             boxBuildParams.count++;
@@ -79,7 +79,7 @@ var buildSuperBox = function ( gridParams ) {
     }
 };
 
-var buildSingleBox = function ( boxBuildParams ) {
+var buildSingleBoxWW = function ( boxBuildParams ) {
     var vertexValue = boxBuildParams.cubeDimension / 2.0;
     var v0x = -vertexValue + boxBuildParams.xOffset;
     var v0y = -vertexValue + boxBuildParams.yOffset;

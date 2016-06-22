@@ -9,6 +9,10 @@ KSX.apps.shader.BoxInstancesShader = (function () {
     function BoxInstancesShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
+        this.uniforms['heightFactor'] = { type: 'f', value: 128.0 };
+        this.uniforms['uvScaleU'] = { type: 'f', value: 1.0 };
+        this.uniforms['uvScaleV'] = { type: 'f', value: 1.0 };
+        this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
         this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };
         this.uniforms['texture1'] = { type: 't', value: null };
