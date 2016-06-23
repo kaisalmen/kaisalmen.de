@@ -5,6 +5,7 @@
 uniform float heightFactor;
 uniform float uvScaleU;
 uniform float uvScaleV;
+uniform float scaleBox;
 uniform bool invert;
 uniform sampler2D texture1;
 
@@ -30,6 +31,6 @@ void main()	{
         }
 	}
 
-	vec4 posNew = vec4(offset.x + position.x, offset.y + position.y, offset.z + modifiedZ, 1.0);
+	vec4 posNew = vec4(offset.x + position.x * scaleBox, offset.y + position.y * scaleBox, offset.z + modifiedZ, 1.0);
 	gl_Position = projectionMatrix * modelViewMatrix * posNew;
 }

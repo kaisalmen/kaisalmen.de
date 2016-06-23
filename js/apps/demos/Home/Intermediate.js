@@ -35,6 +35,7 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.textStorage = new KSX.apps.tools.text.Text();
         this.shader = new KSX.apps.shader.BoxInstancesShader();
         this.controls = null;
+        this.pixelBoxesGenerator = null;
     }
 
     Intermediate.prototype.initAsyncContent = function() {
@@ -62,12 +63,15 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.scenePerspective.setCameraDefaults( camDefaultPos );
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
+
         var material = new THREE.MeshBasicMaterial();
         var text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', material, 50, 10);
         text.mesh.position.set( -700.0, 0.0, 0.0 );
         this.sceneOrtho.scene.add( text.mesh );
 
-        var pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder( KSX.globals.basedir, material, null );
+        
+        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+
         var boxBuildParams = {
             count : 0,
             cubeDimension : 1.0,
@@ -84,58 +88,17 @@ KSX.apps.demos.home.Intermediate = (function () {
             useIndices : true,
             indices : []
         };
-        var singleBoxBufferGeometry = pixelBoxesBuilder.buildSingleBox( boxBuildParams );
-
-        var geometry = new THREE.InstancedBufferGeometry();
-        //geometry.copy( new THREE.BoxBufferGeometry( 1, 1, 1 ) );
-        geometry.copy( singleBoxBufferGeometry );
-
-        var dim = {
-            x: 1920,
-            y: 1080
+        var dimension = {
+            x: 1024,
+            y: 1024
         };
-        var objectCount = dim.x * dim.y;
-        var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
-        var x = -dim.x / 2.0;
-        var y = -dim.y / 2.0;
-
-        var uvRanges = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 2 ), 2, 1 );
-        var incU = 1.0 / dim.x;
-        var incV = 1.0 / dim.y;
-        this.shader.uniforms.uvScaleU.value = incU;
-        this.shader.uniforms.uvScaleV.value = incV;
-        var uRange = 0.0;
-        var vRange = 0.0;
-        var index = 0;
-
-        var runX = 0;
-        var runY = 0;
-        while ( runY < dim.y ) {
-            while ( runX < dim.x ) {
-                offsets.setXYZ( index, x, y, 0 );
-                uvRanges.setXY( index, uRange, vRange );
-                index++;
-
-                runX++;
-                x += 1.0;
-
-                uRange += incU;
-            }
-            runY++;
-            runX = 0;
-
-            x = -dim.x / 2.0;
-            y += 1.0;
-
-            uRange = 0.0;
-            vRange += incV;
+        if (bowser.mobile) {
+            dimension.x = 512;
+            dimension.y = 512;
         }
-        geometry.addAttribute( 'offset', offsets );
-        geometry.addAttribute( 'uvRange', uvRanges );
+        var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( boxBuildParams, dimension, this.shader );
 
-        var shaderMaterial = this.shader.buildShaderMaterial();
-        var meshInstances = new THREE.Mesh( geometry, shaderMaterial );
-        this.scenePerspective.scene.add( meshInstances );
+        this.scenePerspective.scene.add( meshInstance );
     };
 
     Intermediate.prototype.resizeDisplayGL = function () {

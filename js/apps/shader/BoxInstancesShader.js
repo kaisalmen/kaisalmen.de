@@ -12,6 +12,7 @@ KSX.apps.shader.BoxInstancesShader = (function () {
         this.uniforms['heightFactor'] = { type: 'f', value: 128.0 };
         this.uniforms['uvScaleU'] = { type: 'f', value: 1.0 };
         this.uniforms['uvScaleV'] = { type: 'f', value: 1.0 };
+        this.uniforms['scaleBox'] = { type: 'f', value: 1.0 };
         this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
         this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };

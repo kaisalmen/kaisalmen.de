@@ -10,6 +10,9 @@ KSX.apps.shader.BlockShader = (function () {
         KSX.apps.shader.ShaderBase.call(this);
 
         this.uniforms['heightFactor'] = { type: 'f', value: 24.0 };
+        this.uniforms['uvScaleU'] = { type: 'f', value: 1.0 };
+        this.uniforms['uvScaleV'] = { type: 'f', value: 1.0 };
+        this.uniforms['scaleBox'] = { type: 'f', value: 0.25 };
         this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
         this.uniforms['colorFactor'] = { type: 'fv1', value: [1.0, 1.0, 1.0] };
@@ -31,7 +34,7 @@ KSX.apps.shader.BlockShader = (function () {
         var scope = this;
 
         var promises = new Array(5);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/deformGeometryFromTexture.glsl', false, 'VS: Deform Geometry according Texture');
+        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', false, 'VS: Deform Geometry according Texture');
         promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', false, 'FS: Simple Texture');
         promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
         promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/images/ready01.jpg');

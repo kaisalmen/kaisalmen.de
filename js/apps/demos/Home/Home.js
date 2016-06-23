@@ -46,7 +46,6 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture = null;
         this.videoTextureEnabled = false;
 
-        this.animate = false;
         this.invert = false;
 
         this.controls = null;
@@ -102,7 +101,7 @@ KSX.apps.demos.home.Main = (function () {
         };
 
         this.debug = false;
-        this.pixelBoxesBuilder = null;
+        this.pixelBoxesGenerator = null;
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -132,11 +131,11 @@ KSX.apps.demos.home.Main = (function () {
         var adjustHeightFactor = function (value) {
             scope.shader.uniforms.heightFactor.value = value;
         };
+        var adjustBoxScale = function (value) {
+            scope.shader.uniforms.scaleBox.value = value;
+        };
         var invertShader = function (value) {
             scope.shader.uniforms.invert.value = value;
-        };
-        var enableAnimation = function (enabled) {
-            scope.animate = enabled;
         };
         var resetView = function () {
             scope.scenePerspective.resetCamera();
@@ -172,16 +171,22 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
+        ui.add('slide', {
+            name: 'boxScale',
+            callback: adjustBoxScale,
+            min: 0.01,
+            max: 1.0,
+            value: scope.shader.uniforms.scaleBox.value,
+            precision: 3,
+            step: 0.01,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
         ui.add('bool', {
             name: 'Invert',
             value: scope.invert,
             callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        ui.add('bool', {
-            name: 'Animate',
-            value: scope.animate,
-            callback: enableAnimation,
             height: scope.uiTools.paramsDimension.boolHeight
         });
         ui.add('button', {
@@ -305,8 +310,39 @@ KSX.apps.demos.home.Main = (function () {
         this.superBoxPivot.add(this.superBoxGroup);
         this.scenePerspective.scene.add(this.superBoxPivot);
 
-        this.pixelBoxesBuilder = new KSX.apps.demos.home.PixelBoxesBuilder( KSX.globals.basedir, material, this.superBoxGroup );
-        this.pixelBoxesBuilder.buildSuperBoxSeries( 1280, 720, 48, 30, 0.5 );
+        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+/*
+        this.pixelBoxesGenerator.setObjGroup( this.superBoxGroup );
+        this.pixelBoxesGenerator.setMaterial( material );
+        this.pixelBoxesGenerator.buildSuperBoxSeries( 1280, 720, 48, 30, 0.5 );
+*/
+        var boxBuildParams = {
+            count : 0,
+            cubeDimension : 1.0,
+            xOffset : 0.0,
+            yOffset : 0.0,
+            zOffset : 0.0,
+            uvLocalMinU : 0.0,
+            uvLocalMaxU : 1.0,
+            uvLocalMinV : 0.0,
+            uvLocalMaxV : 1.0,
+            vertices : [],
+            normals : [],
+            uvs : [],
+            useIndices : true,
+            indices : []
+        };
+        var dimension = {
+            x: 1280,
+            y: 720
+        };
+        if (bowser.mobile) {
+            dimension.x = 640;
+            dimension.y = 360;
+        }
+        var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( boxBuildParams, dimension, this.shader );
+
+        this.scenePerspective.scene.add( meshInstance );
     };
 
     Home.prototype.addEventHandlers = function () {
@@ -319,18 +355,11 @@ KSX.apps.demos.home.Main = (function () {
         document.addEventListener( 'complete', eatComplete, false );
     };
 
-    Home.prototype.initPostGL = function() {
-        return false;
-    };
-
     Home.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
     };
 
     Home.prototype.renderPre = function () {
-        if (this.animate && this.superBoxGroup !== undefined) {
-            this.superBoxPivot.rotateY(0.005);
-        }
         this.controls.update();
 
         if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
