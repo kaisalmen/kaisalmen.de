@@ -75,17 +75,15 @@ KSX.apps.demos.home.Intermediate = (function () {
             return;
         }
 
-        var camDefaultPos = new THREE.Vector3( 0, -1280, 1000 );
+        var camDefaultPos = new THREE.Vector3( 0, -1800, 1400 );
         this.scenePerspective.setCameraDefaults( camDefaultPos );
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
         this.superBoxPivot = new THREE.Object3D();
 
-
         var material = new THREE.MeshBasicMaterial();
         this.meshes.text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', material, 50, 10);
         this.meshes.text.mesh.position.set( -700.0, -500, 0.0 );
-        //this.scenePerspective.scene.add( this.meshes.text.mesh );
         this.superBoxPivot.add( this.meshes.text.mesh );
 
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
@@ -95,6 +93,7 @@ KSX.apps.demos.home.Intermediate = (function () {
         };
         this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, 12.0, this.shader );
         this.superBoxPivot.add( this.meshes.pixels );
+
         this.scenePerspective.scene.add( this.superBoxPivot );
     };
 
@@ -109,6 +108,14 @@ KSX.apps.demos.home.Intermediate = (function () {
     Intermediate.prototype.renderPre = function () {
         this.controls.update();
         this.superBoxPivot.rotation.z += 0.001;
+        if (this.frameNumber % 60 === 0) {
+
+            var getRandomArbitrary = function (min, max) {
+                return Math.random() * (max - min) + min;
+            };
+            this.shader.uniforms.uvRandom.value = getRandomArbitrary(0.66, 1.0);
+            this.shader.uniforms.heightFactor.value = getRandomArbitrary(12, 24);
+        }
     };
 
     return Intermediate;

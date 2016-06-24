@@ -3,8 +3,7 @@
  */
 
 uniform float heightFactor;
-uniform float uvScaleU;
-uniform float uvScaleV;
+uniform float uvRandom;
 uniform float scaleBox;
 uniform bool useUvRange;
 uniform bool invert;
@@ -17,9 +16,7 @@ varying vec2 vUv;
 
 void main()	{
 	if (useUvRange) {
-	    //vUv.x = uvRange.x + uv.x * uvScaleU;
-    	//vUv.y = uvRange.y + uv.y * uvScaleV;
-	    vUv = uvRange;
+	    vUv = uvRandom * uvRange;
 	}
 	else {
 	    vUv = uv;
