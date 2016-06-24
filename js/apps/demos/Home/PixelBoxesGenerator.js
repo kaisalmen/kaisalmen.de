@@ -63,7 +63,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
     };
 
 
-    PixelBoxesGenerator.prototype.buildSuperBoxSeries = function ( pixelU, pixelV, countU, countV, cubeEdgeLength ) {
+    PixelBoxesGenerator.prototype.buildSuperBoxSeries = function ( pixelU, pixelV, countU, countV ) {
         if ( countU % 2 !== 0 ) {
             console.error( 'countU cannot be divided by 2! Aborting...' );
             return;
@@ -83,14 +83,13 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
              uMax : uAdd,
              vMin : 0.0,
              vMax : vAdd,
-             cubeEdgeLength : cubeEdgeLength,
              posStartX : 0.0,
              posStartY : 0.0,
              useIndices : false
          };
 
-        var translateXAdd = gridParams.sizeY * cubeEdgeLength;
-        var translateYAdd = gridParams.sizeX * cubeEdgeLength;
+        var translateXAdd = gridParams.sizeY;
+        var translateYAdd = gridParams.sizeX;
         var translation = {
             x: 0.0,
             y: 0.0,
@@ -159,7 +158,6 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
             "vMin": gridParams.vMin,
             "uMax": gridParams.uMax,
             "vMax": gridParams.vMax,
-            "cubeEdgeLength": gridParams.cubeEdgeLength,
             "posStartX": gridParams.posStartX,
             "posStartY": gridParams.posStartY,
             "useIndices": gridParams.useIndices,
@@ -169,15 +167,31 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         });
     };
 
-    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( boxBuildParams, dimensions, shader ) {
+    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( dimensions, spacing, shader ) {
 
-        KSX.apps.demos.home.buildBox( boxBuildParams );
+        var instanceBoxBuildParams = {
+            count : 0,
+            xOffset : 0.0,
+            yOffset : 0.0,
+            zOffset : 0.0,
+            uvLocalMinU : 0.0,
+            uvLocalMaxU : 1.0,
+            uvLocalMinV : 0.0,
+            uvLocalMaxV : 1.0,
+            vertices : [],
+            normals : [],
+            uvs : [],
+            useIndices : true,
+            indices : []
+        };
+
+        KSX.apps.demos.home.buildBox( instanceBoxBuildParams );
 
         var bufferGeometry = new THREE.BufferGeometry();
-        bufferGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(boxBuildParams.vertices), 3));
-        bufferGeometry.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(boxBuildParams.uvs), 2));
-        if (boxBuildParams.useIndices) {
-            bufferGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(boxBuildParams.indices), 1));
+        bufferGeometry.addAttribute('position', new THREE.BufferAttribute(new Float32Array(instanceBoxBuildParams.vertices), 3));
+        bufferGeometry.addAttribute('uv', new THREE.BufferAttribute(new Float32Array(instanceBoxBuildParams.uvs), 2));
+        if (instanceBoxBuildParams.useIndices) {
+            bufferGeometry.setIndex(new THREE.BufferAttribute(new Uint32Array(instanceBoxBuildParams.indices), 1));
         }
 
         var geometry = new THREE.InstancedBufferGeometry();
@@ -185,8 +199,8 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
 
         var objectCount = dimensions.x * dimensions.y;
         var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
-        var x = -dimensions.x / 2.0;
-        var y = -dimensions.y / 2.0;
+        var x = -dimensions.x * spacing / 2.0;
+        var y = -dimensions.y * spacing / 2.0;
 
         var uvRanges = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 2 ), 2, 1 );
         var incU = 1.0 / dimensions.x;
@@ -206,15 +220,15 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
                 index++;
 
                 runX++;
-                x += 1.0;
+                x += spacing;
 
                 uRange += incU;
             }
             runY++;
             runX = 0;
 
-            x = -dimensions.x / 2.0;
-            y += 1.0;
+            x = -dimensions.x * spacing / 2.0;
+            y += spacing;
 
             uRange = 0.0;
             vRange += incV;

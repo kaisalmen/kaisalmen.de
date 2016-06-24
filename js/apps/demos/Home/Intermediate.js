@@ -72,32 +72,12 @@ KSX.apps.demos.home.Intermediate = (function () {
         
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
 
-        var boxBuildParams = {
-            count : 0,
-            cubeDimension : 1.0,
-            xOffset : 0.0,
-            yOffset : 0.0,
-            zOffset : 0.0,
-            uvLocalMinU : 0.0,
-            uvLocalMaxU : 1.0,
-            uvLocalMinV : 0.0,
-            uvLocalMaxV : 1.0,
-            vertices : [],
-            normals : [],
-            uvs : [],
-            useIndices : true,
-            indices : []
-        };
         var dimension = {
-            x: 1024,
-            y: 1024
+            x: bowser.mobile ? 1024 : 512,
+            y: bowser.mobile ? 1024 : 512
         };
-        if (bowser.mobile) {
-            dimension.x = 512;
-            dimension.y = 512;
-        }
-        var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( boxBuildParams, dimension, this.shader );
 
+        var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, 2.0, this.shader );
         this.scenePerspective.scene.add( meshInstance );
     };
 

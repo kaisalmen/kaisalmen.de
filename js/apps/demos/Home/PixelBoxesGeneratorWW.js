@@ -19,7 +19,6 @@ var buildSuperBox = function ( gridParams ) {
 
     var boxBuildParams = {
         count : 0,
-        cubeDimension : gridParams.cubeEdgeLength,
         xOffset : gridParams.posStartX,
         yOffset : gridParams.posStartY,
         zOffset : 0.0,
@@ -48,7 +47,7 @@ var buildSuperBox = function ( gridParams ) {
             boxBuildParams.uvLocalMaxV = boxBuildParams.vVar;
             KSX.apps.demos.home.buildBox( boxBuildParams, false );
             boxBuildParams.uVar += uDiff / gridParams.sizeY;
-            boxBuildParams.xOffset += gridParams.cubeEdgeLength;
+            boxBuildParams.xOffset += 1.0;
             boxBuildParams.count++;
             j++;
         }
@@ -56,7 +55,7 @@ var buildSuperBox = function ( gridParams ) {
         boxBuildParams.uVar = gridParams.uMin;
         boxBuildParams.vVar += vDiff / gridParams.sizeX;
         boxBuildParams.xOffset = gridParams.posStartX;
-        boxBuildParams.yOffset += gridParams.cubeEdgeLength;
+        boxBuildParams.yOffset += 1.0;
         j = 0;
         i++;
     }
@@ -102,7 +101,6 @@ var createBoxes = function ( event ) {
                 vMin: payload.vMin,
                 uMax: payload.uMax,
                 vMax: payload.vMax,
-                cubeEdgeLength: payload.cubeEdgeLength,
                 posStartX: payload.posStartX,
                 posStartY: payload.posStartY,
                 useIndices: payload.useIndices,

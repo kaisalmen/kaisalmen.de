@@ -9,7 +9,7 @@ if (KSX.apps.demos.home === undefined) {
 }
 
 KSX.apps.demos.home.buildBox = function ( boxBuildParams ) {
-    var vertexValue = boxBuildParams.cubeDimension / 2.0;
+    var vertexValue = 0.5;
     var v0x = -vertexValue + boxBuildParams.xOffset;
     var v0y = -vertexValue + boxBuildParams.yOffset;
     var v0z =  vertexValue + boxBuildParams.zOffset;

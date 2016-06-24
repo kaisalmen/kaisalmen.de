@@ -13,10 +13,10 @@ void main()	{
 	float modifiedZ = position.z;
 	if (modifiedZ > 0.0) {
 	    if (invert) {
-	        modifiedZ += heightFactor * (1.0 - texValue.r + 1.0 - texValue.g + 1.0 - texValue.b) / 3.0;
+	        modifiedZ += heightFactor * (3.0 - texValue.r - texValue.g - texValue.b);
 	    }
 	    else {
-	        modifiedZ += heightFactor * (texValue.r + texValue.g + texValue.b) / 3.0;
+	        modifiedZ += heightFactor * (texValue.r + texValue.g + texValue.b);
 	    }
 	}
 	gl_Position = projectionMatrix * modelViewMatrix * vec4(position.x, position.y, modifiedZ, 1.0);
