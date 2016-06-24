@@ -105,10 +105,8 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPreGL = function () {
-        var scope = this;
-
-        scope.stats.showPanel(0);
-        document.body.appendChild(scope.stats.domElement);
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.domElement);
     };
 
     Home.prototype.initGL = function () {

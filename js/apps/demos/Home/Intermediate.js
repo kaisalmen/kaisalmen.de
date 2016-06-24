@@ -35,7 +35,18 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.textStorage = new KSX.apps.tools.text.Text();
         this.shader = new KSX.apps.shader.BoxInstancesShader();
         this.controls = null;
+
         this.pixelBoxesGenerator = null;
+        this.meshes = {
+            pixels: null,
+            text: null
+        }
+
+        this.stats = new Stats();
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.left = '';
+        this.stats.domElement.style.right = '0px';
+        this.stats.domElement.style.top = '0px';
     }
 
     Intermediate.prototype.initAsyncContent = function() {
@@ -54,39 +65,50 @@ KSX.apps.demos.home.Intermediate = (function () {
         scope.shader.loadResources(callbackOnShaderSuccess);
     };
 
+    Intermediate.prototype.initPreGL = function () {
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.domElement);
+    };
+
     Intermediate.prototype.initGL = function () {
         if ( !this.verifyHwInstancingSupport( true ) ) {
             return;
         }
 
-        var camDefaultPos = new THREE.Vector3( 0, 0, 1000 );
+        var camDefaultPos = new THREE.Vector3( 0, -1280, 1000 );
         this.scenePerspective.setCameraDefaults( camDefaultPos );
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
+        this.superBoxPivot = new THREE.Object3D();
+
 
         var material = new THREE.MeshBasicMaterial();
-        var text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', material, 50, 10);
-        text.mesh.position.set( -700.0, 0.0, 0.0 );
-        this.sceneOrtho.scene.add( text.mesh );
+        this.meshes.text = this.textStorage.addText('Test', 'ubuntu_mono_regular', 'www.kaisalmen.de is under reconstruction!', material, 50, 10);
+        this.meshes.text.mesh.position.set( -700.0, -500, 0.0 );
+        //this.scenePerspective.scene.add( this.meshes.text.mesh );
+        this.superBoxPivot.add( this.meshes.text.mesh );
 
-        
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
-
         var dimension = {
-            x: bowser.mobile ? 1024 : 512,
-            y: bowser.mobile ? 1024 : 512
+            x: 120,
+            y: 68
         };
-
-        var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, 2.0, this.shader );
-        this.scenePerspective.scene.add( meshInstance );
+        this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, 12.0, this.shader );
+        this.superBoxPivot.add( this.meshes.pixels );
+        this.scenePerspective.scene.add( this.superBoxPivot );
     };
 
     Intermediate.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
     };
 
+    Intermediate.prototype.renderPost = function () {
+        this.stats.update();
+    };
+
     Intermediate.prototype.renderPre = function () {
         this.controls.update();
+        this.superBoxPivot.rotation.z += 0.001;
     };
 
     return Intermediate;

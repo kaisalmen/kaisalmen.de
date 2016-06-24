@@ -9,10 +9,10 @@ KSX.apps.shader.BoxInstancesShader = (function () {
     function BoxInstancesShader() {
         KSX.apps.shader.ShaderBase.call(this);
 
-        this.uniforms['heightFactor'] = { type: 'f', value: 128.0 };
+        this.uniforms['heightFactor'] = { type: 'f', value: 12.0 };
         this.uniforms['uvScaleU'] = { type: 'f', value: 1.0 };
         this.uniforms['uvScaleV'] = { type: 'f', value: 1.0 };
-        this.uniforms['scaleBox'] = { type: 'f', value: 1.0 };
+        this.uniforms['scaleBox'] = { type: 'f', value: 3.0 };
         this.uniforms['useUvRange'] = { type : 'b', value : true };
         this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };
@@ -35,7 +35,7 @@ KSX.apps.shader.BoxInstancesShader = (function () {
         var promises = new Array(3);
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', true, 'VS: Pass Through');
         promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture');
-        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
+        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/PixelProtest.png');
 
         Promise.all( promises ).then(
             function (results) {
