@@ -4,6 +4,10 @@
 
 'use strict';
 
+if ( KSX.apps.shader === undefined ) {
+    KSX.apps.shader = {}
+}
+
 KSX.apps.shader.ShaderBase = (function () {
 
     function ShaderBase() {

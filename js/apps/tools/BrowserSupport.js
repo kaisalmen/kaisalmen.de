@@ -4,6 +4,19 @@
 
 'use strict';
 
+if (KSX === undefined) {
+    var KSX = {
+        apps: {
+            tools: {
+
+            }
+        },
+        globals: {
+
+        }
+    };
+}
+
 KSX.apps.tools.BrowserSupport = (function () {
 
     function BrowserSupport(userVersions) {
@@ -11,7 +24,14 @@ KSX.apps.tools.BrowserSupport = (function () {
             chrome : {
                 name : 'Google Chrome',
                 supported : true,
-                minVersion : 46.0,
+                minVersion : 38.0,
+                mobileSupported: true,
+                mobileWarning : undefined
+            },
+            opera : {
+                name : 'Opera',
+                supported : true,
+                minVersion : 25.0,
                 mobileSupported: true,
                 mobileWarning : undefined
             },
@@ -143,6 +163,3 @@ KSX.apps.tools.BrowserSupport = (function () {
 
     return BrowserSupport;
 })();
-
-var browserSupport = new KSX.apps.tools.BrowserSupport(KSX.globals.browserVersions);
-browserSupport.checkSupport();

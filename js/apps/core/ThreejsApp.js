@@ -8,32 +8,42 @@ var KSX = {
     apps : {
         core : {
 
-        },
-        demos : {
-
-        },
-        learn : {
-
-        },
-        zerosouth : {
-
-        },
-        shader : {
-
-        },
-        tools : {
-            webworker : {
-
-            }
         }
-    },
-    globals : {
-        basedir : '../../',
-        appRunner : undefined,
-        browserVersions : undefined,
-        preChecksOk : true
     }
 };
+
+
+
+if ( KSX.globals === undefined ) {
+    KSX.globals = {}
+}
+if ( KSX.globals.basedir === undefined ) {
+    KSX.globals.basedir = '../../';
+}
+if ( KSX.globals.browserVersions === undefined ) {
+    KSX.globals.browserVersions = null;
+}
+if ( KSX.globals.preChecksOk === undefined ) {
+    KSX.globals.preChecksOk = true;
+}
+
+if ( KSX.apps.demos === undefined ) {
+    KSX.apps.demos = {}
+}
+
+if ( KSX.apps.tools === undefined ) {
+    KSX.apps.tools = {
+        webworker: {
+        }
+    }
+}
+else {
+    if ( KSX.apps.tools.webworker === undefined ) {
+        KSX.apps.tools.webworker = {
+
+        }
+    }
+}
 
 KSX.apps.core.ThreeJsApp = (function () {
 

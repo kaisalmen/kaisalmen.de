@@ -4,6 +4,10 @@
 
 'use strict';
 
+if ( KSX.apps.zerosouth === undefined ) {
+    KSX.apps.zerosouth = {}
+}
+
 KSX.apps.tools.MeshInfo = (function () {
 
     function MeshInfo(meshName, materialName) {

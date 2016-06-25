@@ -4,6 +4,10 @@
 
 'use strict';
 
+if ( KSX.apps.learn === undefined ) {
+    KSX.apps.learn = {}
+}
+
 KSX.apps.learn.GLCheck = (function () {
 
     GLCheck.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
