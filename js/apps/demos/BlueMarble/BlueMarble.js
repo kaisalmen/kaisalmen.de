@@ -235,13 +235,6 @@ KSX.apps.demos.BlueMarble = (function () {
     }
 
     BlueMarble.prototype.initGL = function () {
-        var gl = this.renderer.getContext();
-
-        var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        if (result != 0) {
-            console.log('Vertex shader is able to read texture (gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS= ' + result + ')');
-        }
-
         var geometry = new THREE.PlaneGeometry(3712, 3712, 1, 1);
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);

@@ -4,47 +4,6 @@
 
 "use strict";
 
-var KSX = {
-    apps : {
-        core : {
-
-        }
-    }
-};
-
-
-
-if ( KSX.globals === undefined ) {
-    KSX.globals = {}
-}
-if ( KSX.globals.basedir === undefined ) {
-    KSX.globals.basedir = '../../';
-}
-if ( KSX.globals.browserVersions === undefined ) {
-    KSX.globals.browserVersions = null;
-}
-if ( KSX.globals.preChecksOk === undefined ) {
-    KSX.globals.preChecksOk = true;
-}
-
-if ( KSX.apps.demos === undefined ) {
-    KSX.apps.demos = {}
-}
-
-if ( KSX.apps.tools === undefined ) {
-    KSX.apps.tools = {
-        webworker: {
-        }
-    }
-}
-else {
-    if ( KSX.apps.tools.webworker === undefined ) {
-        KSX.apps.tools.webworker = {
-
-        }
-    }
-}
-
 KSX.apps.core.ThreeJsApp = (function () {
 
     function ThreeJsApp() {
@@ -54,6 +13,8 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.initOk = true;
 
         this.asyncDone = false;
+
+        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
     }
 
     ThreeJsApp.prototype.configure = function (userDefinition) {
@@ -192,28 +153,6 @@ KSX.apps.core.ThreeJsApp = (function () {
                 console.log( 'waiting' );
             }
         }
-    };
-
-    ThreeJsApp.prototype.verifyHwInstancingSupport = function ( setGlobalInitFlag ) {
-        var supported = true;
-
-        var resInstancedArrays = this.renderer.extensions.get( 'ANGLE_instanced_arrays' );
-        if ( resInstancedArrays === undefined || resInstancedArrays === null ) {
-            var divNotSupported = document.getElementById('DivNotSupported');
-            if ( divNotSupported !== undefined && divNotSupported !== null ) {
-                divNotSupported.style.display = "";
-            }
-            else {
-                console.error( 'Div "DivNotSupported" for showing error message does not exist!' );
-            }
-            supported = false;
-        }
-
-        if ( setGlobalInitFlag ) {
-            this.initOk = supported;
-        }
-
-        return supported;
     };
 
     ThreeJsApp.prototype.resizeDisplayGLBase = function () {
@@ -533,6 +472,8 @@ KSX.apps.core.ThreeJsApp.DefaultDefinition = {
 KSX.apps.core.AppRunner = (function () {
 
     function AppRunner() {
+        var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport(KSX.globals.browserVersions);
+        browserSupport.checkSupport();
     }
 
     AppRunner.prototype.addImplementations = function (implementations) {

@@ -32,7 +32,7 @@ KSX.apps.shader.BlueMarbleShader = (function () {
         var promises = new Array(4);
         promises[0] = this.textureTools.loadTexture(this.baseDir + 'resource/images/BlueMarble/bluemarble_rgba.png');
         promises[1] = this.textureTools.loadTexture(this.baseDir + 'resource/images/BlueMarble/sat_rgba.png');
-
+        
         promises[2] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
         promises[3] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/blueMarble.glsl', false, 'FS: BlueMarble');
 

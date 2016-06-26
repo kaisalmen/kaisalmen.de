@@ -31,12 +31,7 @@ KSX.apps.learn.GLCheck = (function () {
     }
 
     GLCheck.prototype.initGL = function () {
-        var gl = this.renderer.getContext();
-
-        var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        if (result != 0) {
-            console.log("Vertex shader is able to read texture: " + result);
-        }
+        this.platformVerification.verifyVertexShaderTextureAccess( this.renderer, true );
     };
 
     return GLCheck;

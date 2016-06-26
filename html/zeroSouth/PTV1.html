@@ -11,27 +11,12 @@
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
     </div>
-
-    <script src="../../js/lib/threejs/three.min.js"></script>
-    <script src="../../js/lib/mod/MTLLoader.js"></script>
-    <script src="../../js/lib/threejs/TrackballControls.js"></script>
-    <script src="../../js/lib/ext/uil.min.js"></script>
-    <script src="../../js/lib/threejs/stats.min.js"></script>
-    <script src="../../js/lib/ext/jszip.min.js"></script>
     <script src="../../js/lib/ext/bowser.min.js"></script>
-    <script src="../../js/lib/threejs/Detector.js"></script>
-    <script>
-        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
-    </script>
-
-    <script src="../../js/apps/tools/BrowserSupport.js"></script>
+    <script src="../../js/apps/core/Prerequisites.js"></script>
     <script>
         KSX.globals.browserVersions = {
             msedge : {
                 minVersion : 13.10586
-            },
-            msie : {
-                supported : false
             },
             firefox : {
                 mobileWarning : 'Mobile Firefox is considered unstable, but it may work!'
@@ -40,9 +25,15 @@
                 mobileWarning : 'Mobile Safari has memory issues and is considered unstable, but it may work!'
             }
         };
-        var browserSupport = new KSX.apps.tools.BrowserSupport(KSX.globals.browserVersions);
-        browserSupport.checkSupport();
     </script>
+
+    <script src="../../js/lib/threejs/three.min.js"></script>
+    <script src="../../js/lib/threejs/stats.min.js"></script>
+    <script src="../../js/lib/threejs/TrackballControls.js"></script>
+    <script src="../../js/lib/mod/MTLLoader.js"></script>
+    <script src="../../js/lib/ext/uil.min.js"></script>
+    <script src="../../js/lib/ext/jszip.min.js"></script>
+
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../js/apps/tools/webworker/WWObjParser.js"></script>
     <script src="../../js/apps/tools/webworker/WWUnzip.js"></script>

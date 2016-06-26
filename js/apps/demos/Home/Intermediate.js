@@ -71,7 +71,12 @@ KSX.apps.demos.home.Intermediate = (function () {
     };
 
     Intermediate.prototype.initGL = function () {
-        if ( !this.verifyHwInstancingSupport( true ) ) {
+        if ( !this.platformVerification.verifyVertexShaderTextureAccess( this.renderer, true ) ) {
+            this.initOk = false;
+            return;
+        }
+        if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, true ) ) {
+            this.initOk = false;
             return;
         }
 

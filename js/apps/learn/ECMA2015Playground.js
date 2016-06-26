@@ -4,15 +4,6 @@
 
 'use strict';
 
-
-if ( KSX === undefined ) {
-    var KSX = {
-        apps: {
-            learn: {}
-        }
-    };
-}
-
 class Polygon {
 
     constructor(height, width) {

@@ -8,30 +8,21 @@
 </head>
 <body>
     <div id="DivGLFull">
+        <!--
         <div id="DivNotSupported" style="display:none">Sorry your graphics card + browser does not support hardware instancing</div>
+        -->
         <canvas id="DivGLFullCanvas"></canvas>
     </div>
-    <script src="js/lib/threejs/Detector.js"></script>
+    <script src="js/lib/ext/bowser.min.js"></script>
+    <script src="js/apps/core/Prerequisites.js"></script>
     <script>
-        if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+        KSX.globals.basedir = '';
     </script>
 
     <script src="js/lib/threejs/three.min.js"></script>
     <script src="js/lib/threejs/stats.min.js"></script>
     <script src="js/lib/threejs/TrackballControls.js"></script>
-    <script src="js/lib/ext/bowser.min.js"></script>
 
-    <script src="js/apps/tools/BrowserSupport.js"></script>
-    <script>
-        KSX.globals.basedir = '';
-        KSX.globals.browserVersions = {
-            msie: {
-                supported: false
-            }
-        };
-        var browserSupport = new KSX.apps.tools.BrowserSupport(KSX.globals.browserVersions);
-        browserSupport.checkSupport();
-    </script>
     <script src="js/apps/core/ThreeJsApp.js"></script>
     <script src="js/apps/tools/ShaderTools.js"></script>
     <script src="js/apps/tools/TextTools.js"></script>

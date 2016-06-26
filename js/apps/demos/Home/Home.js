@@ -63,7 +63,7 @@ KSX.apps.demos.home.Main = (function () {
             }
         };
         this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
-        
+
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '';
@@ -110,23 +110,15 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initGL = function () {
-        var gl = this.renderer.getContext();
-
-        var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-        if (result != 0) {
-            console.log("Vertex shader is able to read texture: " + result);
-        }
-        else {
-            alert("Vertex shader is unable to access textures. Aborting...");
+        if ( !this.platformVerification.verifyVertexShaderTextureAccess( this.renderer, true ) ) {
             this.initOk = false;
             return;
         }
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
 
-        if ( !this.verifyHwInstancingSupport( false ) ) {
+        if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, false ) ) {
             this.useHwInstancing = false;
         }
-
 
         // init video texture and params
         this.videoBuffer.width = 1920;
