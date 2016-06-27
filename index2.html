@@ -48,11 +48,6 @@
     <script src="js/apps/tools/UiTools.js"></script>
     <script src="js/apps/shader/ShaderBase.js"></script>
     <script src="js/apps/shader/BlockShader.js"></script>
-<!--
-    <script src="js/apps/demos/HelloOO/HelloOOSimple.js"></script>
--->
-    <script src="js/apps/shader/SpinningCubeShader.js"></script>
-    <script src="js/apps/demos/HelloOO/SpinningCube.js"></script>
     <script src="js/apps/demos/Home/BoxCreator.js"></script>
     <script src="js/apps/demos/Home/PixelBoxesGenerator.js"></script>
     <script src="js/apps/demos/Home/Home.js"></script>
@@ -65,8 +60,6 @@
                     document.getElementById("DivGLFullVideoBuffer")
             );
             implementations.push(home);
-//            implementations.push(new KSX.apps.demos.HelloOOSimple(document.getElementById("DivGLFullCanvasLoad"), true));
-//            implementations.push(new KSX.apps.demos.SpinningCube(document.getElementById("DivGLFullCanvasLoad"), true));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
 

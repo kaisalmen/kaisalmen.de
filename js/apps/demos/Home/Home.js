@@ -72,15 +72,8 @@ KSX.apps.demos.home.Main = (function () {
 
         this.superBoxGroup = null;
 
-        this.rtt = {
-            scene : null,
-            camera : null,
-            directionalLight : null,
-            helper : null,
-            mesh : null,
-            texture : null,
-            textStorage : new KSX.apps.tools.text.Text()
-        };
+        this.rtt = null;
+        this.textStorage = new KSX.apps.tools.text.Text();
 
         this.debug = false;
         this.useHwInstancing = true;
@@ -98,7 +91,7 @@ KSX.apps.demos.home.Main = (function () {
             var callbackOnSuccess = function () {
                 scope.asyncDone = true;
             };
-            scope.rtt.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
+            scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
 
         scope.shader.loadResources(callbackOnShaderSuccess);
@@ -131,52 +124,11 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
-
-        // setup RTT
-        this.rtt.scene = new THREE.Scene();
-        this.rtt.camera = new THREE.PerspectiveCamera();
-        this.rtt.camera.position.set(0, 10, 20);
-        this.rtt.camera.lookAt(new THREE.Vector3(0, 0, 0));
-
-        var lightColor = 0xE0E0E0;
-        var lightPos = new THREE.Vector3(100, 100, 100);
-        this.rtt.directionalLight = new THREE.DirectionalLight(lightColor);
-        this.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
-        this.rtt.scene.add(this.rtt.directionalLight);
-
-        if (this.debug) {
-            this.rtt.helper = new THREE.GridHelper(20, 1, 0xFF4444, 0x404040);
-            this.rtt.scene.add(this.rtt.helper);
-        }
-
-        var textWelcome = this.rtt.textStorage.addText('Welcome', 'ubuntu_mono_regular', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10);
-        textWelcome.mesh.position.set(-5, 3, 0);
-        var textDomain = this.rtt.textStorage.addText('Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10);
-        textDomain.mesh.position.set(-5, -3, 0);
-        this.rtt.scene.add(textWelcome.mesh);
-        this.rtt.scene.add(textDomain.mesh);
-
-        var geometry = new THREE.SphereGeometry(1, 32, 32);
-        var material = new THREE.MeshNormalMaterial();
-        this.rtt.mesh = new THREE.Mesh(geometry, material);
-        this.rtt.scene.add(this.rtt.mesh);
-
-        this.rtt.texture = new THREE.WebGLRenderTarget(
-            this.videoBuffer.width,
-            this.videoBuffer.height,
-            {
-                minFilter: THREE.LinearFilter,
-                magFilter: THREE.NearestFilter,
-                format: THREE.RGBFormat
-            }
-        );
-        this.shader.textures['rtt'] = this.rtt.texture.texture;
-
+        initRtt( this );
 
         var material = this.shader.buildShaderMaterial();
 //        material.wireframe = true;
         this.checkVideo(material);
-
 
         if (this.debug) {
             var helper = new THREE.GridHelper(1000, 10, 0xFF4444, 0x404040);
@@ -212,6 +164,54 @@ KSX.apps.demos.home.Main = (function () {
         var camPos = new THREE.Vector3( 0.0, -dimension.y, dimension.x * 1.15 );
         this.scenePerspective.setCameraDefaults(camPos);
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
+    };
+
+    var initRtt = function ( scope ) {
+        // setup RTT
+        var canvasRtt = new KSX.apps.core.Canvas( {
+            offsetWidth: scope.videoBuffer.width,
+            offsetHeight: scope.videoBuffer.height
+        } );
+        // manual init required
+        scope.rtt = new KSX.apps.core.ThreeJsApp.ScenePerspective( canvasRtt );
+        scope.rtt.initGL();
+
+        var camPosRtt = new THREE.Vector3( 0, 10, 20 );
+        scope.rtt.setCameraDefaults( camPosRtt );
+
+        var lightColor = 0xE0E0E0;
+        var lightPos = new THREE.Vector3(100, 100, 100);
+        scope.rtt.directionalLight = new THREE.DirectionalLight(lightColor);
+        scope.rtt.directionalLight.position.set(lightPos.x, lightPos.y, lightPos.z);
+        scope.rtt.scene.add( scope.rtt.directionalLight );
+
+        if (scope.debug) {
+            scope.rtt.helper = new THREE.GridHelper(20, 1, 0xFF4444, 0x404040);
+            scope.rtt.scene.add( scope.rtt.helper );
+        }
+
+        var textWelcome = scope.textStorage.addText( 'Welcome', 'ubuntu_mono_regular', 'Welcome back to', new THREE.MeshStandardMaterial(), 1, 10 );
+        textWelcome.mesh.position.set( -5, 3, 0 );
+        var textDomain = scope.textStorage.addText( 'Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', new THREE.MeshStandardMaterial(), 1, 10 );
+        textDomain.mesh.position.set( -5, -3, 0 );
+        scope.rtt.scene.add( textWelcome.mesh );
+        scope.rtt.scene.add( textDomain.mesh );
+
+        var geometry = new THREE.SphereGeometry(1, 32, 32);
+        var material = new THREE.MeshNormalMaterial();
+        scope.rtt.mesh = new THREE.Mesh(geometry, material);
+        scope.rtt.scene.add( scope.rtt.mesh );
+
+        scope.rtt.texture = new THREE.WebGLRenderTarget(
+            scope.rtt.canvas.getWidth(),
+            scope.rtt.canvas.getHeight(),
+            {
+                minFilter: THREE.LinearFilter,
+                magFilter: THREE.NearestFilter,
+                format: THREE.RGBFormat
+            }
+        );
+        scope.shader.textures['rtt'] = scope.rtt.texture.texture;
     };
 
     Home.prototype.initPostGL = function () {
@@ -311,7 +311,7 @@ KSX.apps.demos.home.Main = (function () {
         });
 
         return true;
-    }
+    };
 
     Home.prototype.addEventHandlers = function () {
         var scope = this;

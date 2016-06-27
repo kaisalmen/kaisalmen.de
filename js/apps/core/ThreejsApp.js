@@ -273,15 +273,18 @@ KSX.apps.core.ThreeJsApp = (function () {
 
 KSX.apps.core.Canvas = (function () {
 
-    function Canvas(htmlCanvas) {
-        this.init(htmlCanvas);
+    function Canvas( htmlCanvas ) {
         this.verbose = false;
-    }
-
-    Canvas.prototype.init = function (htmlCanvas) {
-        this.htmlCanvas = htmlCanvas;
+        this.htmlCanvas = null;
+        if ( htmlCanvas !== undefined && htmlCanvas !== null &&
+            htmlCanvas.offsetWidth !== undefined && htmlCanvas.offsetHeight !== undefined ) {
+            this.htmlCanvas = htmlCanvas;
+        }
+        else {
+            console.error( 'htmlCanvas cannot be used: It is either undefined or its width and height are not available.' );
+        }
         this.recalcAspectRatio();
-    };
+    }
 
     Canvas.prototype.recalcAspectRatio = function () {
         if (this.verbose) {
@@ -297,7 +300,7 @@ KSX.apps.core.Canvas = (function () {
     };
 
     Canvas.prototype.resetWidth = function (width, height) {
-        if (this.htmlCanvas !== null) {
+        if (this.htmlCanvas !== null && ( this.htmlCanvas.style !== undefined && this.htmlCanvas.style !== null) ) {
             this.htmlCanvas.style.width = width + 'px';
             this.htmlCanvas.style.height = height + 'px';
         }
