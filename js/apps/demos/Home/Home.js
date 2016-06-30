@@ -134,7 +134,7 @@ KSX.apps.demos.home.Main = (function () {
             y: bowser.mobile ? 268 : 804
         };
         if (this.useHwInstancing) {
-            var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes(dimension, 1.0, this.shader);
+            var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, this.shader );
             this.scenePerspective.scene.add(meshInstance);
         }
         else {
@@ -153,7 +153,7 @@ KSX.apps.demos.home.Main = (function () {
         }
 
         // init camera and bind to controls
-        var camPos = new THREE.Vector3( 0.0, -dimension.y, dimension.x * 1.15 );
+        var camPos = new THREE.Vector3( 0.0, -dimension.y * 1.15, dimension.x * 1.15 );
         this.scenePerspective.setCameraDefaults(camPos);
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
     };
@@ -195,14 +195,14 @@ KSX.apps.demos.home.Main = (function () {
             text: new THREE.MeshStandardMaterial()
         };
 
-        var textUnitWelcome = scope.textStorage.addText( 'Welcome', 'ubuntu_mono_regular', 'Welcome back to', scope.rtt.materials.text, 2, 10 );
-        var textUnitDomain = scope.textStorage.addText( 'Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', scope.rtt.materials.text, 2, 10 );
-        textUnitWelcome.mesh.position.set( -10, 3, 0 );
-        textUnitDomain.mesh.position.set( -10, -3, 0 );
+        var textUnitWelcome = scope.textStorage.addText( 'Welcome', 'ubuntu_mono_regular', 'Welcome back to', scope.rtt.materials.text, 1.5, 10 );
+        var textUnitDomain = scope.textStorage.addText( 'Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', scope.rtt.materials.text, 1.5, 10 );
+        textUnitWelcome.mesh.position.set( -8, 4, 0 );
+        textUnitDomain.mesh.position.set( -8, -5, 0 );
 
         scope.rtt.meshes = {
-            sphere: new THREE.Mesh( new THREE.SphereBufferGeometry(1, 32, 32), scope.rtt.materials.sphere ),
-            cube: new THREE.Mesh( new THREE.BoxBufferGeometry( 1, 1, 1), scope.rtt.materials.cube ),
+            sphere: new THREE.Mesh( new THREE.SphereBufferGeometry( 2, 32, 32 ), scope.rtt.materials.sphere ),
+            cube: new THREE.Mesh( new THREE.BoxBufferGeometry( 2, 2, 2 ), scope.rtt.materials.cube ),
             textWelcome: textUnitWelcome.mesh,
             textDomain: textUnitDomain.mesh,
             textPivot: new THREE.Object3D(),
@@ -253,6 +253,9 @@ KSX.apps.demos.home.Main = (function () {
         var adjustBoxScale = function (value) {
             scope.shader.uniforms.scaleBox.value = value;
         };
+        var adjustBoxSpacing = function (value) {
+            scope.shader.uniforms.spacing.value = value;
+        };
         var invertShader = function (value) {
             scope.shader.uniforms.invert.value = value;
         };
@@ -287,6 +290,34 @@ KSX.apps.demos.home.Main = (function () {
             }
         };
 
+        ui.add('title', { name: ' ' } );
+        ui.add('title', { name: 'Projection Space Controls' } );
+        if (scope.useHwInstancing) {
+            ui.add('slide', {
+                name: 'Box Scale',
+                callback: adjustBoxScale,
+                min: 0.01,
+                max: 0.99,
+                value: scope.shader.uniforms.scaleBox.value,
+                precision: 2,
+                step: 0.01,
+                width: scope.uiTools.paramsDimension.slidesWidth,
+                height: scope.uiTools.paramsDimension.slidesHeight,
+                stype: scope.uiTools.paramsDimension.sliderType
+            });
+            ui.add('slide', {
+                name: 'Box Spacing',
+                callback: adjustBoxSpacing,
+                min: 0.01,
+                max: 10.0,
+                value: scope.shader.uniforms.spacing.value,
+                precision: 3,
+                step: 0.01,
+                width: scope.uiTools.paramsDimension.slidesWidth,
+                height: scope.uiTools.paramsDimension.slidesHeight,
+                stype: scope.uiTools.paramsDimension.sliderType
+            });
+        }
         ui.add('slide', {
             name: 'heightFactor',
             callback: adjustHeightFactor,
@@ -299,20 +330,6 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
-        if (scope.useHwInstancing) {
-            ui.add('slide', {
-                name: 'boxScale',
-                callback: adjustBoxScale,
-                min: 0.01,
-                max: 0.99,
-                value: scope.shader.uniforms.scaleBox.value,
-                precision: 2,
-                step: 0.01,
-                width: scope.uiTools.paramsDimension.slidesWidth,
-                height: scope.uiTools.paramsDimension.slidesHeight,
-                stype: scope.uiTools.paramsDimension.sliderType
-            });
-        }
         ui.add('bool', {
             name: 'Invert',
             value: scope.shader.uniforms.invert.value,
@@ -320,24 +337,22 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.boolHeight
         });
 
-        var groupRtt = ui.add('group', {
-            name: 'Render Target',
-            height: scope.uiTools.paramsDimension.groupHeight
-        });
-        groupRtt.add('bool', {
+        ui.add('title', { name: ' ' } );
+        ui.add('title', { name: 'Render Target Controls' } );
+        ui.add('bool', {
             name: 'Animate',
             value: scope.rtt.animate,
             callback: animateRtt,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        groupRtt.add('bool', {
+        ui.add('bool', {
             name: 'Show Helpers',
             value: scope.rtt.showHelpers,
             callback: showHelpersRtt,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        groupRtt.open();
 
+        ui.add('title', { name: ' ' } );
         ui.add('bool', {
             name: 'Enable Video',
             value: scope.videoTextureEnabled,
@@ -360,6 +375,8 @@ KSX.apps.demos.home.Main = (function () {
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
         });
+        ui.add('title', { name: ' ' } );
+        ui.add('title', { name: 'Global Controls' } );
         ui.add('button', {
             name: 'Reset View',
             callback: resetView,
@@ -394,8 +411,16 @@ KSX.apps.demos.home.Main = (function () {
 
         this.renderer.setClearColor(RTT_CLEAR_COLOR);
         if ( this.rtt.animate ) {
-            this.rtt.meshes.sphere.position.set( 3 * Math.sin( this.frameNumber / 10 ), 0, 3 * Math.cos( this.frameNumber / 10 ) );
+            var spherePosFactor = 5.0;
+            var sphereSpeedDivider = 50;
+            this.rtt.meshes.sphere.position.set(
+                spherePosFactor * Math.sin( this.frameNumber / sphereSpeedDivider ),
+                0,
+                spherePosFactor * Math.cos( this.frameNumber / sphereSpeedDivider )
+            );
             this.rtt.meshes.lightPivot.rotateY( 0.01 );
+            this.rtt.meshes.cube.rotateX( -0.01 );
+            this.rtt.meshes.cube.rotateY( -0.01 );
 //            this.rtt.camera.position.set( 10 * Math.sin( this.frameNumber / 50 ), 5, 10 * Math.cos( this.frameNumber / 50 ) );
             this.rtt.updateCamera();
         }

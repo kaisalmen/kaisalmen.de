@@ -12,6 +12,7 @@ KSX.apps.shader.BlockShader = (function () {
         this.uniforms['heightFactor'] = { type: 'f', value: 24.0 };
         this.uniforms['uvRandom'] = { type: 'f', value: 1.0 };
         this.uniforms['scaleBox'] = { type: 'f', value: 0.36 };
+        this.uniforms['spacing'] = { type: 'f', value: 1.0 };
         this.uniforms['useUvRange'] = { type : 'b', value : true };
         this.uniforms['invert'] = { type : 'b', value : false };
         this.uniforms['blendFactor'] = { type: 'f', value: 1.0 };

@@ -167,7 +167,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         });
     };
 
-    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( dimensions, spacing, shader ) {
+    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( dimensions, shader ) {
 
         var instanceBoxBuildParams = {
             count : 0,
@@ -197,40 +197,9 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
 
-        var objectCount = dimensions.x * dimensions.y;
-        var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
-        var x = -dimensions.x * spacing / 2.0;
-        var y = -dimensions.y * spacing / 2.0;
+        var offsets = this.createOffsetsArray( dimensions );
+        var uvRanges = this.createUvsArray( dimensions );
 
-        var uvRanges = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 2 ), 2, 1 );
-        var incU = 1.0 / dimensions.x;
-        var incV = 1.0 / dimensions.y;
-        var uRange = 0.0;
-        var vRange = 0.0;
-        var index = 0;
-
-        var runX = 0;
-        var runY = 0;
-        while ( runY < dimensions.y ) {
-            while ( runX < dimensions.x ) {
-                offsets.setXYZ( index, x, y, 0 );
-                uvRanges.setXY( index, uRange, vRange );
-                index++;
-
-                runX++;
-                x += spacing;
-
-                uRange += incU;
-            }
-            runY++;
-            runX = 0;
-
-            x = -dimensions.x * spacing / 2.0;
-            y += spacing;
-
-            uRange = 0.0;
-            vRange += incV;
-        }
         geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'uvRange', uvRanges );
 
@@ -239,6 +208,59 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
 
         return meshInstances;
     };
+
+    PixelBoxesGenerator.prototype.createOffsetsArray = function ( dimensions ) {
+        var objectCount = dimensions.x * dimensions.y;
+        var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
+
+        var index = 0;
+        var runX = 0;
+        var runY = 0;
+        var x = -dimensions.x / 2.0;
+        var y = -dimensions.y / 2.0;
+        while ( runY < dimensions.y ) {
+            while (runX < dimensions.x) {
+                offsets.setXYZ( index, x, y, 0 );
+                runX++;
+                index++;
+                x++;
+            }
+            runY++;
+            runX = 0;
+            x = -dimensions.x / 2.0;
+            y ++;
+        }
+
+        return offsets;
+    };
+
+    PixelBoxesGenerator.prototype.createUvsArray = function ( dimensions ) {
+        var objectCount = dimensions.x * dimensions.y;
+        var uvRanges = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 2 ), 2, 1 );
+
+        var index = 0;
+        var runX = 0;
+        var runY = 0;
+        var incU = 1.0 / dimensions.x;
+        var incV = 1.0 / dimensions.y;
+        var uRange = 0.0;
+        var vRange = 0.0;
+        while ( runY < dimensions.y ) {
+            while (runX < dimensions.x) {
+                uvRanges.setXY( index, uRange, vRange );
+                index++;
+                runX++;
+                uRange += incU;
+            }
+            runY++;
+            runX = 0;
+            uRange = 0.0;
+            vRange += incV;
+        }
+
+        return uvRanges;
+    };
+
 
     return PixelBoxesGenerator;
 
