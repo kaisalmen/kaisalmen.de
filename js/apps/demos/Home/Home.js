@@ -12,8 +12,8 @@ KSX.apps.demos.home.Main = (function () {
 
     var MAIN_CLEAR_COLOR = 0x202020;
     var RTT_CLEAR_COLOR = 0x0B0B0B;
-    var RTT_CAM_HEIGHT = 20;
-    var RTT_CAM_ORBIT = 20;
+    var RTT_CAM_HEIGHT = -3;
+    var RTT_CAM_ORBIT = 16;
     var RTT_POS_DIVIDER = 50;
     var RTT_ROTATION_SPEED = 0.01;
 
@@ -39,7 +39,8 @@ KSX.apps.demos.home.Main = (function () {
                     antialias : true
                 }
             },
-            useScenePerspective : true
+            useScenePerspective : true,
+            useCube : true
         });
 
         this.shader = new KSX.apps.shader.BlockShader();
@@ -73,9 +74,11 @@ KSX.apps.demos.home.Main = (function () {
         this.stats.domElement.style.top = '0px';
 
         this.superBoxGroup = null;
+        this.textureTools = new KSX.apps.tools.TextureTools();
 
         this.rtt = null;
         this.textStorage = new KSX.apps.tools.text.Text();
+        this.textureCube = null;
 
         this.useHwInstancing = true;
         this.pixelBoxesGenerator = null;
@@ -84,15 +87,29 @@ KSX.apps.demos.home.Main = (function () {
     Home.prototype.initAsyncContent = function() {
         var scope = this;
 
+        var callbackOnTextSuccess = function () {
+            var promises = [];
+            var cubeBasePath = KSX.globals.basedir + '/resource/textures/meadow';
+            var imageFileNames = [ 'posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg' ];
+            promises.push( scope.textureTools.loadTextureCube( cubeBasePath, imageFileNames ) );
+
+            Promise.all(promises).then(
+                function (results) {
+                    scope.textureCube = results[0];
+                    scope.asyncDone = true;
+                }
+            ).catch(
+                function (error) {
+                    console.log('The following error occurred: ', error);
+                }
+            );
+        };
+
         var callbackOnShaderSuccess = function () {
             var listOfFonts = [];
-            listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
             listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
 
-            var callbackOnSuccess = function () {
-                scope.asyncDone = true;
-            };
-            scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
+            scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnTextSuccess);
         };
 
         scope.shader.loadResources(callbackOnShaderSuccess);
@@ -109,6 +126,7 @@ KSX.apps.demos.home.Main = (function () {
             return;
         }
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
+        this.renderer.autoClear = false;
 
         if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, false ) ) {
             this.useHwInstancing = false;
@@ -125,10 +143,10 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
-        initRtt( this, false );
+        this.rtt = initRtt( this.videoBuffer.width, this.videoBuffer.height, this.textStorage, false, this.textureCube );
+        this.shader.textures['rtt'] = this.rtt.texture.texture;
 
         var material = this.shader.buildShaderMaterial();
-//        material.wireframe = true;
         this.checkVideo(material);
 
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
@@ -165,91 +183,121 @@ KSX.apps.demos.home.Main = (function () {
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
     };
 
-    var initRtt = function ( scope, showHelpers ) {
-
-        // setup RTT
+    var initRtt = function ( width, height, textStorage, showHelpers, textureCube ) {
         var canvasRtt = new KSX.apps.core.Canvas( {
-            offsetWidth: scope.videoBuffer.width,
-            offsetHeight: scope.videoBuffer.height
+            offsetWidth: width,
+            offsetHeight: height
         } );
+
+        var rtt = new KSX.apps.core.ThreeJsApp.ScenePerspective( canvasRtt );
+        rtt.useCube = true;
+        rtt.showHelpers = showHelpers;
         // manual init required
-        scope.rtt = new KSX.apps.core.ThreeJsApp.ScenePerspective( canvasRtt );
-        scope.rtt.showHelpers = showHelpers;
-        scope.rtt.initGL();
+        rtt.initGL();
 
         var defaults = {
             posCamera: new THREE.Vector3( 0, RTT_CAM_HEIGHT, RTT_CAM_ORBIT )
         };
-        scope.rtt.setCameraDefaults( defaults );
+        rtt.setCameraDefaults( defaults );
 
-        scope.rtt.lights = {
+        rtt.lights = {
             ambientLight: new THREE.AmbientLight( 0x696856 ),
             directionalLight1: new THREE.DirectionalLight( 0xE0E0E0 ),
             directionalLight2: new THREE.DirectionalLight( 0x0000AA )
         };
-        scope.rtt.lights.directionalLight1.position.set(  10, 10, 10 );
-        scope.rtt.lights.directionalLight2.position.set( -10, 5, 5 );
+        rtt.lights.directionalLight1.position.set(  10, 10, 10 );
+        rtt.lights.directionalLight2.position.set( -10, 5, 5 );
 
-        scope.rtt.scene.add( scope.rtt.lights.ambientLight );
-        scope.rtt.scene.add( scope.rtt.lights.directionalLight1 );
-        scope.rtt.scene.add( scope.rtt.lights.directionalLight2 );
+        rtt.scene.add( rtt.lights.ambientLight );
+        rtt.scene.add( rtt.lights.directionalLight1 );
+        rtt.scene.add( rtt.lights.directionalLight2 );
 
-        scope.rtt.materials = {
+        // Skybox shader
+        var skyboxShader = THREE.ShaderLib[ "cube" ];
+        skyboxShader.uniforms[ "tCube" ].value = textureCube;
+
+        rtt.materials = {
             sphere: new THREE.MeshStandardMaterial({
-                color: 0xFF0000
+                color: 0xFF0000,
+                envMap: textureCube,
+                envMapIntensity: 0.5,
+                roughness: 0.1
             }),
             cube: new THREE.MeshStandardMaterial({
                 color: 0x00FF00
             }),
-            text: new THREE.MeshStandardMaterial()
+            text: new THREE.MeshStandardMaterial({
+                envMap: textureCube,
+                envMapIntensity: 0.5,
+                roughness: 0.1
+            }),
+            env: new THREE.MeshStandardMaterial({
+                envMap: textureCube,
+                envMapIntensity: 0.5,
+                roughness: 0.1
+            }),
+            envCube: new THREE.ShaderMaterial({
+                fragmentShader: skyboxShader.fragmentShader,
+                vertexShader: skyboxShader.vertexShader,
+                uniforms: skyboxShader.uniforms,
+                depthWrite: false,
+                side: THREE.BackSide
+            })
         };
 
-        var textUnitWelcome = scope.textStorage.addText( 'Welcome', 'ubuntu_mono_regular', 'Welcome back to', scope.rtt.materials.text, 1.5, 10 );
-        var textUnitDomain = scope.textStorage.addText( 'Domain', 'ubuntu_mono_regular', 'www.kaisalmen.de', scope.rtt.materials.text, 1.5, 10 );
-        textUnitWelcome.mesh.position.set( -8, 4, 0 );
-        textUnitDomain.mesh.position.set( -8, -5, 0 );
+        var textUnitWelcome = textStorage.addText( 'Welcome', 'droid_sans_mono_regular', 'Welcome back to', rtt.materials.text, 1.5, 10, 1, 0.1 );
+        var textUnitDomain = textStorage.addText( 'Domain', 'droid_sans_mono_regular', 'www.kaisalmen.de', rtt.materials.text, 1.5, 10, 1, 0.1 );
+        textUnitWelcome.mesh.position.set( -10, 4, 0 );
+        textUnitDomain.mesh.position.set( -10, -5, 0 );
 
-        scope.rtt.meshes = {
-            sphere: new THREE.Mesh( new THREE.SphereBufferGeometry( 2, 32, 32 ), scope.rtt.materials.sphere ),
-            cube: new THREE.Mesh( new THREE.BoxBufferGeometry( 2, 2, 2 ), scope.rtt.materials.cube ),
+        rtt.meshes = {
+            sphere: new THREE.Mesh( new THREE.SphereBufferGeometry( 2, 32, 32 ), rtt.materials.sphere ),
+            cube: new THREE.Mesh( new THREE.BoxBufferGeometry( 2, 2, 2 ), rtt.materials.cube ),
+            env: new THREE.Mesh( new THREE.SphereBufferGeometry( 1, 64, 64 ), rtt.materials.env ),
+            envCube: new THREE.Mesh( new THREE.BoxGeometry( 10000, 10000, 10000 ), rtt.materials.envCube ),
             textWelcome: textUnitWelcome.mesh,
             textDomain: textUnitDomain.mesh,
             textPivot: new THREE.Object3D(),
             lightPivot: new THREE.Object3D(),
             gridHelper: new THREE.GridHelper(20, 1, 0xFF4444, 0x404040),
-            helperLight1: new THREE.DirectionalLightHelper( scope.rtt.lights.directionalLight1, 2 ),
-            helperLight2: new THREE.DirectionalLightHelper( scope.rtt.lights.directionalLight2, 2 )
+            helperLight1: new THREE.DirectionalLightHelper( rtt.lights.directionalLight1, 2 ),
+            helperLight2: new THREE.DirectionalLightHelper( rtt.lights.directionalLight2, 2 )
         };
 
-        scope.rtt.scene.add( scope.rtt.meshes.sphere );
-        scope.rtt.scene.add( scope.rtt.meshes.cube );
-        scope.rtt.meshes.textPivot.add( scope.rtt.meshes.textWelcome );
-        scope.rtt.meshes.textPivot.add( scope.rtt.meshes.textDomain );
-        scope.rtt.meshes.lightPivot.add( scope.rtt.lights.directionalLight1 );
-        scope.rtt.meshes.lightPivot.add( scope.rtt.lights.directionalLight2 );
+        rtt.scene.add( rtt.meshes.sphere );
+        rtt.scene.add( rtt.meshes.cube );
+        rtt.scene.add( rtt.meshes.env );
+        rtt.meshes.env.position.set( -10, 0, 0 );
+        rtt.sceneCube.add( rtt.meshes.envCube );
 
-        scope.rtt.scene.add( scope.rtt.meshes.textPivot );
-        scope.rtt.scene.add( scope.rtt.meshes.lightPivot );
+        rtt.meshes.textPivot.add( rtt.meshes.textWelcome );
+        rtt.meshes.textPivot.add( rtt.meshes.textDomain );
+        rtt.meshes.lightPivot.add( rtt.lights.directionalLight1 );
+        rtt.meshes.lightPivot.add( rtt.lights.directionalLight2 );
 
-        scope.rtt.scene.add( scope.rtt.meshes.gridHelper );
-        scope.rtt.scene.add( scope.rtt.meshes.helperLight1 );
-        scope.rtt.scene.add( scope.rtt.meshes.helperLight2 );
+        rtt.scene.add( rtt.meshes.textPivot );
+        rtt.scene.add( rtt.meshes.lightPivot );
 
-        scope.rtt.meshes.gridHelper.visible = scope.rtt.showHelpers;
-        scope.rtt.meshes.helperLight1.visible = scope.rtt.showHelpers;
-        scope.rtt.meshes.helperLight2.visible = scope.rtt.showHelpers;
+        rtt.scene.add( rtt.meshes.gridHelper );
+        rtt.scene.add( rtt.meshes.helperLight1 );
+        rtt.scene.add( rtt.meshes.helperLight2 );
 
-        scope.rtt.texture = new THREE.WebGLRenderTarget(
-            scope.rtt.canvas.getWidth(),
-            scope.rtt.canvas.getHeight(),
+        rtt.meshes.gridHelper.visible = rtt.showHelpers;
+        rtt.meshes.helperLight1.visible = rtt.showHelpers;
+        rtt.meshes.helperLight2.visible = rtt.showHelpers;
+
+        rtt.texture = new THREE.WebGLRenderTarget(
+            rtt.canvas.getWidth(),
+            rtt.canvas.getHeight(),
             {
                 minFilter: THREE.LinearFilter,
                 magFilter: THREE.NearestFilter,
                 format: THREE.RGBFormat
             }
         );
-        scope.shader.textures['rtt'] = scope.rtt.texture.texture;
-        scope.rtt.animate = true;
+        rtt.animate = true;
+
+        return rtt;
     };
 
     Home.prototype.initPostGL = function () {
@@ -272,7 +320,9 @@ KSX.apps.demos.home.Main = (function () {
             scope.scenePerspective.resetCamera();
             scope.controls.reset();
             scope.controls.target = scope.scenePerspective.cameraTarget;
-            scope.superBoxPivot.rotation.y = 0;
+            if ( scope.superBoxPivot !== undefined ) {
+                scope.superBoxPivot.rotation.y = 0;
+            }
         };
         var enableVideo = function ( enabled ) {
             scope.videoTextureEnabled = enabled;
@@ -369,7 +419,7 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.boolHeight
         });
         var groupVideo = ui.add('group', {
-            name: 'Video Control',
+            name: 'Video Controls',
             height: scope.uiTools.paramsDimension.groupHeight
         });
         groupVideo.add('button', {
@@ -430,15 +480,18 @@ KSX.apps.demos.home.Main = (function () {
             this.rtt.meshes.lightPivot.rotateY( RTT_ROTATION_SPEED );
             this.rtt.meshes.cube.rotateX( -RTT_ROTATION_SPEED );
             this.rtt.meshes.cube.rotateY( -RTT_ROTATION_SPEED );
-/*
+
             this.rtt.camera.position.set(
-                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
+                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / 100 ),
                 RTT_CAM_HEIGHT,
-                RTT_CAM_ORBIT * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
+                RTT_CAM_ORBIT * Math.cos( this.frameNumber / 100 )
             );
-*/
+
             this.rtt.updateCamera();
         }
+
+        this.rtt.cameraCube.rotation.copy( this.rtt.camera.rotation );
+        this.renderer.render( this.rtt.sceneCube, this.rtt.cameraCube, this.rtt.texture, true );
         this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
 
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);

@@ -339,7 +339,7 @@ KSX.apps.core.Canvas = (function () {
 
 KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
-    function ScenePerspective(canvas) {
+    function ScenePerspective( canvas ) {
         this.canvas = canvas;
         this.verbose = false;
         this.camera = null;

@@ -27,13 +27,13 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
         });
 
         this.textureTools = new KSX.apps.tools.TextureTools();
+        this.textureCube = null;
 
         this.stats = new Stats();
     }
 
     SkyboxCubeMap.prototype.initAsyncContent = function () {
         var scope = this;
-
 
         var promises = new Set();
         var cubeBasePath = '../../resource/textures/skybox';
@@ -42,7 +42,7 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
 
         Promise.all(promises).then(
             function (results) {
-                scope.textureCubeLoader = results[0];
+                scope.textureCube = results[0];
                 scope.asyncDone = true;
             }
         ).catch(
@@ -58,35 +58,29 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
     };
 
     SkyboxCubeMap.prototype.initGL = function () {
-        var renderer = this.renderer;
-        var scenePerspective = this.scenePerspective;
-        var sceneCube = scenePerspective.sceneCube;
-        var scene = scenePerspective.scene;
-        var camera = scenePerspective.camera;
+        this.renderer.setClearColor( 0x3B3B3B );
+        this.renderer.autoClear = false;
 
-        renderer.setClearColor( 0x3B3B3B );
-        renderer.autoClear = false;
+        this.scenePerspective.camera.position.set( 20, 20, 20 );
+        this.scenePerspective.updateCamera();
 
-        camera.position.set( 20, 20, 20 );
-        scenePerspective.updateCamera();
-
-        this.controls = new THREE.TrackballControls(camera);
+        this.controls = new THREE.TrackballControls( this.scenePerspective.camera );
 
         var ambient = new THREE.AmbientLight(0x404040);
-        scene.add(ambient);
+        this.scenePerspective.scene.add(ambient);
 
         var geometry = new THREE.SphereBufferGeometry(5, 64, 64);
         var material = new THREE.MeshStandardMaterial();
-        material.envMap = this.textureCubeLoader;
+        material.envMap = this.textureCube;
         material.envMapIntensity = 1.0;
         material.roughness = 0.1;
         var meshSphere =  new THREE.Mesh(geometry, material);
 
-        scene.add( meshSphere );
+        this.scenePerspective.scene.add( meshSphere );
 
         // Skybox
         var shader = THREE.ShaderLib[ "cube" ];
-        shader.uniforms[ "tCube" ].value = this.textureCubeLoader;
+        shader.uniforms[ "tCube" ].value = this.textureCube;
 
         var box = new THREE.BoxGeometry( 100, 100, 100 );
         var materialCube = new THREE.ShaderMaterial( {
@@ -97,7 +91,7 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
             side: THREE.BackSide
         });
         var meshCube = new THREE.Mesh(box, materialCube );
-        sceneCube.add( meshCube );
+        this.scenePerspective.sceneCube.add( meshCube );
     };
 
     SkyboxCubeMap.prototype.renderPre = function () {

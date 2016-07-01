@@ -67,7 +67,7 @@ KSX.apps.tools.text.Text = (function () {
             size: size,
             curveSegments: curveSegments,
             steps: extrudeSteps === undefined ? 0 : extrudeSteps,
-            amount: extrudeAmount === undefined ? 0 : extrudeAmount
+            height: extrudeAmount === undefined ? 0 : extrudeAmount
         });
 
         var textUnit = new KSX.apps.tools.text.Unit(textGeometry, material);
