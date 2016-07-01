@@ -80,8 +80,11 @@ KSX.apps.demos.home.Intermediate = (function () {
             return;
         }
 
-        var camDefaultPos = new THREE.Vector3( 0, -1800, 1400 );
-        this.scenePerspective.setCameraDefaults( camDefaultPos );
+        var defaults = {
+            posCamera: new THREE.Vector3( 0, -1800, 1400 )
+        };
+        this.scenePerspective.setCameraDefaults( defaults );
+
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
 
         this.superBoxPivot = new THREE.Object3D();

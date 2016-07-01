@@ -12,6 +12,10 @@ KSX.apps.demos.home.Main = (function () {
 
     var MAIN_CLEAR_COLOR = 0x202020;
     var RTT_CLEAR_COLOR = 0x0B0B0B;
+    var RTT_CAM_HEIGHT = 20;
+    var RTT_CAM_ORBIT = 20;
+    var RTT_POS_DIVIDER = 50;
+    var RTT_ROTATION_SPEED = 0.01;
 
     Home.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
@@ -153,8 +157,11 @@ KSX.apps.demos.home.Main = (function () {
         }
 
         // init camera and bind to controls
-        var camPos = new THREE.Vector3( 0.0, -dimension.y * 1.15, dimension.x * 1.15 );
-        this.scenePerspective.setCameraDefaults(camPos);
+        var defaults = {
+            posCamera: new THREE.Vector3( 0.0, -dimension.y * 1.15, dimension.x * 1.15 ),
+            far: 100000
+        };
+        this.scenePerspective.setCameraDefaults( defaults );
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
     };
 
@@ -170,13 +177,15 @@ KSX.apps.demos.home.Main = (function () {
         scope.rtt.showHelpers = showHelpers;
         scope.rtt.initGL();
 
-        scope.rtt.setCameraDefaults( new THREE.Vector3( 0, 5, 20 ) );
+        var defaults = {
+            posCamera: new THREE.Vector3( 0, RTT_CAM_HEIGHT, RTT_CAM_ORBIT )
+        };
+        scope.rtt.setCameraDefaults( defaults );
 
         scope.rtt.lights = {
             ambientLight: new THREE.AmbientLight( 0x696856 ),
             directionalLight1: new THREE.DirectionalLight( 0xE0E0E0 ),
-            directionalLight2: new THREE.DirectionalLight( 0x0000AA ),
-
+            directionalLight2: new THREE.DirectionalLight( 0x0000AA )
         };
         scope.rtt.lights.directionalLight1.position.set(  10, 10, 10 );
         scope.rtt.lights.directionalLight2.position.set( -10, 5, 5 );
@@ -412,16 +421,22 @@ KSX.apps.demos.home.Main = (function () {
         this.renderer.setClearColor(RTT_CLEAR_COLOR);
         if ( this.rtt.animate ) {
             var spherePosFactor = 5.0;
-            var sphereSpeedDivider = 50;
+
             this.rtt.meshes.sphere.position.set(
-                spherePosFactor * Math.sin( this.frameNumber / sphereSpeedDivider ),
+                spherePosFactor * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
                 0,
-                spherePosFactor * Math.cos( this.frameNumber / sphereSpeedDivider )
+                spherePosFactor * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
             );
-            this.rtt.meshes.lightPivot.rotateY( 0.01 );
-            this.rtt.meshes.cube.rotateX( -0.01 );
-            this.rtt.meshes.cube.rotateY( -0.01 );
-//            this.rtt.camera.position.set( 10 * Math.sin( this.frameNumber / 50 ), 5, 10 * Math.cos( this.frameNumber / 50 ) );
+            this.rtt.meshes.lightPivot.rotateY( RTT_ROTATION_SPEED );
+            this.rtt.meshes.cube.rotateX( -RTT_ROTATION_SPEED );
+            this.rtt.meshes.cube.rotateY( -RTT_ROTATION_SPEED );
+/*
+            this.rtt.camera.position.set(
+                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
+                RTT_CAM_HEIGHT,
+                RTT_CAM_ORBIT * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
+            );
+*/
             this.rtt.updateCamera();
         }
         this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );

@@ -339,10 +339,6 @@ KSX.apps.core.Canvas = (function () {
 
 KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
-    var DEFAULT_NEAR = 0.1;
-    var DEFAULT_FAR = 10000;
-    var DEFAULT_FOV = 45;
-
     function ScenePerspective(canvas) {
         this.canvas = canvas;
         this.verbose = false;
@@ -350,26 +346,43 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
         this.useCube = false;
         this.cameraCube = null;
 
-        this.defaultPosCamera = new THREE.Vector3(100, 100, 100);
-        this.defaultUpVector = new THREE.Vector3(0, 1, 0);
-        this.defaultPosCameraTarget = new THREE.Vector3(0, 0, 0);
-        this.defaultPosCameraCube = new THREE.Vector3(0, 0, 0);
+        this.defaults = {
+            posCamera: new THREE.Vector3(100, 100, 100),
+            upVector: new THREE.Vector3(0, 1, 0),
+            posCameraTarget: new THREE.Vector3(0, 0, 0),
+            posCameraCube: new THREE.Vector3(0, 0, 0),
+            near: 0.1,
+            far: 10000,
+            fov: 45
+        };
 
-        this.cameraTarget = this.defaultPosCameraTarget;
+        this.cameraTarget = this.defaults.posCameraTarget;
     }
 
-    ScenePerspective.prototype.setCameraDefaults = function (defaultPosCamera, defaultUpVector, defaultPosCameraTarget, defaultPosCameraCube) {
-        if (defaultPosCamera !== undefined && defaultPosCamera !== null) {
-            this.defaultPosCamera.copy(defaultPosCamera);
+    ScenePerspective.prototype.setCameraDefaults = function ( defaults ) {
+        if ( defaults === null || defaults === undefined ) {
+            return;
         }
-        if (defaultUpVector !== undefined && defaultUpVector !== null) {
-            this.defaultUpVector.copy(defaultUpVector);
+        if ( defaults.posCamera !== undefined && defaults.posCamera !== null ) {
+            this.defaults.posCamera.copy( defaults.posCamera );
         }
-        if (defaultPosCameraTarget !== undefined && defaultPosCameraTarget !== null) {
-            this.defaultPosCameraTarget.copy(defaultPosCameraTarget);
+        if ( defaults.upVector !== undefined && defaults.upVector !== null ) {
+            this.defaults.upVector.copy( defaults.upVector );
         }
-        if (defaultPosCameraCube !== undefined && defaultPosCameraCube !== null) {
-            this.defaultPosCameraCube.copy(defaultPosCameraCube);
+        if ( defaults.posCameraTarget !== undefined && defaults.posCameraTarget !== null ) {
+            this.defaults.posCameraTarget.copy( defaults.posCameraTarget );
+        }
+        if ( defaults.posCameraCube !== undefined && defaults.posCameraCube !== null ) {
+            this.defaults.posCameraCube.copy( defaults.posCameraCube );
+        }
+        if ( defaults.near !== undefined && defaults.near !== null ) {
+            this.defaults.near = defaults.near;
+        }
+        if ( defaults.far !== undefined && defaults.far !== null ) {
+            this.defaults.far = defaults.far;
+        }
+        if ( defaults.fov !== undefined && defaults.fov !== null ) {
+            this.defaults.fov = defaults.fov;
         }
         this.resetCamera();
     };
@@ -377,22 +390,22 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     ScenePerspective.prototype.initGL = function () {
         this.scene = new THREE.Scene();
 
-        this.camera = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
+        this.camera = new THREE.PerspectiveCamera( this.defaults.fov, this.canvas.aspectRatio, this.defaults.near, this.defaults.far );
 
         if (this.useCube) {
-            this.cameraCube = new THREE.PerspectiveCamera(DEFAULT_FOV, this.canvas.aspectRatio, DEFAULT_NEAR, DEFAULT_FAR);
+            this.cameraCube = new THREE.PerspectiveCamera( this.defaults.fov, this.canvas.aspectRatio, this.defaults.near, this.defaults.far );
             this.sceneCube = new THREE.Scene();
         }
         this.resetCamera();
     };
 
     ScenePerspective.prototype.resetCamera = function () {
-        this.camera.position.copy(this.defaultPosCamera);
-        this.camera.up.copy(this.defaultUpVector);
-        this.cameraTarget.copy(this.defaultPosCameraTarget);
+        this.camera.position.copy(this.defaults.posCamera);
+        this.camera.up.copy(this.defaults.upVector);
+        this.cameraTarget.copy(this.defaults.posCameraTarget);
 
         if (this.useCube) {
-            this.cameraCube.position.copy(this.defaultPosCameraCube);
+            this.cameraCube.position.copy(this.defaults.posCameraCube);
         }
         this.updateCamera();
     };
