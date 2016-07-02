@@ -12,7 +12,7 @@ KSX.apps.demos.home.Main = (function () {
 
     var MAIN_CLEAR_COLOR = 0x202020;
     var RTT_CLEAR_COLOR = 0x0B0B0B;
-    var RTT_CAM_HEIGHT = -3;
+    var RTT_CAM_HEIGHT = -2.5;
     var RTT_CAM_ORBIT = 16;
     var RTT_POS_DIVIDER = 50;
     var RTT_ROTATION_SPEED = 0.01;
@@ -61,11 +61,15 @@ KSX.apps.demos.home.Main = (function () {
             bg: 'rgba(40, 40, 40, 0.66)'
         };
         var paramsDimension = {
+            desktop: {
+                maxValue: 96.0
+            },
             mobile : {
+                maxValue: 64.0,
                 slidesHeight : 96
             }
         };
-        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
+        this.uiTools = new KSX.apps.tools.UiTools( uiParams, paramsDimension, bowser.mobile );
 
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
@@ -156,7 +160,8 @@ KSX.apps.demos.home.Main = (function () {
             y: bowser.mobile ? 268 : 804
         };
         if (this.useHwInstancing) {
-            var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, this.shader );
+            var shaderMaterial = this.shader.buildShaderMaterial();
+            var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );
             this.scenePerspective.scene.add(meshInstance);
         }
         else {
@@ -217,24 +222,29 @@ KSX.apps.demos.home.Main = (function () {
         skyboxShader.uniforms[ "tCube" ].value = textureCube;
 
         rtt.materials = {
-            sphere: new THREE.MeshStandardMaterial({
+            sphereRed: new THREE.MeshStandardMaterial({
                 color: 0xFF0000,
                 envMap: textureCube,
-                envMapIntensity: 0.5,
-                roughness: 0.1
+                envMapIntensity: 0.33,
+                roughness: 0.4,
+                metalness: 0.66
             }),
-            cube: new THREE.MeshStandardMaterial({
-                color: 0x00FF00
+            sphereYellow: new THREE.MeshStandardMaterial({
+                color: 0xFFFF00,
+                envMap: textureCube,
+                envMapIntensity: 0.5,
+                roughness: 0.1,
+                metalness: 0.9
+            }),
+            boxCenter: new THREE.MeshStandardMaterial({
+                color: 0x00FF00,
+                envMap: textureCube,
+                envMapIntensity: 0.66
             }),
             text: new THREE.MeshStandardMaterial({
                 envMap: textureCube,
-                envMapIntensity: 0.5,
-                roughness: 0.1
-            }),
-            env: new THREE.MeshStandardMaterial({
-                envMap: textureCube,
-                envMapIntensity: 0.5,
-                roughness: 0.1
+                envMapIntensity: 0.75,
+                metalness: 1.0
             }),
             envCube: new THREE.ShaderMaterial({
                 fragmentShader: skyboxShader.fragmentShader,
@@ -251,23 +261,25 @@ KSX.apps.demos.home.Main = (function () {
         textUnitDomain.mesh.position.set( -10, -5, 0 );
 
         rtt.meshes = {
-            sphere: new THREE.Mesh( new THREE.SphereBufferGeometry( 2, 32, 32 ), rtt.materials.sphere ),
-            cube: new THREE.Mesh( new THREE.BoxBufferGeometry( 2, 2, 2 ), rtt.materials.cube ),
-            env: new THREE.Mesh( new THREE.SphereBufferGeometry( 1, 64, 64 ), rtt.materials.env ),
+            sphereRed: new THREE.Mesh( new THREE.SphereBufferGeometry( 2, 32, 32 ), rtt.materials.sphereRed ),
+            sphereYellow: new THREE.Mesh( new THREE.SphereBufferGeometry( 1, 64, 64 ), rtt.materials.sphereYellow ),
+            boxCenter: new THREE.Mesh( new THREE.BoxBufferGeometry( 2, 2, 2 ), rtt.materials.boxCenter ),
             envCube: new THREE.Mesh( new THREE.BoxGeometry( 10000, 10000, 10000 ), rtt.materials.envCube ),
             textWelcome: textUnitWelcome.mesh,
             textDomain: textUnitDomain.mesh,
             textPivot: new THREE.Object3D(),
+            sphereYellowPivot: new THREE.Object3D(),
             lightPivot: new THREE.Object3D(),
-            gridHelper: new THREE.GridHelper(20, 1, 0xFF4444, 0x404040),
             helperLight1: new THREE.DirectionalLightHelper( rtt.lights.directionalLight1, 2 ),
             helperLight2: new THREE.DirectionalLightHelper( rtt.lights.directionalLight2, 2 )
         };
 
-        rtt.scene.add( rtt.meshes.sphere );
-        rtt.scene.add( rtt.meshes.cube );
-        rtt.scene.add( rtt.meshes.env );
-        rtt.meshes.env.position.set( -10, 0, 0 );
+        rtt.scene.add( rtt.meshes.sphereRed );
+        rtt.scene.add( rtt.meshes.boxCenter );
+        rtt.meshes.sphereYellow.position.set( -12, 0, 0 );
+        rtt.meshes.sphereYellowPivot.add( rtt.meshes.sphereYellow );
+        rtt.scene.add( rtt.meshes.sphereYellowPivot );
+        rtt.meshes.sphereYellowPivot.rotateZ( Math.PI / 9 );
         rtt.sceneCube.add( rtt.meshes.envCube );
 
         rtt.meshes.textPivot.add( rtt.meshes.textWelcome );
@@ -278,11 +290,9 @@ KSX.apps.demos.home.Main = (function () {
         rtt.scene.add( rtt.meshes.textPivot );
         rtt.scene.add( rtt.meshes.lightPivot );
 
-        rtt.scene.add( rtt.meshes.gridHelper );
         rtt.scene.add( rtt.meshes.helperLight1 );
         rtt.scene.add( rtt.meshes.helperLight2 );
 
-        rtt.meshes.gridHelper.visible = rtt.showHelpers;
         rtt.meshes.helperLight1.visible = rtt.showHelpers;
         rtt.meshes.helperLight2.visible = rtt.showHelpers;
 
@@ -301,7 +311,86 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPostGL = function () {
+        buildUi( this );
+        return true;
+    };
+
+    Home.prototype.addEventHandlers = function () {
         var scope = this;
+
+        var eatComplete =  function ( event ) {
+            console.log( 'Received event "complete"!' );
+            scope.renderingEnabled = true;
+        };
+        document.addEventListener( 'complete', eatComplete, false );
+    };
+
+    Home.prototype.resizeDisplayGL = function () {
+        this.controls.handleResize();
+    };
+
+    Home.prototype.renderPre = function () {
+        this.controls.update();
+
+        if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+            this.videoBufferContext.drawImage(this.video, 0, 0);
+            this.videoTexture.needsUpdate = true;
+        }
+
+        this.renderer.setClearColor(RTT_CLEAR_COLOR);
+        if ( this.rtt.animate ) {
+            var spherePosFactor = 5.0;
+
+            this.rtt.meshes.sphereRed.position.set(
+                spherePosFactor * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
+                0,
+                spherePosFactor * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
+            );
+            this.rtt.meshes.lightPivot.rotateY( RTT_ROTATION_SPEED );
+            this.rtt.meshes.boxCenter.rotateX( -RTT_ROTATION_SPEED );
+            this.rtt.meshes.boxCenter.rotateY( -RTT_ROTATION_SPEED );
+
+            this.rtt.meshes.sphereYellowPivot.rotateY( - 2 * RTT_ROTATION_SPEED );
+
+            this.rtt.camera.position.set(
+                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / 100 ),
+                RTT_CAM_HEIGHT,
+                RTT_CAM_ORBIT * Math.cos( this.frameNumber / 100 )
+            );
+
+            this.rtt.updateCamera();
+        }
+
+        this.rtt.cameraCube.rotation.copy( this.rtt.camera.rotation );
+        this.renderer.render( this.rtt.sceneCube, this.rtt.cameraCube, this.rtt.texture, true );
+        this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
+
+        this.renderer.setClearColor(MAIN_CLEAR_COLOR);
+    };
+
+    Home.prototype.renderPost = function () {
+        this.stats.update();
+    };
+
+    Home.prototype.checkVideo = function () {
+        if (this.videoTextureEnabled) {
+            this.video.play();
+            this.shader.uniforms.texture1.value = this.videoTexture;
+        }
+        else {
+            this.video.pause();
+            this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
+        }
+    };
+
+    Home.prototype.flipTexture = function (name) {
+        var texture = this.shader.textures[name];
+        if (texture !== undefined) {
+            this.shader.uniforms.texture1.value = texture;
+        }
+    };
+
+    var buildUi = function (scope) {
         var ui = scope.uiTools.ui;
 
         var adjustHeightFactor = function (value) {
@@ -333,7 +422,6 @@ KSX.apps.demos.home.Main = (function () {
         };
         var showHelpersRtt = function ( enabled ) {
             scope.rtt.showHelpers = enabled;
-            scope.rtt.meshes.gridHelper.visible = enabled;
             scope.rtt.meshes.helperLight1.visible = enabled;
             scope.rtt.meshes.helperLight2.visible = enabled;
         };
@@ -356,7 +444,7 @@ KSX.apps.demos.home.Main = (function () {
                 name: 'Box Scale',
                 callback: adjustBoxScale,
                 min: 0.01,
-                max: 0.99,
+                max: 1.0,
                 value: scope.shader.uniforms.scaleBox.value,
                 precision: 2,
                 step: 0.01,
@@ -443,80 +531,6 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.buttonHeight
         });
 
-        return true;
-    };
-
-    Home.prototype.addEventHandlers = function () {
-        var scope = this;
-
-        var eatComplete =  function ( event ) {
-            console.log( 'Received event "complete"!' );
-            scope.renderingEnabled = true;
-        };
-        document.addEventListener( 'complete', eatComplete, false );
-    };
-
-    Home.prototype.resizeDisplayGL = function () {
-        this.controls.handleResize();
-    };
-
-    Home.prototype.renderPre = function () {
-        this.controls.update();
-
-        if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
-            this.videoBufferContext.drawImage(this.video, 0, 0);
-            this.videoTexture.needsUpdate = true;
-        }
-
-        this.renderer.setClearColor(RTT_CLEAR_COLOR);
-        if ( this.rtt.animate ) {
-            var spherePosFactor = 5.0;
-
-            this.rtt.meshes.sphere.position.set(
-                spherePosFactor * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
-                0,
-                spherePosFactor * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
-            );
-            this.rtt.meshes.lightPivot.rotateY( RTT_ROTATION_SPEED );
-            this.rtt.meshes.cube.rotateX( -RTT_ROTATION_SPEED );
-            this.rtt.meshes.cube.rotateY( -RTT_ROTATION_SPEED );
-
-            this.rtt.camera.position.set(
-                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / 100 ),
-                RTT_CAM_HEIGHT,
-                RTT_CAM_ORBIT * Math.cos( this.frameNumber / 100 )
-            );
-
-            this.rtt.updateCamera();
-        }
-
-        this.rtt.cameraCube.rotation.copy( this.rtt.camera.rotation );
-        this.renderer.render( this.rtt.sceneCube, this.rtt.cameraCube, this.rtt.texture, true );
-        this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
-
-        this.renderer.setClearColor(MAIN_CLEAR_COLOR);
-    };
-
-    Home.prototype.renderPost = function () {
-        this.stats.update();
-    };
-
-    Home.prototype.checkVideo = function () {
-        if (this.videoTextureEnabled) {
-            this.video.play();
-            this.shader.uniforms.texture1.value = this.videoTexture;
-        }
-        else {
-            this.video.pause();
-            this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
-        }
-    };
-
-    Home.prototype.flipTexture = function (name) {
-        var texture = this.shader.textures[name];
-        if (texture !== undefined) {
-            this.shader.uniforms.texture1.value = texture;
-        }
     };
 
     return Home;

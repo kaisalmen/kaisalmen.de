@@ -33,14 +33,14 @@ KSX.apps.demos.home.Intermediate = (function () {
         });
 
         this.textStorage = new KSX.apps.tools.text.Text();
-        this.shader = new KSX.apps.shader.BoxInstancesShader();
+        this.shader = new KSX.apps.shader.BlockShader();
         this.controls = null;
 
         this.pixelBoxesGenerator = null;
         this.meshes = {
             pixels: null,
             text: null
-        }
+        };
 
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
@@ -99,9 +99,13 @@ KSX.apps.demos.home.Intermediate = (function () {
             x: 120,
             y: 68
         };
-        this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, 12.0, this.shader );
-        this.superBoxPivot.add( this.meshes.pixels );
+        var shaderMaterial = this.shader.buildShaderMaterial();
+        this.shader.uniforms.texture1.value = this.shader.textures['pixelProtest'];
+        this.shader.uniforms.spacing.value = 12.0;
+        this.shader.uniforms.scaleBox.value = 3.0;
+        this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );
 
+        this.superBoxPivot.add( this.meshes.pixels );
         this.scenePerspective.scene.add( this.superBoxPivot );
     };
 

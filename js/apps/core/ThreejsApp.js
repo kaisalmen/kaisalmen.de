@@ -488,8 +488,6 @@ KSX.apps.core.ThreeJsApp.DefaultDefinition = {
 KSX.apps.core.AppRunner = (function () {
 
     function AppRunner() {
-        var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport(KSX.globals.browserVersions);
-        browserSupport.checkSupport();
     }
 
     AppRunner.prototype.addImplementations = function (implementations) {

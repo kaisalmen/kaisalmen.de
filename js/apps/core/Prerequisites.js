@@ -273,3 +273,6 @@ KSX.apps.core.prerequisites.PlatformVerification = (function () {
 
 var webGLCap = new KSX.apps.core.prerequisites.PlatformVerification();
 webGLCap.checkWebGLCapability();
+
+var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport(KSX.globals.browserVersions);
+browserSupport.checkSupport();

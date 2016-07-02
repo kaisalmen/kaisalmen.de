@@ -167,7 +167,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         });
     };
 
-    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( dimensions, shader ) {
+    PixelBoxesGenerator.prototype.buildInstanceBoxes = function ( dimensions, shaderMaterial ) {
 
         var instanceBoxBuildParams = {
             count : 0,
@@ -203,7 +203,6 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'uvRange', uvRanges );
 
-        var shaderMaterial = shader.buildShaderMaterial();
         var meshInstances = new THREE.Mesh( geometry, shaderMaterial );
 
         return meshInstances;
