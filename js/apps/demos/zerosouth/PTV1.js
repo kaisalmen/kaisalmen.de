@@ -112,11 +112,13 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
     };
 
     PTV1Loader.prototype.initPreGL = function () {
-        var progressUpdate = function (text) {
-            var div = document.getElementById('DIVFeedbackAreaDynamic');
-            div.innerHTML = text;
+        this.uiTools.createFeedbackAreaDynamic();
+
+        var scope = this;
+        var announceFeedback = function ( text ) {
+            scope.uiTools.announceFeedback( text );
         };
-        this.objLoaderWW.registerProgressCallback(progressUpdate);
+        this.objLoaderWW.registerProgressCallback( announceFeedback );
 
         this.stats.showPanel(0);
         document.body.appendChild(this.stats.domElement);

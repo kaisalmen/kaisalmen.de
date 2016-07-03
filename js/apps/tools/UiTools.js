@@ -24,6 +24,8 @@ KSX.apps.tools.UiTools = (function () {
             }
             checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
         }
+
+        this.divFeedbackAreaDynamic = null;
     }
 
     var checkParams = function (paramsPredefined, paramsUser) {
@@ -38,6 +40,26 @@ KSX.apps.tools.UiTools = (function () {
                 paramsUser[predefined] = paramsPredefined[predefined];
             }
         }
+    };
+
+    UiTools.prototype.createFeedbackAreaDynamic = function ( ) {
+        this.divFeedbackAreaDynamic = document.getElementById( 'DIVFeedbackAreaDynamic' );
+        if ( this.divFeedbackAreaDynamic === undefined || this.divFeedbackAreaDynamic === null ) {
+
+            this.divFeedbackAreaDynamic = document.createElement( 'div' );
+            this.divFeedbackAreaDynamic.id = 'DIVFeedbackAreaDynamic';
+
+            var body = document.body;
+            body.insertBefore( this.divFeedbackAreaDynamic, body.childNodes[0] );
+            console.log( 'Div "DIVFeedbackAreaDynamic" was added to body' );
+        }
+
+        this.divFeedbackAreaDynamic.style.display = '';
+        this.divFeedbackAreaDynamic.innerHTML = '';
+    };
+
+    UiTools.prototype.announceFeedback = function ( text ) {
+        this.divFeedbackAreaDynamic.innerHTML = text;
     };
 
     return UiTools;

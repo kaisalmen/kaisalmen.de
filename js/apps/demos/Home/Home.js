@@ -62,10 +62,10 @@ KSX.apps.demos.home.Main = (function () {
         };
         var paramsDimension = {
             desktop: {
-                maxValue: 96.0
+                maxValue: 32.0
             },
             mobile : {
-                maxValue: 64.0,
+                maxValue: 32.0,
                 slidesHeight : 96
             }
         };
@@ -77,15 +77,30 @@ KSX.apps.demos.home.Main = (function () {
         this.stats.domElement.style.right = '0px';
         this.stats.domElement.style.top = '0px';
 
-        this.superBoxGroup = null;
         this.textureTools = new KSX.apps.tools.TextureTools();
 
         this.rtt = null;
         this.textStorage = new KSX.apps.tools.text.Text();
         this.textureCube = null;
 
-        this.useHwInstancing = true;
-        this.pixelBoxesGenerator = null;
+        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+        this.projectionSpaceMesh = null;
+        this.projectionSpaceMaterial = null;
+        this.projectionSpaceDimensions = [];
+        this.projectionSpaceDimensions[0] = { index: 0, name: 'low', x: 480, y: 201 };
+        this.projectionSpaceDimensions[1] = { index: 1, name: 'medium', x: 960, y: 402 };
+        this.projectionSpaceDimensions[2] = { index: 2, name: 'high', x: 1440, y: 603 };
+        this.projectionSpaceDimensions[3] = { index: 3, name: 'extreme', x: 1920, y: 804 };
+        this.projectionSpaceDimensions[4] = { index: 4, name: 'insane', x: 3840, y: 1608 };
+
+        this.projectionSpaceIndex = bowser.mobile ? 0 : 1;
+        this.currentDimension = {
+            index: this.projectionSpaceDimensions[this.projectionSpaceIndex].index,
+            name: this.projectionSpaceDimensions[this.projectionSpaceIndex].name,
+            x: this.projectionSpaceDimensions[this.projectionSpaceIndex].x,
+            y: this.projectionSpaceDimensions[this.projectionSpaceIndex].y
+        };
+
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -120,6 +135,9 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPreGL = function () {
+        this.uiTools.createFeedbackAreaDynamic();
+        this.uiTools.announceFeedback( 'Initializing' );
+
         this.stats.showPanel(0);
         document.body.appendChild(this.stats.domElement);
     };
@@ -129,12 +147,13 @@ KSX.apps.demos.home.Main = (function () {
             this.initOk = false;
             return;
         }
+        if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, true ) ) {
+            this.initOk = false;
+            return;
+        }
+
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
         this.renderer.autoClear = false;
-
-        if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, false ) ) {
-            this.useHwInstancing = false;
-        }
 
         // init video texture and params
         this.videoBuffer.width = 1920;
@@ -150,38 +169,20 @@ KSX.apps.demos.home.Main = (function () {
         this.rtt = initRtt( this.videoBuffer.width, this.videoBuffer.height, this.textStorage, false, this.textureCube );
         this.shader.textures['rtt'] = this.rtt.texture.texture;
 
-        var material = this.shader.buildShaderMaterial();
-        this.checkVideo(material);
+        this.projectionSpaceMaterial = this.shader.buildShaderMaterial();
+        this.checkVideo( this.projectionSpaceMaterial );
 
-        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+        this.projectionSpaceMesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.currentDimension, this.projectionSpaceMaterial );
+        this.scenePerspective.scene.add( this.projectionSpaceMesh );
 
-        var dimension = {
-            x: bowser.mobile ? 640 : 1920,
-            y: bowser.mobile ? 268 : 804
-        };
-        if (this.useHwInstancing) {
-            var shaderMaterial = this.shader.buildShaderMaterial();
-            var meshInstance = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );
-            this.scenePerspective.scene.add(meshInstance);
-        }
-        else {
-            this.superBoxPivot = new THREE.Object3D();
-            this.superBoxGroup = new THREE.Group();
-            this.superBoxGroup.translateX(-320);
-            this.superBoxGroup.translateY(-180);
-            this.superBoxPivot.add(this.superBoxGroup);
-            this.scenePerspective.scene.add(this.superBoxPivot);
+        var instanceCount = this.currentDimension.x * this.currentDimension.y;
+        var triangleCount = this.currentDimension.x * this.currentDimension.y * 12;
+        this.uiTools.announceFeedback( 'Projection space: ' + instanceCount + ' instances; ' + triangleCount + ' triangles' );
 
-            this.shader.uniforms.useUvRange.value = false;
-            this.shader.uniforms.scaleBox.value = 1.0;
-            this.pixelBoxesGenerator.setObjGroup(this.superBoxGroup);
-            this.pixelBoxesGenerator.setMaterial(material);
-            this.pixelBoxesGenerator.buildSuperBoxSeries(dimension.x, dimension.y, 48, 30);
-        }
 
         // init camera and bind to controls
         var defaults = {
-            posCamera: new THREE.Vector3( 0.0, -dimension.y * 1.15, dimension.x * 1.15 ),
+            posCamera: new THREE.Vector3( 0.0, -this.currentDimension.y * 1.15, this.currentDimension.x * 1.15 ),
             far: 100000
         };
         this.scenePerspective.setCameraDefaults( defaults );
@@ -196,6 +197,7 @@ KSX.apps.demos.home.Main = (function () {
 
         var rtt = new KSX.apps.core.ThreeJsApp.ScenePerspective( canvasRtt );
         rtt.useCube = true;
+        rtt.count = 0;
         rtt.showHelpers = showHelpers;
         // manual init required
         rtt.initGL();
@@ -342,9 +344,9 @@ KSX.apps.demos.home.Main = (function () {
             var spherePosFactor = 5.0;
 
             this.rtt.meshes.sphereRed.position.set(
-                spherePosFactor * Math.sin( this.frameNumber / RTT_POS_DIVIDER ),
+                spherePosFactor * Math.sin( this.rtt.count / RTT_POS_DIVIDER ),
                 0,
-                spherePosFactor * Math.cos( this.frameNumber / RTT_POS_DIVIDER )
+                spherePosFactor * Math.cos( this.rtt.count / RTT_POS_DIVIDER )
             );
             this.rtt.meshes.lightPivot.rotateY( RTT_ROTATION_SPEED );
             this.rtt.meshes.boxCenter.rotateX( -RTT_ROTATION_SPEED );
@@ -353,11 +355,12 @@ KSX.apps.demos.home.Main = (function () {
             this.rtt.meshes.sphereYellowPivot.rotateY( - 2 * RTT_ROTATION_SPEED );
 
             this.rtt.camera.position.set(
-                -RTT_CAM_ORBIT * Math.sin( this.frameNumber / 100 ),
+                -RTT_CAM_ORBIT * Math.sin( this.rtt.count / 100 ),
                 RTT_CAM_HEIGHT,
-                RTT_CAM_ORBIT * Math.cos( this.frameNumber / 100 )
+                RTT_CAM_ORBIT * Math.cos( this.rtt.count / 100 )
             );
 
+            this.rtt.count++;
             this.rtt.updateCamera();
         }
 
@@ -393,8 +396,25 @@ KSX.apps.demos.home.Main = (function () {
     var buildUi = function (scope) {
         var ui = scope.uiTools.ui;
 
+        var adjustBoxCount = function ( value ) {
+            if ( scope.projectionSpaceIndex !== value ) {
+                scope.projectionSpaceIndex = value;
+                scope.currentDimension = scope.projectionSpaceDimensions[scope.projectionSpaceIndex];
+
+                console.time( 'instanceCreate' );
+                var mesh = scope.pixelBoxesGenerator.buildInstanceBoxes( scope.currentDimension, scope.projectionSpaceMaterial );
+                scope.scenePerspective.scene.remove( scope.projectionSpaceMesh );
+                scope.projectionSpaceMesh = mesh;
+                scope.scenePerspective.scene.add( scope.projectionSpaceMesh );
+                console.timeEnd( 'instanceCreate' );
+
+                var instanceCount = scope.currentDimension.x * scope.currentDimension.y;
+                var triangleCount = scope.currentDimension.x * scope.currentDimension.y * 12;
+                scope.uiTools.announceFeedback( 'Projection space: ' + instanceCount + ' instances; ' + triangleCount + ' triangles' );
+            }
+        };
         var adjustHeightFactor = function (value) {
-            scope.shader.uniforms.heightFactor.value = value / 3;
+            scope.shader.uniforms.heightFactor.value = value;
         };
         var adjustBoxScale = function (value) {
             scope.shader.uniforms.scaleBox.value = value;
@@ -409,9 +429,6 @@ KSX.apps.demos.home.Main = (function () {
             scope.scenePerspective.resetCamera();
             scope.controls.reset();
             scope.controls.target = scope.scenePerspective.cameraTarget;
-            if ( scope.superBoxPivot !== undefined ) {
-                scope.superBoxPivot.rotation.y = 0;
-            }
         };
         var enableVideo = function ( enabled ) {
             scope.videoTextureEnabled = enabled;
@@ -437,36 +454,42 @@ KSX.apps.demos.home.Main = (function () {
             }
         };
 
-        ui.add('title', { name: ' ' } );
-        ui.add('title', { name: 'Projection Space Controls' } );
-        if (scope.useHwInstancing) {
-            ui.add('slide', {
-                name: 'Box Scale',
-                callback: adjustBoxScale,
-                min: 0.01,
-                max: 1.0,
-                value: scope.shader.uniforms.scaleBox.value,
-                precision: 2,
-                step: 0.01,
-                width: scope.uiTools.paramsDimension.slidesWidth,
-                height: scope.uiTools.paramsDimension.slidesHeight,
-                stype: scope.uiTools.paramsDimension.sliderType
-            });
-            ui.add('slide', {
-                name: 'Box Spacing',
-                callback: adjustBoxSpacing,
-                min: 0.01,
-                max: 10.0,
-                value: scope.shader.uniforms.spacing.value,
-                precision: 3,
-                step: 0.01,
-                width: scope.uiTools.paramsDimension.slidesWidth,
-                height: scope.uiTools.paramsDimension.slidesHeight,
-                stype: scope.uiTools.paramsDimension.sliderType
-            });
-        }
-        ui.add('slide', {
-            name: 'heightFactor',
+        var groupMain = ui.add('group', {
+            name: 'Projection Space Controls',
+            height: scope.uiTools.paramsDimension.groupHeight
+        });
+        groupMain.add('slide', {
+            name: 'Box Scale',
+            callback: adjustBoxScale,
+            min: 0.01,
+            max: 1.0,
+            value: scope.shader.uniforms.scaleBox.value,
+            precision: 2,
+            step: 0.01,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('slide', {
+            name: 'Box Spacing',
+            callback: adjustBoxSpacing,
+            min: 0.01,
+            max: 10.0,
+            value: scope.shader.uniforms.spacing.value,
+            precision: 3,
+            step: 0.01,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('bool', {
+            name: 'Invert Ext.',
+            value: scope.shader.uniforms.invert.value,
+            callback: invertShader,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
+        groupMain.add('slide', {
+            name: 'Extrusion',
             callback: adjustHeightFactor,
             min: scope.uiTools.paramsDimension.minValue,
             max: scope.uiTools.paramsDimension.maxValue,
@@ -477,27 +500,31 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
-        ui.add('bool', {
-            name: 'Invert',
-            value: scope.shader.uniforms.invert.value,
-            callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-
-        ui.add('title', { name: ' ' } );
-        ui.add('title', { name: 'Render Target Controls' } );
-        ui.add('bool', {
+        groupMain.add('bool', {
             name: 'Animate',
             value: scope.rtt.animate,
             callback: animateRtt,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        ui.add('bool', {
+        groupMain.add('bool', {
             name: 'Show Helpers',
             value: scope.rtt.showHelpers,
             callback: showHelpersRtt,
             height: scope.uiTools.paramsDimension.boolHeight
         });
+        groupMain.add('slide', {
+            name: 'Instance Count',
+            callback: adjustBoxCount,
+            min: 0,
+            max: 4,
+            value: scope.currentDimension.index,
+            precision: 1,
+            step: 1,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.open();
 
         ui.add('title', { name: ' ' } );
         ui.add('bool', {
