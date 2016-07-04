@@ -85,24 +85,15 @@ KSX.apps.demos.home.Main = (function () {
         this.textureCube = null;
 
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
-        this.projectionSpaceMesh = null;
-        this.projectionSpaceMaterial = null;
         this.projectionSpaceDimensions = [];
-        this.projectionSpaceDimensions[0] = { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 3 };
-        this.projectionSpaceDimensions[1] = { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 6 };
-        this.projectionSpaceDimensions[2] = { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 12 };
-        this.projectionSpaceDimensions[3] = { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 15 };
-        this.projectionSpaceDimensions[4] = { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 24 };
+        this.projectionSpaceDimensions[0] = { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 3, mesh: null };
+        this.projectionSpaceDimensions[1] = { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 6, mesh: null };
+        this.projectionSpaceDimensions[2] = { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 12, mesh: null };
+        this.projectionSpaceDimensions[3] = { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 15, mesh: null };
+        this.projectionSpaceDimensions[4] = { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 24, mesh: null };
 
         this.projectionSpaceIndex = this.mobileDevice ? 0 : 1;
-        this.currentDimension = {
-            index: this.projectionSpaceDimensions[this.projectionSpaceIndex].index,
-            name: this.projectionSpaceDimensions[this.projectionSpaceIndex].name,
-            x: this.projectionSpaceDimensions[this.projectionSpaceIndex].x,
-            y: this.projectionSpaceDimensions[this.projectionSpaceIndex].y,
-            defaultHeightFactor: this.projectionSpaceDimensions[this.projectionSpaceIndex].defaultHeightFactor
-        };
-
+        this.currentDimension = this.projectionSpaceDimensions[this.projectionSpaceIndex];
     }
 
     Home.prototype.initAsyncContent = function() {
@@ -171,13 +162,18 @@ KSX.apps.demos.home.Main = (function () {
         this.rtt = initRtt( this.videoBuffer.width, this.videoBuffer.height, this.textStorage, false, this.textureCube );
         this.shader.textures['rtt'] = this.rtt.texture.texture;
 
-        this.projectionSpaceMaterial = this.shader.buildShaderMaterial();
+        var projectionSpaceMaterial = this.shader.buildShaderMaterial();
+        this.checkVideo( projectionSpaceMaterial );
+
+        this.projectionSpaceDimensions[0].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[0], projectionSpaceMaterial );
+        this.projectionSpaceDimensions[1].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[1], projectionSpaceMaterial );
+        this.projectionSpaceDimensions[2].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[2], projectionSpaceMaterial );
+        this.projectionSpaceDimensions[3].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[3], projectionSpaceMaterial );
+        this.projectionSpaceDimensions[4].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[4], projectionSpaceMaterial );
+        this.currentDimension = this.projectionSpaceDimensions[this.projectionSpaceIndex];
         this.shader.uniforms.heightFactor.value = this.currentDimension.defaultHeightFactor;
-        this.checkVideo( this.projectionSpaceMaterial );
 
-        this.projectionSpaceMesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.currentDimension, this.projectionSpaceMaterial );
-        this.scenePerspective.scene.add( this.projectionSpaceMesh );
-
+        this.scenePerspective.scene.add( this.currentDimension.mesh );
         this.updateProjectionSpaceStats();
 
         // init camera and bind to controls
@@ -407,14 +403,13 @@ KSX.apps.demos.home.Main = (function () {
 
         var adjustBoxCount = function ( value ) {
             if ( scope.projectionSpaceIndex !== value ) {
+                var temp = scope.projectionSpaceDimensions[scope.projectionSpaceIndex]
                 scope.projectionSpaceIndex = value;
                 scope.currentDimension = scope.projectionSpaceDimensions[scope.projectionSpaceIndex];
 
                 console.time( 'instanceCreate' );
-                var mesh = scope.pixelBoxesGenerator.buildInstanceBoxes( scope.currentDimension, scope.projectionSpaceMaterial );
-                scope.scenePerspective.scene.remove( scope.projectionSpaceMesh );
-                scope.projectionSpaceMesh = mesh;
-                scope.scenePerspective.scene.add( scope.projectionSpaceMesh );
+                scope.scenePerspective.scene.remove( temp.mesh );
+                scope.scenePerspective.scene.add( scope.currentDimension.mesh );
                 console.timeEnd( 'instanceCreate' );
 
                 scope.updateProjectionSpaceStats();
@@ -448,11 +443,6 @@ KSX.apps.demos.home.Main = (function () {
         };
         var animateRtt = function ( enabled ) {
             scope.rtt.animate = enabled;
-        };
-        var showHelpersRtt = function ( enabled ) {
-            scope.rtt.showHelpers = enabled;
-            scope.rtt.meshes.helperLight1.visible = enabled;
-            scope.rtt.meshes.helperLight2.visible = enabled;
         };
         var playVideo = function () {
             if (scope.videoTextureEnabled) {
@@ -516,12 +506,6 @@ KSX.apps.demos.home.Main = (function () {
             name: 'Animate',
             value: scope.rtt.animate,
             callback: animateRtt,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('bool', {
-            name: 'Show Helpers',
-            value: scope.rtt.showHelpers,
-            callback: showHelpersRtt,
             height: scope.uiTools.paramsDimension.boolHeight
         });
         groupMain.add('slide', {
