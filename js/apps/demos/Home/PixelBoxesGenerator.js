@@ -85,7 +85,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
              vMax : vAdd,
              posStartX : 0.0,
              posStartY : 0.0,
-             useIndices : false
+             useIndices : true
          };
 
         var translateXAdd = gridParams.sizeY;

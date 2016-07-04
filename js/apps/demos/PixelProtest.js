@@ -30,7 +30,7 @@ KSX.apps.demos.PixelProtest = (function () {
 
         var uiParams = {
             css: 'top: 0px; left: 0px;',
-            size: 512,
+            width: 512,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'

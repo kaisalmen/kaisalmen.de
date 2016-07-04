@@ -34,7 +34,7 @@ KSX.apps.demos.BlueMarble = (function () {
 
         var uiParams = {
             css: 'top: 0px; left: 0px;',
-            size: 450,
+            width: 450,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'

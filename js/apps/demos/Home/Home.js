@@ -55,7 +55,7 @@ KSX.apps.demos.home.Main = (function () {
 
         var uiParams = {
             css: 'top: 0px; left: 0px;',
-            size: 384,
+            width: 384,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'
@@ -66,10 +66,11 @@ KSX.apps.demos.home.Main = (function () {
             },
             mobile : {
                 maxValue: 32.0,
-                slidesHeight : 96
+                slidesHeight : 56
             }
         };
-        this.uiTools = new KSX.apps.tools.UiTools( uiParams, paramsDimension, bowser.mobile );
+        this.mobileDevice = bowser.mobile;
+        this.uiTools = new KSX.apps.tools.UiTools( uiParams, paramsDimension, this.mobileDevice );
 
         this.stats = new Stats();
         this.stats.domElement.style.position = 'absolute';
@@ -87,18 +88,19 @@ KSX.apps.demos.home.Main = (function () {
         this.projectionSpaceMesh = null;
         this.projectionSpaceMaterial = null;
         this.projectionSpaceDimensions = [];
-        this.projectionSpaceDimensions[0] = { index: 0, name: 'low', x: 480, y: 201 };
-        this.projectionSpaceDimensions[1] = { index: 1, name: 'medium', x: 960, y: 402 };
-        this.projectionSpaceDimensions[2] = { index: 2, name: 'high', x: 1440, y: 603 };
-        this.projectionSpaceDimensions[3] = { index: 3, name: 'extreme', x: 1920, y: 804 };
-        this.projectionSpaceDimensions[4] = { index: 4, name: 'insane', x: 3840, y: 1608 };
+        this.projectionSpaceDimensions[0] = { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 3 };
+        this.projectionSpaceDimensions[1] = { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 6 };
+        this.projectionSpaceDimensions[2] = { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 12 };
+        this.projectionSpaceDimensions[3] = { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 15 };
+        this.projectionSpaceDimensions[4] = { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 24 };
 
-        this.projectionSpaceIndex = bowser.mobile ? 0 : 1;
+        this.projectionSpaceIndex = this.mobileDevice ? 0 : 1;
         this.currentDimension = {
             index: this.projectionSpaceDimensions[this.projectionSpaceIndex].index,
             name: this.projectionSpaceDimensions[this.projectionSpaceIndex].name,
             x: this.projectionSpaceDimensions[this.projectionSpaceIndex].x,
-            y: this.projectionSpaceDimensions[this.projectionSpaceIndex].y
+            y: this.projectionSpaceDimensions[this.projectionSpaceIndex].y,
+            defaultHeightFactor: this.projectionSpaceDimensions[this.projectionSpaceIndex].defaultHeightFactor
         };
 
     }
@@ -108,8 +110,8 @@ KSX.apps.demos.home.Main = (function () {
 
         var callbackOnTextSuccess = function () {
             var promises = [];
-            var cubeBasePath = KSX.globals.basedir + '/resource/textures/meadow';
-            var imageFileNames = [ 'posx.jpg', 'negx.jpg', 'posy.jpg', 'negy.jpg', 'posz.jpg', 'negz.jpg' ];
+            var cubeBasePath = KSX.globals.basedir + '/resource/textures/meadow1024';
+            var imageFileNames = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
             promises.push( scope.textureTools.loadTextureCube( cubeBasePath, imageFileNames ) );
 
             Promise.all(promises).then(
@@ -170,15 +172,13 @@ KSX.apps.demos.home.Main = (function () {
         this.shader.textures['rtt'] = this.rtt.texture.texture;
 
         this.projectionSpaceMaterial = this.shader.buildShaderMaterial();
+        this.shader.uniforms.heightFactor.value = this.currentDimension.defaultHeightFactor;
         this.checkVideo( this.projectionSpaceMaterial );
 
         this.projectionSpaceMesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.currentDimension, this.projectionSpaceMaterial );
         this.scenePerspective.scene.add( this.projectionSpaceMesh );
 
-        var instanceCount = this.currentDimension.x * this.currentDimension.y;
-        var triangleCount = this.currentDimension.x * this.currentDimension.y * 12;
-        this.uiTools.announceFeedback( 'Projection space: ' + instanceCount + ' instances; ' + triangleCount + ' triangles' );
-
+        this.updateProjectionSpaceStats();
 
         // init camera and bind to controls
         var defaults = {
@@ -187,6 +187,12 @@ KSX.apps.demos.home.Main = (function () {
         };
         this.scenePerspective.setCameraDefaults( defaults );
         this.controls = new THREE.TrackballControls(this.scenePerspective.camera);
+    };
+
+    Home.prototype.updateProjectionSpaceStats = function () {
+        var instanceCount = this.currentDimension.x * this.currentDimension.y;
+        var resolution = this.currentDimension.x + 'x' + this.currentDimension.y;
+        this.uiTools.announceFeedback( 'Projection Space: Resolution: ' + this.currentDimension.name + ' (' + resolution + '=' + instanceCount + ' instances)' );
     };
 
     var initRtt = function ( width, height, textStorage, showHelpers, textureCube ) {
@@ -314,6 +320,9 @@ KSX.apps.demos.home.Main = (function () {
 
     Home.prototype.initPostGL = function () {
         buildUi( this );
+        if ( this.mobileDevice ) {
+            alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
+        }
         return true;
     };
 
@@ -408,9 +417,12 @@ KSX.apps.demos.home.Main = (function () {
                 scope.scenePerspective.scene.add( scope.projectionSpaceMesh );
                 console.timeEnd( 'instanceCreate' );
 
-                var instanceCount = scope.currentDimension.x * scope.currentDimension.y;
-                var triangleCount = scope.currentDimension.x * scope.currentDimension.y * 12;
-                scope.uiTools.announceFeedback( 'Projection space: ' + instanceCount + ' instances; ' + triangleCount + ' triangles' );
+                scope.updateProjectionSpaceStats();
+                var group = scope.uiTools.ui.uis[0];
+                var slide = group.uis[3];
+                slide.value = scope.currentDimension.defaultHeightFactor;
+                slide.update();
+                scope.shader.uniforms.heightFactor.value = scope.currentDimension.defaultHeightFactor;
             }
         };
         var adjustHeightFactor = function (value) {

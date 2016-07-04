@@ -68,7 +68,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
 
         var uiParams = {
             css: 'top: 0px; left: 0px;',
-            size: 384,
+            width: 384,
             center: false,
             color: 'rgba(224, 224, 224, 1.0)',
             bg: 'rgba(40, 40, 40, 0.66)'    
