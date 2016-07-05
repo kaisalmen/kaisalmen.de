@@ -38,8 +38,8 @@ KSX.apps.shader.BlockShader = (function () {
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', false, 'VS: Deform Geometry according Texture');
         promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', false, 'FS: Simple Texture');
         promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
-        promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/images/ready01.jpg');
-        promises[4] = this.textureTools.loadTexture(this.baseDir + 'resource/images/Wald.jpg');
+        promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PTV1Link.jpg');
+        promises[4] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtestLink.png');
         promises[5] = this.textureTools.loadTexture(this.baseDir + 'resource/images/PixelProtest.png');
 
         Promise.all( promises ).then(
