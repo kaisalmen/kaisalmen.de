@@ -27,13 +27,13 @@ void main()	{
 	float modifiedZ = position.z;
 	if (modifiedZ > 0.0) {
         if (invert) {
-            modifiedZ += heightFactor * (3.0 - texValue.r - texValue.g - texValue.b);
+            modifiedZ += offset.z + heightFactor * (3.0 - length(texValue));
         }
         else {
-            modifiedZ += heightFactor * (texValue.r + texValue.g + texValue.b);
+            modifiedZ += offset.z + heightFactor * length(texValue);
         }
 	}
 
-	vec4 posNew = vec4(offset.x * spacing + position.x * scaleBox, offset.y * spacing + position.y * scaleBox, offset.z + modifiedZ, 1.0);
+	vec4 posNew = vec4(offset.x * spacing + position.x * scaleBox, offset.y * spacing + position.y * scaleBox, modifiedZ, 1.0);
 	gl_Position = projectionMatrix * modelViewMatrix * posNew;
 }
