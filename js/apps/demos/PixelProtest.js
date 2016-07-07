@@ -59,6 +59,13 @@ KSX.apps.demos.PixelProtest = (function () {
 
         this.saveImageData = false;
         this.dataTools = new KSX.apps.tools.DataTools();
+
+        this.stats = new Stats();
+        this.stats.domElement.style.position = 'absolute';
+        this.stats.domElement.style.left = '';
+        this.stats.domElement.style.right = '0px';
+        this.stats.domElement.style.top = '';
+        this.stats.domElement.style.bottom = '0px';
     }
 
     PixelProtest.prototype.initAsyncContent = function() {
@@ -73,6 +80,9 @@ KSX.apps.demos.PixelProtest = (function () {
     PixelProtest.prototype.initPreGL = function () {
         this.initUI(this.canvas.getWidth() / 4.0, this.canvas.getWidth(),
             this.canvas.getHeight() / 4.0, this.canvas.getHeight());
+
+        this.stats.showPanel(0);
+        document.body.appendChild(this.stats.domElement);
     };
 
     PixelProtest.prototype.initUI = function (width, maxWidth, height, maxHeight) {
@@ -280,6 +290,7 @@ KSX.apps.demos.PixelProtest = (function () {
                 alert('Unable to save canvas data to image file!');
             }
         }
+        this.stats.update();
     };
 
     PixelProtest.prototype.recalcRandom = function () {

@@ -37,10 +37,10 @@ KSX.apps.shader.BlockShader = (function () {
         var promises = new Array(5);
         promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', false, 'VS: Deform Geometry according Texture');
         promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', false, 'FS: Simple Texture');
-        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/house02_pot.jpg');
+        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/images/PixelProtest.png');
         promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PTV1Link.jpg');
         promises[4] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtestLink.png');
-        promises[5] = this.textureTools.loadTexture(this.baseDir + 'resource/images/PixelProtest.png');
+        promises[5] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/teaserLink.jpg');
 
         Promise.all( promises ).then(
             function (results) {
@@ -52,10 +52,10 @@ KSX.apps.shader.BlockShader = (function () {
                 shaders['texture'] = { name: 'texture', value: results[1] };
                 scope.fragmentShader = scope.shaderTools.combineShader(shaders, false);
 
-                scope.textures['default'] = results[2];
+                scope.textures['pixelProtestImage'] = results[2];
                 scope.textures['linkPTV1'] = results[3];
                 scope.textures['linkPixelProtest'] = results[4];
-                scope.textures['pixelProtest'] = results[5];
+                scope.textures['linkTeaser'] = results[5];
 
                 scope.uniforms.texture1.value = scope.textures['default'];
 

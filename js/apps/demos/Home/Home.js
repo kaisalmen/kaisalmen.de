@@ -76,7 +76,8 @@ KSX.apps.demos.home.Main = (function () {
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '';
         this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '0px';
+        this.stats.domElement.style.top = '';
+        this.stats.domElement.style.bottom = '0px';
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
@@ -405,6 +406,8 @@ KSX.apps.demos.home.Main = (function () {
 
         this.updateProjectionSpaceStats();
         this.shader.uniforms.heightFactor.value = this.currentDimension.defaultHeightFactor;
+
+        return true;
     };
 
     var buildUi = function ( scope ) {

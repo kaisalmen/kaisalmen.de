@@ -46,7 +46,8 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '';
         this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '0px';
+        this.stats.domElement.style.top = '';
+        this.stats.domElement.style.bottom = '0px';
     }
 
     Intermediate.prototype.initAsyncContent = function() {
@@ -100,7 +101,7 @@ KSX.apps.demos.home.Intermediate = (function () {
             y: 68
         };
         var shaderMaterial = this.shader.buildShaderMaterial();
-        this.shader.uniforms.texture1.value = this.shader.textures['pixelProtest'];
+        this.shader.uniforms.texture1.value = this.shader.textures['pixelProtestImage'];
         this.shader.uniforms.spacing.value = 12.0;
         this.shader.uniforms.scaleBox.value = 3.0;
         this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );

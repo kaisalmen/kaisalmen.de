@@ -88,7 +88,8 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.stats.domElement.style.position = 'absolute';
         this.stats.domElement.style.left = '';
         this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '0px';
+        this.stats.domElement.style.top = '';
+        this.stats.domElement.style.bottom = '0px';
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {

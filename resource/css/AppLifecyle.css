@@ -8,6 +8,22 @@ body {
     border: none;
 }
 
+/* General Hyperlink Colors */
+a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
 #master {
     margin: inherit;
     padding: inherit;
