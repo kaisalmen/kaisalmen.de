@@ -1,0 +1,45 @@
+h1 {
+    font-size: 24px;
+}
+
+div.home,
+div.homeAlt {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    padding-right: 12px;
+    text-align: right;
+    z-index: 1000;
+    height: 5%;
+    width: 16%;
+}
+
+div.home a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+div.home a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+div.home a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
+div.homeAlt a {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+div.homeAlt a:visited {
+    color: #FFFFFF;
+    text-decoration: none;
+}
+
+div.homeAlt a:hover {
+    color: #FFFFFF;
+    text-decoration: underline;
+}

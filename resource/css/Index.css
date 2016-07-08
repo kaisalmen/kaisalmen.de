@@ -1,22 +1,5 @@
-h1 {
-    font-size: 24px;
-}
-
-#ProjectsHeader,
-#LinkPixelProtest,
-#LinkPTV1Loader,
-#LinkWebsiteTeaser {
-    position: absolute;
-    right: 0%;
-    padding-right: 12px;
-    text-align: right;
-    color: white;
-    z-index: 1000;
-    height: 5%;
-    width: 16%;
-}
 #ProjectsHeader {
-    top: 0%;
+    color: white;
 }
 
 #LinkPixelProtest {
@@ -37,10 +20,6 @@ h1 {
     display: none;
     width: 1920px;
     height: 804px;
-}
-
-#DivGLFullCanvas {
-    z-index: 0;
 }
 
 #DivGLFullCanvasLoad {

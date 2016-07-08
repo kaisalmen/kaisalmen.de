@@ -24,7 +24,7 @@ if (KSX === undefined) {
         globals: {
             basedir: '../../',
             browserVersions: null,
-            preChecksOk: true,
+            preChecksOk: true
         }
     };
 }
