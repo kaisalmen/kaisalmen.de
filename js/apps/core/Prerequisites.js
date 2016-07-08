@@ -4,34 +4,35 @@
 
 'use strict';
 
-if (KSX === undefined) {
-    var KSX = {
-        apps: {
-            core: {
-                prerequisites: {
+if ( browserVersions === undefined) {
+    var browserVersions = null;
+}
 
-                }
-            },
-            tools: {
-                webworker: {
-
-                }
-            },
-            demos: {
+var KSX = {
+    apps: {
+        core: {
+            prerequisites: {
 
             }
         },
-        globals: {
-            basedir: '../../',
-            browserVersions: null,
-            preChecksOk: true
+        tools: {
+            webworker: {
+
+            }
+        },
+        demos: {
+
         }
-    };
-}
+    },
+    globals: {
+        basedir: '../../',
+        preChecksOk: true
+    }
+};
 
 KSX.apps.core.prerequisites.BrowserSupport = (function () {
 
-    function BrowserSupport(userVersions) {
+    function BrowserSupport( userVersions ) {
         this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
 
         this.versions = {
@@ -274,5 +275,5 @@ KSX.apps.core.prerequisites.PlatformVerification = (function () {
 var webGLCap = new KSX.apps.core.prerequisites.PlatformVerification();
 webGLCap.checkWebGLCapability();
 
-var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport(KSX.globals.browserVersions);
+var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport( browserVersions );
 browserSupport.checkSupport();
