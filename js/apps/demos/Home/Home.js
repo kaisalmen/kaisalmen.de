@@ -426,9 +426,7 @@ KSX.apps.demos.home.Main = (function () {
         this.controls.reset();
         this.controls.target = this.scenePerspective.cameraTarget;
 
-        this.shader.uniforms.scaleBox.value = 0.66;
-        this.shader.uniforms.spacing.value = 1.0;
-        this.shader.uniforms.invert.value = false;
+        this.shader.resetUniforms( 'rtt', this.currentDimension.defaultHeightFactor );
         this.rtt.animate = true;
         this.videoTextureEnabled = false;
         this.checkVideo();
@@ -437,43 +435,43 @@ KSX.apps.demos.home.Main = (function () {
     var buildUi = function ( scope ) {
         var ui = scope.uiTools.ui;
 
-        var resetBoxScaleSlide = function ( ui, value ) {
+        var resetBoxScaleSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[0];
             slide.value = value;
             slide.update();
         };
-        var resetBoxSpacingSlide = function ( ui, value ) {
+        var resetBoxSpacingSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[1];
             slide.value = value;
             slide.update();
         };
-        var resetInvertExtrusionBool = function ( ui, value ) {
+        var resetInvertExtrusionBool = function ( value ) {
             var group = ui.uis[0];
             var bool = group.uis[2];
             bool.value = value;
             bool.update();
         };
-        var resetExtrusionSlide = function ( ui, value ) {
+        var resetExtrusionSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[3];
             slide.value = value;
             slide.update();
         };
-        var resetAnimateBool = function ( ui, value ) {
+        var resetAnimateBool = function ( value ) {
             var group = ui.uis[0];
             var bool = group.uis[4];
             bool.value = value;
             bool.update();
         };
-        var resetInstantCountSlide = function ( ui, value ) {
+        var resetInstantCountSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[6];
             slide.value = value;
             slide.update();
         };
-        var resetVideoBool = function ( ui, value ) {
+        var resetVideoBool = function ( value ) {
             var bool = ui.uis[2];
             bool.value = value;
             bool.update();
@@ -481,7 +479,7 @@ KSX.apps.demos.home.Main = (function () {
 
         var adjustBoxCount = function ( value ) {
             if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
-                resetExtrusionSlide();
+                resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
             }
         };
         var adjustHeightFactor = function (value) {
@@ -499,13 +497,13 @@ KSX.apps.demos.home.Main = (function () {
         var resetViewAndParams = function () {
             scope.resetViewAndParameters();
 
-            resetBoxScaleSlide( scope.uiTools.ui, scope.shader.uniforms.scaleBox.value );
-            resetBoxSpacingSlide( scope.uiTools.ui, scope.shader.uniforms.spacing.value );
-            resetInvertExtrusionBool(scope.uiTools.ui, scope.shader.uniforms.invert.value );
-            resetExtrusionSlide( scope.uiTools.ui, scope.currentDimension.defaultHeightFactor );
-            resetAnimateBool( scope.uiTools.ui, scope.rtt.animate );
-            resetInstantCountSlide( scope.uiTools.ui, scope.currentDimension.index );
-            resetVideoBool( scope.uiTools.ui, scope.videoTextureEnabled );
+            resetBoxScaleSlide( scope.shader.uniforms.scaleBox.value );
+            resetBoxSpacingSlide( scope.shader.uniforms.spacing.value );
+            resetInvertExtrusionBool(scope.shader.uniforms.invert.value );
+            resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
+            resetAnimateBool( scope.rtt.animate );
+            resetInstantCountSlide( scope.currentDimension.index );
+            resetVideoBool( scope.videoTextureEnabled );
 
         };
         var enableVideo = function ( enabled ) {
