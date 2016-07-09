@@ -1,18 +1,23 @@
 h1 {
     font-size: 24px;
+    margin: 6px 0px 6px 0px;
+    padding: 0px 0px 0px 0px;
+}
+
+div.navFrame {
+    position: absolute;
+    top: 0%;
+    right: 0%;
+    text-align: right;
+    z-index: 1000;
+    height: 20%;
+    padding-right: 12px;
 }
 
 div.home,
 div.homeAlt,
 div.offsite {
-    position: absolute;
-    top: 0%;
-    right: 0%;
-    padding-right: 12px;
-    text-align: right;
-    z-index: 1000;
-    height: 5%;
-    width: 16%;
+    padding: 3px 3px 3px 3px;
 }
 
 div.home a {
@@ -45,12 +50,29 @@ div.homeAlt a:hover {
     text-decoration: underline;
 }
 
-div.offsite {
-    padding: 0px 0px 0px 0px;
-    bottom: 0%;
+div.helpButton {
+    position: absolute;
+    color: red;
+    top: 0%;
     left: 0%;
-    top: auto;
-    right: auto;
-    width: 220px;
-    height: 78px;
+    cursor: pointer;
+}
+
+#HelpButton {
+    padding: 0px 12px 0px 12px;
+    border-style: solid;
+}
+
+div.helpArea {
+    display: none;
+    position: absolute;
+    top: 28%;
+    bottom: 28%;
+    left: 28%;
+    right: 28%;
+    padding: 6px 6px 6px 6px;
+    border-style: solid;
+    color: rgba(80, 255, 80, 0.8);
+    background-color: black;
+    opacity: 0.75;
 }

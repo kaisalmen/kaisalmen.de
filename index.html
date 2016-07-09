@@ -20,24 +20,33 @@
             <source src="./resource/video/Cosmos%20Laundromat%20-%20First%20Cycle%20(1080p).mp4" type="video/mp4">
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
-        <div class="home" id="ProjectsHeader">
-            <h1>Demos</h1>
+        <div class="navFrame">
+            <div class="helpButton" onmouseenter="enableHelp(true)" onmouseleave="enableHelp(false)">
+                <h1 id="HelpButton">?</h1>
+            </div>
+            <div class="home" id="ProjectsHeader">
+                <h1>Demos</h1>
+            </div>
+            <div class="home" id="LinkPixelProtest" onmouseenter="exchangeTexture('linkPixelProtest')" onmouseleave="exchangeImageDefault()">
+                <h1>
+                    <a href="./html/demos/PixelProtest.html">Pixel Protest</a>
+                </h1>
+            </div>
+            <div class="home" id="LinkPTV1Loader" onmouseenter="exchangeTexture('linkPTV1')" onmouseleave="exchangeImageDefault()">
+                <h1>
+                    <a href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
+                </h1>
+            </div>
+            <div class="home" id="LinkWebsiteTeaser" onmouseenter="exchangeTexture('linkTeaser')" onmouseleave="exchangeImageDefault()">
+                <h1>
+                    <a href="html/demos/Teaser.html">Website Teaser</a>
+                </h1>
+            </div>
         </div>
-        <div class="home" id="LinkPixelProtest" onmouseenter="exchangeImageLinkPixelProtest()" onmouseleave="exchangeImageDefault()">
-            <h1>
-                <a href="./html/demos/PixelProtest.html">Pixel Protest</a>
-            </h1>
-        </div>
-        <div class="home" id="LinkPTV1Loader" onmouseenter="exchangeImageLinkPTV1()" onmouseleave="exchangeImageDefault()">
-            <h1>
-                <a href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
-            </h1>
-        </div>
-        <div class="home" id="LinkWebsiteTeaser" onmouseenter="exchangeImageTeaser()" onmouseleave="exchangeImageDefault()">
-            <h1>
-                <a href="html/demos/Teaser.html">Website Teaser</a>
-            </h1>
-        </div>
+    </div>
+    <div class="helpArea" id="HelpArea">
+        <h1>What do I see here?</h1>
+        <span>Projection Space</span>
     </div>
     <script src="js/lib/ext/bowser.min.js"></script>
     <script src="js/apps/core/Prerequisites.js"></script>
@@ -72,20 +81,17 @@
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
 
-            var exchangeImageLinkPTV1 = function () {
-                home.flipTexture('linkPTV1');
-            };
-
-            var exchangeImageLinkPixelProtest = function () {
-                home.flipTexture('linkPixelProtest');
-            };
-
-            var exchangeImageTeaser = function () {
-                home.flipTexture('linkTeaser');
+            var exchangeTexture = function ( textureName ) {
+                home.flipTexture(textureName);
             };
 
             var exchangeImageDefault = function () {
                 home.checkVideo();
+            };
+
+            var enableHelp = function ( show ) {
+                var divHelpArea = document.getElementById( 'HelpArea' );
+                divHelpArea.style.display = show ? 'inline' : 'none';
             };
         }
     </script>
