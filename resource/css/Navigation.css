@@ -76,3 +76,30 @@ div.helpArea {
     background-color: black;
     opacity: 0.75;
 }
+
+div.copyrightArea {
+	position: absolute;
+    bottom: 0%;	
+	width: 100%;
+    z-index: 1;
+	color: #AAAAAA;
+	text-align: center;
+	font-size: 20px;
+	padding: 2px 0px 2px 0px;
+}
+
+div.copyrightArea a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+div.copyrightArea a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+div.copyrightArea a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
