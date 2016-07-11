@@ -25,7 +25,7 @@ KSX.apps.tools.UiTools = (function () {
             checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
         }
 
-        this.divFeedbackAreaDynamic = null;
+        this.divDynamic = null;
     }
 
     var checkParams = function (paramsPredefined, paramsUser) {
@@ -43,23 +43,37 @@ KSX.apps.tools.UiTools = (function () {
     };
 
     UiTools.prototype.createFeedbackAreaDynamic = function ( ) {
-        this.divFeedbackAreaDynamic = document.getElementById( 'DIVFeedbackAreaDynamic' );
-        if ( this.divFeedbackAreaDynamic === undefined || this.divFeedbackAreaDynamic === null ) {
+        var divFeedbackArea = document.getElementById( 'FeedbackArea' );
+        if ( divFeedbackArea === undefined || divFeedbackArea === null ) {
 
-            this.divFeedbackAreaDynamic = document.createElement( 'div' );
-            this.divFeedbackAreaDynamic.id = 'DIVFeedbackAreaDynamic';
+            divFeedbackArea = document.createElement( 'div' );
+            divFeedbackArea.id = 'FeedbackArea';
+            divFeedbackArea.className = 'feedback';
 
             var body = document.body;
-            body.insertBefore( this.divFeedbackAreaDynamic, body.childNodes[0] );
-            console.log( 'Div "DIVFeedbackAreaDynamic" was added to body' );
+            body.insertBefore( divFeedbackArea, body.childNodes[0] );
+            console.log( 'Div "FeedbackArea" was added to body' );
         }
 
-        this.divFeedbackAreaDynamic.style.display = '';
-        this.divFeedbackAreaDynamic.innerHTML = '';
+        var children = divFeedbackArea.childNodes;
+        for ( var child of children ) {
+            if ( child.class === 'dynamicFeedback' ) {
+                this.divDynamic = child;
+            }
+        }
+
+        if ( this.divDynamic === undefined || this.divDynamic === null ) {
+            this.divDynamic = document.createElement( 'div' );
+            this.divDynamic.id = 'DynamicFeedback';
+            this.divDynamic.className = 'dynamicFeedback';
+
+            divFeedbackArea.insertBefore( this.divDynamic,  divFeedbackArea.childNodes[0] );
+            console.log( 'Div "dynamicFeedback" was added to div FeedbackArea' );
+        }
     };
 
     UiTools.prototype.announceFeedback = function ( text ) {
-        this.divFeedbackAreaDynamic.innerHTML = text;
+        this.divDynamic.innerHTML = text;
     };
 
     return UiTools;
