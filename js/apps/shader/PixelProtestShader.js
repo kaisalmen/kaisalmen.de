@@ -6,17 +6,19 @@
 
 KSX.apps.shader.PixelProtestShader = (function () {
 
-    function PixelProtestShader(width, height) {
+    function PixelProtestShader( maxWidth, maxHeight ) {
         KSX.apps.shader.ShaderBase.call(this);
 
         this.uniforms['offsetR'] = { type : 'f', value : Math.random() };
         this.uniforms['offsetG'] = { type : 'f', value : Math.random() };
         this.uniforms['offsetB'] = { type : 'f', value : Math.random() };
-        this.uniforms['width'] = { type : 'f', value : width / 4.0 };
-        this.uniforms['height'] = { type : 'f', value : height / 4.0 };
+        this.uniforms['width'] = { type : 'f', value : 1.0 };
+        this.uniforms['height'] = { type : 'f', value : 1.0 };
         this.uniforms['useR'] = { type : 'b', value : true };
         this.uniforms['useG'] = { type : 'b', value : true };
         this.uniforms['useB'] = { type : 'b', value : true };
+
+        this.updateDimensions( this.uniforms.width.value, maxWidth, this.uniforms.height.value, maxHeight );
     }
 
     PixelProtestShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
@@ -27,6 +29,19 @@ KSX.apps.shader.PixelProtestShader = (function () {
             writable: true
         }
     });
+
+    PixelProtestShader.prototype.updateDimensions = function ( width, maxWidth, height, maxHeight ) {
+        this.maxWidth = maxWidth;
+        this.maxHeight = maxHeight;
+        if (width > this.maxWidth) {
+            width = this.maxWidth;
+        }
+        if (height > this.maxHeight) {
+            height = this.maxHeight;
+        }
+        this.uniforms.width.value = Math.round(width);
+        this.uniforms.height.value = Math.round(height);
+    };
 
     PixelProtestShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;

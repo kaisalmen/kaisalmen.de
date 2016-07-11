@@ -26,8 +26,11 @@ KSX.apps.demos.PixelProtest = (function () {
             useSceneOrtho : true
         });
 
-        this.shader = new KSX.apps.shader.PixelProtestShader(this.canvas.getWidth(), this.canvas.getHeight());
-
+        this.shader = new KSX.apps.shader.PixelProtestShader( this.canvas.getWidth(), this.canvas.getHeight() );
+        this.shader.updateDimensions(
+            this.canvas.getWidth() / 8, this.canvas.getWidth(),
+            this.canvas.getHeight() / 8, this.canvas.getHeight()
+        );
         var uiParams = {
             css: 'top: 0px; left: 0px;',
             width: 512,
@@ -78,14 +81,13 @@ KSX.apps.demos.PixelProtest = (function () {
     };
 
     PixelProtest.prototype.initPreGL = function () {
-        this.initUI(this.canvas.getWidth() / 4.0, this.canvas.getWidth(),
-            this.canvas.getHeight() / 4.0, this.canvas.getHeight());
+        this.initUI();
 
         this.stats.showPanel(0);
         document.body.appendChild(this.stats.domElement);
     };
 
-    PixelProtest.prototype.initUI = function (width, maxWidth, height, maxHeight) {
+    PixelProtest.prototype.initUI = function () {
         var scope = this;
         var ui = scope.uiTools.ui;
 
@@ -159,32 +161,26 @@ KSX.apps.demos.PixelProtest = (function () {
             name: 'Dimensions',
             height: scope.uiTools.paramsDimension.groupHeight
         });
-        if (width > maxWidth) {
-            width = maxWidth;
-        }
         scope.uiElemWidth = groupDimensions.add('slide', {
             name: 'Width',
             callback: adjustWidth,
             min: 2,
-            max: maxWidth,
-            value: Math.round(width),
+            max: scope.shader.maxWidth,
+            value: scope.shader.uniforms.width.value,
             precision: 0,
-            step: 1,
+            step: 2,
             width: scope.uiTools.paramsDimension.slidesWidth,
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
-        if (height > maxHeight) {
-            height = maxHeight;
-        }
         scope.uiElemHeight = groupDimensions.add('slide', {
             name: 'Height',
             callback: adjustHeight,
             min: 2,
-            max: maxHeight,
-            value: Math.round(height),
+            max: scope.shader.maxHeight,
+            value: scope.shader.uniforms.height.value,
             precision: 0,
-            step: 1,
+            step: 2,
             width: scope.uiTools.paramsDimension.slidesWidth,
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
@@ -263,7 +259,11 @@ KSX.apps.demos.PixelProtest = (function () {
         this.mesh.scale.x = this.canvas.getWidth();
         this.mesh.scale.y = this.canvas.getHeight();
 
-        this.initUI(this.uiElemWidth.value, this.canvas.getWidth(), this.uiElemHeight.value, this.canvas.getHeight());
+        var relationWidth = this.canvas.getWidth() * this.uiElemWidth.value / this.uiElemWidth.max;
+        var relationHeight = this.canvas.getHeight() * this.uiElemHeight.value / this.uiElemHeight.max;
+        this.shader.updateDimensions( relationWidth, this.canvas.getWidth(), relationHeight, this.canvas.getHeight() );
+
+        this.initUI();
     };
 
     PixelProtest.prototype.renderPre = function () {
@@ -294,7 +294,7 @@ KSX.apps.demos.PixelProtest = (function () {
     };
 
     PixelProtest.prototype.recalcRandom = function () {
-            if (this.randomize) {
+        if (this.randomize) {
             this.shader.uniforms.offsetR.value = Math.random();
             this.randomR.setValue(this.shader.uniforms.offsetR.value);
 
