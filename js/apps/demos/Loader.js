@@ -6,7 +6,7 @@
 
 KSX.apps.demos.Loader = (function () {
 
-    var MAIN_CLEAR_COLOR = 0x202020;
+    var MAIN_CLEAR_COLOR = 0x101010;
 
     Loader.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
@@ -54,15 +54,18 @@ KSX.apps.demos.Loader = (function () {
         };
         this.scenePerspective.setCameraDefaults( cameraDefaults );
 
-        var bufferGeometry = new THREE.SphereBufferGeometry( 1, 32, 32 );
+        var bufferGeometry = new THREE.SphereBufferGeometry( 0.1, 16, 16 );
         var shaderMaterial = this.shader.buildShaderMaterial();
         shaderMaterial.wireframe = true;
 
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
 
-        var offsets = this.createOffsetsArray( 10 );
+        var offsets = this.createOffsetsArray( 1000, 15 );
         geometry.addAttribute( 'offset', offsets );
+
+        var colors = this.createColorsArray( 1000 );
+        geometry.addAttribute( 'color', colors );
 
         var mesh = new THREE.Mesh( geometry, shaderMaterial );
 
@@ -72,28 +75,43 @@ KSX.apps.demos.Loader = (function () {
         this.scenePerspective.scene.add( this.pivot );
     };
 
-    Loader.prototype.createOffsetsArray = function ( objectCount ) {
+    Loader.prototype.createOffsetsArray = function ( objectCount, factor ) {
         var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
 
         var index = 0;
         var x, y, z;
-        var factor = 8;
-        var base = -4;
+        var base = - factor / 2;
         while ( index < objectCount ) {
-            x = base + Math.random( index ) * factor;
-            y = base + Math.random( index ) * factor;
-            z = base + Math.random( index ) * factor;
+            x = base + Math.random() * factor;
+            y = base + Math.random() * factor;
+            z = base + Math.random() * factor;
             offsets.setXYZ( index, x, y, z );
-            console.log( 'x: ' + x + ' y: ' + y + ' z: ' + z );
             index++;
         }
 
         return offsets;
     };
 
+    Loader.prototype.createColorsArray = function ( objectCount ) {
+        var colors = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
+
+        var index = 0;
+        var r, g, b;
+        while ( index < objectCount ) {
+            r = Math.random();
+            g = Math.random();
+            b = Math.random();
+            colors.setXYZ( index, r, g, b );
+            index++;
+        }
+
+        return colors;
+    };
+
     Loader.prototype.renderPre = function () {
-        this.pivot.rotation.x += 0.01;
-        this.pivot.rotation.y += 0.01;
+        this.pivot.rotation.x += 0.005;
+        this.pivot.rotation.y += 0.005;
+        this.pivot.rotation.z += 0.005;
     };
 
     return Loader;

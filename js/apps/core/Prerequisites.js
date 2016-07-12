@@ -165,7 +165,7 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
             haveGo = this.verifySupport( this.versions.safari );
         }
         else {
-            alert('This browser is not tested. Application may not work properly');
+            alert('This browser is not tested.' + bowser.name + ' ' + bowser.version + '. Application may not work properly!');
             haveGo = true;
         }
 

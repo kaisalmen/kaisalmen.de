@@ -8,9 +8,6 @@ KSX.apps.shader.LoaderShader = (function () {
 
     function LoaderShader() {
         KSX.apps.shader.ShaderBase.call(this);
-
-        this.uniforms['color'] = { type : 'fv1', value : [1.0, 1.0, 1.0] };
-        this.uniforms['texture1'] = { type: 't', value: null };
     }
 
     LoaderShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
