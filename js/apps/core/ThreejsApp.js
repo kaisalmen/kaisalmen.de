@@ -539,7 +539,7 @@ KSX.apps.core.AppRunner = (function () {
         if ( scope.loader !== undefined ) {
             var promise = function (resolve, reject) {
                 scope.loader.init();
-                resolve( implementation.definition.name );
+                resolve( scope.loader.definition.name );
             };
             promises.push(new Promise(promise));
         }
