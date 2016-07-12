@@ -114,5 +114,11 @@ KSX.apps.demos.Loader = (function () {
         this.pivot.rotation.z += 0.005;
     };
 
+    Loader.prototype.dispose = function () {
+        this.definition.htmlCanvas.style.display  = 'none';
+        var divLoading = document.getElementById( 'Loading' );
+        divLoading.style.display  = 'none';
+    };
+
     return Loader;
 })();

@@ -142,15 +142,22 @@ KSX.apps.core.ThreeJsApp = (function () {
             }
         };
 
-        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, 10);
+        var interval = 10;
+        var count = 0;
+        var divider = 50;
+        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, interval );
 
         function checkAsyncStatusTimer() {
             if ( scope.asyncDone ) {
                 clearInterval(checkAsyncStatus);
+                console.log( 'Async loading took approx. ' + interval * count  + 'ms.' );
                 initSync();
             }
             else {
-                console.log( 'waiting' );
+                if ( count % divider === 0 ) {
+                    console.log( 'Waiting for async content to be loaded (' + interval * count  + 'ms)' );
+                }
+                count++;
             }
         }
     };
@@ -265,6 +272,13 @@ KSX.apps.core.ThreeJsApp = (function () {
         if ( this.definition.verbose ) {
             console.log("ThreeJsApp DEFAULT (" + this.definition.name + "): renderPost");
         }
+    };
+
+    /**
+     * Default implementation
+     */
+    ThreeJsApp.prototype.dispose = function () {
+
     };
 
     return ThreeJsApp;
@@ -571,7 +585,6 @@ KSX.apps.core.AppRunner = (function () {
     };
 
     AppRunner.prototype.render = function () {
-//        console.log( 'RENDER' );
         if ( this.loader !== undefined ) {
             var allReady = true;
             var implementation;
@@ -585,7 +598,7 @@ KSX.apps.core.AppRunner = (function () {
                 this.loader.render();
             }
             else {
-                this.loader.definition.htmlCanvas.style.display  = 'none';
+                this.loader.dispose();
                 this.loader = undefined;
             }
         }

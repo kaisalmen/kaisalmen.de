@@ -69,6 +69,10 @@ body {
     left: 0px;
     background-color: #222222;
 }
+#DivGLFullCanvasLoad {
+    position: absolute;
+    z-index: 20;
+}
 #DivGL1 {
     background-color: #ff0000;
     top: 0px;

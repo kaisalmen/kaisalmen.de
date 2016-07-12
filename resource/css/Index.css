@@ -9,9 +9,3 @@
     width: 1920px;
     height: 804px;
 }
-
-#DivGLFullCanvasLoad {
-    z-index: 1000;
-    position: absolute;
-//    display: none;
-}

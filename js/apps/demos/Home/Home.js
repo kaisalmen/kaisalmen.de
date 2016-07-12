@@ -10,7 +10,7 @@ if (KSX.apps.demos.home === undefined) {
 
 KSX.apps.demos.home.Main = (function () {
 
-    var MAIN_CLEAR_COLOR = 0x202020;
+    var MAIN_CLEAR_COLOR = 0x101010;
     var RTT_CLEAR_COLOR = 0x0B0B0B;
     var RTT_CAM_HEIGHT = -2.5;
     var RTT_CAM_ORBIT = 16;
