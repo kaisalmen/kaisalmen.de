@@ -175,7 +175,7 @@ KSX.apps.demos.home.Main = (function () {
 
         this.rtt = initRtt( this.currentDimension.x, this.currentDimension.y, this.textStorage, this.textureCube );
         this.shader.textures['rtt'] = this.rtt.texture.texture;
-        this.checkVideo( projectionSpaceMaterial );
+        this.checkVideo( this.rtt.animate );
 
         this.scenePerspective.scene.add( this.currentDimension.mesh );
         this.updateProjectionSpaceStats();
@@ -371,14 +371,25 @@ KSX.apps.demos.home.Main = (function () {
         this.stats.update();
     };
 
-    Home.prototype.checkVideo = function () {
-        if (this.videoTextureEnabled) {
-            this.video.play();
+    Home.prototype.checkVideo = function ( run ) {
+        if ( this.videoTextureEnabled ) {
             this.shader.uniforms.texture1.value = this.videoTexture;
+            this.rtt.animate = false;
+
+            if ( run ) {
+                this.video.play();
+            }
+            else {
+                this.video.pause();
+            }
         }
         else {
-            this.video.pause();
+            this.rtt.animate = run;
             this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
+
+            if ( !this.video.paused ) {
+                this.video.pause();
+            }
         }
     };
 
@@ -429,7 +440,7 @@ KSX.apps.demos.home.Main = (function () {
         this.shader.resetUniforms( 'rtt', this.currentDimension.defaultHeightFactor );
         this.rtt.animate = true;
         this.videoTextureEnabled = false;
-        this.checkVideo();
+        this.checkVideo( this.rtt.animate );
     };
 
     var buildUi = function ( scope ) {
@@ -447,32 +458,33 @@ KSX.apps.demos.home.Main = (function () {
             slide.value = value;
             slide.update();
         };
-        var resetInvertExtrusionBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[2];
-            bool.value = value;
-            bool.update();
-        };
         var resetExtrusionSlide = function ( value ) {
             var group = ui.uis[0];
-            var slide = group.uis[3];
+            var slide = group.uis[2];
             slide.value = value;
             slide.update();
         };
-        var resetAnimateBool = function ( value ) {
+        var resetInvertExtrusionBool = function ( value ) {
             var group = ui.uis[0];
-            var bool = group.uis[4];
+            var bool = group.uis[3];
             bool.value = value;
             bool.update();
         };
         var resetInstantCountSlide = function ( value ) {
             var group = ui.uis[0];
-            var slide = group.uis[6];
+            var slide = group.uis[4];
             slide.value = value;
             slide.update();
         };
+        var resetAnimateBool = function ( value ) {
+            var group = ui.uis[0];
+            var bool = group.uis[5];
+            bool.value = value;
+            bool.update();
+        };
         var resetVideoBool = function ( value ) {
-            var bool = ui.uis[2];
+            var group = ui.uis[0];
+            var bool = group.uis[6];
             bool.value = value;
             bool.update();
         };
@@ -499,30 +511,19 @@ KSX.apps.demos.home.Main = (function () {
 
             resetBoxScaleSlide( scope.shader.uniforms.scaleBox.value );
             resetBoxSpacingSlide( scope.shader.uniforms.spacing.value );
-            resetInvertExtrusionBool(scope.shader.uniforms.invert.value );
             resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
-            resetAnimateBool( scope.rtt.animate );
+            resetInvertExtrusionBool(scope.shader.uniforms.invert.value );
             resetInstantCountSlide( scope.currentDimension.index );
+            resetAnimateBool( scope.rtt.animate );
             resetVideoBool( scope.videoTextureEnabled );
 
         };
         var enableVideo = function ( enabled ) {
             scope.videoTextureEnabled = enabled;
-            scope.checkVideo();
+            scope.checkVideo( scope.rtt.animate );
         };
-        var animateRtt = function ( enabled ) {
-            scope.rtt.animate = enabled;
-        };
-        var playVideo = function () {
-            if (scope.videoTextureEnabled) {
-                scope.video.play();
-            }
-            scope.checkVideo();
-        };
-        var pauseVideo = function () {
-            if (scope.videoTextureEnabled) {
-                scope.video.pause();
-            }
+        var animate = function ( enabled ) {
+            scope.checkVideo( enabled );
         };
 
         var groupMain = ui.add('group', {
@@ -553,12 +554,6 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
-        groupMain.add('bool', {
-            name: 'Invert Ext.',
-            value: scope.shader.uniforms.invert.value,
-            callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
         groupMain.add('slide', {
             name: 'Extrusion',
             callback: adjustHeightFactor,
@@ -572,12 +567,11 @@ KSX.apps.demos.home.Main = (function () {
             stype: scope.uiTools.paramsDimension.sliderType
         });
         groupMain.add('bool', {
-            name: 'Animate',
-            value: scope.rtt.animate,
-            callback: animateRtt,
+            name: 'Invert Ext.',
+            value: scope.shader.uniforms.invert.value,
+            callback: invertShader,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        groupMain.add('title', { name: ' ' } );
         groupMain.add('slide', {
             name: 'Instance Count',
             callback: adjustBoxCount,
@@ -590,33 +584,19 @@ KSX.apps.demos.home.Main = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
-        groupMain.open();
-
-        ui.add('title', { name: ' ' } );
-        ui.add('bool', {
+        groupMain.add('bool', {
+            name: 'Animate/Play',
+            value: scope.rtt.animate,
+            callback: animate,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
+        groupMain.add('bool', {
             name: 'Enable Video',
             value: scope.videoTextureEnabled,
             callback: enableVideo,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        var groupVideo = ui.add('group', {
-            name: 'Video Controls',
-            height: scope.uiTools.paramsDimension.groupHeight
-        });
-        groupVideo.add('button', {
-            name: 'Play Video',
-            callback: playVideo,
-            width: scope.uiTools.paramsDimension.buttonWidth,
-            height: scope.uiTools.paramsDimension.buttonHeight
-        });
-        groupVideo.add('button', {
-            name: 'Pause Video',
-            callback: pauseVideo,
-            width: scope.uiTools.paramsDimension.buttonWidth,
-            height: scope.uiTools.paramsDimension.buttonHeight
-        });
-        ui.add('title', { name: ' ' } );
-        ui.add('title', { name: 'Global Controls' } );
+        groupMain.open();
         ui.add('button', {
             name: 'Reset View and Parameters',
             callback: resetViewAndParams,

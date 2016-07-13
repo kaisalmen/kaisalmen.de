@@ -60,6 +60,7 @@ KSX.apps.shader.BlockShader = (function () {
         promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PTV1Link.jpg');
         promises[4] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtestLink.png');
         promises[5] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/teaserLink.jpg');
+        promises[6] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/LoaderTestLink.png');
 
         Promise.all( promises ).then(
             function (results) {
@@ -74,6 +75,7 @@ KSX.apps.shader.BlockShader = (function () {
                 scope.textures['linkPTV1'] = results[3];
                 scope.textures['linkPixelProtest'] = results[4];
                 scope.textures['linkTeaser'] = results[5];
+                scope.textures['linkLoader'] = results[6];
 
                 scope.uniforms.texture1.value = scope.textures['default'];
 

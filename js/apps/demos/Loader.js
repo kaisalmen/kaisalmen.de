@@ -29,6 +29,15 @@ KSX.apps.demos.Loader = (function () {
         });
 
         this.shader = new KSX.apps.shader.LoaderShader();
+
+        if ( !this.definition.loader ) {
+            this.stats = new Stats();
+            this.stats.domElement.style.position = 'absolute';
+            this.stats.domElement.style.left = '';
+            this.stats.domElement.style.right = '0px';
+            this.stats.domElement.style.top = '';
+            this.stats.domElement.style.bottom = '0px';
+        }
     }
 
     Loader.prototype.initAsyncContent = function() {
@@ -38,6 +47,13 @@ KSX.apps.demos.Loader = (function () {
             scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
+    };
+
+    Loader.prototype.initPreGL = function () {
+        if ( !this.definition.loader ) {
+            this.stats.showPanel(0);
+            document.body.appendChild(this.stats.domElement);
+        }
     };
 
     Loader.prototype.initGL = function () {
@@ -62,9 +78,8 @@ KSX.apps.demos.Loader = (function () {
         geometry.copy( bufferGeometry );
 
         var offsets = this.createOffsetsArray( 1000, 15 );
-        geometry.addAttribute( 'offset', offsets );
-
         var colors = this.createColorsArray( 1000 );
+        geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'color', colors );
 
         var mesh = new THREE.Mesh( geometry, shaderMaterial );
@@ -112,6 +127,12 @@ KSX.apps.demos.Loader = (function () {
         this.pivot.rotation.x += 0.005;
         this.pivot.rotation.y += 0.005;
         this.pivot.rotation.z += 0.005;
+    };
+
+    Loader.prototype.renderPost = function () {
+        if ( !this.definition.loader ) {
+            this.stats.update();
+        }
     };
 
     Loader.prototype.dispose = function () {
