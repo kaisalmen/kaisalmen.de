@@ -17,43 +17,49 @@
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
         <div class="navFrame">
-            <div class="helpButton" onmouseenter="enableHelp(true)" onmouseleave="enableHelp(false)">
-                <h1 id="HelpButton">?</h1>
-            </div>
             <div class="home" id="ProjectsHeader">
                 <h1>Demos</h1>
             </div>
-            <div class="home" id="LinkPixelProtest" onmouseenter="exchangeTexture('linkPixelProtest')" onmouseleave="exchangeImageDefault()">
+            <div class="home" onmouseenter="exchangeTexture('linkPixelProtest')" onmouseleave="exchangeImageDefault()">
                 <h1>
                     <a href="./html/demos/PixelProtest.html">Pixel Protest</a>
                 </h1>
             </div>
-            <div class="home" id="LinkPTV1Loader" onmouseenter="exchangeTexture('linkPTV1')" onmouseleave="exchangeImageDefault()">
+            <div class="home" onmouseenter="exchangeTexture('linkPTV1')" onmouseleave="exchangeImageDefault()">
                 <h1>
                     <a href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
                 </h1>
             </div>
-            <div class="home" id="LinkWebsiteTeaser" onmouseenter="exchangeTexture('linkTeaser')" onmouseleave="exchangeImageDefault()">
+            <div class="home" onmouseenter="exchangeTexture('linkTeaser')" onmouseleave="exchangeImageDefault()">
                 <h1>
                     <a href="html/demos/Teaser.html">Website Teaser</a>
                 </h1>
             </div>
-            <div class="home" id="LinkLoader" onmouseenter="exchangeTexture('linkLoader')" onmouseleave="exchangeImageDefault()">
+            <div class="home" onmouseenter="exchangeTexture('linkLoader')" onmouseleave="exchangeImageDefault()">
                 <h1>
                     <a href="html/demos/LoaderTest.html">Loader Test</a>
                 </h1>
             </div>
+            <div class="home" onmouseenter="enableHelp(true)" onmouseleave="enableHelp(false)">
+                <span class="helpButton">?</span>
+            </div>
         </div>
         <div class="helpArea" id="HelpArea">
             <h1>What do I see here? Please explain!</h1>
-            <span>
-You see a two dimensional array of instantiated box meshes. I call it the "Projection Space". It is used (every single box) is used to render one of the three:<br>
-- Render Target Texture (RTT): The default scene you see once the page is loaded<br>
-- Video Texture: Blender Foundations's Cosmos Laundromat is played back<br>
-- Static Texture: A static peview image of the demo links is shown on mouse-over<br><br>
+            <br>
+            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space". It (or every single box) is used to render one of the three:<br>
+            - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
+            - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
+            - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
 
-Each box receives color information (via UV coordinates) of the above texture. The color is used to transform the box. The brighter the pixel, the higher the box. This can be inverted via "Invert Extr." Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br>
-            </span>
+            Each box receives color information (via UV coordinates) of the above texture. The color is used to transform the box. The brighter the pixel, the higher the box.
+            Slider "Extrusion" enhances the effect. The transformation can be inverted (dark=high; bright=low) via "Invert Ext.".
+            Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br><br>
+            The box instance count is adjustable on five levels. The count is 24.000, 217440, 686080, 1543680, 6174720 respectively. The last to levels require fast GPUs (mobile is no fun here).<br><br>
+            If the texture is animated (RTT) or plays a video then this playback is paused or continued via "Animate/Play". Video needs to be enabled via "Enable Video".<br><br>
+            Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
+            The "Instance Count" defines how many boxes are process by the GPU and which are there UV coordinates.
+            Arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
         </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">

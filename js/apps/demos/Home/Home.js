@@ -66,7 +66,6 @@ KSX.apps.demos.home.Main = (function () {
             },
             mobile : {
                 maxValue: 64.0,
-                slidesHeight : 56
             }
         };
         this.mobileDevice = bowser.mobile;
@@ -175,7 +174,7 @@ KSX.apps.demos.home.Main = (function () {
 
         this.rtt = initRtt( this.currentDimension.x, this.currentDimension.y, this.textStorage, this.textureCube );
         this.shader.textures['rtt'] = this.rtt.texture.texture;
-        this.checkVideo( this.rtt.animate );
+        this.checkVideo();
 
         this.scenePerspective.scene.add( this.currentDimension.mesh );
         this.updateProjectionSpaceStats();
@@ -371,12 +370,11 @@ KSX.apps.demos.home.Main = (function () {
         this.stats.update();
     };
 
-    Home.prototype.checkVideo = function ( run ) {
+    Home.prototype.checkVideo = function () {
         if ( this.videoTextureEnabled ) {
             this.shader.uniforms.texture1.value = this.videoTexture;
-            this.rtt.animate = false;
 
-            if ( run ) {
+            if ( this.rtt.animate ) {
                 this.video.play();
             }
             else {
@@ -384,7 +382,6 @@ KSX.apps.demos.home.Main = (function () {
             }
         }
         else {
-            this.rtt.animate = run;
             this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
 
             if ( !this.video.paused ) {
@@ -440,35 +437,35 @@ KSX.apps.demos.home.Main = (function () {
         this.shader.resetUniforms( 'rtt', this.currentDimension.defaultHeightFactor );
         this.rtt.animate = true;
         this.videoTextureEnabled = false;
-        this.checkVideo( this.rtt.animate );
+        this.checkVideo();
     };
 
     var buildUi = function ( scope ) {
         var ui = scope.uiTools.ui;
 
-        var resetBoxScaleSlide = function ( value ) {
+        var resetExtrusionSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[0];
             slide.value = value;
             slide.update();
         };
-        var resetBoxSpacingSlide = function ( value ) {
+        var resetInvertExtrusionBool = function ( value ) {
             var group = ui.uis[0];
-            var slide = group.uis[1];
-            slide.value = value;
-            slide.update();
+            var bool = group.uis[1];
+            bool.value = value;
+            bool.update();
         };
-        var resetExtrusionSlide = function ( value ) {
+        var resetBoxScaleSlide = function ( value ) {
             var group = ui.uis[0];
             var slide = group.uis[2];
             slide.value = value;
             slide.update();
         };
-        var resetInvertExtrusionBool = function ( value ) {
+        var resetBoxSpacingSlide = function ( value ) {
             var group = ui.uis[0];
-            var bool = group.uis[3];
-            bool.value = value;
-            bool.update();
+            var slide = group.uis[3];
+            slide.value = value;
+            slide.update();
         };
         var resetInstantCountSlide = function ( value ) {
             var group = ui.uis[0];
@@ -488,24 +485,6 @@ KSX.apps.demos.home.Main = (function () {
             bool.value = value;
             bool.update();
         };
-
-        var adjustBoxCount = function ( value ) {
-            if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
-                resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
-            }
-        };
-        var adjustHeightFactor = function (value) {
-            scope.shader.uniforms.heightFactor.value = value;
-        };
-        var adjustBoxScale = function (value) {
-            scope.shader.uniforms.scaleBox.value = value;
-        };
-        var adjustBoxSpacing = function (value) {
-            scope.shader.uniforms.spacing.value = value;
-        };
-        var invertShader = function (value) {
-            scope.shader.uniforms.invert.value = value;
-        };
         var resetViewAndParams = function () {
             scope.resetViewAndParameters();
 
@@ -516,19 +495,57 @@ KSX.apps.demos.home.Main = (function () {
             resetInstantCountSlide( scope.currentDimension.index );
             resetAnimateBool( scope.rtt.animate );
             resetVideoBool( scope.videoTextureEnabled );
+        };
 
+
+        var adjustHeightFactor = function (value) {
+            scope.shader.uniforms.heightFactor.value = value;
+        };
+        var invertShader = function (value) {
+            scope.shader.uniforms.invert.value = value;
+        };
+        var adjustBoxScale = function (value) {
+            scope.shader.uniforms.scaleBox.value = value;
+        };
+        var adjustBoxSpacing = function (value) {
+            scope.shader.uniforms.spacing.value = value;
+        };
+        var adjustBoxCount = function ( value ) {
+            if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
+                resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
+            }
+        };
+        var animate = function ( enabled ) {
+            scope.rtt.animate = enabled;
+            scope.checkVideo();
         };
         var enableVideo = function ( enabled ) {
             scope.videoTextureEnabled = enabled;
-            scope.checkVideo( scope.rtt.animate );
+            scope.checkVideo();
         };
-        var animate = function ( enabled ) {
-            scope.checkVideo( enabled );
-        };
+
 
         var groupMain = ui.add('group', {
             name: 'Projection Space Controls',
             height: scope.uiTools.paramsDimension.groupHeight
+        });
+        groupMain.add('slide', {
+            name: 'Extrusion',
+            callback: adjustHeightFactor,
+            min: scope.uiTools.paramsDimension.minValue,
+            max: scope.uiTools.paramsDimension.maxValue,
+            value: scope.shader.uniforms.heightFactor.value,
+            precision: 1,
+            step: 1,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('bool', {
+            name: 'Invert Ext.',
+            value: scope.shader.uniforms.invert.value,
+            callback: invertShader,
+            height: scope.uiTools.paramsDimension.boolHeight
         });
         groupMain.add('slide', {
             name: 'Box Scale',
@@ -553,24 +570,6 @@ KSX.apps.demos.home.Main = (function () {
             width: scope.uiTools.paramsDimension.slidesWidth,
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Extrusion',
-            callback: adjustHeightFactor,
-            min: scope.uiTools.paramsDimension.minValue,
-            max: scope.uiTools.paramsDimension.maxValue,
-            value: scope.shader.uniforms.heightFactor.value,
-            precision: 1,
-            step: 1,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Invert Ext.',
-            value: scope.shader.uniforms.invert.value,
-            callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
         });
         groupMain.add('slide', {
             name: 'Instance Count',

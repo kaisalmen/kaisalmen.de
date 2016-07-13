@@ -43,7 +43,6 @@ KSX.apps.demos.PixelProtest = (function () {
                 numberPrecision : 6
             },
             mobile : {
-                slidesHeight : 96,
                 numberPrecision : 6
             }
         };

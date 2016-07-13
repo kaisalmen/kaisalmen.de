@@ -93,13 +93,13 @@ KSX.apps.tools.UiTools.DefaultParams = {
     },
     mobile : {
         slidesWidth : 255,
-        slidesHeight : 96,
+        slidesHeight : 48,
         sliderType : 2,
         buttonWidth : 104,
-        buttonHeight : 96,
+        buttonHeight : 48,
         minValue : 0.0,
         maxValue : 128.0,
         groupHeight : 36,
-        boolHeight : 24
+        boolHeight : 48
     }
 };
