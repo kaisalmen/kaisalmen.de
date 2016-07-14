@@ -49,27 +49,31 @@
         </div>
         <div class="helpArea" id="HelpArea">
             <h1>What do I see here? Please explain!</h1>
-            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space". Every single box of the Projection Space is used to render one of the three:<br>
+            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
+            Every single box of the Projection Space is used to render either one of the three:<br>
             - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
             - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
             - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
 
-            Each box receives color information (via UV coordinates) of the above texture. The color is used to transform the box. The brighter the pixel, the higher the box.
+            Each box receives color information (via texture UV coordinates) from the textures. The color is used to transform the box. The brighter the pixel, the higher the box.
             Slider "Extrusion" enhances the effect. The transformation can be inverted (dark=high; bright=low) via "Invert Ext.".
             Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br><br>
-            The box instance count is adjustable on five levels. The count is 24.000, 217440, 686080, 1543680, 6174720 respectively. The last to levels require fast GPUs (mobile is no fun here).<br><br>
+            The box instance count is adjustable on five levels. The count is 24.000, 217.440, 686.080, 1.543.680, 6.174.720 respectively.
+            The last two levels require fast GPUs (mobile is no fun here).<br><br>
             If the texture is animated (RTT) or plays a video then this playback is paused or continued via "Animate/Play". Video needs to be enabled via "Enable Video".<br><br>
             Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
-            The "Instance Count" defines how many boxes are process by the GPU and which are there UV coordinates.
-            Arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
+            The "Instance Count" defines how many instantiated boxes are being sent to the GPU including adjusted texture coordinates.
+            Attribute arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
         </div>
         <div class="contactArea" id="ContactArea">
             <h1>Any questions?</h1>
             Contact me via mail:<br>
-            <a href="mailto:myself@&lt;replaceWithNameOfThisDomain&gt;">myself@&lt;replaceWithNameOfThisDomain&gt;</a>
+            <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a>
             <br><br>
             Follow me on Twitter:<br>
             <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
+            <br><br>
+            This was realised during my spare time!
         </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">
