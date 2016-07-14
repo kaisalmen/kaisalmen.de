@@ -5,6 +5,7 @@
 
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
     <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/PixelProtest.css" type="text/css" rel="stylesheet"/>
 </head>
 <body>
     <div id="DivGLFull">
@@ -15,6 +16,13 @@
                     <a href="../../index.html">Home</a>
                  </h1>
             </div>
+            <div class="home" onclick="enableHelpArea()">
+                <span class="helpButton">?</span>
+            </div>
+        </div>
+        <div class="helpArea" id="HelpArea">
+            <h1>The Pixels are on Protest!</h1>
+            The pixels think there is too much junk posted throughout the web. If you agree with them, create an image you like, save it and share it! :-)
         </div>
     </div>
     <script src="../../js/lib/ext/bowser.min.js"></script>
@@ -39,6 +47,13 @@
             implementations.push(new KSX.apps.demos.PixelProtest(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
+
+            var clicksHelpArea = 0;
+            var enableHelpArea = function () {
+                var divHelpArea = document.getElementById( 'HelpArea' );
+                divHelpArea.style.display = clicksHelpArea % 2 === 0 ? 'inline' : 'none';
+                clicksHelpArea++;
+            };
         }
     </script>
 </body>

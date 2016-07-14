@@ -56,7 +56,7 @@ KSX.apps.tools.UiTools = (function () {
         }
 
         var children = divFeedbackArea.childNodes;
-        for ( var child of children ) {
+        for ( var child in children ) {
             if ( child.class === 'dynamicFeedback' ) {
                 this.divDynamic = child;
             }

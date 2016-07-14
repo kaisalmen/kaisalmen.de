@@ -19,3 +19,9 @@ a.offsiteLink {
 div.copyrightArea {
 	color: #222222;
 }
+
+div.helpArea {
+    width: 640px;
+    height: 192px;
+    top: 55px;
+}

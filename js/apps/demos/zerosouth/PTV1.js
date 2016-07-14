@@ -79,7 +79,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             },
             mobile : {
                 slidesWidth : 100,
-                slidesHeight : 96
             }
         };
         this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);

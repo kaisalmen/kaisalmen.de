@@ -9,3 +9,15 @@
     width: 1920px;
     height: 804px;
 }
+
+div.helpArea {
+    width: 640px;
+    height: 512px;
+    top: 239px;
+}
+
+div.contactArea {
+    width: 480px;
+    height: 160px;
+    top: 285px;
+}

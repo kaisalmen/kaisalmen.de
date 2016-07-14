@@ -52,7 +52,7 @@ KSX.apps.demos.PixelProtest = (function () {
         this.uiElemHeight = null;
         
         this.animateNoise = true;
-        this.animationRate = 30;
+        this.animationRate = 10;
 
         this.randomize = true;
         this.randomR = null;

@@ -17,14 +17,18 @@
                     <a href="../../index.html">Home</a>
                 </h1>
             </div>
-            <div class="home" onmouseenter="enableHelp(true)" onmouseleave="enableHelp(false)">
+            <div class="home" onclick="enableHelpArea()">
                 <span class="helpButton">?</span>
             </div>
         </div>
         <div class="helpArea" id="HelpArea">
             <h1>PTV 1 Loader</h1>
-            <br>
-            Test
+            The model of ZERO SOUTH's Polar Traverse Vehicle 1 (PTV 1) is loaded from a zip compressed OBJ file.
+            Uncompressed the file is 150 megabytes big.<br>
+            The decompression and the processing of the OBJ data is handled by web workers.
+            The integration of new objects into the scene is done whenever a new object has been processed from the input file.
+            It ensures interactivity is always given while new pieces of the overall vehicle appear.<br>
+            The web worker code is currently based on a fork three.js's OBJLoader (Feb. 2016).
         </div>
         <div class="offsite">
             <a class="offsiteLink" href="http://www.zerosouth.com">
@@ -73,12 +77,14 @@
             implementations.push(new KSX.apps.zerosouth.PTV1Loader(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
-        }
 
-        var enableHelp = function ( show ) {
-            var divHelpArea = document.getElementById( 'HelpArea' );
-            divHelpArea.style.display = show ? 'inline' : 'none';
-        };
+            var clicksHelpArea = 0;
+            var enableHelpArea = function () {
+                var divHelpArea = document.getElementById( 'HelpArea' );
+                divHelpArea.style.display = clicksHelpArea % 2 === 0 ? 'inline' : 'none';
+                clicksHelpArea++;
+            }
+        }
     </script>
 </body>
 </html>

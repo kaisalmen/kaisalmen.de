@@ -40,14 +40,16 @@
                     <a href="html/demos/LoaderTest.html">Loader Test</a>
                 </h1>
             </div>
-            <div class="home" onmouseenter="enableHelp(true)" onmouseleave="enableHelp(false)">
+            <div class="homeFixed" onclick="enableHelpArea()">
                 <span class="helpButton">?</span>
+            </div>
+            <div class="homeFixed" onclick="toggleContactArea()" >
+                <span class="contactButton">!</span>
             </div>
         </div>
         <div class="helpArea" id="HelpArea">
             <h1>What do I see here? Please explain!</h1>
-            <br>
-            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space". It (or every single box) is used to render one of the three:<br>
+            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space". Every single box of the Projection Space is used to render one of the three:<br>
             - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
             - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
             - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
@@ -60,6 +62,14 @@
             Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
             The "Instance Count" defines how many boxes are process by the GPU and which are there UV coordinates.
             Arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
+        </div>
+        <div class="contactArea" id="ContactArea">
+            <h1>Any questions?</h1>
+            Contact me via mail:<br>
+            <a href="mailto:myself@&lt;replaceWithNameOfThisDomain&gt;">myself@&lt;replaceWithNameOfThisDomain&gt;</a>
+            <br><br>
+            Follow me on Twitter:<br>
+            <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
         </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">
@@ -112,9 +122,18 @@
                 home.checkVideo();
             };
 
-            var enableHelp = function ( show ) {
+            var clicksHelpArea = 0;
+            var clicksContactArea = 0;
+            var enableHelpArea = function () {
                 var divHelpArea = document.getElementById( 'HelpArea' );
-                divHelpArea.style.display = show ? 'inline' : 'none';
+                divHelpArea.style.display = clicksHelpArea % 2 === 0 ? 'inline' : 'none';
+                clicksHelpArea++;
+            };
+
+            var toggleContactArea = function () {
+                var divHelpArea = document.getElementById( 'ContactArea' );
+                divHelpArea.style.display = clicksContactArea % 2 === 0 ? 'inline' : 'none';
+                clicksContactArea++;
             };
         }
     </script>
