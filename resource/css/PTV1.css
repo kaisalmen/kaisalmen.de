@@ -7,6 +7,13 @@ div.offsite {
     right: auto;
     width: 220px;
     height: 78px;
+    z-index: 20;
+}
+
+a.offsiteLink {
+    position: absolute;
+    width: 100%;
+    height: 100%;
 }
 
 div.copyrightArea {
