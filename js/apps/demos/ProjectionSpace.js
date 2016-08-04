@@ -10,33 +10,51 @@
 KSX.apps.demos.ProjectionSpace = (function () {
 
 
-    function ProjectionSpace() {
+    function ProjectionSpace( dimensionParams, defaultIndex ) {
         this.shader = new KSX.apps.shader.BlockShader();
 
         this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+        this.pivot = new THREE.Object3D();
         this.dimensions = [];
-        this.dimensions[0] = { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null };
-        this.dimensions[1] = { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null };
-        this.dimensions[2] = { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null };
-        this.dimensions[3] = { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null };
-        this.dimensions[4] = { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null };
-        this.index = 0;
+
+        for ( var dimensionParam in dimensionParams ) {
+            this.dimensions.push( dimensionParams[dimensionParam] );
+        }
+
+        this.resetProjectionSpace( defaultIndex );
     }
 
     ProjectionSpace.prototype.loadAsyncResources = function ( callbackOnSuccess ) {
         this.shader.loadResources( callbackOnSuccess );
     };
 
-    ProjectionSpace.prototype.initGL = function ( rttTexture, videoTexture ) {
+    ProjectionSpace.prototype.initGL = function () {
         var projectionSpaceMaterial = this.shader.buildShaderMaterial();
-        this.shader.textures['rtt'] = rttTexture;
-        this.shader.textures['video'] = videoTexture;
 
-        this.pixelBoxesGenerator.buildInstanceBoxes( this.dimensions[0], projectionSpaceMaterial );
-        this.pixelBoxesGenerator.buildInstanceBoxes( this.dimensions[1], projectionSpaceMaterial );
-        this.pixelBoxesGenerator.buildInstanceBoxes( this.dimensions[2], projectionSpaceMaterial );
-        this.pixelBoxesGenerator.buildInstanceBoxes( this.dimensions[3], projectionSpaceMaterial );
-        this.pixelBoxesGenerator.buildInstanceBoxes( this.dimensions[4], projectionSpaceMaterial );
+        for ( var dimension of this.dimensions ) {
+            this.pixelBoxesGenerator.buildInstanceBoxes( dimension, projectionSpaceMaterial );
+        }
+
+        this.pivot.add( this.dimensions[this.index].mesh );
+    };
+
+    ProjectionSpace.prototype.switchDimensionMesh = function ( index ) {
+        var oldMesh = this.dimensions[this.index];
+        this.index = index;
+
+        this.pivot.remove( oldMesh.mesh );
+        var newMesh = this.dimensions[this.index].mesh;
+        this.pivot.add( newMesh );
+
+        this.shader.uniforms.heightFactor.value = newMesh.defaultHeightFactor;
+    };
+
+    ProjectionSpace.prototype.getWidth = function () {
+        return this.dimensions[this.index].x;
+    };
+
+    ProjectionSpace.prototype.getHeight = function () {
+        return this.dimensions[this.index].y;
     };
 
     ProjectionSpace.prototype.flipTexture = function ( name ) {
@@ -46,27 +64,36 @@ KSX.apps.demos.ProjectionSpace = (function () {
         }
     };
 
-    ProjectionSpace.prototype.renderPre = function () {
-
-    };
-
-    ProjectionSpace.prototype.renderPost = function () {
-
-    };
-
     ProjectionSpace.prototype.printStats = function () {
-        var instanceCount = this.dimensions[this.index].x * this.dimensions[this.index].y;
-        var resolution = this.dimensions[this.index].x + 'x' + this.dimensions[this.index].y;
-        return 'Projection Space: Resolution: ' + this.dimensions[this.index].name + ' (' + resolution + '=' + instanceCount + ' instances)';
+        var line = 'Projection Space: ';
+        if ( this.dimensions.length > 0 ) {
+            var instanceCount = this.dimensions[this.index].x * this.dimensions[this.index].y;
+            var resolution = this.dimensions[this.index].x + 'x' + this.dimensions[this.index].y;
+            line += 'Resolution: ' + this.dimensions[this.index].name + ' (' + resolution + '=' + instanceCount + ' instances)';
+        }
+        else {
+            line += 'undefined!';
+        }
+        return line;
     };
 
-    ProjectionSpace.prototype.resetProjectionSpace = function ( mobileDevice ) {
-        this.index = mobileDevice ? 0 : 1;
-        this.shader.resetUniforms( 'rtt', this.dimensions[this.index].defaultHeightFactor );
+    ProjectionSpace.prototype.resetProjectionSpace = function ( defaultIndex ) {
+        this.index = defaultIndex;
+        if ( this.index >= this.dimensions.length ) {
+            this.index = this.dimensions.length - 1;
+        }
+
+        if ( this.dimensions.length > 0) {
+            this.shader.resetUniforms( 'rtt', this.dimensions[this.index].defaultHeightFactor );
+        }
+        else {
+            this.shader.resetUniforms( 'rtt' );
+        }
     };
 
     ProjectionSpace.prototype.dispose = function () {
-
+        this.dimensions = [];
+        this.resetProjectionSpace(0);
     };
 
     return ProjectionSpace;

@@ -28,8 +28,9 @@ KSX.apps.demos.PPCheck = (function () {
 
         this.controls = null;
 
-        this.projectionSpace = new KSX.apps.demos.ProjectionSpace();
-        this.projectionSpace.resetProjectionSpace();
+        this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
+            low: {index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null}
+        }, 0);
 
         this.cameraDefaults = {
             posCamera: new THREE.Vector3(

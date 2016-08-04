@@ -79,17 +79,20 @@ KSX.apps.demos.home.Main = (function () {
         this.textureTools = new KSX.apps.tools.TextureTools();
 
         this.rtt = null;
+        this.animate = true;
         this.textStorage = new KSX.apps.tools.text.Text();
         this.textureCube = null;
 
-        this.projectionSpace = new KSX.apps.demos.ProjectionSpace();
-        this.projectionSpace.resetProjectionSpace();
+        this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
+            low: {index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null},
+            medium: {index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null},
+            high: {index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null},
+            extreme: {index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null},
+            insane: {index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null}
+        }, 0);
 
         this.cameraDefaults = {
-            posCamera: new THREE.Vector3(
-                0.0,
-                -1.15 * this.projectionSpace.dimensions[this.projectionSpace.index].y,
-                0.85 * this.projectionSpace.dimensions[this.projectionSpace.index].x ),
+            posCamera: new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() ),
             far: 100000
         };
     }
@@ -157,16 +160,13 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
-        this.rtt = initRtt(
-            this.projectionSpace.dimensions[this.projectionSpace.index].x,
-            this.projectionSpace.dimensions[this.projectionSpace.index].y,
-            this.textStorage,
-            this.textureCube
-        );
-        this.projectionSpace.initGL( this.rtt.texture.texture, this.videoTexture );
+        this.rtt = initRtt( this.projectionSpace.getWidth(), this.projectionSpace.getHeight(), this.textStorage, this.textureCube );
+        this.projectionSpace.initGL();
+        this.projectionSpace.shader.textures['rtt'] = this.rtt.texture.texture;
+        this.projectionSpace.shader.textures['video'] = this.videoTexture;
         this.checkVideo();
 
-        this.scenePerspective.scene.add( this.projectionSpace.dimensions[this.projectionSpace.index].mesh );
+        this.scenePerspective.scene.add( this.projectionSpace.pivot );
         this.uiTools.announceFeedback( this.projectionSpace.printStats() );
 
         // init camera and bind to controls
@@ -283,7 +283,6 @@ KSX.apps.demos.home.Main = (function () {
                 format: THREE.RGBFormat
             }
         );
-        rtt.animate = true;
 
         return rtt;
     };
@@ -319,7 +318,7 @@ KSX.apps.demos.home.Main = (function () {
         }
 
         this.renderer.setClearColor(RTT_CLEAR_COLOR);
-        if ( this.rtt.animate ) {
+        if ( this.animate ) {
             var spherePosFactor = 5.0;
 
             this.rtt.meshes.sphereRed.position.set(
@@ -346,7 +345,6 @@ KSX.apps.demos.home.Main = (function () {
         this.rtt.cameraCube.rotation.copy( this.rtt.camera.rotation );
         this.renderer.render( this.rtt.sceneCube, this.rtt.cameraCube, this.rtt.texture, true );
         this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
-
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
     };
 
@@ -358,7 +356,7 @@ KSX.apps.demos.home.Main = (function () {
         if ( this.videoTextureEnabled ) {
             this.projectionSpace.flipTexture( 'video' );
 
-            if ( this.rtt.animate ) {
+            if ( this.animate ) {
                 this.video.play();
             }
             else {
@@ -367,6 +365,7 @@ KSX.apps.demos.home.Main = (function () {
         }
         else {
             this.projectionSpace.flipTexture( 'rtt' );
+//            this.projectionSpace.flipTexture( 'linkPixelProtest' );
 
             if ( !this.video.paused ) {
                 this.video.pause();
@@ -374,41 +373,37 @@ KSX.apps.demos.home.Main = (function () {
         }
     };
 
-    Home.prototype.resizeProjectionSpace = function ( index, force, forcedIndex ) {
-        if ( this.projectionSpace.index === index && !force ) {
-            return false;
+    Home.prototype.resizeProjectionSpace = function ( index, force ) {
+        var success = true;
+        if ( index === this.projectionSpace.index ) {
+            success = false;
         }
-        var temp = this.projectionSpace.dimensions[ force ? forcedIndex : this.projectionSpace.index];
-        this.projectionSpace.index = index;
+        else if ( force ) {
+            this.projectionSpace.resetProjectionSpace( index );
+        }
 
-        this.scenePerspective.scene.remove( temp.mesh );
-        this.scenePerspective.scene.add( this.projectionSpace.dimensions[this.projectionSpace.index].mesh );
+        if ( !success ) {
+            this.projectionSpace.switchDimensionMesh( index );
 
-        this.rtt.canvas.resetWidth( this.projectionSpace.dimensions[this.projectionSpace.index].x, this.projectionSpace.dimensions[this.projectionSpace.index].y );
-        this.rtt.texture.setSize( this.projectionSpace.dimensions[this.projectionSpace.index].x, this.projectionSpace.dimensions[this.projectionSpace.index].y );
+            this.rtt.canvas.resetWidth( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
+            this.rtt.texture.setSize( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
 
-        this.uiTools.announceFeedback( this.projectionSpace.printStats() );
-        this.projectionSpace.shader.uniforms.heightFactor.value = this.projectionSpace.dimensions[this.projectionSpace.index].defaultHeightFactor;
+            this.uiTools.announceFeedback( this.projectionSpace.printStats() );
 
-        this.cameraDefaults.posCamera = new THREE.Vector3(
-            0.0,
-            -1.15 * this.projectionSpace.dimensions[this.projectionSpace.index].y,
-            0.85 * this.projectionSpace.dimensions[this.projectionSpace.index].x
-        );
-        this.scenePerspective.setCameraDefaults( this.cameraDefaults );
+            this.cameraDefaults.posCamera = new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() );
+            this.scenePerspective.setCameraDefaults( this.cameraDefaults );
+        }
 
-        return true;
+        return success;
     };
 
     Home.prototype.resetViewAndParameters = function () {
-        var forcedIndex = this.projectionSpace.index;
-        this.projectionSpace.resetProjectionSpace();
-        this.resizeProjectionSpace( this.projectionSpace.index, true, forcedIndex );
+        this.resizeProjectionSpace( this.mobileDevice ? 0 : 1, true );
 
         this.controls.reset();
         this.controls.target = this.scenePerspective.cameraTarget;
 
-        this.rtt.animate = true;
+        this.animate = true;
         this.videoTextureEnabled = false;
         this.checkVideo();
     };
@@ -466,8 +461,8 @@ KSX.apps.demos.home.Main = (function () {
             resetBoxSpacingSlide( scope.projectionSpace.shader.uniforms.spacing.value );
             resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
             resetInvertExtrusionBool(scope.projectionSpace.shader.uniforms.invert.value );
-            resetInstantCountSlide( scope.projectionSpace.dimensions[index].index );
-            resetAnimateBool( scope.rtt.animate );
+            resetInstantCountSlide( scope.projectionSpace.index );
+            resetAnimateBool( scope.animate );
             resetVideoBool( scope.videoTextureEnabled );
         };
 
@@ -485,12 +480,12 @@ KSX.apps.demos.home.Main = (function () {
             scope.projectionSpace.shader.uniforms.spacing.value = value;
         };
         var adjustBoxCount = function ( value ) {
-            if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
+            if ( scope.resizeProjectionSpace( value, false ) ) {
                 resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
             }
         };
         var animate = function ( enabled ) {
-            scope.rtt.animate = enabled;
+            scope.animate = enabled;
             scope.checkVideo();
         };
         var enableVideo = function ( enabled ) {
@@ -549,8 +544,8 @@ KSX.apps.demos.home.Main = (function () {
             name: 'Instance Count',
             callback: adjustBoxCount,
             min: 0,
-            max: 4,
-            value: scope.projectionSpace.dimensions[index].index,
+            max: scope.projectionSpace.dimensions.length,
+            value: scope.projectionSpace.index,
             precision: 1,
             step: 1,
             width: scope.uiTools.paramsDimension.slidesWidth,
@@ -559,7 +554,7 @@ KSX.apps.demos.home.Main = (function () {
         });
         groupMain.add('bool', {
             name: 'Animate/Play',
-            value: scope.rtt.animate,
+            value: scope.animate,
             callback: animate,
             height: scope.uiTools.paramsDimension.boolHeight
         });
