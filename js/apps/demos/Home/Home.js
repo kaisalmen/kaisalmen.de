@@ -86,7 +86,10 @@ KSX.apps.demos.home.Main = (function () {
         this.projectionSpace.resetProjectionSpace();
 
         this.cameraDefaults = {
-            posCamera: new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.currentDimension.y, 0.85 * this.projectionSpace.currentDimension.x ),
+            posCamera: new THREE.Vector3(
+                0.0,
+                -1.15 * this.projectionSpace.dimensions[this.projectionSpace.index].y,
+                0.85 * this.projectionSpace.dimensions[this.projectionSpace.index].x ),
             far: 100000
         };
     }
@@ -154,11 +157,16 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
-        this.rtt = initRtt( this.projectionSpace.currentDimension.x, this.projectionSpace.currentDimension.y, this.textStorage, this.textureCube );
+        this.rtt = initRtt(
+            this.projectionSpace.dimensions[this.projectionSpace.index].x,
+            this.projectionSpace.dimensions[this.projectionSpace.index].y,
+            this.textStorage,
+            this.textureCube
+        );
         this.projectionSpace.initGL( this.rtt.texture.texture, this.videoTexture );
         this.checkVideo();
 
-        this.scenePerspective.scene.add( this.projectionSpace.currentDimension.mesh );
+        this.scenePerspective.scene.add( this.projectionSpace.dimensions[this.projectionSpace.index].mesh );
         this.uiTools.announceFeedback( this.projectionSpace.printStats() );
 
         // init camera and bind to controls
@@ -372,18 +380,21 @@ KSX.apps.demos.home.Main = (function () {
         }
         var temp = this.projectionSpace.dimensions[ force ? forcedIndex : this.projectionSpace.index];
         this.projectionSpace.index = index;
-        this.projectionSpace.currentDimension = this.projectionSpace.dimensions[this.projectionSpace.index];
 
         this.scenePerspective.scene.remove( temp.mesh );
-        this.scenePerspective.scene.add( this.projectionSpace.currentDimension.mesh );
+        this.scenePerspective.scene.add( this.projectionSpace.dimensions[this.projectionSpace.index].mesh );
 
-        this.rtt.canvas.resetWidth( this.projectionSpace.currentDimension.x, this.projectionSpace.currentDimension.y );
-        this.rtt.texture.setSize( this.projectionSpace.currentDimension.x, this.projectionSpace.currentDimension.y );
+        this.rtt.canvas.resetWidth( this.projectionSpace.dimensions[this.projectionSpace.index].x, this.projectionSpace.dimensions[this.projectionSpace.index].y );
+        this.rtt.texture.setSize( this.projectionSpace.dimensions[this.projectionSpace.index].x, this.projectionSpace.dimensions[this.projectionSpace.index].y );
 
         this.uiTools.announceFeedback( this.projectionSpace.printStats() );
-        this.projectionSpace.shader.uniforms.heightFactor.value = this.projectionSpace.currentDimension.defaultHeightFactor;
+        this.projectionSpace.shader.uniforms.heightFactor.value = this.projectionSpace.dimensions[this.projectionSpace.index].defaultHeightFactor;
 
-        this.cameraDefaults.posCamera = new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.currentDimension.y, 0.85 * this.projectionSpace.currentDimension.x );
+        this.cameraDefaults.posCamera = new THREE.Vector3(
+            0.0,
+            -1.15 * this.projectionSpace.dimensions[this.projectionSpace.index].y,
+            0.85 * this.projectionSpace.dimensions[this.projectionSpace.index].x
+        );
         this.scenePerspective.setCameraDefaults( this.cameraDefaults );
 
         return true;
@@ -404,6 +415,7 @@ KSX.apps.demos.home.Main = (function () {
 
     var buildUi = function ( scope ) {
         var ui = scope.uiTools.ui;
+        var index = scope.projectionSpace.index;
 
         var resetExtrusionSlide = function ( value ) {
             var group = ui.uis[0];
@@ -452,9 +464,9 @@ KSX.apps.demos.home.Main = (function () {
 
             resetBoxScaleSlide( scope.projectionSpace.shader.uniforms.scaleBox.value );
             resetBoxSpacingSlide( scope.projectionSpace.shader.uniforms.spacing.value );
-            resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
+            resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
             resetInvertExtrusionBool(scope.projectionSpace.shader.uniforms.invert.value );
-            resetInstantCountSlide( scope.currentDimension.index );
+            resetInstantCountSlide( scope.projectionSpace.dimensions[index].index );
             resetAnimateBool( scope.rtt.animate );
             resetVideoBool( scope.videoTextureEnabled );
         };
@@ -474,7 +486,7 @@ KSX.apps.demos.home.Main = (function () {
         };
         var adjustBoxCount = function ( value ) {
             if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
-                resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
+                resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
             }
         };
         var animate = function ( enabled ) {
@@ -538,7 +550,7 @@ KSX.apps.demos.home.Main = (function () {
             callback: adjustBoxCount,
             min: 0,
             max: 4,
-            value: scope.projectionSpace.currentDimension.index,
+            value: scope.projectionSpace.dimensions[index].index,
             precision: 1,
             step: 1,
             width: scope.uiTools.paramsDimension.slidesWidth,
