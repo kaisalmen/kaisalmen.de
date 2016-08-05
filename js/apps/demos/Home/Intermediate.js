@@ -95,16 +95,15 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.meshes.text.mesh.position.set( -700.0, -500, 0.0 );
         this.superBoxPivot.add( this.meshes.text.mesh );
 
-        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
-        var dimension = {
-            x: 120,
-            y: 68
-        };
+        var dimension = { name: 'custom', x: 120, y: 68, defaultHeightFactor: 12.0, mesh: null };
         var shaderMaterial = this.shader.buildShaderMaterial();
         this.shader.uniforms.texture1.value = this.shader.textures['pixelProtestImage'];
-        this.shader.uniforms.spacing.value = 12.0;
+        this.shader.uniforms.spacing.value = dimension.defaultHeightFactor;
         this.shader.uniforms.scaleBox.value = 3.0;
-        this.meshes.pixels = this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );
+
+        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
+        this.pixelBoxesGenerator.buildInstanceBoxes( dimension, shaderMaterial );
+        this.meshes.pixels = dimension.mesh;
 
         this.superBoxPivot.add( this.meshes.pixels );
         this.scenePerspective.scene.add( this.superBoxPivot );

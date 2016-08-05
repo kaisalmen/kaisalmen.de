@@ -6,29 +6,41 @@
 
 KSX.apps.tools.UiTools = (function () {
 
-    function UiTools(params, paramsDimension, mobile) {
-        UIL.BUTTON = '#FF4040';
-        if ( params.size === undefined && params.width !== undefined ) {
-            params.size = params.width;
-        }
-        this.ui = new UIL.Gui(params);
+    function UiTools( uiToolsConfig ) {
+        if ( uiToolsConfig.useUil ) {
+            UIL.BUTTON = '#FF4040';
+            if ( uiToolsConfig.uilParams.size === undefined && uiToolsConfig.uilParams.width !== undefined ) {
+                uiToolsConfig.uilParams.size = uiToolsConfig.uilParams.width;
+            }
+            this.ui = new UIL.Gui( uiToolsConfig.uilParams );
 
-        if (mobile) {
-            this.paramsDimension = paramsDimension.mobile;
-            if (this.paramsDimension === undefined) {
-                this.paramsDimension = {};
+            if ( uiToolsConfig.mobile ) {
+                this.paramsDimension = uiToolsConfig.paramsDimension.mobile;
+                if (this.paramsDimension === undefined) {
+                    this.paramsDimension = {};
+                }
+                checkParams(KSX.apps.tools.UiTools.DefaultParams.mobile, this.paramsDimension);
             }
-            checkParams(KSX.apps.tools.UiTools.DefaultParams.mobile, this.paramsDimension);
-        }
-        else {
-            this.paramsDimension = paramsDimension.desktop;
-            if (this.paramsDimension === undefined) {
-                this.paramsDimension = {};
+            else {
+                this.paramsDimension = uiToolsConfig.paramsDimension.desktop;
+                if (this.paramsDimension === undefined) {
+                    this.paramsDimension = {};
+                }
+                checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
             }
-            checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
         }
 
         this.divDynamic = null;
+
+        this.stats = null;
+        if ( uiToolsConfig.useStats ) {
+            this.stats = new Stats();
+            this.stats.domElement.style.position = 'absolute';
+            this.stats.domElement.style.left = '';
+            this.stats.domElement.style.right = '0px';
+            this.stats.domElement.style.top = '';
+            this.stats.domElement.style.bottom = '0px';
+        }
     }
 
     var checkParams = function (paramsPredefined, paramsUser) {
@@ -76,7 +88,22 @@ KSX.apps.tools.UiTools = (function () {
     };
 
     UiTools.prototype.announceFeedback = function ( text ) {
-        this.divDynamic.innerHTML = text;
+        if ( this.divDynamic !== null ) {
+            this.divDynamic.innerHTML = text;
+        }
+    };
+
+    UiTools.prototype.enableStats = function () {
+        if ( this.stats !== null ) {
+            this.stats.showPanel(0);
+            document.body.appendChild(this.stats.domElement);
+        }
+    };
+
+    UiTools.prototype.render = function () {
+        if ( this.stats !== null ) {
+            this.stats.update();
+        }
     };
 
     return UiTools;

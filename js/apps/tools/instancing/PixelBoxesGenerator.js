@@ -15,7 +15,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         this.material = null;
         this.objGroup = null;
 
-        this.worker = new Worker( basedir + "/js/apps/demos/Home/PixelBoxesGeneratorWW.js" );
+        this.worker = new Worker( basedir + "/js/apps/tools/instancing/PixelBoxesGeneratorWW.js" );
 
         var scope = this;
         var scopeFunction = function (e) {

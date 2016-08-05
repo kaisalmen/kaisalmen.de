@@ -42,6 +42,7 @@ KSX.apps.demos.home.Main = (function () {
             useScenePerspective : true,
             useCube : true
         });
+        this.mobileDevice = mobileDevice;
 
         this.video = elementNameVideo;
         this.videoBuffer = elementNameVideoBuffer;
@@ -50,31 +51,6 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTextureEnabled = false;
 
         this.controls = null;
-
-        var uiParams = {
-            css: 'top: 0px; left: 0px;',
-            width: 384,
-            center: false,
-            color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'
-        };
-        var paramsDimension = {
-            desktop: {
-                maxValue: 64.0
-            },
-            mobile : {
-                maxValue: 64.0,
-            }
-        };
-        this.mobileDevice = mobileDevice;
-        this.uiTools = new KSX.apps.tools.UiTools( uiParams, paramsDimension, this.mobileDevice );
-
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '';
-        this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '';
-        this.stats.domElement.style.bottom = '0px';
 
         this.textureTools = new KSX.apps.tools.TextureTools();
 
@@ -90,6 +66,8 @@ KSX.apps.demos.home.Main = (function () {
             extreme: { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 30, mesh: null },
             insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 35, mesh: null }
         }, 0);
+
+        this.homeUi = new KSX.apps.demos.home.Ui( this.mobileDevice, this.projectionSpace );
 
         this.cameraDefaults = {
             posCamera: new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() ),
@@ -129,11 +107,7 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPreGL = function () {
-        this.uiTools.createFeedbackAreaDynamic();
-        this.uiTools.announceFeedback( 'Initializing' );
-
-        this.stats.showPanel(0);
-        document.body.appendChild( this.stats.domElement );
+        this.homeUi.initPreGL();
     };
 
     Home.prototype.initGL = function () {
@@ -169,7 +143,7 @@ KSX.apps.demos.home.Main = (function () {
         this.scenePerspective.scene.add( this.projectionSpace.pivot );
         this.checkVideo();
 
-        this.uiTools.announceFeedback( this.projectionSpace.printStats() );
+        this.homeUi.announceFeedback( this.projectionSpace.printStats() );
 
         // init camera and bind to controls
         this.scenePerspective.setCameraDefaults( this.cameraDefaults );
@@ -290,7 +264,7 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPostGL = function () {
-        buildUi( this );
+        this.homeUi.buildUi( this );
         if ( this.mobileDevice ) {
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
         }
@@ -351,7 +325,7 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.renderPost = function () {
-        this.stats.update();
+        this.homeUi.render();
     };
 
     Home.prototype.checkVideo = function () {
@@ -391,7 +365,7 @@ KSX.apps.demos.home.Main = (function () {
             this.rtt.canvas.resetWidth( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
             this.rtt.texture.setSize( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
 
-            this.uiTools.announceFeedback( this.projectionSpace.printStats() );
+            this.homeUi.announceFeedback( this.projectionSpace.printStats() );
 
             this.cameraDefaults.posCamera = new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() );
             this.scenePerspective.setCameraDefaults( this.cameraDefaults );
@@ -409,171 +383,6 @@ KSX.apps.demos.home.Main = (function () {
         this.animate = true;
         this.videoTextureEnabled = false;
         this.checkVideo();
-    };
-
-    var buildUi = function ( scope ) {
-        var ui = scope.uiTools.ui;
-
-        var resetExtrusionSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[0];
-            slide.value = value;
-            slide.update();
-        };
-        var resetInvertExtrusionBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[1];
-            bool.value = value;
-            bool.update();
-        };
-        var resetBoxScaleSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[2];
-            slide.value = value;
-            slide.update();
-        };
-        var resetBoxSpacingSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[3];
-            slide.value = value;
-            slide.update();
-        };
-        var resetInstantCountSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[4];
-            slide.value = value;
-            slide.update();
-        };
-        var resetAnimateBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[5];
-            bool.value = value;
-            bool.update();
-        };
-        var resetVideoBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[6];
-            bool.value = value;
-            bool.update();
-        };
-        var resetViewAndParams = function () {
-            scope.resetViewAndParameters();
-
-            resetBoxScaleSlide( scope.projectionSpace.shader.uniforms.scaleBox.value );
-            resetBoxSpacingSlide( scope.projectionSpace.shader.uniforms.spacing.value );
-            resetExtrusionSlide( scope.projectionSpace.dimensions[scope.projectionSpace.index].defaultHeightFactor );
-            resetInvertExtrusionBool(scope.projectionSpace.shader.uniforms.invert.value );
-            resetInstantCountSlide( scope.projectionSpace.index );
-            resetAnimateBool( scope.animate );
-            resetVideoBool( scope.videoTextureEnabled );
-        };
-
-
-        var adjustHeightFactor = function (value) {
-            scope.projectionSpace.shader.uniforms.heightFactor.value = value;
-        };
-        var invertShader = function (value) {
-            scope.projectionSpace.shader.uniforms.invert.value = value;
-        };
-        var adjustBoxScale = function (value) {
-            scope.projectionSpace.shader.uniforms.scaleBox.value = value;
-        };
-        var adjustBoxSpacing = function (value) {
-            scope.projectionSpace.shader.uniforms.spacing.value = value;
-        };
-        var adjustBoxCount = function ( value ) {
-            if ( scope.resizeProjectionSpace( value, false ) ) {
-                resetExtrusionSlide( scope.projectionSpace.dimensions[scope.projectionSpace.index].defaultHeightFactor );
-            }
-        };
-        var animate = function ( enabled ) {
-            scope.animate = enabled;
-            scope.checkVideo();
-        };
-        var enableVideo = function ( enabled ) {
-            scope.videoTextureEnabled = enabled;
-            scope.checkVideo();
-        };
-
-
-        var groupMain = ui.add('group', {
-            name: 'Projection Space Controls',
-            height: scope.uiTools.paramsDimension.groupHeight
-        });
-        groupMain.add('slide', {
-            name: 'Extrusion',
-            callback: adjustHeightFactor,
-            min: scope.uiTools.paramsDimension.minValue,
-            max: scope.uiTools.paramsDimension.maxValue,
-            value: scope.projectionSpace.shader.uniforms.heightFactor.value,
-            precision: 1,
-            step: 1,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Invert Ext.',
-            value: scope.projectionSpace.shader.uniforms.invert.value,
-            callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('slide', {
-            name: 'Box Scale',
-            callback: adjustBoxScale,
-            min: 0.01,
-            max: 1.0,
-            value: scope.projectionSpace.shader.uniforms.scaleBox.value,
-            precision: 2,
-            step: 0.01,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Box Spacing',
-            callback: adjustBoxSpacing,
-            min: 0.01,
-            max: 10.0,
-            value: scope.projectionSpace.shader.uniforms.spacing.value,
-            precision: 3,
-            step: 0.01,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Instance Count',
-            callback: adjustBoxCount,
-            min: 0,
-            max: scope.projectionSpace.dimensions.length - 1,
-            value: scope.projectionSpace.index,
-            precision: 1,
-            step: 1,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Animate/Play',
-            value: scope.animate,
-            callback: animate,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('bool', {
-            name: 'Enable Video',
-            value: scope.videoTextureEnabled,
-            callback: enableVideo,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        ui.add('button', {
-            name: 'Reset View and Parameters',
-            callback: resetViewAndParams,
-            width: scope.uiTools.paramsDimension.buttonWidth,
-            height: scope.uiTools.paramsDimension.buttonHeight
-        });
-
-        groupMain.open();
     };
 
     return Home;
