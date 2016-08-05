@@ -21,7 +21,7 @@ KSX.apps.demos.ProjectionSpace = (function () {
             this.dimensions.push( dimensionParams[dimensionParam] );
         }
 
-        this.resetProjectionSpace( defaultIndex );
+        this.resetIndex( defaultIndex );
     }
 
     ProjectionSpace.prototype.loadAsyncResources = function ( callbackOnSuccess ) {
@@ -39,14 +39,16 @@ KSX.apps.demos.ProjectionSpace = (function () {
     };
 
     ProjectionSpace.prototype.switchDimensionMesh = function ( index ) {
-        var oldMesh = this.dimensions[this.index];
-        this.index = index;
+        if ( this.index !== index ) {
+            var oldMesh = this.dimensions[this.index];
+            this.index = index;
 
-        this.pivot.remove( oldMesh.mesh );
-        var newMesh = this.dimensions[this.index].mesh;
-        this.pivot.add( newMesh );
+            this.pivot.remove(oldMesh.mesh);
+            var newMesh = this.dimensions[this.index];
+            this.pivot.add(newMesh.mesh);
 
-        this.shader.uniforms.heightFactor.value = newMesh.defaultHeightFactor;
+            this.shader.uniforms.heightFactor.value = newMesh.defaultHeightFactor;
+        }
     };
 
     ProjectionSpace.prototype.getWidth = function () {
@@ -77,13 +79,24 @@ KSX.apps.demos.ProjectionSpace = (function () {
         return line;
     };
 
-    ProjectionSpace.prototype.resetProjectionSpace = function ( defaultIndex ) {
-        this.index = defaultIndex;
-        if ( this.index >= this.dimensions.length ) {
-            this.index = this.dimensions.length - 1;
+    ProjectionSpace.prototype.resetIndex = function ( defaultIndex ) {
+        this.index = defaultIndex >= 0 ? defaultIndex : 0;
+        if (this.index >= this.dimensions.length) {
+            this.index = this.dimensions.length > 0 ? this.dimensions.length - 1 : 0;
         }
+    };
+
+    ProjectionSpace.prototype.resetProjectionSpace = function ( defaultIndex ) {
+        this.resetIndex( defaultIndex );
 
         if ( this.dimensions.length > 0) {
+            // remove all possible and add correct index
+            for ( var dimension of this.dimensions ) {
+                this.pivot.remove( dimension.mesh );
+            }
+            this.pivot.add( this.dimensions[this.index].mesh );
+
+
             this.shader.resetUniforms( 'rtt', this.dimensions[this.index].defaultHeightFactor );
         }
         else {

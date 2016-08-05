@@ -8,6 +8,9 @@ KSX.apps.tools.UiTools = (function () {
 
     function UiTools(params, paramsDimension, mobile) {
         UIL.BUTTON = '#FF4040';
+        if ( params.size === undefined && params.width !== undefined ) {
+            params.size = params.width;
+        }
         this.ui = new UIL.Gui(params);
 
         if (mobile) {

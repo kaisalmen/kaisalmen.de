@@ -84,11 +84,11 @@ KSX.apps.demos.home.Main = (function () {
         this.textureCube = null;
 
         this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
-            low: { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null },
-            medium: { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null },
-            high: { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null },
-            extreme: { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null },
-            insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null }
+            low: { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 15, mesh: null },
+            medium: { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 20, mesh: null },
+            high: { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 25, mesh: null },
+            extreme: { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 30, mesh: null },
+            insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 35, mesh: null }
         }, 0);
 
         this.cameraDefaults = {
@@ -164,9 +164,11 @@ KSX.apps.demos.home.Main = (function () {
         this.projectionSpace.initGL();
         this.projectionSpace.shader.textures['rtt'] = this.rtt.texture.texture;
         this.projectionSpace.shader.textures['video'] = this.videoTexture;
+
+        this.resizeProjectionSpace( this.mobileDevice ? 0 : 1, true );
+        this.scenePerspective.scene.add( this.projectionSpace.pivot );
         this.checkVideo();
 
-        this.scenePerspective.scene.add( this.projectionSpace.pivot );
         this.uiTools.announceFeedback( this.projectionSpace.printStats() );
 
         // init camera and bind to controls
@@ -378,11 +380,12 @@ KSX.apps.demos.home.Main = (function () {
         if ( index === this.projectionSpace.index ) {
             success = false;
         }
-        else if ( force ) {
+        if ( force ) {
             this.projectionSpace.resetProjectionSpace( index );
+            success = true;
         }
 
-        if ( !success ) {
+        if ( success ) {
             this.projectionSpace.switchDimensionMesh( index );
 
             this.rtt.canvas.resetWidth( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
@@ -410,7 +413,6 @@ KSX.apps.demos.home.Main = (function () {
 
     var buildUi = function ( scope ) {
         var ui = scope.uiTools.ui;
-        var index = scope.projectionSpace.index;
 
         var resetExtrusionSlide = function ( value ) {
             var group = ui.uis[0];
@@ -459,7 +461,7 @@ KSX.apps.demos.home.Main = (function () {
 
             resetBoxScaleSlide( scope.projectionSpace.shader.uniforms.scaleBox.value );
             resetBoxSpacingSlide( scope.projectionSpace.shader.uniforms.spacing.value );
-            resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
+            resetExtrusionSlide( scope.projectionSpace.dimensions[scope.projectionSpace.index].defaultHeightFactor );
             resetInvertExtrusionBool(scope.projectionSpace.shader.uniforms.invert.value );
             resetInstantCountSlide( scope.projectionSpace.index );
             resetAnimateBool( scope.animate );
@@ -481,7 +483,7 @@ KSX.apps.demos.home.Main = (function () {
         };
         var adjustBoxCount = function ( value ) {
             if ( scope.resizeProjectionSpace( value, false ) ) {
-                resetExtrusionSlide( scope.projectionSpace.dimensions[index].defaultHeightFactor );
+                resetExtrusionSlide( scope.projectionSpace.dimensions[scope.projectionSpace.index].defaultHeightFactor );
             }
         };
         var animate = function ( enabled ) {
@@ -544,7 +546,7 @@ KSX.apps.demos.home.Main = (function () {
             name: 'Instance Count',
             callback: adjustBoxCount,
             min: 0,
-            max: scope.projectionSpace.dimensions.length,
+            max: scope.projectionSpace.dimensions.length - 1,
             value: scope.projectionSpace.index,
             precision: 1,
             step: 1,
@@ -564,13 +566,14 @@ KSX.apps.demos.home.Main = (function () {
             callback: enableVideo,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        groupMain.open();
         ui.add('button', {
             name: 'Reset View and Parameters',
             callback: resetViewAndParams,
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
         });
+
+        groupMain.open();
     };
 
     return Home;
