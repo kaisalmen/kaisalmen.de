@@ -29,7 +29,8 @@ KSX.apps.demos.PPCheck = (function () {
         this.controls = null;
 
         this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
-            low: {index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null}
+            low: { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null },
+            medium: { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null }
         }, 0);
 
         this.cameraDefaults = {

@@ -47,7 +47,7 @@ KSX.apps.demos.home.Main = (function () {
         this.videoBuffer = elementNameVideoBuffer;
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.videoTexture = null;
-        this.videoTextureEnabled = true;
+        this.videoTextureEnabled = false;
 
         this.controls = null;
 
@@ -84,11 +84,11 @@ KSX.apps.demos.home.Main = (function () {
         this.textureCube = null;
 
         this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
-            low: {index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null},
-            medium: {index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null},
-            high: {index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null},
-            extreme: {index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null},
-            insane: {index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null}
+            low: { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null },
+            medium: { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null },
+            high: { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null },
+            extreme: { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null },
+            insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null }
         }, 0);
 
         this.cameraDefaults = {
@@ -133,7 +133,7 @@ KSX.apps.demos.home.Main = (function () {
         this.uiTools.announceFeedback( 'Initializing' );
 
         this.stats.showPanel(0);
-        document.body.appendChild(this.stats.domElement);
+        document.body.appendChild( this.stats.domElement );
     };
 
     Home.prototype.initGL = function () {
@@ -365,12 +365,12 @@ KSX.apps.demos.home.Main = (function () {
         }
         else {
             this.projectionSpace.flipTexture( 'rtt' );
-//            this.projectionSpace.flipTexture( 'linkPixelProtest' );
 
             if ( !this.video.paused ) {
                 this.video.pause();
             }
         }
+//        this.projectionSpace.flipTexture( 'linkPixelProtest' );
     };
 
     Home.prototype.resizeProjectionSpace = function ( index, force ) {
@@ -571,7 +571,6 @@ KSX.apps.demos.home.Main = (function () {
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
         });
-
     };
 
     return Home;
