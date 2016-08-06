@@ -26,7 +26,7 @@ KSX.apps.demos.home.Main = (function () {
         }
     });
 
-    function Home(elementToBindTo, elementNameVideo, elementNameVideoBuffer) {
+    function Home( elementToBindTo, elementNameVideo, elementNameVideoBuffer, mobileDevice ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -42,61 +42,45 @@ KSX.apps.demos.home.Main = (function () {
             useScenePerspective : true,
             useCube : true
         });
-
-        this.shader = new KSX.apps.shader.BlockShader();
+        this.mobileDevice = mobileDevice;
 
         this.video = elementNameVideo;
         this.videoBuffer = elementNameVideoBuffer;
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.videoTexture = null;
-        this.videoTextureEnabled = false;
 
         this.controls = null;
-
-        var uiParams = {
-            css: 'top: 0px; left: 0px;',
-            width: 384,
-            center: false,
-            color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'
-        };
-        var paramsDimension = {
-            desktop: {
-                maxValue: 64.0
-            },
-            mobile : {
-                maxValue: 64.0,
-            }
-        };
-        this.mobileDevice = bowser.mobile;
-        this.uiTools = new KSX.apps.tools.UiTools( uiParams, paramsDimension, this.mobileDevice );
-
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '';
-        this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '';
-        this.stats.domElement.style.bottom = '0px';
-
         this.textureTools = new KSX.apps.tools.TextureTools();
-
         this.rtt = null;
+
         this.textStorage = new KSX.apps.tools.text.Text();
         this.textureCube = null;
 
-        this.pixelBoxesGenerator = new KSX.apps.demos.home.PixelBoxesGenerator( KSX.globals.basedir );
-        this.projectionSpaceDimensions = [];
-        this.projectionSpaceDimensions[0] = { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 9, mesh: null };
-        this.projectionSpaceDimensions[1] = { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 18, mesh: null };
-        this.projectionSpaceDimensions[2] = { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 27, mesh: null };
-        this.projectionSpaceDimensions[3] = { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 36, mesh: null };
-        this.projectionSpaceDimensions[4] = { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 45, mesh: null };
-        this.currentDimension = null;
+        this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
+            low: { index: 0, name: 'Low', x: 240, y: 100, defaultHeightFactor: 15, mesh: null },
+            medium: { index: 1, name: 'Medium', x: 720, y: 302, defaultHeightFactor: 20, mesh: null },
+            high: { index: 2, name: 'High', x: 1280, y: 536, defaultHeightFactor: 25, mesh: null },
+            extreme: { index: 3, name: 'Extreme', x: 1920, y: 804, defaultHeightFactor: 30, mesh: null },
+            insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 35, mesh: null }
+        }, 0);
 
-        this.resetProjectionSpace();
+        var scope = this;
+        this.uiModel = {
+            videoTextureEnabled: false,
+            animate: true,
+            projectionSpace: scope.projectionSpace,
+            callbacks: {
+                resetViewAndParameters: function () { scope.resetViewAndParameters() },
+                resizeProjectionSpace: function ( index, force ) {
+                    scope.resizeProjectionSpace( index, force );
+                },
+                checkVideo: function () { scope.checkVideo() }
+            }
+        };
+        this.homeUi = new KSX.apps.demos.home.Ui( this.mobileDevice, this.uiModel );
 
         this.cameraDefaults = {
-            posCamera: new THREE.Vector3( 0.0, -1.15 * this.currentDimension.y, 0.85 * this.currentDimension.x ),
+            posCamera: new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() ),
             far: 100000
         };
     }
@@ -129,15 +113,11 @@ KSX.apps.demos.home.Main = (function () {
             scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnTextSuccess);
         };
 
-        scope.shader.loadResources(callbackOnShaderSuccess);
+        scope.projectionSpace.loadAsyncResources( callbackOnShaderSuccess );
     };
 
     Home.prototype.initPreGL = function () {
-        this.uiTools.createFeedbackAreaDynamic();
-        this.uiTools.announceFeedback( 'Initializing' );
-
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.domElement);
+        this.homeUi.initPreGL();
     };
 
     Home.prototype.initGL = function () {
@@ -164,30 +144,20 @@ KSX.apps.demos.home.Main = (function () {
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
 
-        var projectionSpaceMaterial = this.shader.buildShaderMaterial();
+        this.rtt = initRtt( this.projectionSpace.getWidth(), this.projectionSpace.getHeight(), this.textStorage, this.textureCube );
+        this.projectionSpace.initGL();
+        this.projectionSpace.shader.textures['rtt'] = this.rtt.texture.texture;
+        this.projectionSpace.shader.textures['video'] = this.videoTexture;
 
-        this.projectionSpaceDimensions[0].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[0], projectionSpaceMaterial );
-        this.projectionSpaceDimensions[1].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[1], projectionSpaceMaterial );
-        this.projectionSpaceDimensions[2].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[2], projectionSpaceMaterial );
-        this.projectionSpaceDimensions[3].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[3], projectionSpaceMaterial );
-        this.projectionSpaceDimensions[4].mesh = this.pixelBoxesGenerator.buildInstanceBoxes( this.projectionSpaceDimensions[4], projectionSpaceMaterial );
-
-        this.rtt = initRtt( this.currentDimension.x, this.currentDimension.y, this.textStorage, this.textureCube );
-        this.shader.textures['rtt'] = this.rtt.texture.texture;
+        this.resizeProjectionSpace( this.mobileDevice ? 0 : 1, true );
+        this.scenePerspective.scene.add( this.projectionSpace.pivot );
         this.checkVideo();
 
-        this.scenePerspective.scene.add( this.currentDimension.mesh );
-        this.updateProjectionSpaceStats();
+        this.homeUi.announceFeedback( this.projectionSpace.printStats() );
 
         // init camera and bind to controls
         this.scenePerspective.setCameraDefaults( this.cameraDefaults );
         this.controls = new THREE.TrackballControls( this.scenePerspective.camera );
-    };
-
-    Home.prototype.updateProjectionSpaceStats = function () {
-        var instanceCount = this.currentDimension.x * this.currentDimension.y;
-        var resolution = this.currentDimension.x + 'x' + this.currentDimension.y;
-        this.uiTools.announceFeedback( 'Projection Space: Resolution: ' + this.currentDimension.name + ' (' + resolution + '=' + instanceCount + ' instances)' );
     };
 
     var initRtt = function ( width, height, textStorage, textureCube ) {
@@ -299,13 +269,13 @@ KSX.apps.demos.home.Main = (function () {
                 format: THREE.RGBFormat
             }
         );
-        rtt.animate = true;
 
         return rtt;
     };
 
     Home.prototype.initPostGL = function () {
-        buildUi( this );
+        this.homeUi.buildUi();
+
         if ( this.mobileDevice ) {
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
         }
@@ -329,13 +299,13 @@ KSX.apps.demos.home.Main = (function () {
     Home.prototype.renderPre = function () {
         this.controls.update();
 
-        if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+        if (this.uiModel.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
             this.videoBufferContext.drawImage(this.video, 0, 0);
             this.videoTexture.needsUpdate = true;
         }
 
         this.renderer.setClearColor(RTT_CLEAR_COLOR);
-        if ( this.rtt.animate ) {
+        if ( this.uiModel.animate ) {
             var spherePosFactor = 5.0;
 
             this.rtt.meshes.sphereRed.position.set(
@@ -362,19 +332,18 @@ KSX.apps.demos.home.Main = (function () {
         this.rtt.cameraCube.rotation.copy( this.rtt.camera.rotation );
         this.renderer.render( this.rtt.sceneCube, this.rtt.cameraCube, this.rtt.texture, true );
         this.renderer.render( this.rtt.scene, this.rtt.camera, this.rtt.texture, false );
-
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
     };
 
     Home.prototype.renderPost = function () {
-        this.stats.update();
+        this.homeUi.render();
     };
 
     Home.prototype.checkVideo = function () {
-        if ( this.videoTextureEnabled ) {
-            this.shader.uniforms.texture1.value = this.videoTexture;
+        if ( this.uiModel.videoTextureEnabled ) {
+            this.projectionSpace.flipTexture( 'video' );
 
-            if ( this.rtt.animate ) {
+            if ( this.uiModel.animate ) {
                 this.video.play();
             }
             else {
@@ -382,227 +351,49 @@ KSX.apps.demos.home.Main = (function () {
             }
         }
         else {
-            this.shader.uniforms.texture1.value = this.shader.textures['rtt'];
+            this.projectionSpace.flipTexture( 'rtt' );
 
             if ( !this.video.paused ) {
                 this.video.pause();
             }
         }
+//        this.projectionSpace.flipTexture( 'linkPixelProtest' );
     };
 
-    Home.prototype.flipTexture = function (name) {
-        var texture = this.shader.textures[name];
-        if (texture !== undefined) {
-            this.shader.uniforms.texture1.value = texture;
+    Home.prototype.resizeProjectionSpace = function ( index, force ) {
+        var success = true;
+        if ( index === this.projectionSpace.index ) {
+            success = false;
         }
-    };
-
-    Home.prototype.resizeProjectionSpace = function ( index, force, forcedIndex ) {
-        if ( this.projectionSpaceIndex === index && !force ) {
-            return false;
+        if ( force ) {
+            this.projectionSpace.resetProjectionSpace( index );
+            success = true;
         }
-        var temp = this.projectionSpaceDimensions[ force ? forcedIndex : this.projectionSpaceIndex];
-        this.projectionSpaceIndex = index;
-        this.currentDimension = this.projectionSpaceDimensions[this.projectionSpaceIndex];
 
-        this.scenePerspective.scene.remove( temp.mesh );
-        this.scenePerspective.scene.add( this.currentDimension.mesh );
+        if ( success ) {
+            this.projectionSpace.switchDimensionMesh( index );
 
-        this.rtt.canvas.resetWidth( this.currentDimension.x, this.currentDimension.y );
-        this.rtt.texture.setSize( this.currentDimension.x, this.currentDimension.y );
+            this.rtt.canvas.resetWidth( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
+            this.rtt.texture.setSize( this.projectionSpace.getWidth(), this.projectionSpace.getHeight() );
 
-        this.updateProjectionSpaceStats();
-        this.shader.uniforms.heightFactor.value = this.currentDimension.defaultHeightFactor;
+            this.homeUi.announceFeedback( this.projectionSpace.printStats() );
 
-        this.cameraDefaults.posCamera = new THREE.Vector3( 0.0, -1.15 * this.currentDimension.y, 0.85 * this.currentDimension.x );
-        this.scenePerspective.setCameraDefaults( this.cameraDefaults );
+            this.cameraDefaults.posCamera = new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() );
+            this.scenePerspective.setCameraDefaults( this.cameraDefaults );
+        }
 
-        return true;
-    };
-
-    Home.prototype.resetProjectionSpace = function () {
-        this.projectionSpaceIndex = this.mobileDevice ? 0 : 1;
-        this.currentDimension = this.projectionSpaceDimensions[this.projectionSpaceIndex];
-        this.shader.uniforms.heightFactor.value = this.currentDimension.defaultHeightFactor;
+        return success;
     };
 
     Home.prototype.resetViewAndParameters = function () {
-        var forcedIndex = this.projectionSpaceIndex;
-        this.resetProjectionSpace();
-        this.resizeProjectionSpace( this.projectionSpaceIndex, true, forcedIndex );
+        this.resizeProjectionSpace( this.mobileDevice ? 0 : 1, true );
 
         this.controls.reset();
         this.controls.target = this.scenePerspective.cameraTarget;
 
-        this.shader.resetUniforms( 'rtt', this.currentDimension.defaultHeightFactor );
-        this.rtt.animate = true;
-        this.videoTextureEnabled = false;
+        this.uiModel.animate = true;
+        this.uiModel.videoTextureEnabled = false;
         this.checkVideo();
-    };
-
-    var buildUi = function ( scope ) {
-        var ui = scope.uiTools.ui;
-
-        var resetExtrusionSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[0];
-            slide.value = value;
-            slide.update();
-        };
-        var resetInvertExtrusionBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[1];
-            bool.value = value;
-            bool.update();
-        };
-        var resetBoxScaleSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[2];
-            slide.value = value;
-            slide.update();
-        };
-        var resetBoxSpacingSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[3];
-            slide.value = value;
-            slide.update();
-        };
-        var resetInstantCountSlide = function ( value ) {
-            var group = ui.uis[0];
-            var slide = group.uis[4];
-            slide.value = value;
-            slide.update();
-        };
-        var resetAnimateBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[5];
-            bool.value = value;
-            bool.update();
-        };
-        var resetVideoBool = function ( value ) {
-            var group = ui.uis[0];
-            var bool = group.uis[6];
-            bool.value = value;
-            bool.update();
-        };
-        var resetViewAndParams = function () {
-            scope.resetViewAndParameters();
-
-            resetBoxScaleSlide( scope.shader.uniforms.scaleBox.value );
-            resetBoxSpacingSlide( scope.shader.uniforms.spacing.value );
-            resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
-            resetInvertExtrusionBool(scope.shader.uniforms.invert.value );
-            resetInstantCountSlide( scope.currentDimension.index );
-            resetAnimateBool( scope.rtt.animate );
-            resetVideoBool( scope.videoTextureEnabled );
-        };
-
-
-        var adjustHeightFactor = function (value) {
-            scope.shader.uniforms.heightFactor.value = value;
-        };
-        var invertShader = function (value) {
-            scope.shader.uniforms.invert.value = value;
-        };
-        var adjustBoxScale = function (value) {
-            scope.shader.uniforms.scaleBox.value = value;
-        };
-        var adjustBoxSpacing = function (value) {
-            scope.shader.uniforms.spacing.value = value;
-        };
-        var adjustBoxCount = function ( value ) {
-            if ( scope.resizeProjectionSpace( value, false, 0 ) ) {
-                resetExtrusionSlide( scope.currentDimension.defaultHeightFactor );
-            }
-        };
-        var animate = function ( enabled ) {
-            scope.rtt.animate = enabled;
-            scope.checkVideo();
-        };
-        var enableVideo = function ( enabled ) {
-            scope.videoTextureEnabled = enabled;
-            scope.checkVideo();
-        };
-
-
-        var groupMain = ui.add('group', {
-            name: 'Projection Space Controls',
-            height: scope.uiTools.paramsDimension.groupHeight
-        });
-        groupMain.add('slide', {
-            name: 'Extrusion',
-            callback: adjustHeightFactor,
-            min: scope.uiTools.paramsDimension.minValue,
-            max: scope.uiTools.paramsDimension.maxValue,
-            value: scope.shader.uniforms.heightFactor.value,
-            precision: 1,
-            step: 1,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Invert Ext.',
-            value: scope.shader.uniforms.invert.value,
-            callback: invertShader,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('slide', {
-            name: 'Box Scale',
-            callback: adjustBoxScale,
-            min: 0.01,
-            max: 1.0,
-            value: scope.shader.uniforms.scaleBox.value,
-            precision: 2,
-            step: 0.01,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Box Spacing',
-            callback: adjustBoxSpacing,
-            min: 0.01,
-            max: 10.0,
-            value: scope.shader.uniforms.spacing.value,
-            precision: 3,
-            step: 0.01,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Instance Count',
-            callback: adjustBoxCount,
-            min: 0,
-            max: 4,
-            value: scope.currentDimension.index,
-            precision: 1,
-            step: 1,
-            width: scope.uiTools.paramsDimension.slidesWidth,
-            height: scope.uiTools.paramsDimension.slidesHeight,
-            stype: scope.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Animate/Play',
-            value: scope.rtt.animate,
-            callback: animate,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('bool', {
-            name: 'Enable Video',
-            value: scope.videoTextureEnabled,
-            callback: enableVideo,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.open();
-        ui.add('button', {
-            name: 'Reset View and Parameters',
-            callback: resetViewAndParams,
-            width: scope.uiTools.paramsDimension.buttonWidth,
-            height: scope.uiTools.paramsDimension.buttonHeight
-        });
-
     };
 
     return Home;

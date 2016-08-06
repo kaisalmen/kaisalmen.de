@@ -30,7 +30,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         }
     });
 
-    function PTV1Loader(elementToBindTo) {
+    function PTV1Loader( elementToBindTo, mobileDevice ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -66,29 +66,27 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.skybox = null;
         this.ground = null;
 
-        var uiParams = {
-            css: 'top: 0px; left: 0px;',
-            width: 384,
-            center: false,
-            color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'    
-        };
-        var paramsDimension = {
-            desktop : {
-                slidesWidth : 100
+        var uiToolsConfig = {
+            mobileDevice: mobileDevice,
+            useUil: true,
+            uilParams: {
+                css: 'top: 0px; left: 0px;',
+                width: 384,
+                center: false,
+                color: 'rgba(224, 224, 224, 1.0)',
+                bg: 'rgba(40, 40, 40, 0.66)'
             },
-            mobile : {
-                slidesWidth : 100,
-            }
+            paramsDimension: {
+                desktop : {
+                    slidesWidth : 100
+                },
+                mobile : {
+                    slidesWidth : 100,
+                }
+            },
+            useStats: true
         };
-        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
-
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '';
-        this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '';
-        this.stats.domElement.style.bottom = '0px';
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -120,8 +118,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         };
         this.objLoaderWW.registerProgressCallback( announceFeedback );
 
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.domElement);
+        this.uiTools.enableStats();
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -406,7 +403,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
     };
 
     PTV1Loader.prototype.renderPost = function() {
-        this.stats.update();
+        this.uiTools.updateStats();
     };
 
     PTV1Loader.prototype.resizeDisplayGL = function() {

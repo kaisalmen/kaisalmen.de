@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Skybox CubeMap Demo</title>
+    <title>Projection Space Implementation Check</title>
 </head>
 <body>
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
@@ -14,17 +14,22 @@
     <script src="../../js/apps/core/Prerequisites.js"></script>
 
     <script src="../../js/lib/threejs/three.min.js"></script>
-    <script src="../../js/lib/threejs/stats.min.js"></script>
     <script src="../../js/lib/threejs/TrackballControls.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
-    <script src="../../js/apps/tools/UiTools.js"></script>
-    <script src="../../js/apps/demos/SkyboxCubeMap.js"></script>
+    <script src="../../js/apps/shader/ShaderBase.js"></script>
+    <script src="../../js/apps/shader/BlockShader.js"></script>
+    <script src="../../js/apps/tools/instancing/BoxCreator.js"></script>
+    <script src="../../js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../js/apps/tools/instancing/ProjectionSpace.js"></script>
+    <script src="../../js/apps/demos/PPCheck.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            implementations.push(new KSX.apps.demos.SkyboxCubeMap(document.getElementById("DivGLFullCanvas")));
+            var ppCheck = new KSX.apps.demos.PPCheck(document.getElementById("DivGLFullCanvas"), false);
+            implementations.push(ppCheck);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
         }

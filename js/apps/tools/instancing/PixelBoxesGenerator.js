@@ -15,7 +15,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         this.material = null;
         this.objGroup = null;
 
-        this.worker = new Worker( basedir + "/js/apps/demos/Home/PixelBoxesGeneratorWW.js" );
+        this.worker = new Worker( basedir + "/js/apps/tools/instancing/PixelBoxesGeneratorWW.js" );
 
         var scope = this;
         var scopeFunction = function (e) {
@@ -203,9 +203,7 @@ KSX.apps.demos.home.PixelBoxesGenerator = (function () {
         geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'uvRange', uvRanges );
 
-        var meshInstances = new THREE.Mesh( geometry, shaderMaterial );
-
-        return meshInstances;
+        dimensions.mesh = new THREE.Mesh( geometry, shaderMaterial );
     };
 
     PixelBoxesGenerator.prototype.createOffsetsArray = function ( dimensions ) {

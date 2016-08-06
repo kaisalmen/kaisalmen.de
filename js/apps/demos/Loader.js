@@ -28,15 +28,15 @@ KSX.apps.demos.Loader = (function () {
             loader: loader
         });
 
+        this.controls = null;
         this.shader = new KSX.apps.shader.LoaderShader();
 
         if ( !this.definition.loader ) {
-            this.stats = new Stats();
-            this.stats.domElement.style.position = 'absolute';
-            this.stats.domElement.style.left = '';
-            this.stats.domElement.style.right = '0px';
-            this.stats.domElement.style.top = '';
-            this.stats.domElement.style.bottom = '0px';
+            var uiToolsConfig = {
+                useUil: false,
+                useStats: true
+            };
+            this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
         }
     }
 
@@ -51,8 +51,7 @@ KSX.apps.demos.Loader = (function () {
 
     Loader.prototype.initPreGL = function () {
         if ( !this.definition.loader ) {
-            this.stats.showPanel(0);
-            document.body.appendChild(this.stats.domElement);
+            this.uiTools.enableStats();
         }
     };
 
@@ -69,6 +68,7 @@ KSX.apps.demos.Loader = (function () {
             far: 1000
         };
         this.scenePerspective.setCameraDefaults( cameraDefaults );
+        this.controls = new THREE.TrackballControls( this.scenePerspective.camera );
 
         var bufferGeometry = new THREE.SphereBufferGeometry( 0.1, 16, 16 );
         var shaderMaterial = this.shader.buildShaderMaterial();
@@ -88,6 +88,11 @@ KSX.apps.demos.Loader = (function () {
         this.pivot.add( mesh );
 
         this.scenePerspective.scene.add( this.pivot );
+    };
+
+    Loader.prototype.initPostGL = function () {
+        this.dispose();
+        return true;
     };
 
     Loader.prototype.createOffsetsArray = function ( objectCount, factor ) {
@@ -123,7 +128,12 @@ KSX.apps.demos.Loader = (function () {
         return colors;
     };
 
+    Loader.prototype.resizeDisplayGL = function () {
+        this.controls.handleResize();
+    };
+
     Loader.prototype.renderPre = function () {
+        this.controls.update();
         this.pivot.rotation.x += 0.005;
         this.pivot.rotation.y += 0.005;
         this.pivot.rotation.z += 0.005;
@@ -131,14 +141,18 @@ KSX.apps.demos.Loader = (function () {
 
     Loader.prototype.renderPost = function () {
         if ( !this.definition.loader ) {
-            this.stats.update();
+            this.uiTools.updateStats();
         }
     };
 
     Loader.prototype.dispose = function () {
-        this.definition.htmlCanvas.style.display  = 'none';
+        if ( this.definition.loader ) {
+            this.definition.htmlCanvas.style.display  = 'none';
+        }
         var divLoading = document.getElementById( 'Loading' );
-        divLoading.style.display  = 'none';
+        if ( divLoading !== null && divLoading !== undefined ) {
+            divLoading.style.display  = 'none';
+        }
     };
 
     return Loader;

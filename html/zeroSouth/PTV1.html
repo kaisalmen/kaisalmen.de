@@ -73,7 +73,8 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            implementations.push(new KSX.apps.zerosouth.PTV1Loader(document.getElementById("DivGLFullCanvas")));
+            var zeroSouth = new KSX.apps.zerosouth.PTV1Loader( document.getElementById("DivGLFullCanvas"), bowser.mobile );
+            implementations.push(zeroSouth);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
 

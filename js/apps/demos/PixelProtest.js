@@ -15,7 +15,7 @@ KSX.apps.demos.PixelProtest = (function () {
         }
     });
 
-    function PixelProtest(elementToBindTo) {
+    function PixelProtest( elementToBindTo, mobileDevice) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -31,22 +31,28 @@ KSX.apps.demos.PixelProtest = (function () {
             this.canvas.getWidth() / 8, this.canvas.getWidth(),
             this.canvas.getHeight() / 8, this.canvas.getHeight()
         );
-        var uiParams = {
-            css: 'top: 0px; left: 0px;',
-            width: 512,
-            center: false,
-            color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'
-        };
-        var paramsDimension = {
-            desktop : {
-                numberPrecision : 6
+
+        var uiToolsConfig = {
+            mobileDevice: mobileDevice,
+            useUil: true,
+            uilParams: {
+                css: 'top: 0px; left: 0px;',
+                width: 512,
+                center: false,
+                color: 'rgba(224, 224, 224, 1.0)',
+                bg: 'rgba(40, 40, 40, 0.66)'
             },
-            mobile : {
-                numberPrecision : 6
-            }
+            paramsDimension: {
+                desktop : {
+                    numberPrecision : 6
+                },
+                mobile : {
+                    numberPrecision : 6
+                }
+            },
+            useStats: true
         };
-        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
 
         this.uiElemWidth = null;
         this.uiElemHeight = null;
@@ -61,13 +67,6 @@ KSX.apps.demos.PixelProtest = (function () {
 
         this.saveImageData = false;
         this.dataTools = new KSX.apps.tools.DataTools();
-
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '';
-        this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '';
-        this.stats.domElement.style.bottom = '0px';
     }
 
     PixelProtest.prototype.initAsyncContent = function() {
@@ -81,9 +80,7 @@ KSX.apps.demos.PixelProtest = (function () {
 
     PixelProtest.prototype.initPreGL = function () {
         this.initUI();
-
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.domElement);
+        this.uiTools.enableStats();
     };
 
     PixelProtest.prototype.initUI = function () {
@@ -289,7 +286,7 @@ KSX.apps.demos.PixelProtest = (function () {
                 alert('Unable to save canvas data to image file!');
             }
         }
-        this.stats.update();
+        this.uiTools.updateStats();
     };
 
     PixelProtest.prototype.recalcRandom = function () {

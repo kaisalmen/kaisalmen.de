@@ -28,7 +28,8 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            implementations.push(new KSX.apps.demos.BlueMarble(document.getElementById("DivGLCanvasFixed")));
+            var blueMarble = new KSX.apps.demos.BlueMarble( document.getElementById("DivGLCanvasFixed"), bowser.mobile );
+            implementations.push(blueMarble);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);
         }
