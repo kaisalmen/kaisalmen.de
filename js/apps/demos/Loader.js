@@ -32,12 +32,11 @@ KSX.apps.demos.Loader = (function () {
         this.shader = new KSX.apps.shader.LoaderShader();
 
         if ( !this.definition.loader ) {
-            this.stats = new Stats();
-            this.stats.domElement.style.position = 'absolute';
-            this.stats.domElement.style.left = '';
-            this.stats.domElement.style.right = '0px';
-            this.stats.domElement.style.top = '';
-            this.stats.domElement.style.bottom = '0px';
+            var uiToolsConfig = {
+                useUil: false,
+                useStats: true
+            };
+            this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
         }
     }
 
@@ -52,8 +51,7 @@ KSX.apps.demos.Loader = (function () {
 
     Loader.prototype.initPreGL = function () {
         if ( !this.definition.loader ) {
-            this.stats.showPanel(0);
-            document.body.appendChild(this.stats.domElement);
+            this.uiTools.enableStats();
         }
     };
 
@@ -143,7 +141,7 @@ KSX.apps.demos.Loader = (function () {
 
     Loader.prototype.renderPost = function () {
         if ( !this.definition.loader ) {
-            this.stats.update();
+            this.uiTools.updateStats();
         }
     };
 

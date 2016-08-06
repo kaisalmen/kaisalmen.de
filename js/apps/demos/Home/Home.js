@@ -275,7 +275,6 @@ KSX.apps.demos.home.Main = (function () {
 
     Home.prototype.initPostGL = function () {
         this.homeUi.buildUi();
-        this.homeUi.resetViewAndParams();
 
         if ( this.mobileDevice ) {
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );

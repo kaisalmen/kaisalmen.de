@@ -29,7 +29,11 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCube = null;
 
-        this.stats = new Stats();
+        var uiToolsConfig = {
+            useUil: false,
+            useStats: true
+        };
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
     SkyboxCubeMap.prototype.initAsyncContent = function () {
@@ -53,8 +57,7 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
     };
 
     SkyboxCubeMap.prototype.initPreGL = function () {
-        this.stats.setMode(0);
-        document.body.appendChild(this.stats.domElement);
+        this.uiTools.enableStats();
     };
 
     SkyboxCubeMap.prototype.initGL = function () {
@@ -99,7 +102,7 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
     };
 
     SkyboxCubeMap.prototype.renderPost = function () {
-        this.stats.update();
+        this.uiTools.updateStats();
     };
 
     SkyboxCubeMap.prototype.resizeDisplayGL = function() {

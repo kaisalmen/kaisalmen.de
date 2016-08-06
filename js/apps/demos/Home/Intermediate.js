@@ -42,12 +42,11 @@ KSX.apps.demos.home.Intermediate = (function () {
             text: null
         };
 
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '';
-        this.stats.domElement.style.right = '0px';
-        this.stats.domElement.style.top = '';
-        this.stats.domElement.style.bottom = '0px';
+        var uiToolsConfig = {
+            useUil: false,
+            useStats: true
+        };
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
     Intermediate.prototype.initAsyncContent = function() {
@@ -67,8 +66,7 @@ KSX.apps.demos.home.Intermediate = (function () {
     };
 
     Intermediate.prototype.initPreGL = function () {
-        this.stats.showPanel(0);
-        document.body.appendChild(this.stats.domElement);
+        this.uiTools.enableStats();
     };
 
     Intermediate.prototype.initGL = function () {
@@ -114,7 +112,7 @@ KSX.apps.demos.home.Intermediate = (function () {
     };
 
     Intermediate.prototype.renderPost = function () {
-        this.stats.update();
+        this.uiTools.updateStats();
     };
 
     Intermediate.prototype.renderPre = function () {

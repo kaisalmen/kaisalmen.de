@@ -14,7 +14,7 @@ KSX.apps.tools.UiTools = (function () {
             }
             this.ui = new UIL.Gui( uiToolsConfig.uilParams );
 
-            if ( uiToolsConfig.mobile ) {
+            if ( uiToolsConfig.mobileDevice ) {
                 this.paramsDimension = uiToolsConfig.paramsDimension.mobile;
                 if (this.paramsDimension === undefined) {
                     this.paramsDimension = {};
@@ -40,6 +40,13 @@ KSX.apps.tools.UiTools = (function () {
             this.stats.domElement.style.right = '0px';
             this.stats.domElement.style.top = '';
             this.stats.domElement.style.bottom = '0px';
+
+            for ( var styleParam in uiToolsConfig.statsParams ) {
+                var param = this.stats.domElement.style[styleParam];
+                if ( param !== undefined ) {
+                    this.stats.domElement.style[styleParam] = uiToolsConfig.statsParams[styleParam];
+                }
+            }
         }
     }
 
@@ -100,7 +107,7 @@ KSX.apps.tools.UiTools = (function () {
         }
     };
 
-    UiTools.prototype.render = function () {
+    UiTools.prototype.updateStats = function () {
         if ( this.stats !== null ) {
             this.stats.update();
         }

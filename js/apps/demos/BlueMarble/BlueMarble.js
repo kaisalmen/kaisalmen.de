@@ -18,7 +18,7 @@ KSX.apps.demos.BlueMarble = (function () {
         }
     });
 
-    function BlueMarble(elementToBindTo) {
+    function BlueMarble( elementToBindTo, mobileDevice ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -30,34 +30,36 @@ KSX.apps.demos.BlueMarble = (function () {
         });
 
         this.shader = new KSX.apps.shader.BlueMarbleShader();
-
-
-        var uiParams = {
-            css: 'top: 0px; left: 0px;',
-            width: 450,
-            center: false,
-            color: 'rgba(224, 224, 224, 1.0)',
-            bg: 'rgba(40, 40, 40, 0.66)'
-        };
-        var paramsDimension = {
-            desktop : {
-                colorMin : 0,
-                colorMax : 255,
-                slidesWidth : 100
+        var uiToolsConfig = {
+            mobileDevice: mobileDevice,
+            useUil: true,
+            uilParams: {
+                css: 'top: 0px; left: 0px;',
+                width: 450,
+                center: false,
+                color: 'rgba(224, 224, 224, 1.0)',
+                bg: 'rgba(40, 40, 40, 0.66)'
             },
-            mobile : {
-                colorMin : 0,
-                colorMax : 255,
-                slidesWidth : 100,
-                slidesHeight : 96
+            paramsDimension: {
+                desktop : {
+                    colorMin : 0,
+                    colorMax : 255,
+                    slidesWidth : 100
+                },
+                mobile : {
+                    colorMin : 0,
+                    colorMax : 255,
+                    slidesWidth : 100,
+                    slidesHeight : 96
+                }
+            },
+            useStats: true,
+            statsParams: {
+                left: '450px',
+                top: '0px'
             }
         };
-        this.uiTools = new KSX.apps.tools.UiTools(uiParams, paramsDimension, bowser.mobile);
-
-        this.stats = new Stats();
-        this.stats.domElement.style.position = 'absolute';
-        this.stats.domElement.style.left = '450px';
-        this.stats.domElement.style.top = '0px';
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
 
         this.zoom = 1.0;
         this.divScale = 1.0;
@@ -230,9 +232,8 @@ KSX.apps.demos.BlueMarble = (function () {
             stype: scope.uiTools.paramsDimension.sliderType
         });
 
-        scope.stats.showPanel(0);
-        document.body.appendChild(scope.stats.domElement);
-    }
+        this.uiTools.enableStats();
+    };
 
     BlueMarble.prototype.initGL = function () {
         var geometry = new THREE.PlaneGeometry(3712, 3712, 1, 1);
@@ -247,7 +248,7 @@ KSX.apps.demos.BlueMarble = (function () {
     };
 
     BlueMarble.prototype.renderPost = function () {
-        this.stats.update();
+        this.uiTools.updateStats();
     };
 
     return BlueMarble;

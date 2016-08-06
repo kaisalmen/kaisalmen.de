@@ -14,9 +14,8 @@ KSX.apps.demos.home.Ui = (function () {
         this.model = model;
 
         this.uiToolsConfig = {
-            useUil: true,
-            useStats: true,
             mobileDevice: mobileDevice,
+            useUil: true,
             uilParams: {
                 css: 'top: 0px; left: 0px;',
                 width: 384,
@@ -31,7 +30,8 @@ KSX.apps.demos.home.Ui = (function () {
                 mobile: {
                     maxValue: 64.0,
                 }
-            }
+            },
+            useStats: true
         };
         this.uiTools = new KSX.apps.tools.UiTools( this.uiToolsConfig );
     }
@@ -43,7 +43,7 @@ KSX.apps.demos.home.Ui = (function () {
     };
 
     HomeUi.prototype.render = function () {
-        this.uiTools.render();
+        this.uiTools.updateStats();
     };
 
     HomeUi.prototype.announceFeedback = function ( feedback ) {
@@ -93,8 +93,7 @@ KSX.apps.demos.home.Ui = (function () {
         bool.update();
     };
 
-    HomeUi.prototype.resetViewAndParams = function () {
-        var scope = this;
+    var resetViewAndParams = function ( scope ) {
         var ui = scope.uiTools.ui;
 
         scope.model.callbacks.resetViewAndParameters();
@@ -136,8 +135,8 @@ KSX.apps.demos.home.Ui = (function () {
             scope.model.videoTextureEnabled = enabled;
             scope.model.callbacks.checkVideo();
         };
-        var resetViewAndParams = function ( ) {
-            scope.resetViewAndParams();
+        var resetViewAndParamsUi = function () {
+            resetViewAndParams( scope );
         };
 
         var groupMain = ui.add('group', {
@@ -212,7 +211,7 @@ KSX.apps.demos.home.Ui = (function () {
         });
         groupMain.add('button', {
             name: 'Reset View and Parameters',
-            callback: resetViewAndParams,
+            callback: resetViewAndParamsUi,
             width: scope.uiTools.paramsDimension.buttonWidth,
             height: scope.uiTools.paramsDimension.buttonHeight
         });
