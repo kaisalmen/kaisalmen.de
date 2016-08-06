@@ -10,8 +10,8 @@ if (KSX.apps.demos.home === undefined) {
 
 KSX.apps.demos.home.Ui = (function () {
 
-    function HomeUi( mobileDevice, projectionSpace ) {
-        this.projectionSpace = projectionSpace;
+    function HomeUi( mobileDevice, model ) {
+        this.model = model;
 
         this.uiToolsConfig = {
             useUil: true,
@@ -50,132 +50,43 @@ KSX.apps.demos.home.Ui = (function () {
         this.uiTools.announceFeedback( feedback );
     };
 
-    HomeUi.prototype.buildUi = function ( animate, videoTextureEnabled ) {
-        var ui = this.uiTools.ui;
-
-        var groupMain = ui.add('group', {
-            name: 'Projection Space Controls',
-            height: this.uiTools.paramsDimension.groupHeight
-        });
-        groupMain.add('slide', {
-            name: 'Extrusion',
-            callback: this.adjustHeightFactor,
-            min: this.uiTools.paramsDimension.minValue,
-            max: this.uiTools.paramsDimension.maxValue,
-            value: this.projectionSpace.shader.uniforms.heightFactor.value,
-            precision: 1,
-            step: 1,
-            width: this.uiTools.paramsDimension.slidesWidth,
-            height: this.uiTools.paramsDimension.slidesHeight,
-            stype: this.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Invert Ext.',
-            value: this.projectionSpace.shader.uniforms.invert.value,
-            callback: this.invertShader,
-            height: this.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('slide', {
-            name: 'Box Scale',
-            callback: this.adjustBoxScale,
-            min: 0.01,
-            max: 1.0,
-            value: this.projectionSpace.shader.uniforms.scaleBox.value,
-            precision: 2,
-            step: 0.01,
-            width: this.uiTools.paramsDimension.slidesWidth,
-            height: this.uiTools.paramsDimension.slidesHeight,
-            stype: this.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Box Spacing',
-            callback: this.adjustBoxSpacing,
-            min: 0.01,
-            max: 10.0,
-            value: this.projectionSpace.shader.uniforms.spacing.value,
-            precision: 3,
-            step: 0.01,
-            width: this.uiTools.paramsDimension.slidesWidth,
-            height: this.uiTools.paramsDimension.slidesHeight,
-            stype: this.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('slide', {
-            name: 'Instance Count',
-            callback: this.adjustBoxCount,
-            min: 0,
-            max: this.projectionSpace.dimensions.length - 1,
-            value: this.projectionSpace.index,
-            precision: 1,
-            step: 1,
-            width: this.uiTools.paramsDimension.slidesWidth,
-            height: this.uiTools.paramsDimension.slidesHeight,
-            stype: this.uiTools.paramsDimension.sliderType
-        });
-        groupMain.add('bool', {
-            name: 'Animate/Play',
-            value: animate,
-            callback: this.animate,
-            height: this.uiTools.paramsDimension.boolHeight
-        });
-        groupMain.add('bool', {
-            name: 'Enable Video',
-            value: videoTextureEnabled,
-            callback: this.enableVideo,
-            height: this.uiTools.paramsDimension.boolHeight
-        });
-        ui.add('button', {
-            name: 'Reset View and Parameters',
-            callback: this.resetViewAndParams,
-            width: this.uiTools.paramsDimension.buttonWidth,
-            height: this.uiTools.paramsDimension.buttonHeight
-        });
-
-        groupMain.open();
-    };
-
-    HomeUi.prototype.resetExtrusionSlide = function ( value ) {
+    var resetExtrusionSlide = function ( ui, value ) {
         var group = ui.uis[0];
         var slide = group.uis[0];
         slide.value = value;
         slide.update();
     };
-
-    HomeUi.prototype.resetInvertExtrusionBool = function ( value ) {
+    var resetInvertExtrusionBool = function ( ui, value ) {
         var group = ui.uis[0];
         var bool = group.uis[1];
         bool.value = value;
         bool.update();
     };
-
-    HomeUi.prototype.resetBoxScaleSlide = function ( value ) {
+    var resetBoxScaleSlide = function ( ui, value ) {
         var group = ui.uis[0];
         var slide = group.uis[2];
         slide.value = value;
         slide.update();
     };
-
-    HomeUi.prototype.resetBoxSpacingSlide = function ( value ) {
+    var resetBoxSpacingSlide = function ( ui, value ) {
         var group = ui.uis[0];
         var slide = group.uis[3];
         slide.value = value;
         slide.update();
     };
-
-    HomeUi.prototype.resetInstantCountSlide = function ( value ) {
+    var resetInstantCountSlide = function ( ui, value ) {
         var group = ui.uis[0];
         var slide = group.uis[4];
         slide.value = value;
         slide.update();
     };
-
-    HomeUi.prototype.resetAnimateBool = function ( value ) {
+    var resetAnimateBool = function ( ui, value ) {
         var group = ui.uis[0];
         var bool = group.uis[5];
         bool.value = value;
         bool.update();
     };
-
-    HomeUi.prototype.resetVideoBool = function ( value ) {
+    var resetVideoBool = function ( ui, value ) {
         var group = ui.uis[0];
         var bool = group.uis[6];
         bool.value = value;
@@ -183,48 +94,130 @@ KSX.apps.demos.home.Ui = (function () {
     };
 
     HomeUi.prototype.resetViewAndParams = function () {
-        scope.resetViewAndParameters();
+        var scope = this;
+        var ui = scope.uiTools.ui;
 
-        this.resetBoxScaleSlide( this.projectionSpace.shader.uniforms.scaleBox.value );
-        this.resetBoxSpacingSlide( this.projectionSpace.shader.uniforms.spacing.value );
-        this.resetExtrusionSlide( this.projectionSpace.dimensions[this.projectionSpace.index].defaultHeightFactor );
-        this.resetInvertExtrusionBool(this.projectionSpace.shader.uniforms.invert.value );
-        this.resetInstantCountSlide( this.projectionSpace.index );
-        this.resetAnimateBool( scope.animate );
-        this.resetVideoBool( scope.videoTextureEnabled );
+        scope.model.callbacks.resetViewAndParameters();
+        resetExtrusionSlide( ui, scope.model.projectionSpace.dimensions[scope.model.projectionSpace.index].defaultHeightFactor );
+        resetBoxScaleSlide( ui, scope.model.projectionSpace.shader.uniforms.scaleBox.value );
+        resetBoxSpacingSlide( ui, scope.model.projectionSpace.shader.uniforms.spacing.value );
+        resetInvertExtrusionBool(ui, scope.model.projectionSpace.shader.uniforms.invert.value );
+        resetInstantCountSlide( ui, scope.model.projectionSpace.index );
+        resetAnimateBool( ui, scope.model.animate );
+        resetVideoBool( ui, scope.model.videoTextureEnabled );
     };
 
+    HomeUi.prototype.buildUi = function () {
+        var scope = this;
+        var ui = scope.uiTools.ui;
 
-    HomeUi.prototype.adjustHeightFactor = function (value) {
-        this.projectionSpace.shader.uniforms.heightFactor.value = value;
-    };
+        var adjustHeightFactor = function (value) {
+            scope.model.projectionSpace.shader.uniforms.heightFactor.value = value;
+        };
+        var invertShader = function (value) {
+            scope.model.projectionSpace.shader.uniforms.invert.value = value;
+        };
+        var adjustBoxScale = function (value) {
+            scope.model.projectionSpace.shader.uniforms.scaleBox.value = value;
+        };
+        var adjustBoxSpacing = function (value) {
+            scope.model.projectionSpace.shader.uniforms.spacing.value = value;
+        };
+        var adjustBoxCount = function ( value ) {
+            if ( scope.model.callbacks.resizeProjectionSpace( value, false ) ) {
+                resetExtrusionSlide( ui, scope.model.projectionSpace.dimensions[scope.model.projectionSpace.index].defaultHeightFactor );
+            }
+        };
+        var animate = function ( enabled ) {
+            scope.model.animate = enabled;
+            scope.model.callbacks.checkVideo();
+        };
+        var enableVideo = function ( enabled ) {
+            scope.model.videoTextureEnabled = enabled;
+            scope.model.callbacks.checkVideo();
+        };
+        var resetViewAndParams = function ( ) {
+            scope.resetViewAndParams();
+        };
 
-    HomeUi.prototype.invertShader = function (value) {
-        this.projectionSpace.shader.uniforms.invert.value = value;
-    };
+        var groupMain = ui.add('group', {
+            name: 'Projection Space Controls',
+            height: scope.uiTools.paramsDimension.groupHeight
+        });
+        groupMain.add('slide', {
+            name: 'Extrusion',
+            callback: adjustHeightFactor,
+            min: scope.uiTools.paramsDimension.minValue,
+            max: scope.uiTools.paramsDimension.maxValue,
+            value: scope.model.projectionSpace.shader.uniforms.heightFactor.value,
+            precision: 1,
+            step: 1,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('bool', {
+            name: 'Invert Ext.',
+            callback: invertShader,
+            value: scope.model.projectionSpace.shader.uniforms.invert.value,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
+        groupMain.add('slide', {
+            name: 'Box Scale',
+            callback: adjustBoxScale,
+            min: 0.01,
+            max: 1.0,
+            value: scope.model.projectionSpace.shader.uniforms.scaleBox.value,
+            precision: 2,
+            step: 0.01,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('slide', {
+            name: 'Box Spacing',
+            callback: adjustBoxSpacing,
+            min: 0.01,
+            max: 10.0,
+            value: scope.model.projectionSpace.shader.uniforms.spacing.value,
+            precision: 3,
+            step: 0.01,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('slide', {
+            name: 'Instance Count',
+            callback: adjustBoxCount,
+            min: 0,
+            max: scope.model.projectionSpace.dimensions.length - 1,
+            value: scope.model.projectionSpace.index,
+            precision: 1,
+            step: 1,
+            width: scope.uiTools.paramsDimension.slidesWidth,
+            height: scope.uiTools.paramsDimension.slidesHeight,
+            stype: scope.uiTools.paramsDimension.sliderType
+        });
+        groupMain.add('bool', {
+            name: 'Animate/Play',
+            callback: animate,
+            value: scope.model.animate,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
+        groupMain.add('bool', {
+            name: 'Enable Video',
+            callback: enableVideo,
+            value: scope.model.videoTextureEnabled,
+            height: scope.uiTools.paramsDimension.boolHeight
+        });
+        groupMain.add('button', {
+            name: 'Reset View and Parameters',
+            callback: resetViewAndParams,
+            width: scope.uiTools.paramsDimension.buttonWidth,
+            height: scope.uiTools.paramsDimension.buttonHeight
+        });
 
-    HomeUi.prototype.adjustBoxScale = function (value) {
-        this.projectionSpace.shader.uniforms.scaleBox.value = value;
-    };
-
-    HomeUi.prototype.adjustBoxSpacing = function (value) {
-        this.projectionSpace.shader.uniforms.spacing.value = value;
-    };
-
-    HomeUi.prototype.adjustBoxCount = function ( value ) {
-        if ( scope.resizeProjectionSpace( value, false ) ) {
-            this.resetExtrusionSlide( this.projectionSpace.dimensions[this.projectionSpace.index].defaultHeightFactor );
-        }
-    };
-
-    HomeUi.prototype.animate = function ( enabled ) {
-        scope.animate = enabled;
-        scope.checkVideo();
-    };
-
-    HomeUi.prototype.enableVideo = function ( enabled ) {
-        scope.videoTextureEnabled = enabled;
-        scope.checkVideo();
+        groupMain.open();
     };
 
     return HomeUi;

@@ -48,14 +48,11 @@ KSX.apps.demos.home.Main = (function () {
         this.videoBuffer = elementNameVideoBuffer;
         this.videoBufferContext = this.videoBuffer.getContext("2d");
         this.videoTexture = null;
-        this.videoTextureEnabled = false;
 
         this.controls = null;
-
         this.textureTools = new KSX.apps.tools.TextureTools();
-
         this.rtt = null;
-        this.animate = true;
+
         this.textStorage = new KSX.apps.tools.text.Text();
         this.textureCube = null;
 
@@ -67,7 +64,20 @@ KSX.apps.demos.home.Main = (function () {
             insane: { index: 4, name: 'Insane', x: 3840, y: 1608, defaultHeightFactor: 35, mesh: null }
         }, 0);
 
-        this.homeUi = new KSX.apps.demos.home.Ui( this.mobileDevice, this.projectionSpace );
+        var scope = this;
+        this.uiModel = {
+            videoTextureEnabled: false,
+            animate: true,
+            projectionSpace: scope.projectionSpace,
+            callbacks: {
+                resetViewAndParameters: function () { scope.resetViewAndParameters() },
+                resizeProjectionSpace: function ( index, force ) {
+                    scope.resizeProjectionSpace( index, force );
+                },
+                checkVideo: function () { scope.checkVideo() }
+            }
+        };
+        this.homeUi = new KSX.apps.demos.home.Ui( this.mobileDevice, this.uiModel );
 
         this.cameraDefaults = {
             posCamera: new THREE.Vector3( 0.0, -1.15 * this.projectionSpace.getHeight(), 0.85 * this.projectionSpace.getWidth() ),
@@ -264,7 +274,9 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPostGL = function () {
-        this.homeUi.buildUi( this );
+        this.homeUi.buildUi();
+        this.homeUi.resetViewAndParams();
+
         if ( this.mobileDevice ) {
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
         }
@@ -288,13 +300,13 @@ KSX.apps.demos.home.Main = (function () {
     Home.prototype.renderPre = function () {
         this.controls.update();
 
-        if (this.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
+        if (this.uiModel.videoTextureEnabled && this.video.readyState === this.video.HAVE_ENOUGH_DATA) {
             this.videoBufferContext.drawImage(this.video, 0, 0);
             this.videoTexture.needsUpdate = true;
         }
 
         this.renderer.setClearColor(RTT_CLEAR_COLOR);
-        if ( this.animate ) {
+        if ( this.uiModel.animate ) {
             var spherePosFactor = 5.0;
 
             this.rtt.meshes.sphereRed.position.set(
@@ -329,10 +341,10 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.checkVideo = function () {
-        if ( this.videoTextureEnabled ) {
+        if ( this.uiModel.videoTextureEnabled ) {
             this.projectionSpace.flipTexture( 'video' );
 
-            if ( this.animate ) {
+            if ( this.uiModel.animate ) {
                 this.video.play();
             }
             else {
@@ -380,8 +392,8 @@ KSX.apps.demos.home.Main = (function () {
         this.controls.reset();
         this.controls.target = this.scenePerspective.cameraTarget;
 
-        this.animate = true;
-        this.videoTextureEnabled = false;
+        this.uiModel.animate = true;
+        this.uiModel.videoTextureEnabled = false;
         this.checkVideo();
     };
 

@@ -45,7 +45,7 @@ KSX.apps.tools.UiTools = (function () {
 
     var checkParams = function (paramsPredefined, paramsUser) {
         var potentialValue;
-        for (var predefined in paramsPredefined) {
+        for ( var predefined in paramsPredefined ) {
             potentialValue = paramsUser[predefined];
 
             if (potentialValue !== undefined) {
