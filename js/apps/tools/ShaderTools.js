@@ -43,7 +43,7 @@ KSX.apps.tools.ShaderTools = (function () {
 
     ShaderTools.prototype.combineShader = function (shaders, logResult) {
         var all = "";
-        var shader = null;
+        var shader;
         for ( var key in shaders ) {
             shader = shaders[key];
             all += '\n//Shader: ' + shader.name + '\n' + shader.value;

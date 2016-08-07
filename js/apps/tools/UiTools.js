@@ -9,6 +9,7 @@ KSX.apps.tools.UiTools = (function () {
     function UiTools( uiToolsConfig ) {
         if ( uiToolsConfig.useUil ) {
             UIL.BUTTON = '#FF4040';
+            
             if ( uiToolsConfig.uilParams.size === undefined && uiToolsConfig.uilParams.width !== undefined ) {
                 uiToolsConfig.uilParams.size = uiToolsConfig.uilParams.width;
             }
@@ -19,14 +20,14 @@ KSX.apps.tools.UiTools = (function () {
                 if (this.paramsDimension === undefined) {
                     this.paramsDimension = {};
                 }
-                checkParams(KSX.apps.tools.UiTools.DefaultParams.mobile, this.paramsDimension);
+                checkDimensionParams( KSX.apps.tools.UiTools.DefaultParams.mobile, this.paramsDimension );
             }
             else {
                 this.paramsDimension = uiToolsConfig.paramsDimension.desktop;
                 if (this.paramsDimension === undefined) {
                     this.paramsDimension = {};
                 }
-                checkParams(KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension);
+                checkDimensionParams( KSX.apps.tools.UiTools.DefaultParams.desktop, this.paramsDimension );
             }
         }
 
@@ -35,31 +36,40 @@ KSX.apps.tools.UiTools = (function () {
         this.stats = null;
         if ( uiToolsConfig.useStats ) {
             this.stats = new Stats();
-            this.stats.domElement.style.position = 'absolute';
-            this.stats.domElement.style.left = '';
-            this.stats.domElement.style.right = '0px';
-            this.stats.domElement.style.top = '';
-            this.stats.domElement.style.bottom = '0px';
+            var styleDefaults = {
+                position: 'absolute',
+                left: '',
+                right: '0px',
+                top: '',
+                bottom: '0px'
+            };
 
-            for ( var styleParam in uiToolsConfig.statsParams ) {
-                var param = this.stats.domElement.style[styleParam];
-                if ( param !== undefined ) {
-                    this.stats.domElement.style[styleParam] = uiToolsConfig.statsParams[styleParam];
-                }
-            }
+            addStatStyles( this.stats.domElement.style, styleDefaults );
+            addStatStyles( this.stats.domElement.style, uiToolsConfig.statsParams );
         }
     }
 
-    var checkParams = function (paramsPredefined, paramsUser) {
-        var potentialValue;
-        for ( var predefined in paramsPredefined ) {
-            potentialValue = paramsUser[predefined];
+    var addStatStyles = function ( statStyles, userStyleProps ) {
+        if ( userStyleProps === null || userStyleProps === undefined ) {
+            return;
+        }
 
-            if (potentialValue !== undefined) {
-                paramsPredefined[predefined] = potentialValue;
+        for ( var styleParam in userStyleProps ) {
+            if ( statStyles.hasOwnProperty(styleParam) && userStyleProps.hasOwnProperty(styleParam)) {
+                statStyles[styleParam] = userStyleProps[styleParam];
             }
-            else {
-                paramsUser[predefined] = paramsPredefined[predefined];
+        }
+    };
+
+    var checkDimensionParams = function ( paramsPredefined, paramsUser ) {
+        for ( var predefined in paramsPredefined ) {
+            if ( paramsPredefined.hasOwnProperty(predefined) ) {
+                if ( paramsUser.hasOwnProperty(predefined) ) {
+                    paramsPredefined[predefined] = paramsUser[predefined];
+                }
+                else {
+                    paramsUser[predefined] = paramsPredefined[predefined];
+                }
             }
         }
     };
@@ -78,8 +88,8 @@ KSX.apps.tools.UiTools = (function () {
         }
 
         var children = divFeedbackArea.childNodes;
-        for ( var child in children ) {
-            if ( child.class === 'dynamicFeedback' ) {
+        for ( var child of children ) {
+            if ( child['className'] === 'dynamicFeedback' ) {
                 this.divDynamic = child;
             }
         }
