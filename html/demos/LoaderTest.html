@@ -35,7 +35,7 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var loader = new KSX.apps.demos.Loader( document.getElementById("DivGLFullCanvas"), false );
+            var loader = new KSX.apps.demos.Loader( document.getElementById("DivGLFullCanvas"), bowser.mobile, false );
             implementations.push(loader);
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);

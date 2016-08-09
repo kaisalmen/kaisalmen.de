@@ -17,7 +17,7 @@ KSX.apps.demos.Loader = (function () {
         }
     });
 
-    function Loader(elementToBindTo, loader) {
+    function Loader( elementToBindTo, mobileDevice, loader ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -30,6 +30,7 @@ KSX.apps.demos.Loader = (function () {
 
         this.controls = null;
         this.shader = new KSX.apps.shader.LoaderShader();
+        this.shaderMaterial = null;
 
         if ( !this.definition.loader ) {
             var uiToolsConfig = {
@@ -38,6 +39,19 @@ KSX.apps.demos.Loader = (function () {
             };
             this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
         }
+
+        this.globals = {
+            animate: true,
+            physicalLighting: true,
+            rotationSpeed: 0.00425,
+            objCount: mobileDevice ? 2500 : 7500,
+            cubeEdgeLength: mobileDevice ? 20 : 40,
+            sphere: {
+                segments: mobileDevice ? 24 : 32,
+                radius: mobileDevice ? 0.075 : 0.15
+            }
+        };
+
     }
 
     Loader.prototype.initAsyncContent = function() {
@@ -70,21 +84,110 @@ KSX.apps.demos.Loader = (function () {
         this.scenePerspective.setCameraDefaults( cameraDefaults );
         this.controls = new THREE.TrackballControls( this.scenePerspective.camera );
 
-        var bufferGeometry = new THREE.SphereBufferGeometry( 0.1, 16, 16 );
-        var shaderMaterial = this.shader.buildShaderMaterial();
-        shaderMaterial.wireframe = true;
+        this.pivot = new THREE.Object3D();
+
+        var lights = {
+            ambientLight: new THREE.AmbientLight( 0x202020 ),
+            directionalLight1: new THREE.DirectionalLight( 0xC05050 ),
+            directionalLight2: new THREE.DirectionalLight( 0x50C050 ),
+            directionalLight3: new THREE.DirectionalLight( 0x5050C0 )
+        };
+
+        lights.directionalLight1.position.set( 100, 0, -100 );
+        lights.directionalLight2.position.set( -100, 0, -100 );
+        lights.directionalLight3.position.set( 0, 0, 100 );
+
+        this.lightArray = new THREE.Object3D();
+        this.lightArray.add( lights.directionalLight1 );
+        this.lightArray.add( lights.directionalLight2 );
+        this.lightArray.add( lights.directionalLight3 );
+        this.lightArray.rotateX( Math.PI / 8.0 );
+        this.pivot.add( this.lightArray );
+
+
+        var bufferGeometry = new THREE.SphereBufferGeometry( this.globals.sphere.radius, this.globals.sphere.segments, this.globals.sphere.segments );
 
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
 
-        var offsets = this.createOffsetsArray( 1000, 15 );
-        var colors = this.createColorsArray( 1000 );
+        var offsets = this.createOffsetsArray( this.globals.objCount, this.globals.cubeEdgeLength );
+        var colors = this.createColorsArray( this.globals.objCount );
         geometry.addAttribute( 'offset', offsets );
-        geometry.addAttribute( 'color', colors );
+        geometry.addAttribute( 'colorInstanceVS', colors );
 
-        var mesh = new THREE.Mesh( geometry, shaderMaterial );
+        if ( this.globals.physicalLighting ) {
+            var physicalShader = THREE.ShaderLib['physical'];
+            physicalShader.uniforms['roughness'].value = 0.35;
+            physicalShader.uniforms['metalness'].value = 0.1;
+            physicalShader.uniforms['opacity'].value = 0.75;
 
-        this.pivot = new THREE.Object3D();
+            var vsManipulation = this.shader.shaderTools.createArrayFromShader( physicalShader.vertexShader );
+            physicalShader.vertexShader = this.shader.shaderTools.changeLines( vsManipulation, {
+                pos: {
+                    regex: '#include <begin_vertex>',
+                    line: '\tvec3 transformed = vec3( offset.x + position.x, offset.y + position.y, offset.z + position.z );',
+                    option: 'change'
+                },
+                attrOffset: {
+                    regex: 'void main',
+                    line: 'attribute vec3 offset;',
+                    option: 'insertBefore'
+                },
+                attrColor: {
+                    regex: 'void main',
+                    line: 'attribute vec3 colorInstanceVS;',
+                    option: 'insertBefore'
+                },
+                varyingColor: {
+                    regex: 'void main',
+                    line: 'varying vec3 colorInstanceFS;',
+                    option: 'insertBefore'
+                },
+                emptyLine: {
+                    regex: 'void main',
+                    line: '',
+                    option: 'insertBefore'
+                },
+                colorInOut: {
+                    regex: 'void main',
+                    line: '\tcolorInstanceFS = colorInstanceVS;',
+                    option: 'insertAfter'
+                }
+            }, true);
+
+            var fsManipulation = this.shader.shaderTools.createArrayFromShader( physicalShader.fragmentShader );
+            physicalShader.fragmentShader = this.shader.shaderTools.changeLines( fsManipulation, {
+                varyingColor: {
+                    regex: 'void main',
+                        line: 'varying vec3 colorInstanceFS;',
+                        option: 'insertBefore'
+                },
+                emptyLine: {
+                    regex: 'void main',
+                    line: '',
+                    option: 'insertBefore'
+                },
+                colorFs: {
+                    regex: 'vec4 diffuseColor',
+                    line: '\tvec4 diffuseColor = vec4( colorInstanceFS, opacity );',
+                    option: 'change'
+                }
+            }, true);
+
+            this.shaderMaterial = new THREE.ShaderMaterial({
+                fragmentShader: physicalShader.fragmentShader,
+                vertexShader: physicalShader.vertexShader,
+                uniforms: physicalShader.uniforms,
+                transparent: true,
+                lights: true
+            });
+        }
+        else {
+            this.shaderMaterial = this.shader.buildShaderMaterial();
+            this.shaderMaterial.wireframe = true;
+        }
+
+        var mesh = new THREE.Mesh( geometry, this.shaderMaterial );
         this.pivot.add( mesh );
 
         this.scenePerspective.scene.add( this.pivot );
@@ -134,9 +237,11 @@ KSX.apps.demos.Loader = (function () {
 
     Loader.prototype.renderPre = function () {
         this.controls.update();
-        this.pivot.rotation.x += 0.005;
-        this.pivot.rotation.y += 0.005;
-        this.pivot.rotation.z += 0.005;
+        if ( this.globals.animate ) {
+            this.pivot.rotation.x += this.globals.rotationSpeed;
+            this.pivot.rotation.y += this.globals.rotationSpeed;
+            this.pivot.rotation.z += this.globals.rotationSpeed;
+        }
     };
 
     Loader.prototype.renderPost = function () {

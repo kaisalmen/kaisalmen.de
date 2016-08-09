@@ -57,6 +57,48 @@ KSX.apps.tools.ShaderTools = (function () {
         return all;
     };
 
+    ShaderTools.prototype.createArrayFromShader = function ( shaderText ) {
+        return shaderText.split( '\n' );
+    };
+
+    ShaderTools.prototype.changeLines = function ( shaderAsArray, regexAndLines, printOverallResult ) {
+        for ( var key in regexAndLines ) {
+            if ( regexAndLines.hasOwnProperty(key) ) {
+
+                var regexAndLine = regexAndLines[key];
+                var i = 0;
+                for ( var line of shaderAsArray ) {
+                    if ( line.match( regexAndLine.regex ) ) {
+                        break;
+                    }
+                    else {
+                        i++;
+                    }
+                }
+                if ( regexAndLine.option === 'change' ) {
+                    shaderAsArray.splice( i, 1, regexAndLine.line );
+                }
+                else if ( regexAndLine.option === 'insertBefore' ) {
+                    shaderAsArray.splice( i, 0, regexAndLine.line );
+                }
+                else if ( regexAndLine.option === 'insertAfter' ) {
+                    shaderAsArray.splice( i + 1, 0, regexAndLine.line );
+                }
+            }
+        }
+
+        var updatedShader = '';
+        for ( var line of shaderAsArray ) {
+            updatedShader = updatedShader.concat( line, '\n' );
+        }
+
+        if ( printOverallResult ) {
+            console.log( updatedShader );
+        }
+
+        return updatedShader;
+    };
+
     ShaderTools.prototype.printShader = function (shaderObj, shaderName) {
         console.log(shaderName + ":");
         console.log(shaderObj);
