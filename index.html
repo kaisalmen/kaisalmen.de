@@ -40,21 +40,18 @@
             </div>
         </div>
         <div class="contactArea" id="ContactArea">
-            Welcome to my website: kaisalmen.de
-            <br>
-            This site focues on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.
-            <br>
-            I work as a software engineer, but the content shown on this site was completely realised during my spare time.
-            <h4>You have any further questions, then...</h4>
-            contact me via mail:<br>
-            <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a>
-            <br><br>
-            or follow me on Twitter:<br>
+            <h4>Welcome to Kai's website!</h4>
+            My site focuses on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.<br><br>
+            I work as a software engineer, but the content shown here was completely realised during my spare time.<br><br>
+            <h4>You have any further questions, comments then...</h4>
+            contact me via e-mail:<br>
+            <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
+            or contact or follow me on Twitter:<br>
             <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
         </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">
-                Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil</a> and <a href="https://github.com/ded/bowser">bowser</a>!
+                Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
             </div>
         </div>
     </div>
@@ -85,7 +82,7 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, false );
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, true, true, false );
             implementations.push( sphereSuperCube );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);

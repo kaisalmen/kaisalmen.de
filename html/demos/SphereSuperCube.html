@@ -36,7 +36,7 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, false );
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ) );
             implementations.push( sphereSuperCube );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);

@@ -313,10 +313,15 @@ KSX.apps.core.Canvas = (function () {
         }
     };
 
-    Canvas.prototype.resetWidth = function (width, height) {
-        if (this.htmlCanvas !== null && ( this.htmlCanvas.style !== undefined && this.htmlCanvas.style !== null) ) {
-            this.htmlCanvas.style.width = width + 'px';
-            this.htmlCanvas.style.height = height + 'px';
+    Canvas.prototype.resetWidth = function ( width, height ) {
+        if (this.htmlCanvas !== null ) {
+
+            if ( this.htmlCanvas.style !== undefined && this.htmlCanvas.style !== null) {
+                this.htmlCanvas.style.width = width + 'px';
+                this.htmlCanvas.style.height = height + 'px';
+            }
+            this.htmlCanvas.offsetWidth = width;
+            this.htmlCanvas.offsetHeight = height;
         }
         this.recalcAspectRatio();
     };
@@ -356,6 +361,7 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
     function ScenePerspective( canvas, verbose ) {
         this.canvas = canvas;
         this.verbose = verbose === undefined ? false : verbose;
+        this.canvas.verbose = this.verbose;
         this.camera = null;
         this.useCube = false;
         this.cameraCube = null;
@@ -446,6 +452,7 @@ KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
     function SceneOrtho( canvas, verbose ) {
         this.canvas = canvas;
         this.verbose = verbose === undefined ? false : verbose;
+        this.canvas.verbose = this.verbose;
 
         this.defaults = {
             posCamera: new THREE.Vector3( 0, 0, 1 ),

@@ -17,8 +17,12 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
     });
 
-    function SphereSuperCube( elementToBindTo, mobileDevice, loader ) {
+    function SphereSuperCube( elementToBindTo, mobileDevice, physicalLighting, enableOverlay, loader  ) {
         KSX.apps.core.ThreeJsApp.call(this);
+        mobileDevice = mobileDevice === undefined ? false : mobileDevice;
+        physicalLighting = physicalLighting === undefined ? false : physicalLighting;
+        enableOverlay = enableOverlay === undefined ? false : enableOverlay;
+        loader = loader === undefined ? false : loader;
 
         this.configure({
             user : this,
@@ -42,7 +46,8 @@ KSX.apps.demos.SphereSuperCube = (function () {
 
         this.globals = {
             animate: true,
-            physicalLighting: this.definition.loader ? false : true,
+            physicalLighting: physicalLighting,
+            enableOverlay: enableOverlay,
             rotationSpeed: 0.00425,
             objCount: mobileDevice ? 2500 : 7500,
             cubeEdgeLength: mobileDevice ? 20 : 40,
@@ -50,12 +55,12 @@ KSX.apps.demos.SphereSuperCube = (function () {
                 segments: mobileDevice ? 24 : 32,
                 radius: mobileDevice ? 0.075 : 0.15
             },
-            pppScale: 0.2
+            pppScale: 0.15
         };
 
         this.overlay = null;
+        this.overlayPivot = null;
         this.projectionSpace = null;
-        this.projectionSpacePivot = null;
     }
 
     SphereSuperCube.prototype.initAsyncContent = function() {
@@ -91,25 +96,6 @@ KSX.apps.demos.SphereSuperCube = (function () {
 
         this.pivot = new THREE.Object3D();
 
-        var lights = {
-            ambientLight: new THREE.AmbientLight( 0x202020 ),
-            directionalLight1: new THREE.DirectionalLight( 0xC05050 ),
-            directionalLight2: new THREE.DirectionalLight( 0x50C050 ),
-            directionalLight3: new THREE.DirectionalLight( 0x5050C0 )
-        };
-
-        lights.directionalLight1.position.set( -100, 0, 100 );
-        lights.directionalLight2.position.set( 100, 0, 100 );
-        lights.directionalLight3.position.set( 0, 0, -100 );
-
-        this.lightArray = new THREE.Object3D();
-        this.lightArray.add( lights.directionalLight1 );
-        this.lightArray.add( lights.directionalLight2 );
-        this.lightArray.add( lights.directionalLight3 );
-        this.lightArray.rotateX( Math.PI / 8.0 );
-        this.pivot.add( this.lightArray );
-
-
         var bufferGeometry = new THREE.SphereBufferGeometry( this.globals.sphere.radius, this.globals.sphere.segments, this.globals.sphere.segments );
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
@@ -119,7 +105,26 @@ KSX.apps.demos.SphereSuperCube = (function () {
         geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'colorInstanceVS', colors );
 
+        var lights = {
+            ambientLight: new THREE.AmbientLight( 0x202020 )
+        };
+
         if ( this.globals.physicalLighting ) {
+            lights.directionalLight1 = new THREE.DirectionalLight( 0xC05050 );
+            lights.directionalLight2 = new THREE.DirectionalLight( 0x50C050 );
+            lights.directionalLight3 = new THREE.DirectionalLight( 0x5050C0 );
+
+            lights.directionalLight1.position.set( -100, 0, 100 );
+            lights.directionalLight2.position.set( 100, 0, 100 );
+            lights.directionalLight3.position.set( 0, 0, -100 );
+
+            this.lightArray = new THREE.Object3D();
+            this.lightArray.add( lights.directionalLight1 );
+            this.lightArray.add( lights.directionalLight2 );
+            this.lightArray.add( lights.directionalLight3 );
+            this.lightArray.rotateX( Math.PI / 8.0 );
+            this.pivot.add( this.lightArray );
+
             var physicalShaderOrg = THREE.ShaderLib['physical'];
 
             // shader lib entry needs to be cloned, other
@@ -202,13 +207,14 @@ KSX.apps.demos.SphereSuperCube = (function () {
         this.pivot.add( mesh );
 
         this.scenePerspective.scene.add( this.pivot );
+        this.scenePerspective.scene.add ( lights.ambientLight );
 
     };
 
     SphereSuperCube.prototype.initPostGL = function () {
         removeLoading();
 
-        if ( this.globals.physicalLighting ) {
+        if ( this.globals.enableOverlay ) {
             var scope = this;
             var callbackOnSuccess = function () {
                 scope.initOverlay( scope );
@@ -240,14 +246,14 @@ KSX.apps.demos.SphereSuperCube = (function () {
         scope.projectionSpace.initGL();
         this.projectionSpace.shader.uniforms.spacing.value = 3.0;
 
-        scope.projectionSpacePivot = new THREE.Object3D();
-        scope.projectionSpacePivot.add( scope.projectionSpace.dimensions[scope.projectionSpace.index].mesh );
-        scope.projectionSpacePivot.scale.x = scope.globals.pppScale;
-        scope.projectionSpacePivot.scale.y = scope.globals.pppScale;
-        scope.projectionSpacePivot.scale.z = scope.globals.pppScale;
-        scope.projectionSpacePivot.rotateX( -Math.PI / 12 );
-        scope.projectionSpacePivot.rotateY( Math.PI / 64 );
-        scope.projectionSpacePivot.rotateZ( Math.PI / 64 );
+        scope.overlayPivot = new THREE.Object3D();
+        scope.overlayPivot.add( scope.projectionSpace.dimensions[scope.projectionSpace.index].mesh );
+        scope.overlayPivot.scale.x = scope.globals.pppScale;
+        scope.overlayPivot.scale.y = scope.globals.pppScale;
+        scope.overlayPivot.scale.z = scope.globals.pppScale;
+        scope.overlayPivot.rotateX( -Math.PI / 12 );
+        scope.overlayPivot.rotateY( Math.PI / 64 );
+        scope.overlayPivot.rotateZ( Math.PI / 64 );
     };
 
     var createOffsetsArray = function ( objectCount, factor ) {
@@ -285,6 +291,11 @@ KSX.apps.demos.SphereSuperCube = (function () {
 
     SphereSuperCube.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
+        if ( this.overlay !== null ) {
+            // manual width/height update required as htmlCanvas is faked
+            this.overlay.canvas.resetWidth( this.scenePerspective.canvas.getWidth(), this.scenePerspective.canvas.getHeight() );
+            this.overlay.updateCamera();
+        }
     };
 
     SphereSuperCube.prototype.renderPre = function () {
@@ -297,7 +308,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
     };
 
     SphereSuperCube.prototype.renderPost = function () {
-        if ( this.globals.physicalLighting && this.overlay !== null ) {
+        if ( this.overlay !== null ) {
             this.renderer.clearDepth();
             this.renderer.render( this.overlay.scene, this.overlay.camera );
         }
@@ -321,13 +332,13 @@ KSX.apps.demos.SphereSuperCube = (function () {
     };
 
     SphereSuperCube.prototype.enableLinkImage = function ( show, textureName ) {
-        if ( this.globals.physicalLighting && this.projectionSpacePivot != null ) {
+        if ( this.globals.enableOverlay && this.overlayPivot !== null ) {
             if ( show ) {
-                this.overlay.scene.add( this.projectionSpacePivot );
+                this.overlay.scene.add( this.overlayPivot );
                 this.projectionSpace.flipTexture( textureName );
             }
             else {
-                this.overlay.scene.remove( this.projectionSpacePivot );
+                this.overlay.scene.remove( this.overlayPivot );
             }
         }
     };
