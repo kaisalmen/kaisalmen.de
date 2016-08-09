@@ -4,22 +4,22 @@
 
 'use strict';
 
-KSX.apps.shader.LoaderShader = (function () {
+KSX.apps.shader.SphereSuperCubeShader = (function () {
 
-    function LoaderShader() {
+    function SphereSuperCubeShader() {
         KSX.apps.shader.ShaderBase.call(this);
     }
 
-    LoaderShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
+    SphereSuperCubeShader.prototype = Object.create(KSX.apps.shader.ShaderBase.prototype, {
         constructor: {
             configurable: true,
             enumerable: true,
-            value: LoaderShader,
+            value: SphereSuperCubeShader,
             writable: true
         }
     });
 
-    LoaderShader.prototype.loadResources = function (callbackOnSuccess) {
+    SphereSuperCubeShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
         var promises = new Array(3);
@@ -40,5 +40,5 @@ KSX.apps.shader.LoaderShader = (function () {
         );
     };
 
-    return LoaderShader;
+    return SphereSuperCubeShader;
 })();

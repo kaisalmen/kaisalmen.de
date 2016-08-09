@@ -30,14 +30,14 @@
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/shader/ShaderBase.js"></script>
-    <script src="../../js/apps/shader/LoaderShader.js"></script>
-    <script src="../../js/apps/demos/Loader.js"></script>
+    <script src="../../js/apps/shader/SphereSuperCubeShader.js"></script>
+    <script src="../../js/apps/demos/SphereSuperCube.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var loader = new KSX.apps.demos.Loader( document.getElementById("DivGLFullCanvas"), bowser.mobile, false );
-            implementations.push(loader);
-            KSX.globals.appRunner.addImplementations(implementations);
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, false );
+            implementations.push( sphereSuperCube );
+            KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);
         }
     </script>

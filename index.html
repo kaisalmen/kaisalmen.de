@@ -37,7 +37,7 @@
             </div>
             <div class="home" onmouseenter="exchangeTexture('linkLoader')" onmouseleave="exchangeImageDefault()">
                 <h1>
-                    <a href="html/demos/LoaderTest.html">Loader Test</a>
+                    <a href="html/demos/SphereSuperCube.html">Loader Test</a>
                 </h1>
             </div>
             <div class="homeFixed" onclick="enableHelpArea()">
@@ -99,8 +99,8 @@
     <script src="js/apps/tools/UiTools.js"></script>
 
     <script src="js/apps/shader/ShaderBase.js"></script>
-    <script src="js/apps/shader/LoaderShader.js"></script>
-    <script src="js/apps/demos/Loader.js"></script>
+    <script src="js/apps/shader/SphereSuperCubeShader.js"></script>
+    <script src="js/apps/demos/SphereSuperCube.js"></script>
 
     <script src="js/apps/tools/instancing/BoxCreator.js"></script>
     <script src="js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
@@ -113,16 +113,17 @@
             var implementations = [];
 
             var home = new KSX.apps.demos.home.Main(
-                    document.getElementById("DivGLFullCanvas"),
-                    document.getElementById("DivGLFullVideo"),
-                    document.getElementById("DivGLFullVideoBuffer"),
+                    document.getElementById( "DivGLFullCanvas" ),
+                    document.getElementById( "DivGLFullVideo" ),
+                    document.getElementById( "DivGLFullVideoBuffer" ),
                     bowser.mobile
             );
             implementations.push(home);
 
-            var loader = new KSX.apps.demos.Loader( document.getElementById("DivGLFullCanvasLoad"), true );
-            implementations.push(loader);
-            KSX.globals.appRunner.addImplementations(implementations);
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvasLoad" ), bowser.mobile, true );
+            implementations.push( sphereSuperCube );
+
+            KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);
 
             var exchangeTexture = function ( textureName ) {

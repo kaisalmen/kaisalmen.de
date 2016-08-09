@@ -4,20 +4,20 @@
 
 'use strict';
 
-KSX.apps.demos.Loader = (function () {
+KSX.apps.demos.SphereSuperCube = (function () {
 
     var MAIN_CLEAR_COLOR = 0x101010;
 
-    Loader.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+    SphereSuperCube.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
             configurable: true,
             enumerable: true,
-            value: Loader,
+            value: SphereSuperCube,
             writable: true
         }
     });
 
-    function Loader( elementToBindTo, mobileDevice, loader ) {
+    function SphereSuperCube( elementToBindTo, mobileDevice, loader ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -29,7 +29,7 @@ KSX.apps.demos.Loader = (function () {
         });
 
         this.controls = null;
-        this.shader = new KSX.apps.shader.LoaderShader();
+        this.shader = new KSX.apps.shader.SphereSuperCubeShader();
         this.shaderMaterial = null;
 
         if ( !this.definition.loader ) {
@@ -42,7 +42,7 @@ KSX.apps.demos.Loader = (function () {
 
         this.globals = {
             animate: true,
-            physicalLighting: true,
+            physicalLighting: this.definition.loader ? false : true,
             rotationSpeed: 0.00425,
             objCount: mobileDevice ? 2500 : 7500,
             cubeEdgeLength: mobileDevice ? 20 : 40,
@@ -54,7 +54,7 @@ KSX.apps.demos.Loader = (function () {
 
     }
 
-    Loader.prototype.initAsyncContent = function() {
+    SphereSuperCube.prototype.initAsyncContent = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {
@@ -63,13 +63,13 @@ KSX.apps.demos.Loader = (function () {
         this.shader.loadResources(callbackOnSuccess);
     };
 
-    Loader.prototype.initPreGL = function () {
+    SphereSuperCube.prototype.initPreGL = function () {
         if ( !this.definition.loader ) {
             this.uiTools.enableStats();
         }
     };
 
-    Loader.prototype.initGL = function () {
+    SphereSuperCube.prototype.initGL = function () {
         if ( !this.platformVerification.verifyHwInstancingSupport( this.renderer, true ) ) {
             this.initOk = false;
             return;
@@ -110,8 +110,8 @@ KSX.apps.demos.Loader = (function () {
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
 
-        var offsets = this.createOffsetsArray( this.globals.objCount, this.globals.cubeEdgeLength );
-        var colors = this.createColorsArray( this.globals.objCount );
+        var offsets = createOffsetsArray( this.globals.objCount, this.globals.cubeEdgeLength );
+        var colors = createColorsArray( this.globals.objCount );
         geometry.addAttribute( 'offset', offsets );
         geometry.addAttribute( 'colorInstanceVS', colors );
 
@@ -193,12 +193,12 @@ KSX.apps.demos.Loader = (function () {
         this.scenePerspective.scene.add( this.pivot );
     };
 
-    Loader.prototype.initPostGL = function () {
+    SphereSuperCube.prototype.initPostGL = function () {
         this.dispose();
         return true;
     };
 
-    Loader.prototype.createOffsetsArray = function ( objectCount, factor ) {
+    var createOffsetsArray = function ( objectCount, factor ) {
         var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
 
         var index = 0;
@@ -215,7 +215,7 @@ KSX.apps.demos.Loader = (function () {
         return offsets;
     };
 
-    Loader.prototype.createColorsArray = function ( objectCount ) {
+    var createColorsArray = function ( objectCount ) {
         var colors = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
 
         var index = 0;
@@ -231,11 +231,11 @@ KSX.apps.demos.Loader = (function () {
         return colors;
     };
 
-    Loader.prototype.resizeDisplayGL = function () {
+    SphereSuperCube.prototype.resizeDisplayGL = function () {
         this.controls.handleResize();
     };
 
-    Loader.prototype.renderPre = function () {
+    SphereSuperCube.prototype.renderPre = function () {
         this.controls.update();
         if ( this.globals.animate ) {
             this.pivot.rotation.x += this.globals.rotationSpeed;
@@ -244,13 +244,13 @@ KSX.apps.demos.Loader = (function () {
         }
     };
 
-    Loader.prototype.renderPost = function () {
+    SphereSuperCube.prototype.renderPost = function () {
         if ( !this.definition.loader ) {
             this.uiTools.updateStats();
         }
     };
 
-    Loader.prototype.dispose = function () {
+    SphereSuperCube.prototype.dispose = function () {
         if ( this.definition.loader ) {
             this.definition.htmlCanvas.style.display  = 'none';
         }
@@ -260,5 +260,5 @@ KSX.apps.demos.Loader = (function () {
         }
     };
 
-    return Loader;
+    return SphereSuperCube;
 })();
