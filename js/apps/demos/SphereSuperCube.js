@@ -6,7 +6,7 @@
 
 KSX.apps.demos.SphereSuperCube = (function () {
 
-    var MAIN_CLEAR_COLOR = 0x101010;
+    var MAIN_CLEAR_COLOR = 0x000000;
 
     SphereSuperCube.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
@@ -51,7 +51,6 @@ KSX.apps.demos.SphereSuperCube = (function () {
                 radius: mobileDevice ? 0.075 : 0.15
             }
         };
-
     }
 
     SphereSuperCube.prototype.initAsyncContent = function() {
@@ -106,7 +105,6 @@ KSX.apps.demos.SphereSuperCube = (function () {
 
 
         var bufferGeometry = new THREE.SphereBufferGeometry( this.globals.sphere.radius, this.globals.sphere.segments, this.globals.sphere.segments );
-
         var geometry = new THREE.InstancedBufferGeometry();
         geometry.copy( bufferGeometry );
 
@@ -116,7 +114,14 @@ KSX.apps.demos.SphereSuperCube = (function () {
         geometry.addAttribute( 'colorInstanceVS', colors );
 
         if ( this.globals.physicalLighting ) {
-            var physicalShader = THREE.ShaderLib['physical'];
+            var physicalShaderOrg = THREE.ShaderLib['physical'];
+
+            // shader lib entry needs to be cloned, other
+            var physicalShader = {
+                uniforms: THREE.UniformsUtils.clone( physicalShaderOrg.uniforms ),
+                vertexShader: physicalShaderOrg.vertexShader,
+                fragmentShader: physicalShaderOrg.fragmentShader
+            };
             physicalShader.uniforms['roughness'].value = 0.35;
             physicalShader.uniforms['metalness'].value = 0.1;
             physicalShader.uniforms['opacity'].value = 0.75;
@@ -153,7 +158,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
                     line: '\tcolorInstanceFS = colorInstanceVS;',
                     option: 'insertAfter'
                 }
-            }, true);
+            });
 
             var fsManipulation = this.shader.shaderTools.createArrayFromShader( physicalShader.fragmentShader );
             physicalShader.fragmentShader = this.shader.shaderTools.changeLines( fsManipulation, {
@@ -172,7 +177,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
                     line: '\tvec4 diffuseColor = vec4( colorInstanceFS, opacity );',
                     option: 'change'
                 }
-            }, true);
+            });
 
             this.shaderMaterial = new THREE.ShaderMaterial({
                 fragmentShader: physicalShader.fragmentShader,
@@ -194,7 +199,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
     };
 
     SphereSuperCube.prototype.initPostGL = function () {
-        this.dispose();
+        removeLoading();
         return true;
     };
 
@@ -250,14 +255,18 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
     };
 
+    var removeLoading = function () {
+        var divLoading = document.getElementById('Loading');
+        if (divLoading !== null && divLoading !== undefined) {
+            divLoading.style.display = 'none';
+        }
+    };
+
     SphereSuperCube.prototype.dispose = function () {
         if ( this.definition.loader ) {
             this.definition.htmlCanvas.style.display  = 'none';
         }
-        var divLoading = document.getElementById( 'Loading' );
-        if ( divLoading !== null && divLoading !== undefined ) {
-            divLoading.style.display  = 'none';
-        }
+        removeLoading();
     };
 
     return SphereSuperCube;
