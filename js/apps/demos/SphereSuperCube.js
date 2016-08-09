@@ -22,7 +22,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
 
         this.configure({
             user : this,
-            name : 'Loader',
+            name : 'SphereSuperCube',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
             loader: loader
@@ -49,8 +49,17 @@ KSX.apps.demos.SphereSuperCube = (function () {
             sphere: {
                 segments: mobileDevice ? 24 : 32,
                 radius: mobileDevice ? 0.075 : 0.15
-            }
+            },
+            pppScale: 0.5
         };
+
+        this.overlay = null;
+        if ( this.globals.physicalLighting ) {
+            this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
+                link: { index: 0, name: 'link', x: 300, y: 128, defaultHeightFactor: 16, mesh: null }
+            }, 0);
+            this.projectionSpacePivot = null;
+        }
     }
 
     SphereSuperCube.prototype.initAsyncContent = function() {
@@ -59,7 +68,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
         var callbackOnSuccess = function () {
             scope.asyncDone = true;
         };
-        this.shader.loadResources(callbackOnSuccess);
+        this.shader.loadResources( callbackOnSuccess );
     };
 
     SphereSuperCube.prototype.initPreGL = function () {
@@ -75,9 +84,10 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
 
         this.renderer.setClearColor(MAIN_CLEAR_COLOR);
+        this.renderer.autoClear = false;
 
         var cameraDefaults = {
-            posCamera: new THREE.Vector3( 0.0, 0.0, -10.0 ),
+            posCamera: new THREE.Vector3( 0.0, 0.0, 10.0 ),
             far: 1000
         };
         this.scenePerspective.setCameraDefaults( cameraDefaults );
@@ -92,9 +102,9 @@ KSX.apps.demos.SphereSuperCube = (function () {
             directionalLight3: new THREE.DirectionalLight( 0x5050C0 )
         };
 
-        lights.directionalLight1.position.set( 100, 0, -100 );
-        lights.directionalLight2.position.set( -100, 0, -100 );
-        lights.directionalLight3.position.set( 0, 0, 100 );
+        lights.directionalLight1.position.set( -100, 0, 100 );
+        lights.directionalLight2.position.set( 100, 0, 100 );
+        lights.directionalLight3.position.set( 0, 0, -100 );
 
         this.lightArray = new THREE.Object3D();
         this.lightArray.add( lights.directionalLight1 );
@@ -196,11 +206,50 @@ KSX.apps.demos.SphereSuperCube = (function () {
         this.pivot.add( mesh );
 
         this.scenePerspective.scene.add( this.pivot );
+
     };
 
     SphereSuperCube.prototype.initPostGL = function () {
         removeLoading();
+
+        if ( this.globals.physicalLighting ) {
+            var scope = this;
+            var callbackOnSuccess = function () {
+                scope.initOverlay( scope );
+            };
+
+            this.projectionSpace.loadAsyncResources( callbackOnSuccess );
+        }
+
         return true;
+    };
+
+    SphereSuperCube.prototype.initOverlay = function ( scope ) {
+        var canvasOverlay = new KSX.apps.core.Canvas({
+            offsetWidth: scope.scenePerspective.canvas.getWidth(),
+            offsetHeight: scope.scenePerspective.canvas.getHeight()
+        });
+
+        scope.overlay = new KSX.apps.core.ThreeJsApp.ScenePerspective( canvasOverlay );
+        // manual init required
+        scope.overlay.initGL();
+
+        scope.overlay.setCameraDefaults({
+            posCamera: new THREE.Vector3(0, 0, 200)
+        });
+
+        scope.projectionSpace.initGL();
+        scope.projectionSpace.flipTexture( 'linkPixelProtest' );
+
+        scope.projectionSpacePivot = new THREE.Object3D();
+        scope.projectionSpacePivot.add( scope.projectionSpace.dimensions[scope.projectionSpace.index].mesh );
+        scope.projectionSpacePivot.scale.x = scope.globals.pppScale;
+        scope.projectionSpacePivot.scale.y = scope.globals.pppScale;
+        scope.projectionSpacePivot.scale.z = scope.globals.pppScale;
+        scope.projectionSpacePivot.rotateX( -Math.PI / 6 );
+        scope.projectionSpacePivot.rotateY( Math.PI / 32 );
+        scope.projectionSpacePivot.rotateZ( Math.PI / 32 );
+        scope.overlay.scene.add( scope.projectionSpacePivot );
     };
 
     var createOffsetsArray = function ( objectCount, factor ) {
@@ -250,9 +299,20 @@ KSX.apps.demos.SphereSuperCube = (function () {
     };
 
     SphereSuperCube.prototype.renderPost = function () {
+        if ( this.globals.physicalLighting && this.overlay !== null ) {
+            this.renderer.clearDepth();
+            this.renderer.render( this.overlay.scene, this.overlay.camera );
+        }
         if ( !this.definition.loader ) {
             this.uiTools.updateStats();
         }
+    };
+
+    SphereSuperCube.prototype.dispose = function () {
+        if ( this.definition.loader ) {
+            this.definition.htmlCanvas.style.display  = 'none';
+        }
+        removeLoading();
     };
 
     var removeLoading = function () {
@@ -262,11 +322,16 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
     };
 
-    SphereSuperCube.prototype.dispose = function () {
-        if ( this.definition.loader ) {
-            this.definition.htmlCanvas.style.display  = 'none';
+    SphereSuperCube.prototype.enableLinkImage = function ( show, textureName ) {
+        if ( this.globals.physicalLighting && this.projectionSpacePivot != null ) {
+            if ( show ) {
+                this.overlay.scene.add( this.projectionSpacePivot );
+                this.projectionSpace.flipTexture( textureName );
+            }
+            else {
+                this.overlay.scene.remove( this.projectionSpacePivot );
+            }
         }
-        removeLoading();
     };
 
     return SphereSuperCube;

@@ -34,10 +34,7 @@ KSX.apps.demos.PPCheck = (function () {
         }, 0);
 
         this.cameraDefaults = {
-            posCamera: new THREE.Vector3(
-                300,
-                300,
-                300 ),
+            posCamera: new THREE.Vector3( 300, 300, 300 ),
             far: 100000
         };
     }
@@ -52,7 +49,7 @@ KSX.apps.demos.PPCheck = (function () {
     };
 
     PPCheck.prototype.initGL = function () {
-        this.projectionSpace.initGL( this.projectionSpace.shader.textures['linkPixelProtest'], null );
+        this.projectionSpace.initGL();
         this.projectionSpace.flipTexture( 'linkPixelProtest' );
 
         this.scenePerspective.scene.add( this.projectionSpace.dimensions[this.projectionSpace.index].mesh );

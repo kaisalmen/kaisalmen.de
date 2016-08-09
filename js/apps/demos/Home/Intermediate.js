@@ -25,11 +25,10 @@ KSX.apps.demos.home.Intermediate = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'Intermediate',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
-            useSceneOrtho : true
+            user: this,
+            name: 'Intermediate',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
         });
 
         this.textStorage = new KSX.apps.tools.text.Text();

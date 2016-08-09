@@ -353,9 +353,9 @@ KSX.apps.core.Canvas = (function () {
 
 KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
-    function ScenePerspective( canvas ) {
+    function ScenePerspective( canvas, verbose ) {
         this.canvas = canvas;
-        this.verbose = false;
+        this.verbose = verbose === undefined ? false : verbose;
         this.camera = null;
         this.useCube = false;
         this.cameraCube = null;
@@ -443,23 +443,50 @@ KSX.apps.core.ThreeJsApp.ScenePerspective = (function () {
 
 KSX.apps.core.ThreeJsApp.SceneOrtho = (function () {
 
-    var DEFAULT_NEAR = 10;
-    var DEFAULT_FAR = -10;
-    var DEFAULT_POS_CAM = new THREE.Vector3(0, 0, 1);
-
-    function SceneOrtho(canvas) {
+    function SceneOrtho( canvas, verbose ) {
         this.canvas = canvas;
-        this.verbose = false;
+        this.verbose = verbose === undefined ? false : verbose;
+
+        this.defaults = {
+            posCamera: new THREE.Vector3( 0, 0, 1 ),
+            near: 10,
+            far: -10
+        };
     }
+
+    SceneOrtho.prototype.setCameraDefaults = function ( defaults ) {
+        if ( defaults === null || defaults === undefined ) {
+            return;
+        }
+        if ( defaults.posCamera !== undefined && defaults.posCamera !== null ) {
+            this.defaults.posCamera.copy( defaults.posCamera );
+        }
+        if ( defaults.near !== undefined && defaults.near !== null ) {
+            this.defaults.near = defaults.near;
+        }
+        if ( defaults.far !== undefined && defaults.far !== null ) {
+            this.defaults.far = defaults.far;
+        }
+        this.resetCamera();
+    };
 
     SceneOrtho.prototype.initGL = function () {
         this.scene = new THREE.Scene();
 
-        this.camera = new THREE.OrthographicCamera(this.canvas.getPixelLeft(), this.canvas.getPixelRight, this.canvas.getPixelTop(), this.canvas.getPixelBottom(), DEFAULT_NEAR, DEFAULT_FAR);
+        this.camera = new THREE.OrthographicCamera(
+            this.canvas.getPixelLeft(),
+            this.canvas.getPixelRight,
+            this.canvas.getPixelTop(),
+            this.canvas.getPixelBottom(),
+            this.defaults.near,
+            this.defaults.far
+        );
     };
 
     SceneOrtho.prototype.resetCamera = function () {
-        this.camera.position.set(DEFAULT_POS_CAM.x, DEFAULT_POS_CAM.y, DEFAULT_POS_CAM.z);
+        this.camera.position.set( this.defaults.posCamera.x, this.defaults.posCamera.y, this.defaults.posCamera.z );
+        this.camera.near = this.defaults.near;
+        this.camera.far = this.defaults.far;
         this.camera.updateProjectionMatrix();
     };
 

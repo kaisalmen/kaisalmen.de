@@ -1,0 +1,23 @@
+#ProjectsHeader {
+    color: white;
+}
+
+#DivGLFullVideo,
+#DivGLFullVideoBuffer {
+    background-color: #FFFFFF;
+    display: none;
+    width: 1920px;
+    height: 804px;
+}
+
+div.helpArea {
+    width: 640px;
+    height: 544px;
+    top: 239px;
+}
+
+div.contactArea {
+    width: 480px;
+    height: 192px;
+    top: 285px;
+}
