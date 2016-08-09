@@ -10,8 +10,6 @@
 <body>
     <div id="DivGLFull">
         <canvas id="DivGLFullCanvas"></canvas>
-        <div id="Loading">Loading...</div>
-        <canvas id="DivGLFullCanvasLoad"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
             <source src="./resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
         </video>
@@ -86,12 +84,8 @@
             );
             implementations.push(home);
 
-            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvasLoad" ), bowser.mobile, true );
-            implementations.push( sphereSuperCube );
-
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);
-
 
             var clicksHelpArea = 0;
             var enableHelpArea = function () {

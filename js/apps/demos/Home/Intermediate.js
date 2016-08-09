@@ -61,7 +61,7 @@ KSX.apps.demos.home.Intermediate = (function () {
             scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };
 
-        scope.shader.loadResources(callbackOnShaderSuccess);
+        scope.shader.loadResources( true, callbackOnShaderSuccess );
     };
 
     Intermediate.prototype.initPreGL = function () {

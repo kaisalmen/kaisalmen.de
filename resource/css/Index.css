@@ -18,6 +18,14 @@ div.helpArea {
 
 div.contactArea {
     width: 480px;
-    height: 192px;
-    top: 285px;
+    height: 320px;
+    top: 9px;
+    left: 54px;
+}
+
+div.homeFixed {
+    position: absolute;
+    left: 0px;
+    top: 0px;
+    width: 54px;
 }

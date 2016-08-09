@@ -50,16 +50,12 @@ KSX.apps.demos.SphereSuperCube = (function () {
                 segments: mobileDevice ? 24 : 32,
                 radius: mobileDevice ? 0.075 : 0.15
             },
-            pppScale: 0.5
+            pppScale: 0.2
         };
 
         this.overlay = null;
-        if ( this.globals.physicalLighting ) {
-            this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
-                link: { index: 0, name: 'link', x: 300, y: 128, defaultHeightFactor: 16, mesh: null }
-            }, 0);
-            this.projectionSpacePivot = null;
-        }
+        this.projectionSpace = null;
+        this.projectionSpacePivot = null;
     }
 
     SphereSuperCube.prototype.initAsyncContent = function() {
@@ -218,6 +214,9 @@ KSX.apps.demos.SphereSuperCube = (function () {
                 scope.initOverlay( scope );
             };
 
+            this.projectionSpace = new KSX.apps.demos.ProjectionSpace({
+                link: { index: 0, name: 'link', x: 300, y: 128, defaultHeightFactor: 16, mesh: null }
+            }, 0);
             this.projectionSpace.loadAsyncResources( callbackOnSuccess );
         }
 
@@ -239,17 +238,16 @@ KSX.apps.demos.SphereSuperCube = (function () {
         });
 
         scope.projectionSpace.initGL();
-        scope.projectionSpace.flipTexture( 'linkPixelProtest' );
+        this.projectionSpace.shader.uniforms.spacing.value = 3.0;
 
         scope.projectionSpacePivot = new THREE.Object3D();
         scope.projectionSpacePivot.add( scope.projectionSpace.dimensions[scope.projectionSpace.index].mesh );
         scope.projectionSpacePivot.scale.x = scope.globals.pppScale;
         scope.projectionSpacePivot.scale.y = scope.globals.pppScale;
         scope.projectionSpacePivot.scale.z = scope.globals.pppScale;
-        scope.projectionSpacePivot.rotateX( -Math.PI / 6 );
-        scope.projectionSpacePivot.rotateY( Math.PI / 32 );
-        scope.projectionSpacePivot.rotateZ( Math.PI / 32 );
-        scope.overlay.scene.add( scope.projectionSpacePivot );
+        scope.projectionSpacePivot.rotateX( -Math.PI / 12 );
+        scope.projectionSpacePivot.rotateY( Math.PI / 64 );
+        scope.projectionSpacePivot.rotateZ( Math.PI / 64 );
     };
 
     var createOffsetsArray = function ( objectCount, factor ) {

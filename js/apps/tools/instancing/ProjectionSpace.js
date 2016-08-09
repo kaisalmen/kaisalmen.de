@@ -25,7 +25,7 @@ KSX.apps.demos.ProjectionSpace = (function () {
     }
 
     ProjectionSpace.prototype.loadAsyncResources = function ( callbackOnSuccess ) {
-        this.shader.loadResources( callbackOnSuccess );
+        this.shader.loadResources( false, callbackOnSuccess );
     };
 
     ProjectionSpace.prototype.initGL = function () {

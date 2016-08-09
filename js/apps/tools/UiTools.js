@@ -55,7 +55,7 @@ KSX.apps.tools.UiTools = (function () {
         }
 
         for ( var styleParam in userStyleProps ) {
-            if ( statStyles.hasOwnProperty(styleParam) && userStyleProps.hasOwnProperty(styleParam)) {
+            if ( userStyleProps.hasOwnProperty(styleParam)) {
                 statStyles[styleParam] = userStyleProps[styleParam];
             }
         }

@@ -9,13 +9,16 @@
 </head>
 <body>
     <div id="DivGLFull">
+        <div class="homeFixed" onclick="toggleContactArea()" >
+            <span class="contactButton">!</span>
+        </div>
         <canvas id="DivGLFullCanvas"></canvas>
         <div id="Loading">Loading...</div>
         <div class="navFrame">
             <div class="home" id="ProjectsHeader">
                 <h1>Demos</h1>
             </div>
-            <div class="home" onmouseenter="exchangeTexture('linkLoader')" onmouseleave="exchangeImageDefault()">
+            <div class="home" onmouseenter="exchangeTexture('linkProjectionSpace')" onmouseleave="exchangeImageDefault()">
                 <h1>
                     <a href="html/demos/ProjectionSpace.html">Projection Space</a>
                 </h1>
@@ -35,22 +38,24 @@
                     <a href="html/demos/Teaser.html">Website Teaser</a>
                 </h1>
             </div>
-            <div class="homeFixed" onclick="toggleContactArea()" >
-                <span class="contactButton">!</span>
-            </div>
         </div>
         <div class="contactArea" id="ContactArea">
-            <h1>Any questions?</h1>
-            Contact me via mail:<br>
+            Welcome to my website: kaisalmen.de
+            <br>
+            This site focues on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.
+            <br>
+            I work as a software engineer, but the content shown on this site was completely realised during my spare time.
+            <h4>You have any further questions, then...</h4>
+            contact me via mail:<br>
             <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a>
             <br><br>
-            Follow me on Twitter:<br>
+            or follow me on Twitter:<br>
             <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
-            <br><br>
-            This was realised during my spare time!
         </div>
         <div class="feedback" id="FeedbackArea">
-
+            <div class="copyrightArea" id="CopyrightArea">
+                Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil</a> and <a href="https://github.com/ded/bowser">bowser</a>!
+            </div>
         </div>
     </div>
     <script src="js/lib/ext/bowser.min.js"></script>
