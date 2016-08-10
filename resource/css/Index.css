@@ -1,3 +1,7 @@
+h4 {
+    margin: 2px 0px 8px 0px;
+}
+
 #ProjectsHeader {
     color: white;
 }
@@ -21,6 +25,10 @@ div.contactArea {
     height: 320px;
     top: 9px;
     left: 54px;
+}
+
+div.feedback {
+    height: 32px;
 }
 
 div.homeFixed {

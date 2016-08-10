@@ -8,3 +8,8 @@ span.helpButton {
     color: red;
     background-color: black;
 }
+
+div.feedback {
+    color: #FFFFFF;
+    height: 32px;
+}
