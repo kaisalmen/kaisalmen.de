@@ -86,7 +86,20 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = [];
-            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, true, true, false );
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), bowser.mobile, {
+                loader: false,
+                animate: true,
+                physicalLighting: true,
+                enableOverlay: true,
+                rotationSpeed: 0.00425,
+                objCount: bowser.mobile ? 2500 : 7500,
+                cubeEdgeLength: bowser.mobile ? 20 : 75,
+                sphere: {
+                    segments: bowser.mobile ? 24 : 32,
+                    radius: bowser.mobile ? 0.075 : 0.15
+                },
+                pppScale: 0.15
+            });
             implementations.push( sphereSuperCube );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run(true);

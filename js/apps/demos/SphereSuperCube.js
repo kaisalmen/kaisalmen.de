@@ -17,19 +17,35 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
     });
 
-    function SphereSuperCube( elementToBindTo, mobileDevice, physicalLighting, enableOverlay, loader  ) {
+    function SphereSuperCube( elementToBindTo, mobileDevice, globals ) {
         KSX.apps.core.ThreeJsApp.call(this);
-        mobileDevice = mobileDevice === undefined ? false : mobileDevice;
-        physicalLighting = physicalLighting === undefined ? false : physicalLighting;
-        enableOverlay = enableOverlay === undefined ? false : enableOverlay;
-        loader = loader === undefined ? false : loader;
+
+        if ( globals !== undefined && globals !== null ) {
+            this.globals = globals;
+        }
+        else {
+            this.globals = {
+                loader: false,
+                animate: true,
+                physicalLighting: false,
+                enableOverlay: false,
+                rotationSpeed: 0.00425,
+                objCount: mobileDevice ? 2500 : 7500,
+                cubeEdgeLength: mobileDevice ? 20 : 75,
+                sphere: {
+                    segments: mobileDevice ? 24 : 32,
+                    radius: mobileDevice ? 0.075 : 0.15
+                },
+                pppScale: 0.15
+            };
+        }
 
         this.configure({
             user : this,
             name : 'SphereSuperCube',
             htmlCanvas : elementToBindTo,
             useScenePerspective : true,
-            loader: loader
+            loader: this.globals.loader
         });
 
         this.controls = null;
@@ -43,20 +59,6 @@ KSX.apps.demos.SphereSuperCube = (function () {
             };
             this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
         }
-
-        this.globals = {
-            animate: true,
-            physicalLighting: physicalLighting,
-            enableOverlay: enableOverlay,
-            rotationSpeed: 0.00425,
-            objCount: mobileDevice ? 2500 : 7500,
-            cubeEdgeLength: mobileDevice ? 20 : 40,
-            sphere: {
-                segments: mobileDevice ? 24 : 32,
-                radius: mobileDevice ? 0.075 : 0.15
-            },
-            pppScale: 0.15
-        };
 
         this.overlay = null;
         this.overlayPivot = null;
