@@ -257,7 +257,7 @@ KSX.apps.core.prerequisites.PlatformVerification = (function () {
             divNotSupported.id = 'DivNotSupported';
 
             var body = document.body;
-            body.insertBefore( divNotSupported, body.childNodes[0] );
+            body.insertBefore( divNotSupported, body.childNodes[body.childNodes.length] );
             console.log( 'Div "DivNotSupported" was added to body' );
         }
         divNotSupported.style.display = "";
