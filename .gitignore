@@ -1,0 +1,14 @@
+.project
+.idea
+/js/lib/ext
+/js/lib/threejs
+/node_modules
+/resource/fonts/*.ttf
+/resource/fonts/*.zip
+/resource/video
+/resource/images
+/resource/models
+/resource/textures/notPublic
+/resource/textures/meadow
+/resource/textures/skybox
+/resource/textures/*.zip

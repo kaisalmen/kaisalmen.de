@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ZeroSouth PTV 1 Virtual Tour</title>
+
+    <meta name="description" content="Virtual tour of ZeroSouth's PTV 1 using web worker based OBJ Loader">
+    <meta name="keywords" content="WebGL, three.js, OBJ Loader, javascript, web worker, ZeroSouth">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/PTV1.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+        <div class="navFrame">
+            <div class="home">
+                <h1>
+                    <a href="../../index.html">Home</a>
+                </h1>
+            </div>
+            <div class="home" onclick="enableHelpArea()">
+                <span class="helpButton">?</span>
+            </div>
+        </div>
+        <div class="helpArea" id="HelpArea">
+            <h1>PTV 1 Loader</h1>
+            The model of ZERO SOUTH's Polar Traverse Vehicle 1 (PTV 1) is loaded from a zip compressed OBJ file (uncompressed file size is 150 MB).<br>
+            The decompression and the processing of the OBJ data is handled by web workers.
+            The integration of new objects into the scene is done whenever a new object has been processed from the input file.
+            It ensures interactivity is always given while new pieces of the overall vehicle appear.<br>
+            The web worker code is currently based on a fork three.js's OBJLoader (Feb. 2016).
+        </div>
+        <div class="offsite">
+            <a class="offsiteLink" href="http://www.zerosouth.com">
+                <img alt="ZeroSouth.com" src="../../resource/textures/ZeroSouthLogo.png">
+            </a>
+        </div>
+        <div class="feedback" id="FeedbackArea">
+            <div class="copyrightArea" id="CopyrightArea">
+                Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
+                <span class="tab"><span class="tab"></span>
+                Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil.js</a>, <a href="https://github.com/ded/bowser">bowser.js</a> and <a href="https://stuk.github.io/jszip/">jszip</a>!
+            </div>
+        </div>
+    </div>
+    <script src="../../js/lib/ext/bowser.min.js"></script>
+    <script>
+        var browserVersions = {
+            msedge : {
+                minVersion : 13.10586
+            },
+            firefox : {
+                mobileWarning : 'Mobile Firefox is considered unstable, but it may work!'
+            },
+            safari : {
+                mobileWarning : 'Mobile Safari has memory issues and is considered unstable, but it may work!'
+            }
+        };
+    </script>
+    <script src="../../js/apps/core/Prerequisites.js"></script>
+
+    <script src="../../js/lib/threejs/three.min.js"></script>
+    <script src="../../js/lib/threejs/stats.min.js"></script>
+    <script src="../../js/lib/threejs/TrackballControls.js"></script>
+    <script src="../../js/lib/mod/MTLLoader.js"></script>
+    <script src="../../js/lib/ext/uil.min.js"></script>
+    <script src="../../js/lib/ext/jszip.min.js"></script>
+
+    <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/tools/webworker/WWObjParser.js"></script>
+    <script src="../../js/apps/tools/webworker/WWUnzip.js"></script>
+    <script src="../../js/apps/tools/ObjLoaderWW.js"></script>
+    <script src="../../js/apps/tools/TextureTools.js"></script>
+    <script src="../../js/apps/tools/UiTools.js"></script>
+    <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            var zeroSouth = new KSX.apps.zerosouth.PTV1Loader( document.getElementById("DivGLFullCanvas"), bowser.mobile );
+            implementations.push(zeroSouth);
+            KSX.globals.appRunner.addImplementations(implementations);
+            KSX.globals.appRunner.run(true);
+
+            var clicksHelpArea = 0;
+            var enableHelpArea = function () {
+                var divHelpArea = document.getElementById( 'HelpArea' );
+                divHelpArea.style.display = clicksHelpArea % 2 === 0 ? 'inline' : 'none';
+                clicksHelpArea++;
+            }
+        }
+    </script>
+</body>
+</html>

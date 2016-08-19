@@ -1,0 +1,131 @@
+* {
+    font-family: Arial;
+}
+
+body {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    border: none;
+}
+
+#master {
+    margin: inherit;
+    padding: inherit;
+
+    width: 100%;
+    height: 100vh;
+
+    min-width: 1024px;
+    min-height: 576px;
+
+    position: relative;
+}
+
+#DivGL1,
+#DivGL2,
+#DivGL3,
+#DivGL4 {
+    width: 50%;
+    height: 50%;
+    position: absolute;
+    min-width: 320px;
+    min-height: 240px;
+    overflow: hidden;
+}
+#DivGL1,
+#DivGL2,
+#DivGL3,
+#DivGL4,
+#DivGL1Canvas,
+#DivGL2Canvas,
+#DivGL3Canvas,
+#DivGL4Canvas,
+#DIVFeedbackAreaStatic,
+#DIVFeedbackAreaDynamic {
+    margin: inherit;
+    padding: inherit;
+}
+#DivGL1Canvas,
+#DivGL2Canvas,
+#DivGL3Canvas,
+#DivGL4Canvas {
+    width: 100%;
+    height: 100%;
+}
+#DivGLFull {
+    position: absolute;
+    min-width: 320px;
+    min-height: 240px;
+    overflow: hidden;
+}
+#DivGLFull,
+#DivGLFullCanvas,
+#DivGLFullCanvasLoad {
+    margin: inherit;
+    padding: inherit;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: #222222;
+}
+#DivGLFullCanvasLoad {
+    position: absolute;
+    z-index: 20;
+}
+#DivGL1 {
+    background-color: #ff0000;
+    top: 0px;
+    left: 0px;
+}
+#DivGL1Canvas {
+    background-color: #666666;
+    top: 0px;
+    left: 0px;
+}
+#DivGL2 {
+    background-color: #0000ff;
+    top: 0px;
+    right: 0px;
+}
+#DivGL2Canvas {
+    background-color: #666666;
+    top: 0px;
+    right: 0px;
+}
+#DivGL3 {
+    background-color: #00ff00;
+    bottom: 0px;
+    left: 0px;
+}
+#DivGL3Canvas {
+    background-color: #666666;
+    bottom: 0px;
+    left: 0px;
+}
+#DivGLFullVideo,
+#DivGLFullVideoBuffer,
+#DivGL3Video,
+#DivGL3VideoBuffer {
+    background-color: #FFFFFF;
+    display: none;
+    width: 1920px;
+    height: 1080px;
+}
+#DivGL4 {
+    background-color: #fff600;
+    bottom: 0px;
+    right: 0px;
+}
+#DivGL4Canvas {
+    background-color: #666666;
+    bottom: 0px;
+    right: 0px;
+}
+
+#DivVideoBg {
+    background-color: #000000;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+}

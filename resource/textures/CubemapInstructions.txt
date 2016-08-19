@@ -1,0 +1,7 @@
+Download the cubemaps from:
+http://www.humus.name/Textures/Meadow.zip
+and extract to folders 'meadow'.
+
+Skybox is contained in three.js repository under:
+examples\textures\cube\skybox
+Copy the folder to here!

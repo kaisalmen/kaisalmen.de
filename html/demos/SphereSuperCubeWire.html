@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Sphere Super Cube Wireframe</title>
+
+    <meta name="description" content="Instanced sphere rendered with three.js's physical shader">
+    <meta name="keywords" content="WebGL, three.js, instancing, shader programming, javascript">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <div id="Loading">Loading...</div>
+        <canvas id="DivGLFullCanvas"></canvas>
+        <div class="navFrame">
+            <div class="home">
+                <h1>
+                    <a href="../../index.html">Home</a>
+                </h1>
+            </div>
+        </div>
+    </div>
+    <script src="../../js/lib/ext/bowser.min.js"></script>
+    <script src="../../js/apps/core/Prerequisites.js"></script>
+
+    <script src="../../js/lib/threejs/three.min.js"></script>
+    <script src="../../js/lib/threejs/stats.min.js"></script>
+    <script src="../../js/lib/threejs/TrackballControls.js"></script>
+
+    <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/tools/ShaderTools.js"></script>
+    <script src="../../js/apps/tools/TextureTools.js"></script>
+    <script src="../../js/apps/tools/UiTools.js"></script>
+    <script src="../../js/apps/shader/ShaderBase.js"></script>
+    <script src="../../js/apps/shader/BlockShader.js"></script>
+    <script src="../../js/apps/tools/instancing/BoxCreator.js"></script>
+    <script src="../../js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../js/apps/tools/instancing/ProjectionSpace.js"></script>
+    <script src="../../js/apps/shader/SphereSuperCubeShader.js"></script>
+    <script src="../../js/apps/demos/SphereSuperCube.js"></script>
+    <script>
+        if (KSX.globals.preChecksOk) {
+            var implementations = [];
+            var sphereSuperCube = new KSX.apps.demos.SphereSuperCube( document.getElementById( "DivGLFullCanvas" ), false, {
+                loader: false,
+                animate: true,
+                physicalLighting: false,
+                enableOverlay: false,
+                rotationSpeed: 0.00425,
+                objCount: 50000,
+                cubeEdgeLength: 75,
+                sphere: {
+                    segments: 32,
+                    radius: 0.15
+                },
+                pppScale: 0.15
+            });
+            implementations.push( sphereSuperCube );
+            KSX.globals.appRunner.addImplementations( implementations );
+            KSX.globals.appRunner.run(true);
+        }
+    </script>
+
+</body>
+</html>
