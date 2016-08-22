@@ -1,7 +1,9 @@
 .project
 .idea
-/js/lib/ext
-/js/lib/threejs
+/js/lib/ext/dev
+/js/lib/ext/legacy
+/js/lib/threejs/dev
+/js/lib/threejs/legacy
 /node_modules
 /resource/fonts/*.ttf
 /resource/fonts/*.zip

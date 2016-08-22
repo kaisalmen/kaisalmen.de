@@ -1,3 +1,0 @@
-This is the public branch!
-
-It is from now on used for main development.
