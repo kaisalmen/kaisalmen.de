@@ -322,7 +322,7 @@ var decodeLines = function (processLineCallback) {
 };
 
 
-var parseSingleLine = function (line, lineCount) {
+var parseSingleLine = function ( line ) {
     line = line.trim();
 
 //    console.log(lineCount + ': ' + line);

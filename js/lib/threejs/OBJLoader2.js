@@ -44,8 +44,11 @@ THREE.OBJLoader = function ( manager ) {
 	};
 	this.trimFunction = typeof ''.trimLeft === 'function' ?  trimLeft : trimNormal;
 
-	this.state = this._createParserState();
 	this.loadAsArrayBuffer = false;
+	this.workInline = false;
+
+	this.state = null;
+	this.container = new THREE.Group();
 };
 
 THREE.OBJLoader.prototype = {
@@ -87,7 +90,11 @@ THREE.OBJLoader.prototype = {
 		this.loadAsArrayBuffer = loadAsArrayBuffer;
 	},
 
-	_createParserState : function () {
+	setWorkInline: function ( workInline ) {
+		this.workInline = workInline;
+	},
+
+	_createParserState : function ( scope ) {
 
 		var state = {
 			objects  : [],
@@ -200,6 +207,14 @@ THREE.OBJLoader.prototype = {
 								name   : '',
 								smooth : this.smooth
 							});
+						}
+
+						if ( scope.workInline ) {
+
+							var mesh = scope._buildSingleMesh( this, true );
+							if ( mesh !== null ) {
+								scope.container.add( mesh );
+							}
 						}
 
 						return lastMultiMaterial;
@@ -422,10 +437,69 @@ THREE.OBJLoader.prototype = {
 		state.startObject( '', false );
 
 		return state;
-
 	},
 
-	processLine: function ( line ) {
+	parse: function ( input ) {
+
+		console.time( 'OBJLoader' );
+
+		this.state = this._createParserState( this );
+
+		// both ways to iterate are approx. 20 percent slower then previous implementation,
+		// but the input is no longer doubled removing the memory spike
+		var scope = this;
+		var findLineEndAndProcess = function ( code, line ) {
+			if ( code === 13  ) {
+				scope._processLine( line );
+				line = '';
+			}
+			else {
+				if ( code !== 10 ) {
+					line += String.fromCharCode( code );
+				}
+			}
+
+			return line;
+		};
+
+		var currentPos = 0;
+		var line = '';
+		if ( this.loadAsArrayBuffer ) {
+			var view = new Uint8Array(input);
+
+			for ( var length = view.length; currentPos < length; currentPos++ ) {
+				line = findLineEndAndProcess ( view[currentPos], line );
+			}
+		}
+		else {
+			for ( var length = input.length; currentPos < length; currentPos++ ) {
+				line = findLineEndAndProcess ( input.charCodeAt( currentPos ), line );
+			}
+		}
+
+		this.state.finalize();
+
+		this.container.materialLibraries = [].concat( this.state.materialLibraries );
+
+		if ( ! this.workInline ) {
+			var mesh;
+			for (var i = 0, l = this.state.objects.length; i < l; i++) {
+
+				mesh = this._buildSingleMesh( this.state.objects[i], true );
+				if (mesh !== null) {
+					this.container.add(mesh);
+				}
+			}
+		}
+
+		console.timeEnd( 'OBJLoader' );
+
+		this.dispose();
+
+		return this.container;
+	},
+
+	_processLine: function ( line ) {
 		var result = [];
 
 		line = this.trimFunction( line );
@@ -587,7 +661,7 @@ THREE.OBJLoader.prototype = {
 			// Example asset: examples/models/obj/cerberus/Cerberus.obj
 
 			var value = result[ 1 ].trim().toLowerCase();
-			this.state.object.smooth = ( value === '1' || value === 'on' );
+			this.state.object.smooth = ( value !== '0' || value === 'on' );
 
 			var material = this.state.object.currentMaterial();
 			if ( material ) {
@@ -606,147 +680,95 @@ THREE.OBJLoader.prototype = {
 		}
 	},
 
-	parse: function ( input ) {
+	_buildSingleMesh: function ( object, createMesh ) {
+		var geometry = object.geometry;
+		var materials = object.materials;
+		var isLine = ( geometry.type === 'Line' );
 
-		console.time( 'OBJLoader' );
+		// Skip o/g line declarations that did not follow with any faces
+		if ( geometry.vertices.length === 0 ) return null;
 
-		// both ways to iterate are approx. 20 percent slower then previous implementation,
-		// but the input is no longer doubled removing the memory spike
-		var scope = this;
-		var findLineEndAndProcess = function ( code, line ) {
-			if ( code === 13  ) {
-				scope.processLine( line );
-				line = '';
-			}
-			else {
-				if ( code !== 10 ) {
-					line += String.fromCharCode( code );
+
+		// Create materials
+		var createdMaterials = [];
+		for ( var mi = 0, miLen = materials.length; mi < miLen ; mi++ ) {
+
+			var sourceMaterial = materials[mi];
+			var material = undefined;
+
+			if ( this.materials !== null ) {
+
+				material = this.materials.create( sourceMaterial.name );
+
+				// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
+				if ( isLine && material && ! ( material instanceof THREE.LineBasicMaterial ) ) {
+
+					var materialLine = new THREE.LineBasicMaterial();
+					materialLine.copy( material );
+					material = materialLine;
 				}
 			}
 
-			return line;
-		};
-
-		var currentPos = 0;
-		var line = '';
-		if ( this.loadAsArrayBuffer ) {
-			var view = new Uint8Array(input);
-
-			for ( var length = view.length; currentPos < length; currentPos++ ) {
-				line = findLineEndAndProcess ( view[currentPos], line );
+			if ( ! material ) {
+				material = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
+				material.name = sourceMaterial.name;
 			}
+			material.shading = sourceMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
+
+			createdMaterials.push(material);
+		}
+
+
+		var targetMaterial;
+		if ( createdMaterials.length > 1 ) {
+			targetMaterial = new THREE.MultiMaterial( createdMaterials );
 		}
 		else {
-			for ( var length = input.length; currentPos < length; currentPos++ ) {
-				line = findLineEndAndProcess ( input.charCodeAt( currentPos ), line );
-			}
+			targetMaterial = createdMaterials[ 0 ];
 		}
 
-		this.state.finalize();
+		var verticesOut = new Float32Array( geometry.vertices );
+		var normalsOut = null;
+		if ( geometry.normals.length > 0 ) {
+			normalsOut = new Float32Array( geometry.normals );
+		}
+		var uvsOut = new Float32Array( geometry.uvs );
 
-		var container = new THREE.Group();
-		container.materialLibraries = [].concat( this.state.materialLibraries );
 
-		for ( var i = 0, l = this.state.objects.length; i < l; i ++ ) {
+		var mesh = null;
+		if ( createMesh ) {
+			var bufferGeometry = new THREE.BufferGeometry();
+			bufferGeometry.addAttribute('position', new THREE.BufferAttribute(verticesOut, 3));
 
-			var object = this.state.objects[ i ];
-			var geometry = object.geometry;
-			var materials = object.materials;
-			var isLine = ( geometry.type === 'Line' );
-
-			// Skip o/g line declarations that did not follow with any faces
-			if ( geometry.vertices.length === 0 ) continue;
-
-			var buffergeometry = new THREE.BufferGeometry();
-
-			buffergeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
-
-			if ( geometry.normals.length > 0 ) {
-
-				buffergeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
-
-			} else {
-
-				buffergeometry.computeVertexNormals();
-
+			if (normalsOut !== null) {
+				bufferGeometry.addAttribute('normal', new THREE.BufferAttribute(normalsOut, 3));
+			}
+			else {
+				bufferGeometry.computeVertexNormals();
 			}
 
-			if ( geometry.uvs.length > 0 ) {
-
-				buffergeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
-
+			if (geometry.uvs.length > 0) {
+				bufferGeometry.addAttribute('uv', new THREE.BufferAttribute(uvsOut, 2));
 			}
 
-			// Create materials
-
-			var createdMaterials = [];
-
-			for ( var mi = 0, miLen = materials.length; mi < miLen ; mi++ ) {
-
-				var sourceMaterial = materials[mi];
-				var material = undefined;
-
-				if ( this.materials !== null ) {
-
-					material = this.materials.create( sourceMaterial.name );
-
-					// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-					if ( isLine && material && ! ( material instanceof THREE.LineBasicMaterial ) ) {
-
-						var materialLine = new THREE.LineBasicMaterial();
-						materialLine.copy( material );
-						material = materialLine;
-
-					}
-
+			if (createdMaterials.length > 1) {
+				for (var mi = 0, miLen = materials.length; mi < miLen; mi++) {
+					var sourceMaterial = materials[mi];
+					bufferGeometry.addGroup(sourceMaterial.groupStart, sourceMaterial.groupCount, mi);
 				}
-
-				if ( ! material ) {
-
-					material = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
-					material.name = sourceMaterial.name;
-
-				}
-
-				material.shading = sourceMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-				createdMaterials.push(material);
-
 			}
 
 			// Create mesh
-
-			var mesh;
-
-			if ( createdMaterials.length > 1 ) {
-
-				for ( var mi = 0, miLen = materials.length; mi < miLen ; mi++ ) {
-
-					var sourceMaterial = materials[mi];
-					buffergeometry.addGroup( sourceMaterial.groupStart, sourceMaterial.groupCount, mi );
-
-				}
-
-				var multiMaterial = new THREE.MultiMaterial( createdMaterials );
-				mesh = ( ! isLine ? new THREE.Mesh( buffergeometry, multiMaterial ) : new THREE.LineSegments( buffergeometry, multiMaterial ) );
-
-			} else {
-
-				mesh = ( ! isLine ? new THREE.Mesh( buffergeometry, createdMaterials[ 0 ] ) : new THREE.LineSegments( buffergeometry, createdMaterials[ 0 ] ) );
-			}
-
+			mesh = !isLine ? new THREE.Mesh(bufferGeometry, targetMaterial) : new THREE.LineSegments(bufferGeometry, targetMaterial);
 			mesh.name = object.name;
-
-			container.add( mesh );
-
 		}
 
+		return mesh;
+	},
+
+	dispose: function () {
 		this.state = null;
-
-		console.timeEnd( 'OBJLoader' );
-
-		return container;
-
+		this.materials = null;
 	}
 
 };

@@ -4,19 +4,24 @@
 
 'use strict';
 
+importScripts( '../../../lib/threejs/three.min.js' );
+importScripts( '../../../lib/threejs/MTLLoader.js' );
+importScripts( '../../../lib/threejs/OBJLoader2.js' );
+
 var KSX = {
     apps: {
         learn: {
             ww: {
-
+                static: {
+                    runner: null,
+                    impl: null,
+                    mtlLoader: new THREE.MTLLoader(),
+                    objLoader: new THREE.OBJLoader()
+                }
             }
         }
     }
 };
-
-importScripts( '../../../lib/threejs/three.min.js' );
-importScripts( '../../../lib/threejs/MTLLoader.js' );
-importScripts( '../../../lib/threejs/OBJLoader2.js' );
 
 KSX.apps.learn.ww.WWFeatureChecker = (function () {
 
@@ -54,27 +59,27 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
 })();
 
 
-var runner = function ( event ) {
+KSX.apps.learn.ww.static.runner = function ( event ) {
     var payload = event.data;
 
     console.log( payload );
 
-    console.log( 'State before: ' + impl.state );
+    console.log( 'State before: ' + KSX.apps.learn.ww.static.impl.state );
 
 
     switch ( payload.cmd ) {
         case 'init':
-            impl.init( payload );
+            KSX.apps.learn.ww.static.impl.init( payload );
 
             var path = '../../../../resource/models/';
-            mtlLoader.setPath( path );
+            KSX.apps.learn.ww.static.mtlLoader.setPath( path );
 
-            objLoader.setloadAsArrayBuffer( true );
-            objLoader.setPath( path );
+            KSX.apps.learn.ww.static.objLoader.setloadAsArrayBuffer( true );
+            KSX.apps.learn.ww.static.objLoader.setPath( path );
 
             break;
         case 'run':
-            impl.run( payload );
+            KSX.apps.learn.ww.static.impl.run( payload );
 
             var onProgress = function ( xhr ) {
                 if ( xhr.lengthComputable ) {
@@ -85,11 +90,11 @@ var runner = function ( event ) {
 
             var onError = function ( xhr ) { };
 
-            mtlLoader.load( 'PTV1.mtl', function( materials ) {
+            KSX.apps.learn.ww.static.mtlLoader.load( 'PTV1.mtl', function( materials ) {
                 materials.preload();
 
-                objLoader.setMaterials( materials );
-                objLoader.load( 'PTV1.obj', function ( object ) {
+                KSX.apps.learn.ww.static.objLoader.setMaterials( materials );
+                KSX.apps.learn.ww.static.objLoader.load( 'PTV1.obj', function ( object ) {
                     console.log( 'Hello' );
                 }, onProgress, onError );
             });
@@ -101,11 +106,9 @@ var runner = function ( event ) {
             break;
     }
 
-    console.log( 'State after: ' + impl.state );
+    console.log( 'State after: ' + KSX.apps.learn.ww.static.impl.state );
 };
 
-var impl = new KSX.apps.learn.ww.WWFeatureChecker();
-var mtlLoader = new THREE.MTLLoader();
-var objLoader = new THREE.OBJLoader();
+KSX.apps.learn.ww.static.impl = new KSX.apps.learn.ww.WWFeatureChecker();
 
-self.addEventListener( 'message', runner, false );
+self.addEventListener( 'message', KSX.apps.learn.ww.static.runner, false );
