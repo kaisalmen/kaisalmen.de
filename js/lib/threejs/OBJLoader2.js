@@ -2,41 +2,7 @@
  * @author mrdoob / http://mrdoob.com/
  */
 
-//importScripts( 'three.min.js' );
-
-var wwParseObj = function (e) {
-	var payload = e.data;
-
-	switch (payload.cmd) {
-		case 'init':
-			console.time("Worker Obj: Overall Parsing Time");
-
-			arrayBuffer = payload.arrayBuffer;
-
-			addObject('');
-
-			processFile();
-
-			break;
-
-		case 'processOngoing':
-			console.log("Restarted after interrupt at object no.: " + objectCount);
-
-			// we exited the loop, therefore we need to increase the counter before entering it again
-			currentPos++;
-
-			processFile();
-
-			break;
-
-		default:
-			console.error("Worker Obj: Received unknown command: " + payload.cmd);
-			break;
-	}
-};
-
-self.addEventListener('message', wwParseObj, false);
-
+'use strict';
 
 THREE.OBJLoader = function ( manager ) {
 
@@ -70,25 +36,32 @@ THREE.OBJLoader = function ( manager ) {
 	};
 
 	// Faster to just trim left side of the line. Use if available.
-	this.trimLeft = ( typeof ''.trimLeft === 'function' );
+	var trimLeft = function ( line ) {
+		return line.trimLeft();
+	};
+	var trimNormal = function ( line ) {
+		return line.trim();
+	};
+	this.trimFunction = typeof ''.trimLeft === 'function' ?  trimLeft : trimNormal;
 
 	this.state = this._createParserState();
+	this.loadAsArrayBuffer = false;
 };
 
 THREE.OBJLoader.prototype = {
 
 	constructor: THREE.OBJLoader,
 
-	load: function ( url, asArray, onLoad, onProgress, onError ) {
+	load: function ( url, onLoad, onProgress, onError ) {
 
 		var scope = this;
 
 		var loader = new THREE.XHRLoader( scope.manager );
 		loader.setPath( this.path );
-		loader.setResponseType( asArray ? 'arraybuffer' : 'text' );
+		loader.setResponseType( this.loadAsArrayBuffer ? 'arraybuffer' : 'text' );
 		loader.load( url, function ( loadedContent ) {
 
-			onLoad( scope.parse( loadedContent, asArray ) );
+			onLoad( scope.parse( loadedContent ) );
 
 		}, onProgress, onError );
 
@@ -104,6 +77,14 @@ THREE.OBJLoader.prototype = {
 
 		this.materials = materials;
 
+	},
+
+	/**
+	 * When this is set the ResponseType of the XHRLoader is set to arraybuffer.
+	 * @param loadAsArrayBuffer
+	 */
+	setloadAsArrayBuffer: function ( loadAsArrayBuffer ) {
+		this.loadAsArrayBuffer = loadAsArrayBuffer;
 	},
 
 	_createParserState : function () {
@@ -447,7 +428,7 @@ THREE.OBJLoader.prototype = {
 	processLine: function ( line ) {
 		var result = [];
 
-		line = this.trimLeft ? line.trimLeft() : line.trim();
+		line = this.trimFunction( line );
 
 		if ( line.length === 0 ) return;
 		var lineFirstChar = line.charAt( 0 );
@@ -625,43 +606,39 @@ THREE.OBJLoader.prototype = {
 		}
 	},
 
-	parse: function ( input, asArray ) {
+	parse: function ( input ) {
 
 		console.time( 'OBJLoader' );
 
-		if ( asArray ) {
-			var view = new Uint8Array( input );
-
-			var line = '';
-			var code = 0;
-			var char;
-			var viewLength = view.length;
-			var currentPos = 0;
-
-			for (; currentPos < viewLength; currentPos++) {
-				code = view[currentPos];
-				char = String.fromCharCode(code);
-
-				if (code === 13) {
-					this.processLine( line );
-					line = '';
+		// both ways to iterate are approx. 20 percent slower then previous implementation,
+		// but the input is no longer doubled removing the memory spike
+		var scope = this;
+		var findLineEndAndProcess = function ( code, line ) {
+			if ( code === 13  ) {
+				scope.processLine( line );
+				line = '';
+			}
+			else {
+				if ( code !== 10 ) {
+					line += String.fromCharCode( code );
 				}
-				else if (code !== 10) {
-					line += char;
-				}
+			}
+
+			return line;
+		};
+
+		var currentPos = 0;
+		var line = '';
+		if ( this.loadAsArrayBuffer ) {
+			var view = new Uint8Array(input);
+
+			for ( var length = view.length; currentPos < length; currentPos++ ) {
+				line = findLineEndAndProcess ( view[currentPos], line );
 			}
 		}
 		else {
-			if ( input.indexOf( '\r\n' ) !== - 1 ) {
-
-				// This is faster than String.split with regex that splits on both
-				input = input.replace( '\r\n', '\n' );
-			}
-
-			var lines = input.split( '\n' );
-
-			for ( var i = 0, l = lines.length; i < l; i ++ ) {
-				this.processLine( lines[i] );
+			for ( var length = input.length; currentPos < length; currentPos++ ) {
+				line = findLineEndAndProcess ( input.charCodeAt( currentPos ), line );
 			}
 		}
 

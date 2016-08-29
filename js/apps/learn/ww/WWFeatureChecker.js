@@ -15,7 +15,8 @@ var KSX = {
 };
 
 importScripts( '../../../lib/threejs/three.min.js' );
-importScripts( '../../../lib/threejs/OBJLoader.js' );
+importScripts( '../../../lib/threejs/MTLLoader.js' );
+importScripts( '../../../lib/threejs/OBJLoader2.js' );
 
 KSX.apps.learn.ww.WWFeatureChecker = (function () {
 
@@ -64,12 +65,34 @@ var runner = function ( event ) {
     switch ( payload.cmd ) {
         case 'init':
             impl.init( payload );
-            var path = '../../resource/models/';
+
+            var path = '../../../../resource/models/';
+            mtlLoader.setPath( path );
+
+            objLoader.setloadAsArrayBuffer( true );
             objLoader.setPath( path );
 
             break;
         case 'run':
             impl.run( payload );
+
+            var onProgress = function ( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                }
+            };
+
+            var onError = function ( xhr ) { };
+
+            mtlLoader.load( 'PTV1.mtl', function( materials ) {
+                materials.preload();
+
+                objLoader.setMaterials( materials );
+                objLoader.load( 'PTV1.obj', function ( object ) {
+                    console.log( 'Hello' );
+                }, onProgress, onError );
+            });
 
             break;
         default:
@@ -82,6 +105,7 @@ var runner = function ( event ) {
 };
 
 var impl = new KSX.apps.learn.ww.WWFeatureChecker();
+var mtlLoader = new THREE.MTLLoader();
 var objLoader = new THREE.OBJLoader();
 
 self.addEventListener( 'message', runner, false );

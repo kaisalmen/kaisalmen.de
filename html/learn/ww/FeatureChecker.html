@@ -15,13 +15,18 @@
     <script src="../../../js/lib/ext/bowser.min.js"></script>
     <script src="../../../js/apps/core/Prerequisites.js"></script>
 
+    <script src="../../../js/lib/threejs/dev/three.js"></script>
+
+    <script src="../../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../../js/apps/learn/ww/FeatureChecker.js"></script>
 
     <script>
         if (KSX.globals.preChecksOk) {
-            var featureChecker = new KSX.apps.learn.ww.FeatureChecker( '../../..' );
-            featureChecker.postInit();
-            featureChecker.postRun();
+            var implementations = new Array();
+            var featureChecker = new KSX.apps.learn.ww.FeatureChecker( document.getElementById("DivGLFullCanvas"), '../../..' );
+            implementations.push( featureChecker );
+            KSX.globals.appRunner.addImplementations( implementations );
+            KSX.globals.appRunner.run( true );
         }
     </script>
 </body>

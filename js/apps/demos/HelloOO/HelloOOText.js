@@ -41,8 +41,10 @@ KSX.apps.demos.HelloOOText = (function () {
     };
 
     HelloOOText.prototype.initGL = function () {
-        var camera = this.scenePerspective.camera;
-        camera.position.set( 0, 0, 250 );
+        var cameraDefaults = {
+            posCamera: new THREE.Vector3( 0.0, 0.0, 250.0 ),
+        };
+        this.scenePerspective.setCameraDefaults( cameraDefaults );
 
         var geometry = new THREE.BoxGeometry(1, 2, 1);
         var material = new THREE.MeshNormalMaterial();

@@ -13,7 +13,24 @@ if ( KSX.apps.learn.ww === undefined ) {
 
 KSX.apps.learn.ww.FeatureChecker = (function () {
 
-    function FeatureChecker( basedir ) {
+    FeatureChecker.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: FeatureChecker,
+            writable: true
+        }
+    });
+
+    function FeatureChecker( elementToBindTo, basedir ) {
+        KSX.apps.core.ThreeJsApp.call(this);
+
+        this.configure({
+            user : this,
+            name : 'GLCheckApp',
+            htmlCanvas : elementToBindTo,
+            useScenePerspective : true
+        });
 
         this.worker = new Worker( basedir + "/js/apps/learn/ww/WWFeatureChecker.js" );
 
@@ -24,12 +41,36 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
         this.worker.addEventListener( 'message', scopeFunction, false );
     }
 
+    FeatureChecker.prototype.initGL = function () {
+        var cameraDefaults = {
+            posCamera: new THREE.Vector3( 0.0, 0.0, 250.0 ),
+        };
+        this.scenePerspective.setCameraDefaults( cameraDefaults );
+
+        var geometry = new THREE.BoxGeometry(10, 10, 10);
+        var material = new THREE.MeshNormalMaterial();
+        this.mesh = new THREE.Mesh(geometry, material);
+
+        this.scenePerspective.scene.add(this.mesh);
+    };
+
+    FeatureChecker.prototype.renderPre = function () {
+        this.mesh.rotation.x += 0.01;
+        this.mesh.rotation.y += 0.01;
+    };
+
+
+    FeatureChecker.prototype.initPostGL = function () {
+        this.postInit();
+        this.postRun();
+        return true;
+    };
+
     FeatureChecker.prototype.processData = function ( event ) {
         var payload = event.data;
 
         switch ( payload.cmd ) {
             case "data":
-
                 console.log( payload );
 
                 break;

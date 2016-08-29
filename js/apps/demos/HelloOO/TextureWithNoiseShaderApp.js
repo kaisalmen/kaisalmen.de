@@ -38,16 +38,17 @@ KSX.apps.demos.TextureWithNoiseShader = (function () {
     };
 
     TextureWithNoiseShader.prototype.initGL = function () {
-        var camera = this.scenePerspective.camera;
-        camera.position.set( 0, 0, 250 );
+        var cameraDefaults = {
+            posCamera: new THREE.Vector3( 0.0, 0.0, 25.0 ),
+        };
+        this.scenePerspective.setCameraDefaults( cameraDefaults );
 
         var geometry = new THREE.TorusKnotGeometry(8, 2, 128, 24);
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
-        this.scenePerspective.camera.position.z = 25;
-    };
+};
 
     TextureWithNoiseShader.prototype.renderPre = function () {
         this.mesh.rotation.x += 0.01;
