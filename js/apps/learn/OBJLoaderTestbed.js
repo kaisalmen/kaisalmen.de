@@ -90,7 +90,7 @@ KSX.apps.learn.ObjLoaderTestbed = (function () {
             var objLoader = new THREE.OBJLoader();
             objLoader.setMaterials( materials );
             objLoader.setloadAsArrayBuffer( true );
-            objLoader.setWorkInline( false );
+            objLoader.setWorkInline( true );
             objLoader.setPath( path );
             objLoader.load( 'PTV1.obj', function ( object ) {
                 scope.scenePerspective.scene.add( object );

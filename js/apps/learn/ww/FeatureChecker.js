@@ -32,6 +32,9 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
             useScenePerspective : true
         });
 
+        this.lights = null;
+        this.controls = null;
+
         this.worker = new Worker( basedir + "/js/apps/learn/ww/WWFeatureChecker.js" );
 
         var scope = this;
@@ -39,19 +42,43 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
             scope.processData( e );
         };
         this.worker.addEventListener( 'message', scopeFunction, false );
+        this.counter = 0;
     }
 
     FeatureChecker.prototype.initGL = function () {
+        this.renderer.setClearColor(0x303030);
+
         var cameraDefaults = {
             posCamera: new THREE.Vector3( 0.0, 0.0, 250.0 ),
         };
         this.scenePerspective.setCameraDefaults( cameraDefaults );
+
+        this.lights = {
+            ambientLight: new THREE.AmbientLight(0x202020),
+            directionalLight1: new THREE.DirectionalLight(0xC05050),
+            directionalLight2: new THREE.DirectionalLight(0x50C050),
+            directionalLight3: new THREE.DirectionalLight(0x5050C0),
+            lightArray: new THREE.Object3D()
+        };
+
+        this.lights.directionalLight1.position.set( -100, 0, 100 );
+        this.lights.directionalLight2.position.set( 100, 0, 100 );
+        this.lights.directionalLight3.position.set( 0, 0, -100 );
+
+        this.lights.lightArray.add( this.lights.directionalLight1 );
+        this.lights.lightArray.add( this.lights.directionalLight2 );
+        this.lights.lightArray.add( this.lights.directionalLight3 );
+        this.scenePerspective.scene.add( this.lights.lightArray );
+
+        this.controls = new THREE.TrackballControls( this.scenePerspective.camera );
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = new THREE.MeshNormalMaterial();
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
+
+        this.materialLoader = new THREE.MaterialLoader();
     };
 
     FeatureChecker.prototype.renderPre = function () {
@@ -59,19 +86,48 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
         this.mesh.rotation.y += 0.01;
     };
 
-
     FeatureChecker.prototype.initPostGL = function () {
         this.postInit();
         this.postRun();
         return true;
     };
 
+    FeatureChecker.prototype.resizeDisplayGL = function () {
+        this.controls.handleResize();
+    };
+
+    FeatureChecker.prototype.renderPre = function () {
+        this.controls.update();
+    };
+
     FeatureChecker.prototype.processData = function ( event ) {
         var payload = event.data;
 
         switch ( payload.cmd ) {
-            case "data":
-                console.log( payload );
+            case "objData":
+                this.counter++;
+                console.log( this.counter );
+
+                var bufferGeometry = new THREE.BufferGeometry();
+
+                bufferGeometry.addAttribute( "position", new THREE.BufferAttribute( new Float32Array( payload.vertices ), 3 ) );
+                if ( payload.normals !== undefined ) {
+                    bufferGeometry.addAttribute( "normal", new THREE.BufferAttribute( new Float32Array( payload.normals ), 3 ) );
+                }
+                else {
+                    bufferGeometry.computeVertexNormals();
+                }
+                if (payload.uvs !== undefined) {
+                    bufferGeometry.addAttribute( "uv", new THREE.BufferAttribute( new Float32Array( payload.uvs ), 2 ) );
+                }
+
+                var materialJSON = JSON.parse( payload.material );
+                var material = this.materialLoader.parse( materialJSON );
+                //var mesh = new THREE.Mesh( bufferGeometry, new THREE.MeshNormalMaterial() );
+                var mesh = new THREE.Mesh( bufferGeometry, material );
+                mesh.name = payload.meshName;
+
+                this.scenePerspective.scene.add( mesh );
 
                 break;
             default:
