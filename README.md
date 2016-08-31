@@ -15,7 +15,7 @@ Some files are not contained in the repo. Please follow these steps:
 
 Download the meadow [cubemaps](http://www.humus.name/Textures/Meadow.zip) and extract to folder 'resource/textures/meadow'.
 
-Skybox cubemap is contained in three.js repository under:
+Skybox cubemap is contained in [three.js](https://github.com/mrdoob/three.js/) repository under:
 examples/textures/cube/skybox
 Copy the folder to 'resource/textures'.
 
