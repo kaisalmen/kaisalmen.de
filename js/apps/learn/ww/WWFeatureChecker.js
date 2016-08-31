@@ -6,7 +6,7 @@
 
 importScripts( '../../../lib/threejs/three.min.js' );
 importScripts( '../../../lib/threejs/MTLLoader.js' );
-importScripts( '../../../lib/threejs/OBJLoader2.js' );
+importScripts( '../../../lib/threejs/OBJLoader.js' );
 
 var KSX = {
     apps: {
