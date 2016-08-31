@@ -192,3 +192,12 @@ span.tab {
     top: 50%;
     line-height: 0;
 }
+
+#ExperimentsHeader {
+    color: white;
+}
+
+#TestsHeader {
+    color: white;
+}
+
