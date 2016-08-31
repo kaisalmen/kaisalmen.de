@@ -23,7 +23,7 @@ var KSX = {
     }
 };
 
-KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
+KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
     function WWOBJLoader() {
         this.state = 'created';
@@ -37,52 +37,12 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
         this.texturePath = '';
     }
 
-    WWOBJLoader.prototype.sendObject = function ( object, allMaterials ) {
+    WWOBJLoader.prototype.sendObject = function ( object, material ) {
         // Fast-Fail: Skip o/g line declarations that did not follow with any faces
         if ( object.geometry.vertices.length === 0 ) return null;
 
         var geometry = object.geometry;
         var objectMaterials = object.materials;
-        var isLine = ( geometry.type === 'Line' );
-
-
-        // Create materials
-        var createdMaterials = [];
-        for ( var mi = 0, miLen = objectMaterials.length; mi < miLen ; mi++ ) {
-
-            var sourceMaterial = objectMaterials[mi];
-            var material = undefined;
-
-            if ( allMaterials !== null ) {
-
-                material = allMaterials.create( sourceMaterial.name );
-
-                // mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-                if ( isLine && material && ! ( material instanceof THREE.LineBasicMaterial ) ) {
-
-                    var materialLine = new THREE.LineBasicMaterial();
-                    materialLine.copy( material );
-                    material = materialLine;
-                }
-            }
-
-            if ( ! material ) {
-                material = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
-                material.name = sourceMaterial.name;
-            }
-            material.shading = sourceMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-            createdMaterials.push( material );
-        }
-
-
-        var targetMaterial;
-        if ( createdMaterials.length > 1 ) {
-            targetMaterial = new THREE.MultiMaterial( createdMaterials );
-        }
-        else {
-            targetMaterial = createdMaterials[ 0 ];
-        }
 
         var verticesOut = new Float32Array( geometry.vertices );
         var normalsOut = null;
@@ -92,14 +52,14 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
         var uvsOut = new Float32Array( geometry.uvs );
 
 
-        var materialJSON = targetMaterial.toJSON();
+        var materialJSON = material.toJSON();
         var materialGroups = [];
-        if (createdMaterials.length > 1) {
-            for ( var i = 0, sourceMaterial, group, length = objectMaterials.length; i < length; i++ ) {
-                sourceMaterial = objectMaterials[i];
+        if ( material instanceof  THREE.MultiMaterial ) {
+            for ( var objectMaterial, group, i = 0, length = objectMaterials.length; i < length; i++ ) {
+                objectMaterial = objectMaterials[i];
                 group = {
-                    start: sourceMaterial.groupStart,
-                    count: sourceMaterial.groupCount,
+                    start: objectMaterial.groupStart,
+                    count: objectMaterial.groupCount,
                     index: i
                 };
                 materialGroups.push( group );
@@ -138,8 +98,8 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
         this.objLoader.setPath( this.basePath );
 
         // alter OBJLoader
-        if ( typeof this.objLoader._buildSingleMesh === 'function' ) {
-            this.objLoader._buildSingleMesh = this.sendObject;
+        if ( typeof this.objLoader.buildSingleMesh === 'function' ) {
+            this.objLoader.buildSingleMesh = this.sendObject;
         }
         if ( this.objLoader.counter === undefined ) {
             this.objLoader.counter = 0;
@@ -171,6 +131,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
                 self.postMessage({
                     cmd: 'complete'
                 });
+
+                scope.objLoader.dispose();
+
             }, onProgress, onError );
         });
     };

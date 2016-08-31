@@ -83,8 +83,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
     WWOBJLoaderChecker.prototype.renderPre = function () {
         this.controls.update();
 
-        this.mesh.rotation.x += 0.01;
-        this.mesh.rotation.y += 0.01;
+        this.mesh.rotation.x += 0.05;
+        this.mesh.rotation.y += 0.05;
 
 //        this.lights.lightArray.rotation.x += 0.01;
     };

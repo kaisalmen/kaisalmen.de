@@ -207,9 +207,15 @@ THREE.OBJLoader.prototype = {
 
 						if ( scope.workInline ) {
 
-							var mesh = scope._buildSingleMesh( this, scope.materials );
-							if ( mesh !== null ) {
-								scope.container.add( mesh );
+							var material = scope.prepareSingleMeshMaterials( scope.materials, this.materials, this.geometry.type );
+							if ( material !== null ) {
+
+								var mesh = scope.buildSingleMesh( this, material );
+								if ( mesh !== null ) {
+
+									scope.container.add( mesh );
+
+								}
 							}
 						}
 
@@ -671,31 +677,84 @@ THREE.OBJLoader.prototype = {
 		scope.container.materialLibraries = [].concat( scope.state.materialLibraries );
 
 		if ( ! scope.workInline ) {
-			var mesh;
+
 			for (var i = 0, l = scope.state.objects.length; i < l; i++) {
 
-				mesh = scope._buildSingleMesh( scope.state.objects[i], scope.materials );
-				if (mesh !== null) {
-					scope.container.add(mesh);
+				var object = scope.state.objects[i];
+				var material = scope.prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
+ 				if ( material !== null ) {
+
+					var mesh = scope.buildSingleMesh( object, material );
+					if ( mesh !== null ) {
+
+						scope.container.add(mesh);
+
+					}
 				}
 			}
 		}
 
 		console.timeEnd( 'OBJLoader' );
 
-		scope._dispose();
+		scope.state = null;
 
 		return scope.container;
 	},
 
-	_buildSingleMesh: function ( object, allMaterials ) {
+	prepareSingleMeshMaterials: function ( allMaterials, objectMaterials, geometryType ) {
+		// fast-fail if object has no materials
+		if ( objectMaterials.length === 0) return null;
+
+		var isLine = geometryType === 'Line';
+
+		// Create materials
+		var createdMaterials = [];
+		for ( var objectMaterial, createdMaterial, i = 0, length = objectMaterials.length; i < length ; i++ ) {
+
+			objectMaterial = objectMaterials[i];
+			createdMaterial = undefined;
+
+			if ( allMaterials !== null ) {
+
+				createdMaterial = allMaterials.create( objectMaterial.name );
+
+				// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
+				if ( isLine && createdMaterial && ! ( createdMaterial instanceof THREE.LineBasicMaterial ) ) {
+
+					var materialLine = new THREE.LineBasicMaterial();
+					materialLine.copy( createdMaterial );
+					createdMaterial = materialLine;
+				}
+			}
+
+			if ( ! createdMaterial ) {
+				createdMaterial = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
+				createdMaterial.name = objectMaterial.name;
+			}
+			createdMaterial.shading = objectMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
+
+			createdMaterials.push( createdMaterial );
+		}
+
+
+		var outputMaterial = null;
+		if ( createdMaterials.length > 1 ) {
+			outputMaterial = new THREE.MultiMaterial( createdMaterials );
+		}
+		else if ( createdMaterials.length === 1 ) {
+			outputMaterial = createdMaterials[0];
+		}
+
+		return outputMaterial;
+	},
+
+	buildSingleMesh: function ( object, material ) {
 		// Fast-Fail: Skip o/g line declarations that did not follow with any faces
 		if ( object.geometry.vertices.length === 0 ) return null;
 
 		var geometry = object.geometry;
 		var objectMaterials = object.materials;
 		var isLine = ( geometry.type === 'Line' );
-
 		var bufferGeometry = new THREE.BufferGeometry();
 
 		bufferGeometry.addAttribute('position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3) );
@@ -714,61 +773,24 @@ THREE.OBJLoader.prototype = {
 			bufferGeometry.addAttribute('uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2));
 		}
 
-		// Create materials
-		var createdMaterials = [];
-		for ( var mi = 0, miLen = objectMaterials.length; mi < miLen ; mi++ ) {
-
-			var sourceMaterial = objectMaterials[mi];
-			var material = undefined;
-
-			if ( allMaterials !== null ) {
-
-				material = allMaterials.create( sourceMaterial.name );
-
-				// mtl etc. loaders probably can't create line materials correctly, copy properties to a line material.
-				if ( isLine && material && ! ( material instanceof THREE.LineBasicMaterial ) ) {
-
-					var materialLine = new THREE.LineBasicMaterial();
-					materialLine.copy( material );
-					material = materialLine;
-				}
-			}
-
-			if ( ! material ) {
-				material = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
-				material.name = sourceMaterial.name;
-			}
-			material.shading = sourceMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
-
-			createdMaterials.push( material );
-		}
-
-
-		var targetMaterial;
-		if ( createdMaterials.length > 1 ) {
-			targetMaterial = new THREE.MultiMaterial( createdMaterials );
-		}
-		else {
-			targetMaterial = createdMaterials[ 0 ];
-		}
-
-		if (createdMaterials.length > 1) {
-			for ( var sourceMaterial, i = 0, length = objectMaterials.length; i < length; i++ ) {
-				sourceMaterial = objectMaterials[i];
-				bufferGeometry.addGroup( sourceMaterial.groupStart, sourceMaterial.groupCount, i );
+		if ( material instanceof THREE.MultiMaterial ) {
+			for ( var objectMaterial, i = 0, length = objectMaterials.length; i < length; i++ ) {
+				objectMaterial = objectMaterials[i];
+				bufferGeometry.addGroup( objectMaterial.groupStart, objectMaterial.groupCount, i );
 			}
 		}
 
 		// Create mesh
-		var mesh = !isLine ? new THREE.Mesh(bufferGeometry, targetMaterial) : new THREE.LineSegments(bufferGeometry, targetMaterial);
+		var mesh = !isLine ? new THREE.Mesh(bufferGeometry, material) : new THREE.LineSegments(bufferGeometry, material);
 		mesh.name = object.name;
 
 		return mesh;
 	},
 
-	_dispose: function () {
+	dispose: function () {
 		this.state = null;
 		this.materials = null;
+		this.container = null;
 	}
 
 };
