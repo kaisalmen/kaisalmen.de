@@ -81,10 +81,6 @@ KSX.apps.learn.ObjLoaderTestbed = (function () {
         mtlLoader.setPath( path );
         mtlLoader.load( 'PTV1.mtl', function( materials ) {
 
-            var matArray = materials.getAsArray();
-            var firstMatJSON = matArray[0].toJSON();
-            var firstMatString = JSON.stringify(firstMatJSON);
-            var firstMatJSON2 = JSON.parse(firstMatString);
             materials.preload();
 
             var objLoader = new THREE.OBJLoader();

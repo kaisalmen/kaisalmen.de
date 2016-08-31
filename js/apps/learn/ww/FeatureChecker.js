@@ -42,6 +42,7 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
             scope.processData( e );
         };
         this.worker.addEventListener( 'message', scopeFunction, false );
+
         this.counter = 0;
     }
 
@@ -106,7 +107,6 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
         switch ( payload.cmd ) {
             case "objData":
                 this.counter++;
-                console.log( this.counter );
 
                 var bufferGeometry = new THREE.BufferGeometry();
 
@@ -123,7 +123,17 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
 
                 var materialJSON = JSON.parse( payload.material );
                 var material = this.materialLoader.parse( materialJSON );
-                //var mesh = new THREE.Mesh( bufferGeometry, new THREE.MeshNormalMaterial() );
+                var materialGroups = JSON.parse( payload.materialGroups );
+/*
+                if ( materialGroups.length > 0 ) {
+                    console.log( this.counter + ' materialGroups: ' + materialGroups );
+                }
+*/
+                for ( var group, i = 0, length = materialGroups.length; i < length; i++ ) {
+                    group = materialGroups[i];
+                    bufferGeometry.addGroup( group.start, group.count, group.index );
+                }
+
                 var mesh = new THREE.Mesh( bufferGeometry, material );
                 mesh.name = payload.meshName;
 

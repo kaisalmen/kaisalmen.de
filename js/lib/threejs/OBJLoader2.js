@@ -689,12 +689,12 @@ THREE.OBJLoader.prototype = {
 	},
 
 	_buildSingleMesh: function ( object, allMaterials ) {
+		// Fast-Fail: Skip o/g line declarations that did not follow with any faces
+		if ( object.geometry.vertices.length === 0 ) return null;
+
 		var geometry = object.geometry;
 		var objectMaterials = object.materials;
 		var isLine = ( geometry.type === 'Line' );
-
-		// Skip o/g line declarations that did not follow with any faces
-		if ( geometry.vertices.length === 0 ) return null;
 
 		var bufferGeometry = new THREE.BufferGeometry();
 
@@ -753,9 +753,9 @@ THREE.OBJLoader.prototype = {
 		}
 
 		if (createdMaterials.length > 1) {
-			for (var mi = 0, miLen = objectMaterials.length; mi < miLen; mi++) {
-				var sourceMaterial = objectMaterials[mi];
-				bufferGeometry.addGroup( sourceMaterial.groupStart, sourceMaterial.groupCount, mi );
+			for ( var sourceMaterial, i = 0, length = objectMaterials.length; i < length; i++ ) {
+				sourceMaterial = objectMaterials[i];
+				bufferGeometry.addGroup( sourceMaterial.groupStart, sourceMaterial.groupCount, i );
 			}
 		}
 

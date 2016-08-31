@@ -13,8 +13,8 @@ var KSX = {
         learn: {
             ww: {
                 static: {
-                    runner: null,
                     impl: null,
+                    counter: 0
                 }
             }
         }
@@ -27,16 +27,16 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
         this.state = 'created';
 
         this.mtlLoader = new THREE.MTLLoader();
-        this.objLoader = new THREE.OBJLoader()
+        this.objLoader = new THREE.OBJLoader();
     }
 
     WWFeatureChecker.prototype.sendObject = function ( object, allMaterials ) {
+        // Fast-Fail: Skip o/g line declarations that did not follow with any faces
+        if ( object.geometry.vertices.length === 0 ) return null;
+
         var geometry = object.geometry;
         var objectMaterials = object.materials;
         var isLine = ( geometry.type === 'Line' );
-
-        // Skip o/g line declarations that did not follow with any faces
-        if ( geometry.vertices.length === 0 ) return null;
 
 
         // Create materials
@@ -87,32 +87,55 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
 
         var materialJSON = targetMaterial.toJSON();
         var materialGroups = [];
-        var group;
         if (createdMaterials.length > 1) {
-            for (var mi = 0, miLen = objectMaterials.length; mi < miLen; mi++) {
-                var sourceMaterial = objectMaterials[mi];
+            for ( var i = 0, sourceMaterial, group, length = objectMaterials.length; i < length; i++ ) {
+                sourceMaterial = objectMaterials[i];
                 group = {
                     start: sourceMaterial.groupStart,
                     count: sourceMaterial.groupCount,
-                    index: mi
+                    index: i
                 };
-                // bufferGeometry.addGroup( group.start, group.count, group.index );
-
                 materialGroups.push( group );
             }
         }
+
+        this.counter++;
+//        console.log( 'Count: ' + this.counter + ' name: ' + object.name );
 
         self.postMessage({
             cmd: 'objData',
             meshName: object.name,
             material: JSON.stringify( materialJSON ),
-            materialGroups: materialGroups,
+            materialGroups: JSON.stringify( materialGroups ),
             vertices: verticesOut,
             normals: normalsOut,
             uvs: uvsOut,
         }, [verticesOut.buffer], [normalsOut.buffer], [uvsOut.buffer]);
 
         return null;
+    };
+
+    WWFeatureChecker.prototype.runner = function ( event ) {
+        var payload = event.data;
+
+        console.log( 'State before: ' + KSX.apps.learn.ww.static.impl.state );
+
+        switch ( payload.cmd ) {
+            case 'init':
+                KSX.apps.learn.ww.static.impl.init( payload );
+
+                break;
+            case 'run':
+                KSX.apps.learn.ww.static.impl.run( payload );
+
+                break;
+            default:
+                console.error( 'WWFeatureChecker: Received unknown command: ' + payload.cmd );
+
+                break;
+        }
+
+        console.log( 'State after: ' + KSX.apps.learn.ww.static.impl.state );
     };
 
     WWFeatureChecker.prototype.init = function ( payload ) {
@@ -125,7 +148,13 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
         this.objLoader.setWorkInline( true ) ;
         this.objLoader.setPath( path );
 
-        this.objLoader._buildSingleMesh = this.sendObject;
+        // alter OBJLoader
+        if ( typeof this.objLoader._buildSingleMesh === 'function' ) {
+            this.objLoader._buildSingleMesh = this.sendObject;
+        }
+        if ( this.objLoader.counter === undefined ) {
+            this.objLoader.counter = 0;
+        }
     };
 
     WWFeatureChecker.prototype.run = function ( payload ) {
@@ -156,29 +185,6 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
 })();
 
 
-KSX.apps.learn.ww.static.runner = function ( event ) {
-    var payload = event.data;
-
-    console.log( 'State before: ' + KSX.apps.learn.ww.static.impl.state );
-
-    switch ( payload.cmd ) {
-        case 'init':
-            KSX.apps.learn.ww.static.impl.init( payload );
-
-            break;
-        case 'run':
-            KSX.apps.learn.ww.static.impl.run( payload );
-
-            break;
-        default:
-            console.error( 'WWFeatureChecker: Received unknown command: ' + payload.cmd );
-
-            break;
-    }
-
-    console.log( 'State after: ' + KSX.apps.learn.ww.static.impl.state );
-};
-
 KSX.apps.learn.ww.static.impl = new KSX.apps.learn.ww.WWFeatureChecker();
 
-self.addEventListener( 'message', KSX.apps.learn.ww.static.runner, false );
+self.addEventListener( 'message', KSX.apps.learn.ww.static.impl.runner, false );
