@@ -10,27 +10,34 @@ importScripts( '../../../lib/threejs/OBJLoader.js' );
 
 var KSX = {
     apps: {
-        learn: {
-            ww: {
-                static: {
-                    impl: null,
-                    counter: 0
+        tools: {
+            loaders: {
+                wwobj: {
+                    static: {
+                        runner: null,
+                        implRef: null
+                    }
                 }
             }
         }
     }
 };
 
-KSX.apps.learn.ww.WWFeatureChecker = (function () {
+KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
 
-    function WWFeatureChecker() {
+    function WWOBJLoader() {
         this.state = 'created';
 
         this.mtlLoader = new THREE.MTLLoader();
         this.objLoader = new THREE.OBJLoader();
+
+        this.basePath = '';
+        this.objFile = '';
+        this.mtlFile = '';
+        this.texturePath = '';
     }
 
-    WWFeatureChecker.prototype.sendObject = function ( object, allMaterials ) {
+    WWOBJLoader.prototype.sendObject = function ( object, allMaterials ) {
         // Fast-Fail: Skip o/g line declarations that did not follow with any faces
         if ( object.geometry.vertices.length === 0 ) return null;
 
@@ -115,38 +122,20 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
         return null;
     };
 
-    WWFeatureChecker.prototype.runner = function ( event ) {
-        var payload = event.data;
 
-        console.log( 'State before: ' + KSX.apps.learn.ww.static.impl.state );
-
-        switch ( payload.cmd ) {
-            case 'init':
-                KSX.apps.learn.ww.static.impl.init( payload );
-
-                break;
-            case 'run':
-                KSX.apps.learn.ww.static.impl.run( payload );
-
-                break;
-            default:
-                console.error( 'WWFeatureChecker: Received unknown command: ' + payload.cmd );
-
-                break;
-        }
-
-        console.log( 'State after: ' + KSX.apps.learn.ww.static.impl.state );
-    };
-
-    WWFeatureChecker.prototype.init = function ( payload ) {
+    WWOBJLoader.prototype.init = function ( payload ) {
         this.state = 'init';
 
-        var path = '../../../../resource/models/';
-        this.mtlLoader.setPath( path );
+        this.basePath = payload.basePath;
+        this.texturePath = payload.texturePath;
+        this.objFile = payload.objFile;
+        this.mtlFile = payload.mtlFile;
+
+        this.mtlLoader.setPath( this.texturePath );
 
         this.objLoader.setloadAsArrayBuffer( true );
         this.objLoader.setWorkInline( true ) ;
-        this.objLoader.setPath( path );
+        this.objLoader.setPath( this.basePath );
 
         // alter OBJLoader
         if ( typeof this.objLoader._buildSingleMesh === 'function' ) {
@@ -157,8 +146,9 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
         }
     };
 
-    WWFeatureChecker.prototype.run = function ( payload ) {
-        this.state = 'run';
+    WWOBJLoader.prototype.run = function ( payload ) {
+        var scope = this;
+        scope.state = 'run';
 
         var onProgress = function ( xhr ) {
             if ( xhr.lengthComputable ) {
@@ -169,22 +159,48 @@ KSX.apps.learn.ww.WWFeatureChecker = (function () {
 
         var onError = function ( xhr ) { };
 
-        var scope = this;
-        scope.mtlLoader.load( 'PTV1.mtl', function( materials ) {
+
+        scope.mtlLoader.load( scope.mtlFile, function( materials ) {
             materials.preload();
 
             scope.objLoader.setMaterials( materials );
-            scope.objLoader.load( 'PTV1.obj', function ( object ) {
+            scope.objLoader.load( scope.objFile, function () {
 
-                console.log( 'Loading complete: ' + object );
+                console.log( 'Loading complete!' );
+
+                self.postMessage({
+                    cmd: 'complete'
+                });
             }, onProgress, onError );
         });
     };
 
-    return WWFeatureChecker;
+    return WWOBJLoader;
 })();
 
+KSX.apps.tools.loaders.wwobj.static.implRef = new KSX.apps.tools.loaders.wwobj.WWOBJLoader( this );
 
-KSX.apps.learn.ww.static.impl = new KSX.apps.learn.ww.WWFeatureChecker();
+KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
+    var payload = event.data;
 
-self.addEventListener( 'message', KSX.apps.learn.ww.static.impl.runner, false );
+    console.log( 'State before: ' + this.state );
+
+    switch ( payload.cmd ) {
+        case 'init':
+            KSX.apps.tools.loaders.wwobj.static.implRef.init( payload );
+
+            break;
+        case 'run':
+            KSX.apps.tools.loaders.wwobj.static.implRef.run( payload );
+
+            break;
+        default:
+            console.error( 'WWOBJLoader: Received unknown command: ' + payload.cmd );
+
+            break;
+    }
+
+    console.log( 'State after: ' + this.state );
+};
+
+self.addEventListener( 'message', KSX.apps.tools.loaders.wwobj.static.runner, false );

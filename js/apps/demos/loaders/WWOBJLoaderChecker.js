@@ -35,7 +35,7 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
         this.lights = null;
         this.controls = null;
 
-        this.worker = new Worker( basedir + "/js/apps/learn/ww/WWFeatureChecker.js" );
+        this.worker = new Worker( basedir + "/js/apps/tools/loader/WWOBJLoader.js" );
 
         var scope = this;
         var scopeFunction = function ( e ) {
@@ -56,9 +56,9 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
 
         this.lights = {
             ambientLight: new THREE.AmbientLight(0x202020),
-            directionalLight1: new THREE.DirectionalLight(0xC05050),
-            directionalLight2: new THREE.DirectionalLight(0x50C050),
-            directionalLight3: new THREE.DirectionalLight(0x5050C0),
+            directionalLight1: new THREE.DirectionalLight(0xC0C090),
+            directionalLight2: new THREE.DirectionalLight(0xC0C090),
+            directionalLight3: new THREE.DirectionalLight(0xC0C090),
             lightArray: new THREE.Object3D()
         };
 
@@ -82,13 +82,8 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
         this.materialLoader = new THREE.MaterialLoader();
     };
 
-    FeatureChecker.prototype.renderPre = function () {
-        this.mesh.rotation.x += 0.01;
-        this.mesh.rotation.y += 0.01;
-    };
-
     FeatureChecker.prototype.initPostGL = function () {
-        this.postInit();
+        this.postInit( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
         this.postRun();
         return true;
     };
@@ -99,13 +94,18 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
 
     FeatureChecker.prototype.renderPre = function () {
         this.controls.update();
+
+        this.mesh.rotation.x += 0.01;
+        this.mesh.rotation.y += 0.01;
+
+//        this.lights.lightArray.rotation.x += 0.01;
     };
 
     FeatureChecker.prototype.processData = function ( event ) {
         var payload = event.data;
 
         switch ( payload.cmd ) {
-            case "objData":
+            case 'objData':
                 this.counter++;
 
                 var bufferGeometry = new THREE.BufferGeometry();
@@ -140,23 +140,31 @@ KSX.apps.learn.ww.FeatureChecker = (function () {
                 this.scenePerspective.scene.add( mesh );
 
                 break;
+            case 'complete':
+                console.timeEnd( 'WWReceive' );
+
+                break;
             default:
                 console.error( 'Received unknown command: ' + payload.cmd );
                 break;
         }
     };
 
-    FeatureChecker.prototype.postInit = function (  ) {
+    FeatureChecker.prototype.postInit = function ( basePath, objFile, mtlFile, texturePath ) {
         this.worker.postMessage({
-            "cmd": "init",
-            "value": 42
+            cmd: 'init',
+            basePath: basePath,
+            objFile: objFile,
+            mtlFile: mtlFile,
+            texturePath: texturePath
         });
+
+        console.time( 'WWReceive' );
     };
 
     FeatureChecker.prototype.postRun = function (  ) {
         this.worker.postMessage({
-            "cmd": "run",
-            "value": 43
+            cmd: 'run',
         });
     };
 
