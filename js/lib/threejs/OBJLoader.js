@@ -77,7 +77,7 @@ THREE.OBJLoader.prototype = {
 	 * When this is set the ResponseType of the XHRLoader is set to arraybuffer.
 	 * @param loadAsArrayBuffer
 	 */
-	setloadAsArrayBuffer: function ( loadAsArrayBuffer ) {
+	setLoadAsArrayBuffer: function ( loadAsArrayBuffer ) {
 		this.loadAsArrayBuffer = loadAsArrayBuffer;
 	},
 

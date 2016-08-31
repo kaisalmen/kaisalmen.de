@@ -16,7 +16,7 @@ var KSX = {
             }
         },
         tools: {
-            webworker: {
+            loaders: {
 
             }
         },

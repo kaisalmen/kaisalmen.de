@@ -18,14 +18,15 @@
     <script src="../../js/lib/threejs/dev/three.js"></script>
     <script src="../../js/lib/threejs/TrackballControls.js"></script>
 
-    <script src="../../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/tools/loaders/WWOBJLoaderFrontEnd.js"></script>
     <script src="../../js/apps/demos/loaders/WWOBJLoaderChecker.js"></script>
 
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = new Array();
-            var featureChecker = new KSX.apps.learn.ww.FeatureChecker( document.getElementById("DivGLFullCanvas"), '../../..' );
-            implementations.push( featureChecker );
+            var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas"), '../..' );
+            implementations.push( wwOBJLoaderChecker );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run( true );
         }

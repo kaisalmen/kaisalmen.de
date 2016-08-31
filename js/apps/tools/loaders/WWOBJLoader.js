@@ -133,7 +133,7 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function ( wwScope ) {
 
         this.mtlLoader.setPath( this.texturePath );
 
-        this.objLoader.setloadAsArrayBuffer( true );
+        this.objLoader.setLoadAsArrayBuffer( true );
         this.objLoader.setWorkInline( true ) ;
         this.objLoader.setPath( this.basePath );
 
@@ -183,7 +183,7 @@ KSX.apps.tools.loaders.wwobj.static.implRef = new KSX.apps.tools.loaders.wwobj.W
 KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
     var payload = event.data;
 
-    console.log( 'State before: ' + this.state );
+    console.log( 'State before: ' + KSX.apps.tools.loaders.wwobj.static.implRef.state );
 
     switch ( payload.cmd ) {
         case 'init':
@@ -200,7 +200,7 @@ KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
             break;
     }
 
-    console.log( 'State after: ' + this.state );
+    console.log( 'State after: ' + KSX.apps.tools.loaders.wwobj.static.implRef.state );
 };
 
 self.addEventListener( 'message', KSX.apps.tools.loaders.wwobj.static.runner, false );
