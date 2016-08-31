@@ -1,19 +1,33 @@
 kaisalmen.de
 ============
 
-The code behind kaisalmen.de(http://kaisalmen.de) and additional demos.
+The code behind [kaisalmen.de](http://kaisalmen.de) and additional experiments.
 
-The branch public now serves as main development branch.
+The master branch serves as main development branch.
 
-#### Cubemap Instructions ####
+### Setup ###
 
-Download the cubemaps from:
-http://www.humus.name/Textures/Meadow.zip
-and extract to folders 'meadow'.
+Set up a simple web server like [Fenix](http://fenixwebserver.com/) once you check out this repository.
 
-Skybox is contained in three.js repository under:
-examples\textures\cube\skybox
-Copy the folder to here!
+Some files are not contained in the repo. Please follow these steps:
+
+##### Cubemaps #####
+
+Download the meadow [cubemaps](http://www.humus.name/Textures/Meadow.zip) and extract to folder 'resource/textures/meadow'.
+
+Skybox cubemap is contained in three.js repository under:
+examples/textures/cube/skybox
+Copy the folder to 'resource/textures'.
+
+##### ZeroSouth PTV1 #####
+
+The obj and mtl file are not stored in the repository. Get the zip file for [PTV1](http://kaisalmen.de/resource/models/PTV1.zip) and download it to 'resource/models'.
+
+##### Projection Space #####
+
+Also, the video files are not stored in the repository. Download the [mp4](http://kaisalmen.de/resource/video/CosmosLaundromat_FirstCycle_1080p.mp4) and [ogv](http://kaisalmen.de/resource/video/CosmosLaundromat_FirstCycle_1080p.ogv) and store them to 'resource/video'.
 
 
-More to follow later...
+Have fun!
+
+Kai
