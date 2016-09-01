@@ -25,19 +25,33 @@ var KSX = {
 
 KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
+    WWOBJLoader.prototype = Object.create( THREE.OBJLoader.prototype, {
+        constructor: {
+            configurable: true,
+            enumerable: true,
+            value: WWOBJLoader,
+            writable: true
+        }
+    });
+
     function WWOBJLoader() {
+        THREE.OBJLoader.call( this );
         this.state = 'created';
 
         this.mtlLoader = new THREE.MTLLoader();
-        this.objLoader = new THREE.OBJLoader();
 
         this.basePath = '';
         this.objFile = '';
         this.mtlFile = '';
         this.texturePath = '';
+
+        this.setLoadAsArrayBuffer( true );
+        this.setWorkInline( true );
+
+        this.counter = 0;
     }
 
-    WWOBJLoader.prototype.sendObject = function ( object, material ) {
+    WWOBJLoader.prototype.buildSingleMesh = function ( object, material ) {
         // Fast-Fail: Skip o/g line declarations that did not follow with any faces
         if ( object.geometry.vertices.length === 0 ) return null;
 
@@ -93,22 +107,32 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
         this.mtlLoader.setPath( this.texturePath );
 
-        this.objLoader.setLoadAsArrayBuffer( true );
-        this.objLoader.setWorkInline( true ) ;
-        this.objLoader.setPath( this.basePath );
+        if ( payload.loadAsArrayBuffer !== undefined ) {
 
-        // alter OBJLoader
-        if ( typeof this.objLoader.buildSingleMesh === 'function' ) {
-            this.objLoader.buildSingleMesh = this.sendObject;
+            this.setLoadAsArrayBuffer( payload.loadAsArrayBuffer );
+
         }
-        if ( this.objLoader.counter === undefined ) {
-            this.objLoader.counter = 0;
+        if ( payload.workInline !== undefined ) {
+
+            this.setWorkInline( payload.workInline ) ;
+
         }
+        this.setPath( this.basePath );
     };
 
     WWOBJLoader.prototype.run = function ( payload ) {
         var scope = this;
         scope.state = 'run';
+
+        var onLoad = function () {
+            console.log( 'Loading complete!' );
+
+            self.postMessage({
+                cmd: 'complete'
+            });
+
+            scope.dispose();
+        };
 
         var onProgress = function ( xhr ) {
             if ( xhr.lengthComputable ) {
@@ -117,24 +141,15 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
             }
         };
 
-        var onError = function ( xhr ) { };
-
+        var onError = function ( xhr ) {
+            console.error( xhr );
+        };
 
         scope.mtlLoader.load( scope.mtlFile, function( materials ) {
             materials.preload();
 
-            scope.objLoader.setMaterials( materials );
-            scope.objLoader.load( scope.objFile, function () {
-
-                console.log( 'Loading complete!' );
-
-                self.postMessage({
-                    cmd: 'complete'
-                });
-
-                scope.objLoader.dispose();
-
-            }, onProgress, onError );
+            scope.setMaterials( materials );
+            scope.load( scope.objFile, onLoad, onProgress, onError );
         });
     };
 
