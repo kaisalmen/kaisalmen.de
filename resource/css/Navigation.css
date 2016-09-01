@@ -4,6 +4,12 @@ h1 {
     padding: 0px 0px 0px 0px;
 }
 
+h2 {
+    font-size: 18px;
+    margin: 3px 0px 3px 0px;
+    padding: 0px 0px 0px 0px;
+}
+
 div.navFrame {
     position: absolute;
     top: 0%;

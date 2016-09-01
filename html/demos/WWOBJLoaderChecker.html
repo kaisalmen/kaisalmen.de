@@ -6,16 +6,30 @@
 </head>
 <body>
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/WWOBJLoaderChecker.css" type="text/css" rel="stylesheet"/>
 
     <div id="master">
         <div id="DivGLFull">
             <canvas id="DivGLFullCanvas"></canvas>
         </div>
+        <div class="navFrame">
+            <div class="home">
+                <h1>
+                    <a href="../../index.html">Home</a>
+                </h1>
+            </div>
+        </div>
+        <div class="feedback" id="FeedbackArea">
+            <div class="copyrightArea" id="CopyrightArea">
+                Beware the model is 150MB! It takes a little while to load. Check the console if you are impatient.
+            </div>
+        </div>
     </div>
     <script src="../../js/lib/ext/bowser.min.js"></script>
     <script src="../../js/apps/core/Prerequisites.js"></script>
 
-    <script src="../../js/lib/threejs/dev/three.js"></script>
+    <script src="../../js/lib/threejs/three.min.js"></script>
     <script src="../../js/lib/threejs/TrackballControls.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
