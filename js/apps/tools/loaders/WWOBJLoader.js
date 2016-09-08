@@ -69,8 +69,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
         var uvsOut = new Float32Array( geometry.uvs );
 
 
-        var materialJSON = material.toJSON();
         var materialGroups = [];
+        var multiMaterial = false;
+        var materialNames =  [];
         if ( material instanceof  THREE.MultiMaterial ) {
             for ( var objectMaterial, group, i = 0, length = objectMaterials.length; i < length; i++ ) {
                 objectMaterial = objectMaterials[i];
@@ -81,6 +82,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
                 };
                 materialGroups.push( group );
             }
+            // TODO: Gather all names
+            materialNames.push( 'test' );
+            multiMaterial = true;
         }
 
         this.counter++;
@@ -89,8 +93,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
         self.postMessage({
             cmd: 'objData',
             meshName: object.name,
-            material: JSON.stringify( materialJSON ),
-            materialGroups: JSON.stringify( materialGroups ),
+            multiMaterial: multiMaterial,
+            materialName: multiMaterial ? materialNames : material.name,
+            materialGroups: multiMaterial ? JSON.stringify( materialGroups ) : null,
             vertices: verticesOut,
             normals: normalsOut,
             uvs: uvsOut,
@@ -139,12 +144,22 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
         var scope = this;
         scope.cmdState = 'run';
 
+        var materialsLoaded = function ( materials ) {
+            materials.preload();
+            scope.setMaterials( materials );
+
+            self.postMessage({
+                cmd: 'materials',
+                materials: JSON.stringify( materials.materials ),
+            });
+        };
+
         if ( scope.dataAvailable ) {
 
             var materials = scope.mtlLoader.parse( scope.mtlAsString );
-            materials.preload();
 
-            scope.setMaterials( materials );
+            materialsLoaded( materials );
+
             scope.parse( scope.objAsArrayBuffer );
         }
         else {

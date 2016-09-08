@@ -26,6 +26,7 @@ KSX.apps.tools.ZipTools = (function () {
 			});
 		};
 
+		console.log( 'Starting download of: ' + filename );
 		this.xhrLoader.load( filename, loader );
 	};
 

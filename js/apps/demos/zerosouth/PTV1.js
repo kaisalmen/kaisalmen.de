@@ -47,10 +47,11 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var fileZip = 'PTV1.zip';
         var fileMtl = 'PTV1.mtl';
         var loadDirectly = false;
-        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(pathToObj, fileObj, fileMtl, !loadDirectly, fileZip);
+///        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(pathToObj, fileObj, fileMtl, !loadDirectly, fileZip);
+        this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( basedir );
 
         // disables dynamic counting of objects in file
-        this.objLoaderWW.setOverallObjectCount(1585);
+//        this.objLoaderWW.setOverallObjectCount(1585);
 
         this.objGroup = null;
 
@@ -116,7 +117,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var announceFeedback = function ( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        this.objLoaderWW.registerProgressCallback( announceFeedback );
+        this.wwFrontEnd.registerProgressCallback( announceFeedback );
 
         this.uiTools.enableStats();
     };

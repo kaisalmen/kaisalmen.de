@@ -30,6 +30,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         });
 
         this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( basedir );
+        this.wwFrontEnd.setDebug( true );
 
         this.lights = null;
         this.controls = null;
@@ -69,7 +70,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
-        this.wwFrontEnd.setScene( this.scenePerspective.scene );
+        this.wwFrontEnd.setObjGroup( this.scenePerspective.scene );
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
@@ -82,7 +83,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             objAsArrayBuffer = data;
 
             scope.wwFrontEnd.postInit( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/',
-                false, objAsArrayBuffer, mtlAsString );
+                true, objAsArrayBuffer, mtlAsString );
             scope.wwFrontEnd.postRun();
 
         };

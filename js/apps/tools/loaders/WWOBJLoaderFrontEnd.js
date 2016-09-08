@@ -19,19 +19,61 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         this.worker.addEventListener('message', scopeFunction, false);
 
         this.materialLoader = new THREE.MaterialLoader();
+        this.materials = [];
 
         this.counter = 0;
-        this.scene = null;
+        this.objGroup = null;
+
+        this.debug = false;
+
+        // callbacks
+        this.callbackMaterialsLoaded = null;
+        this.callbackProgress = null;
+        this.callbackMeshLoaded = null;
+        this.callbackCompletedLoading = null;
     }
 
-    WWOBJLoaderFrontEnd.prototype.setScene = function ( scene ) {
-        this.scene = scene;
+    WWOBJLoaderFrontEnd.prototype.setObjGroup = function (objGroup) {
+        this.objGroup = objGroup;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.setDebug = function ( enabled ) {
+        this.debug = enabled;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.registerHookMaterialsLoaded = function (callback) {
+        this.callbackMaterialsLoaded = callback;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.registerProgressCallback = function (callbackProgress) {
+        this.callbackProgress = callbackProgress;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.registerHookMeshLoaded = function (callback) {
+        this.callbackMeshLoaded = callback;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.registerHookCompletedLoading = function (callback) {
+        this.callbackCompletedLoading = callback;
     };
 
     WWOBJLoaderFrontEnd.prototype.processData = function ( event ) {
         var payload = event.data;
+        var material;
 
         switch ( payload.cmd ) {
+            case 'materials':
+                var materialsJSON = JSON.parse( payload.materials );
+                for ( var name in materialsJSON ) {
+                    material = this.materialLoader.parse( materialsJSON[name] );
+                    this.materials[name] = material;
+                }
+
+                if ( this.callbackMaterialsLoaded !== null ) {
+                    this.callbackMaterialsLoaded( this.materials );
+                }
+
+                break;
             case 'objData':
                 this.counter++;
 
@@ -48,31 +90,54 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                     bufferGeometry.addAttribute( "uv", new THREE.BufferAttribute( new Float32Array( payload.uvs ), 2 ) );
                 }
 
-                var materialJSON = JSON.parse( payload.material );
-                var material = this.materialLoader.parse( materialJSON );
-                var materialGroups = JSON.parse( payload.materialGroups );
-/*
-                 if ( materialGroups.length > 0 ) {
-                 console.log( this.counter + ' materialGroups: ' + materialGroups );
-                 }
-*/
-                for ( var group, i = 0, length = materialGroups.length; i < length; i++ ) {
-                    group = materialGroups[i];
-                    bufferGeometry.addGroup( group.start, group.count, group.index );
+                if ( payload.multiMaterial ) {
+                    // TODO: Build new Multi-Material
+                }
+                else {
+                    material = this.materials[ payload.materialName ];
+                }
+
+                if ( payload.materialGroups !== null ) {
+
+                    var materialGroups = JSON.parse( payload.materialGroups );
+                    /*
+                     if ( materialGroups.length > 0 ) {
+                     console.log( this.counter + ' materialGroups: ' + materialGroups );
+                     }
+                     */
+                    for ( var group, i = 0, length = materialGroups.length; i < length; i ++ ) {
+                        group = materialGroups[ i ];
+                        bufferGeometry.addGroup( group.start, group.count, group.index );
+                    }
+                }
+
+                if ( this.callbackMeshLoaded !== null ) {
+                    var materialOverride = this.callbackMeshLoaded( payload.meshName, material );
+                    if ( materialOverride !== null  && materialOverride !== undefined ) {
+                        material = materialOverride;
+                    }
                 }
 
                 var mesh = new THREE.Mesh( bufferGeometry, material );
                 mesh.name = payload.meshName;
 
-                this.scene.add( mesh );
+                this.objGroup.add( mesh );
+
+                var output = "(" + this.counter + "): " + payload.meshName;
+                this.announceProgress( "Adding mesh", output );
 
                 break;
             case 'complete':
                 console.timeEnd( 'WWOBJLoaderFrontEnd' );
 
+                if ( this.callbackCompletedLoading !== null ) {
+                    this.callbackCompletedLoading();
+                }
+
                 break;
             default:
                 console.error( 'Received unknown command: ' + payload.cmd );
+
                 break;
         }
     };
@@ -97,6 +162,24 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         this.worker.postMessage({
             cmd: 'run',
         });
+    };
+
+    WWOBJLoaderFrontEnd.prototype.announceProgress = function ( baseText, text ) {
+        var output = "";
+        if ( baseText !== null && baseText !== undefined ) {
+            output = baseText;
+        }
+
+        if ( text !== null && text !== undefined ) {
+            output = output + " " + text;
+        }
+
+        if ( this.callbackProgress !== null ) {
+            this.callbackProgress( output );
+        }
+        if ( this.debug ) {
+            console.log( output );
+        }
     };
 
     return WWOBJLoaderFrontEnd;
