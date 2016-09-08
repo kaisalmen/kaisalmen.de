@@ -114,13 +114,13 @@ THREE.OBJLoader.prototype = {
 
 				}
 
+				var previousMaterial = ( this.object && typeof this.object.currentMaterial === 'function' ? this.object.currentMaterial() : undefined );
+
 				if ( this.object && typeof this.object._finalize === 'function' ) {
 
-					this.object._finalize();
+					this.object._finalize( true );
 
 				}
-
-				var previousMaterial = ( this.object && typeof this.object.currentMaterial === 'function' ? this.object.currentMaterial() : undefined );
 
 				this.object = {
 					name : name || '',
@@ -157,16 +157,18 @@ THREE.OBJLoader.prototype = {
 							inherited  : false,
 
 							clone : function( index ) {
-								return {
+								var cloned = {
 									index      : ( typeof index === 'number' ? index : this.index ),
 									name       : this.name,
 									mtllib     : this.mtllib,
 									smooth     : this.smooth,
-									groupStart : this.groupEnd,
+									groupStart : 0,
 									groupEnd   : -1,
 									groupCount : -1,
 									inherited  : false
 								};
+								cloned.clone = this.clone.bind( cloned );
+								return cloned;
 							}
 						};
 
@@ -197,8 +199,19 @@ THREE.OBJLoader.prototype = {
 
 						}
 
+						// Ignore objects tail materials if no face declarations followed them before a new o/g started.
+						if ( end && this.materials.length > 1 ) {
+
+							for ( var mi = this.materials.length - 1; mi >= 0; mi-- ) {
+								if ( this.materials[mi].groupCount <= 0 ) {
+									this.materials.splice( mi, 1 );
+								}
+							}
+
+						}
+
 						// Guarantee at least one empty material, this makes the creation later more straight forward.
-						if ( end !== false && this.materials.length === 0 ) {
+						if ( end && this.materials.length === 0 ) {
 							this.materials.push({
 								name   : '',
 								smooth : this.smooth
@@ -248,7 +261,7 @@ THREE.OBJLoader.prototype = {
 
 				if ( this.object && typeof this.object._finalize === 'function' ) {
 
-					this.object._finalize();
+					this.object._finalize( true );
 
 				}
 
@@ -641,34 +654,48 @@ THREE.OBJLoader.prototype = {
 			}
 		};
 
-		// both ways to iterate are approx. 20 percent slower then previous implementation,
+
+		// Processing is approx. 20 percent slower then previous implementation,
 		// but the input is no longer doubled removing the memory spike
-		var findLineEndAndProcess = function ( code, line ) {
-			if ( code === 13  ) {
-				processLine( line );
-				line = '';
-			}
-			else {
-				if ( code !== 10 ) {
-					line += String.fromCharCode( code );
-				}
-			}
-
-			return line;
-		};
-
-		var currentPos = 0;
-		var line = '';
 		if ( scope.loadAsArrayBuffer ) {
-			var view = new Uint8Array(input);
 
-			for ( var length = view.length; currentPos < length; currentPos++ ) {
-				line = findLineEndAndProcess ( view[currentPos], line );
+			var view = new Uint8Array( input );
+			var line = '';
+
+			for ( var code, currentPos = 0, length = view.length; currentPos < length; currentPos++ ) {
+				code = view[currentPos];
+				if ( code === 13  ) {
+					processLine( line );
+					line = '';
+				}
+				else {
+					if ( code !== 10 ) {
+						line += String.fromCharCode( code );
+					}
+				}
 			}
 		}
 		else {
-			for ( var length = input.length; currentPos < length; currentPos++ ) {
-				line = findLineEndAndProcess ( input.charCodeAt( currentPos ), line );
+			var text = input;
+
+			if ( text.indexOf( '\r\n' ) !== - 1 ) {
+
+				// This is faster than String.split with regex that splits on both
+				text = text.replace( /\r\n/g, '\n' );
+
+			}
+
+			if ( text.indexOf( '\\\n' ) !== - 1) {
+
+				// join lines separated by a line continuation character (\)
+				text = text.replace( /\\\n/g, '' );
+
+			}
+
+			var lines = text.split( '\n' );
+
+			for ( var i = 0, l = lines.length; i < l; i ++ ) {
+				processLine( lines[i] );
 			}
 		}
 

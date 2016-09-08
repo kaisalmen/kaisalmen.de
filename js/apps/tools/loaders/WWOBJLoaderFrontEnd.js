@@ -77,14 +77,18 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         }
     };
 
-    WWOBJLoaderFrontEnd.prototype.postInit = function ( basePath, objFile, mtlFile, texturePath ) {
+    WWOBJLoaderFrontEnd.prototype.postInit = function ( basePath, objFile, mtlFile, texturePath,
+                                                        dataAvailable, objAsArrayBuffer, mtlAsString ) {
         this.worker.postMessage({
             cmd: 'init',
             basePath: basePath,
             objFile: objFile,
             mtlFile: mtlFile,
-            texturePath: texturePath
-        });
+            texturePath: texturePath,
+            dataAvailable: dataAvailable === undefined ? false : dataAvailable,
+            mtlAsString: mtlAsString === undefined ? null : mtlAsString,
+            objAsArrayBuffer: objAsArrayBuffer === undefined ? null : objAsArrayBuffer
+        }, [objAsArrayBuffer.buffer] );
 
         console.time( 'WWOBJLoaderFrontEnd' );
     };

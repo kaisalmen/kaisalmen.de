@@ -33,6 +33,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
 
         this.lights = null;
         this.controls = null;
+
+        this.zipTools = new KSX.apps.tools.ZipTools( '../../resource/models/' );
     }
 
     WWOBJLoaderChecker.prototype.initGL = function () {
@@ -71,8 +73,30 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
-        this.wwFrontEnd.postInit( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
-        this.wwFrontEnd.postRun();
+
+        var scope = this;
+        var objAsArrayBuffer = null;
+        var mtlAsString = null;
+
+        var setObjAsArrayBuffer = function( data ) {
+            objAsArrayBuffer = data;
+
+            scope.wwFrontEnd.postInit( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/',
+                false, objAsArrayBuffer, mtlAsString );
+            scope.wwFrontEnd.postRun();
+
+        };
+        var setMtlAsString = function( data ) {
+            mtlAsString = data;
+            scope.zipTools.unpackAsUint8Array( 'PTV1.obj', setObjAsArrayBuffer );
+        };
+
+        var doneUnzipping = function() {
+            scope.zipTools.unpackAsString( 'PTV1.mtl', setMtlAsString );
+
+        };
+        scope.zipTools.load( 'PTV1.zip', doneUnzipping  );
+
         return true;
     };
 

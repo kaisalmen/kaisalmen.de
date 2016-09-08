@@ -36,7 +36,7 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
     function WWOBJLoader() {
         THREE.OBJLoader.call( this );
-        this.state = 'created';
+        this.cmdState = 'created';
 
         this.mtlLoader = new THREE.MTLLoader();
 
@@ -44,6 +44,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
         this.objFile = '';
         this.mtlFile = '';
         this.texturePath = '';
+        this.dataAvailable = false;
+        this.objAsArrayBuffer = null;
+        this.mtlAsString = null;
 
         this.setLoadAsArrayBuffer( true );
         this.setWorkInline( true );
@@ -98,15 +101,15 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
 
     WWOBJLoader.prototype.init = function ( payload ) {
-        this.state = 'init';
+        this.cmdState = 'init';
 
         this.basePath = payload.basePath;
         this.texturePath = payload.texturePath;
         this.objFile = payload.objFile;
         this.mtlFile = payload.mtlFile;
+        this.dataAvailable = payload.dataAvailable;
 
-        this.mtlLoader.setPath( this.texturePath );
-
+        // configure OBJLoader
         if ( payload.loadAsArrayBuffer !== undefined ) {
 
             this.setLoadAsArrayBuffer( payload.loadAsArrayBuffer );
@@ -118,39 +121,63 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
         }
         this.setPath( this.basePath );
+
+        if ( this.dataAvailable ) {
+
+            // this must be the case, otherwise loading will fail
+            this.setLoadAsArrayBuffer( true );
+            this.objAsArrayBuffer = payload.objAsArrayBuffer;
+            this.mtlAsString = payload.mtlAsString;
+
+        }
+
+        // configure MTLLoader
+        this.mtlLoader.setPath( this.texturePath );
     };
 
     WWOBJLoader.prototype.run = function ( payload ) {
         var scope = this;
-        scope.state = 'run';
+        scope.cmdState = 'run';
 
-        var onLoad = function () {
-            console.log( 'Loading complete!' );
+        if ( scope.dataAvailable ) {
 
-            self.postMessage({
-                cmd: 'complete'
-            });
-
-            scope.dispose();
-        };
-
-        var onProgress = function ( xhr ) {
-            if ( xhr.lengthComputable ) {
-                var percentComplete = xhr.loaded / xhr.total * 100;
-                console.log( Math.round(percentComplete, 2) + '% downloaded' );
-            }
-        };
-
-        var onError = function ( xhr ) {
-            console.error( xhr );
-        };
-
-        scope.mtlLoader.load( scope.mtlFile, function( materials ) {
+            var materials = scope.mtlLoader.parse( scope.mtlAsString );
             materials.preload();
 
             scope.setMaterials( materials );
-            scope.load( scope.objFile, onLoad, onProgress, onError );
-        });
+            scope.parse( scope.objAsArrayBuffer );
+        }
+        else {
+
+            scope.mtlLoader.load( scope.mtlFile, function( materials ) {
+
+                materials.preload();
+                scope.setMaterials( materials );
+
+                var onLoad = function () {
+                    console.log( 'Loading complete!' );
+
+                    self.postMessage({
+                        cmd: 'complete'
+                    });
+
+                    scope.dispose();
+                };
+
+                var onProgress = function ( xhr ) {
+                    if ( xhr.lengthComputable ) {
+                        var percentComplete = xhr.loaded / xhr.total * 100;
+                        console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                    }
+                };
+
+                var onError = function ( xhr ) {
+                    console.error( xhr );
+                };
+
+                scope.load( scope.objFile, onLoad, onProgress, onError );
+            });
+        }
     };
 
     return WWOBJLoader;
@@ -161,7 +188,7 @@ KSX.apps.tools.loaders.wwobj.static.implRef = new KSX.apps.tools.loaders.wwobj.W
 KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
     var payload = event.data;
 
-    console.log( 'State before: ' + KSX.apps.tools.loaders.wwobj.static.implRef.state );
+    console.log( 'Command state before: ' + KSX.apps.tools.loaders.wwobj.static.implRef.cmdState );
 
     switch ( payload.cmd ) {
         case 'init':
@@ -178,7 +205,7 @@ KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
             break;
     }
 
-    console.log( 'State after: ' + KSX.apps.tools.loaders.wwobj.static.implRef.state );
+    console.log( 'Command state after: ' + KSX.apps.tools.loaders.wwobj.static.implRef.cmdState );
 };
 
 self.addEventListener( 'message', KSX.apps.tools.loaders.wwobj.static.runner, false );
