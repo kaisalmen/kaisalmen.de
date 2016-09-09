@@ -63,6 +63,7 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
 
         switch ( payload.cmd ) {
             case 'materials':
+
                 var materialsJSON = JSON.parse( payload.materials );
                 for ( var name in materialsJSON ) {
                     material = this.materialLoader.parse( materialsJSON[name] );
@@ -75,8 +76,8 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
 
                 break;
             case 'objData':
-                this.counter++;
 
+                this.counter++;
                 var bufferGeometry = new THREE.BufferGeometry();
 
                 bufferGeometry.addAttribute( "position", new THREE.BufferAttribute( new Float32Array( payload.vertices ), 3 ) );
@@ -91,7 +92,14 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                 }
 
                 if ( payload.multiMaterial ) {
-                    // TODO: Build new Multi-Material
+
+                    var materialNames = JSON.parse( payload.materialName );
+                    var multiMaterials = [];
+                    for ( var name of materialNames ) {
+                        multiMaterials.push( this.materials[name] );
+                    }
+
+                    material = new THREE.MultiMaterial( multiMaterials );
                 }
                 else {
                     material = this.materials[ payload.materialName ];
@@ -142,15 +150,29 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         }
     };
 
-    WWOBJLoaderFrontEnd.prototype.postInit = function ( basePath, objFile, mtlFile, texturePath,
-                                                        dataAvailable, objAsArrayBuffer, mtlAsString ) {
+    WWOBJLoaderFrontEnd.prototype.postInitWithFiles = function ( basePath, objFile, mtlFile, texturePath ) {
         this.worker.postMessage({
             cmd: 'init',
+            dataAvailable: false,
             basePath: basePath,
             objFile: objFile,
             mtlFile: mtlFile,
             texturePath: texturePath,
-            dataAvailable: dataAvailable === undefined ? false : dataAvailable,
+            mtlAsString: null,
+            objAsArrayBuffer: null
+        });
+
+        console.time( 'WWOBJLoaderFrontEnd' );
+    };
+
+    WWOBJLoaderFrontEnd.prototype.postInitWithData = function ( texturePath, objAsArrayBuffer, mtlAsString ) {
+        this.worker.postMessage({
+            cmd: 'init',
+            dataAvailable: true,
+            basePath: null,
+            objFile: null,
+            mtlFile: null,
+            texturePath: texturePath,
             mtlAsString: mtlAsString === undefined ? null : mtlAsString,
             objAsArrayBuffer: objAsArrayBuffer === undefined ? null : objAsArrayBuffer
         }, [objAsArrayBuffer.buffer] );

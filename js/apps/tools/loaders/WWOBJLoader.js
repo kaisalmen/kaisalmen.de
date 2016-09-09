@@ -82,8 +82,10 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
                 };
                 materialGroups.push( group );
             }
-            // TODO: Gather all names
-            materialNames.push( 'test' );
+
+            for ( var multiMaterial of material.materials ) {
+                materialNames.push( multiMaterial.name );
+            }
             multiMaterial = true;
         }
 
@@ -94,7 +96,7 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
             cmd: 'objData',
             meshName: object.name,
             multiMaterial: multiMaterial,
-            materialName: multiMaterial ? materialNames : material.name,
+            materialName: multiMaterial ? JSON.stringify( materialNames ) : material.name,
             materialGroups: multiMaterial ? JSON.stringify( materialGroups ) : null,
             vertices: verticesOut,
             normals: normalsOut,
@@ -108,11 +110,11 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
     WWOBJLoader.prototype.init = function ( payload ) {
         this.cmdState = 'init';
 
-        this.basePath = payload.basePath;
-        this.texturePath = payload.texturePath;
-        this.objFile = payload.objFile;
-        this.mtlFile = payload.mtlFile;
         this.dataAvailable = payload.dataAvailable;
+        this.basePath = payload.basePath === null ? '' : payload.basePath;
+        this.texturePath = payload.texturePath === null ? '' : payload.texturePath;
+        this.objFile = payload.objFile === null ? '' : payload.objFile;
+        this.mtlFile = payload.mtlFile === null ? '' : payload.mtlFile;
 
         // configure OBJLoader
         if ( payload.loadAsArrayBuffer !== undefined ) {

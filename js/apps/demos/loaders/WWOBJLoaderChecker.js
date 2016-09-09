@@ -82,8 +82,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         var setObjAsArrayBuffer = function( data ) {
             objAsArrayBuffer = data;
 
-            scope.wwFrontEnd.postInit( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/',
-                true, objAsArrayBuffer, mtlAsString );
+//            scope.wwFrontEnd.postInitWithFiles( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
+            scope.wwFrontEnd.postInitWithData( '../../../../resource/models/', objAsArrayBuffer, mtlAsString );
             scope.wwFrontEnd.postRun();
 
         };
