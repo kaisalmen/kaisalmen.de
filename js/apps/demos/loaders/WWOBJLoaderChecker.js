@@ -19,7 +19,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         }
     });
 
-    function WWOBJLoaderChecker( elementToBindTo, basedir ) {
+    function WWOBJLoaderChecker( elementToBindTo ) {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
@@ -29,7 +29,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             useScenePerspective : true
         });
 
-        this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( basedir );
+        this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
         this.wwFrontEnd.setDebug( true );
 
         this.lights = null;

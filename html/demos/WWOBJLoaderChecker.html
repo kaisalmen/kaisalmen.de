@@ -41,7 +41,7 @@
     <script>
         if (KSX.globals.preChecksOk) {
             var implementations = new Array();
-            var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas"), '../..' );
+            var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
             implementations.push( wwOBJLoaderChecker );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run( true );

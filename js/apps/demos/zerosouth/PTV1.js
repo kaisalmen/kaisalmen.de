@@ -42,16 +42,11 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         });
         this.controls = null;
 
-        var pathToObj = '../../resource/models/';
-        var fileObj = 'PTV1.obj';
-        var fileZip = 'PTV1.zip';
-        var fileMtl = 'PTV1.mtl';
-        var loadDirectly = false;
-///        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(pathToObj, fileObj, fileMtl, !loadDirectly, fileZip);
-        this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( basedir );
-
-        // disables dynamic counting of objects in file
-//        this.objLoaderWW.setOverallObjectCount(1585);
+        this.pathToObj = '../../resource/models/';
+        this.fileObj = 'PTV1.obj';
+        this.fileZip = 'PTV1.zip';
+        this.fileMtl = 'PTV1.mtl';
+        this.wwObjFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
 
         this.objGroup = null;
 
@@ -88,6 +83,8 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             useStats: true
         };
         this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
+
+        this.zipTools = new KSX.apps.tools.ZipTools( this.pathToObj );
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -117,7 +114,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var announceFeedback = function ( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        this.wwFrontEnd.registerProgressCallback( announceFeedback );
+        this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
 
         this.uiTools.enableStats();
     };
@@ -202,7 +199,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             side : THREE.DoubleSide,
             opacity: 0.45
         });
-        this.objLoaderWW.addMaterial('glass', glass);
+        this.wwObjFrontEnd.addMaterial('glass', glass);
 
         var glassProps = {
             name: 'glass',
@@ -225,9 +222,9 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
-        this.scenePerspective.scene.add(this.objGroup);
+        this.scenePerspective.scene.add( this.objGroup );
 
-        this.objLoaderWW.setObjGroup(this.objGroup);
+        this.wwObjFrontEnd.setObjGroup( this.objGroup );
 
 
         // Skybox
@@ -269,7 +266,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 console.log('Overall number of materials: ' + materialCount);
             }
         };
-        this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
+        this.wwObjFrontEnd.registerHookMaterialsLoaded( callbackMaterialsLoaded );
 
         var callbackMeshLoaded = function (meshName, material) {
             var replacedMaterial = null;
@@ -280,12 +277,12 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             }
 
             if (perObjectMaterialName !== null && perObjectMaterialName !== undefined) {
-                replacedMaterial = scope.objLoaderWW.getMaterial(perObjectMaterialName);
+                replacedMaterial = scope.wwObjFrontEnd.getMaterial(perObjectMaterialName);
             }
             else {
                 var replacedMaterialName = scope.replaceMaterials[material.name];
                 if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
-                    replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
+                    replacedMaterial = scope.wwObjFrontEnd.getMaterial(replacedMaterialName);
                 }
             }
 
@@ -301,7 +298,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
 
             return replacedMaterial;
         };
-        this.objLoaderWW.registerHookMeshLoaded(callbackMeshLoaded);
+        this.wwObjFrontEnd.registerHookMeshLoaded( callbackMeshLoaded );
 
         var callbackCompletedLoading = function () {
             if (scope.exportMeshInfos) {
@@ -321,9 +318,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 }
             }
         };
-        this.objLoaderWW.registerHookCompletedLoading(callbackCompletedLoading);
-
-        this.objLoaderWW.load();
+        this.wwObjFrontEnd.registerHookCompletedLoading( callbackCompletedLoading );
     };
 
     PTV1Loader.prototype.initPostGL = function() {
@@ -393,6 +388,27 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
+
+        var objAsArrayBuffer = null;
+        var mtlAsString = null;
+
+        var setObjAsArrayBuffer = function( data ) {
+            objAsArrayBuffer = data;
+
+            scope.wwObjFrontEnd.postInitWithData( scope.pathToObj, objAsArrayBuffer, mtlAsString );
+            scope.wwObjFrontEnd.postRun();
+
+        };
+        var setMtlAsString = function( data ) {
+            mtlAsString = data;
+            scope.zipTools.unpackAsUint8Array( scope.fileObj, setObjAsArrayBuffer );
+        };
+
+        var doneUnzipping = function() {
+            scope.zipTools.unpackAsString( scope.fileMtl, setMtlAsString );
+
+        };
+        scope.zipTools.load( scope.fileZip, doneUnzipping  );
 
         return true;
     };

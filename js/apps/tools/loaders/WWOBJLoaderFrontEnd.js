@@ -57,6 +57,21 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         this.callbackCompletedLoading = callback;
     };
 
+    WWOBJLoaderFrontEnd.prototype.addMaterial = function (name, material) {
+        if (material.name !== name) {
+            material.name = name;
+        }
+        this.materials[name] = material;
+    };
+
+    WWOBJLoaderFrontEnd.prototype.getMaterial = function (name) {
+        var material = this.materials[name];
+        if (material === undefined) {
+            material = null;
+        }
+        return material;
+    };
+
     WWOBJLoaderFrontEnd.prototype.processData = function ( event ) {
         var payload = event.data;
         var material;
