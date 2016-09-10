@@ -86,7 +86,7 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                 }
 
                 if ( this.callbackMaterialsLoaded !== null ) {
-                    this.callbackMaterialsLoaded( this.materials );
+                    this.materials = this.callbackMaterialsLoaded( this.materials );
                 }
 
                 break;
