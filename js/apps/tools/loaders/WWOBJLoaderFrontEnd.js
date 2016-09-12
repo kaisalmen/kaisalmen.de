@@ -18,8 +18,15 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         };
         this.worker.addEventListener('message', scopeFunction, false);
 
-        this.materialLoader = new THREE.MaterialLoader();
+        this.mtlLoader = new THREE.MTLLoader();
+        this.mtlFile = null;
+        this.texturePath = null;
+        this.dataAvailable = false;
+        this.mtlAsString = null;
+
         this.materials = [];
+        this.defaultMaterial = new THREE.MeshPhongMaterial();
+        this.defaultMaterial.name = "defaultMaterial";
 
         this.counter = 0;
         this.objGroup = null;
@@ -72,24 +79,173 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         return material;
     };
 
+    WWOBJLoaderFrontEnd.prototype.announceProgress = function ( baseText, text ) {
+        var output = "";
+        if ( baseText !== null && baseText !== undefined ) {
+            output = baseText;
+        }
+
+        if ( text !== null && text !== undefined ) {
+            output = output + " " + text;
+        }
+
+        if ( this.callbackProgress !== null ) {
+            this.callbackProgress( output );
+        }
+        if ( this.debug ) {
+            console.log( output );
+        }
+    };
+
+    WWOBJLoaderFrontEnd.prototype.initWithFiles = function ( basePath, objFile, mtlFile, texturePath ) {
+        this.dataAvailable = false;
+
+        this.worker.postMessage({
+            cmd: 'init',
+            debug: this.debug,
+            dataAvailable: this.dataAvailable,
+            basePath: basePath,
+            objFile: objFile,
+            objAsArrayBuffer: null
+        });
+
+
+        // configure MTLLoader
+        this.mtlFile = mtlFile;
+        this.texturePath = texturePath;
+        this.mtlLoader.setPath( this.texturePath );
+
+        console.time( 'WWOBJLoaderFrontEnd' );
+    };
+
+    WWOBJLoaderFrontEnd.prototype.initWithData = function ( texturePath, objAsArrayBuffer, mtlAsString ) {
+        this.dataAvailable = true;
+
+        this.worker.postMessage({
+            cmd: 'init',
+            debug: this.debug,
+            dataAvailable: this.dataAvailable,
+            basePath: null,
+            objFile: null,
+            objAsArrayBuffer: objAsArrayBuffer === undefined ? null : objAsArrayBuffer
+        }, [objAsArrayBuffer.buffer] );
+
+        this.mtlAsString = mtlAsString;
+
+        console.time( 'WWOBJLoaderFrontEnd' );
+    };
+
+    WWOBJLoaderFrontEnd.prototype.run = function () {
+        var scope = this;
+
+        var processMaterials = function( materialsOrg ) {
+
+            var matInfoOrg = materialsOrg.materialsInfo;
+            // simple, not elegant, but sufficient way to clone the mtl input material objects
+            var matInfoMod = JSON.parse( JSON.stringify( matInfoOrg ) );
+            var materialsMod = new THREE.MTLLoader.MaterialCreator( materialsOrg.baseUrl, materialsOrg.options );
+
+            var name;
+            for ( name in matInfoMod ) {
+                if ( matInfoMod.hasOwnProperty( name ) ) {
+                    var mat = matInfoMod[name];
+
+                    if ( mat.hasOwnProperty( 'map_kd' ) ) {
+                        delete mat['map_kd'];
+                    }
+                    if ( mat.hasOwnProperty( 'map_ks' ) ) {
+                        delete mat['map_ks'];
+                    }
+                    if ( mat.hasOwnProperty( 'map_bump' ) ) {
+                        delete mat['map_bump'];
+                    }
+                    if ( mat.hasOwnProperty( 'bump' ) ) {
+                        delete mat['bump'];
+                    }
+                }
+            }
+            materialsMod.setMaterials( matInfoMod );
+            materialsMod.preload();
+
+            // set 'castrated' materials in associated materials array
+            matInfoMod = materialsMod.materials;
+            for ( name in matInfoMod ) {
+                if ( matInfoMod.hasOwnProperty( name ) ) {
+                    scope.materials[ name ] = materialsMod.materials[ name ];
+                }
+            }
+
+            // pass 'castrated' materials to web worker
+            var matInfoModJSON = JSON.stringify( matInfoMod );
+            scope.worker.postMessage({
+                cmd: 'initMaterials',
+                materials: matInfoModJSON,
+                baseUrl: materialsMod.baseUrl,
+                options: materialsMod.options
+            });
+
+            // process obj immediately
+            scope.worker.postMessage({
+                cmd: 'run',
+            });
+
+
+            // wrap texture loading in Promise
+            var promises = [];
+            var promise = function ( resolve ) {
+                console.time( 'promise textures' );
+                materialsOrg.preload();
+                resolve( materialsOrg );
+            };
+
+            promises.push( new Promise(promise) );
+
+            Promise.all( promises ).then(
+                function ( results ) {
+                    console.timeEnd( 'promise textures' );
+
+
+                    var matWithTextures = results[0].materials;
+                    var intermediate;
+                    var updated;
+                    for ( name in scope.materials ) {
+                        intermediate = scope.materials[name];
+                        updated = matWithTextures[name];
+
+                        // update stored materials with texture mapping information (= fully restoration)
+                        if ( updated !== undefined ) {
+                            intermediate.setValues( updated );
+                        }
+                    }
+
+                    if ( scope.callbackMaterialsLoaded !== null ) {
+                        scope.materials = scope.callbackMaterialsLoaded( scope.materials );
+                    }
+                }
+            ).catch(
+                function (error) {
+                    console.log('The following error occurred: ', error);
+                }
+            );
+        };
+
+        if ( this.dataAvailable ) {
+
+            processMaterials( scope.mtlLoader.parse( scope.mtlAsString ) );
+
+        }
+        else {
+
+            scope.mtlLoader.load( scope.mtlFile, processMaterials );
+
+        }
+    };
+
     WWOBJLoaderFrontEnd.prototype.processData = function ( event ) {
         var payload = event.data;
         var material;
 
         switch ( payload.cmd ) {
-            case 'materials':
-
-                var materialsJSON = JSON.parse( payload.materials );
-                for ( var name in materialsJSON ) {
-                    material = this.materialLoader.parse( materialsJSON[name] );
-                    this.materials[name] = material;
-                }
-
-                if ( this.callbackMaterialsLoaded !== null ) {
-                    this.materials = this.callbackMaterialsLoaded( this.materials );
-                }
-
-                break;
             case 'objData':
 
                 this.counter++;
@@ -120,14 +276,14 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                     material = this.materials[ payload.materialName ];
                 }
 
+                if ( material === null || material === undefined ) {
+                    material = this.defaultMaterial;
+                }
+
                 if ( payload.materialGroups !== null ) {
 
                     var materialGroups = JSON.parse( payload.materialGroups );
-                    /*
-                     if ( materialGroups.length > 0 ) {
-                     console.log( this.counter + ' materialGroups: ' + materialGroups );
-                     }
-                     */
+
                     for ( var group, i = 0, length = materialGroups.length; i < length; i ++ ) {
                         group = materialGroups[ i ];
                         bufferGeometry.addGroup( group.start, group.count, group.index );
@@ -135,7 +291,9 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                 }
 
                 if ( this.callbackMeshLoaded !== null ) {
+
                     var materialOverride = this.callbackMeshLoaded( payload.meshName, material );
+
                     if ( materialOverride !== null  && materialOverride !== undefined ) {
                         material = materialOverride;
                     }
@@ -162,60 +320,6 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                 console.error( 'Received unknown command: ' + payload.cmd );
 
                 break;
-        }
-    };
-
-    WWOBJLoaderFrontEnd.prototype.postInitWithFiles = function ( basePath, objFile, mtlFile, texturePath ) {
-        this.worker.postMessage({
-            cmd: 'init',
-            dataAvailable: false,
-            basePath: basePath,
-            objFile: objFile,
-            mtlFile: mtlFile,
-            texturePath: texturePath,
-            mtlAsString: null,
-            objAsArrayBuffer: null
-        });
-
-        console.time( 'WWOBJLoaderFrontEnd' );
-    };
-
-    WWOBJLoaderFrontEnd.prototype.postInitWithData = function ( texturePath, objAsArrayBuffer, mtlAsString ) {
-        this.worker.postMessage({
-            cmd: 'init',
-            dataAvailable: true,
-            basePath: null,
-            objFile: null,
-            mtlFile: null,
-            texturePath: texturePath,
-            mtlAsString: mtlAsString === undefined ? null : mtlAsString,
-            objAsArrayBuffer: objAsArrayBuffer === undefined ? null : objAsArrayBuffer
-        }, [objAsArrayBuffer.buffer] );
-
-        console.time( 'WWOBJLoaderFrontEnd' );
-    };
-
-    WWOBJLoaderFrontEnd.prototype.postRun = function (  ) {
-        this.worker.postMessage({
-            cmd: 'run',
-        });
-    };
-
-    WWOBJLoaderFrontEnd.prototype.announceProgress = function ( baseText, text ) {
-        var output = "";
-        if ( baseText !== null && baseText !== undefined ) {
-            output = baseText;
-        }
-
-        if ( text !== null && text !== undefined ) {
-            output = output + " " + text;
-        }
-
-        if ( this.callbackProgress !== null ) {
-            this.callbackProgress( output );
-        }
-        if ( this.debug ) {
-            console.log( output );
         }
     };
 

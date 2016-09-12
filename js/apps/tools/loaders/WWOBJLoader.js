@@ -37,16 +37,12 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
     function WWOBJLoader() {
         THREE.OBJLoader.call( this );
         this.cmdState = 'created';
-
-        this.mtlLoader = new THREE.MTLLoader();
+        this.debug = false;
 
         this.basePath = '';
         this.objFile = '';
-        this.mtlFile = '';
-        this.texturePath = '';
         this.dataAvailable = false;
         this.objAsArrayBuffer = null;
-        this.mtlAsString = null;
 
         this.setLoadAsArrayBuffer( true );
         this.setWorkInline( true );
@@ -57,6 +53,8 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
     WWOBJLoader.prototype.buildSingleMesh = function ( object, material ) {
         // Fast-Fail: Skip o/g line declarations that did not follow with any faces
         if ( object.geometry.vertices.length === 0 ) return null;
+
+        this.counter++;
 
         var geometry = object.geometry;
         var objectMaterials = object.materials;
@@ -70,8 +68,8 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
 
         var materialGroups = [];
-        var multiMaterial = false;
         var materialNames =  [];
+        var multiMaterial = false;
         if ( material instanceof  THREE.MultiMaterial ) {
             for ( var objectMaterial, group, i = 0, length = objectMaterials.length; i < length; i++ ) {
                 objectMaterial = objectMaterials[i];
@@ -89,8 +87,6 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
             multiMaterial = true;
         }
 
-        this.counter++;
-//        console.log( 'Count: ' + this.counter + ' name: ' + object.name );
 
         self.postMessage({
             cmd: 'objData',
@@ -110,11 +106,10 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
     WWOBJLoader.prototype.init = function ( payload ) {
         this.cmdState = 'init';
 
+        this.debug = payload.debug;
         this.dataAvailable = payload.dataAvailable;
         this.basePath = payload.basePath === null ? '' : payload.basePath;
-        this.texturePath = payload.texturePath === null ? '' : payload.texturePath;
         this.objFile = payload.objFile === null ? '' : payload.objFile;
-        this.mtlFile = payload.mtlFile === null ? '' : payload.mtlFile;
 
         // configure OBJLoader
         if ( payload.loadAsArrayBuffer !== undefined ) {
@@ -134,66 +129,55 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
             // this must be the case, otherwise loading will fail
             this.setLoadAsArrayBuffer( true );
             this.objAsArrayBuffer = payload.objAsArrayBuffer;
-            this.mtlAsString = payload.mtlAsString;
-
         }
 
-        // configure MTLLoader
-        this.mtlLoader.setPath( this.texturePath );
     };
 
-    WWOBJLoader.prototype.run = function ( payload ) {
-        var scope = this;
-        scope.cmdState = 'run';
+    WWOBJLoader.prototype.initMaterials = function ( payload ) {
+        this.cmdState = 'initMaterials';
 
-        var materialsLoaded = function ( materials ) {
-            materials.preload();
-            scope.setMaterials( materials );
+        var materialsJSON = JSON.parse( payload.materials );
+        var materialCreator = new THREE.MTLLoader.MaterialCreator( payload.baseUrl, payload.options );
+        materialCreator.setMaterials( materialsJSON );
+        materialCreator.preload();
 
-            self.postMessage({
-                cmd: 'materials',
-                materials: JSON.stringify( materials.materials ),
-            });
-        };
+        this.setMaterials( materialCreator );
+    };
 
-        if ( scope.dataAvailable ) {
+    WWOBJLoader.prototype.run = function () {
+        this.cmdState = 'run';
 
-            var materials = scope.mtlLoader.parse( scope.mtlAsString );
+        if ( this.dataAvailable ) {
 
-            materialsLoaded( materials );
+            this.parse( this.objAsArrayBuffer );
 
-            scope.parse( scope.objAsArrayBuffer );
         }
         else {
 
-            scope.mtlLoader.load( scope.mtlFile, function( materials ) {
+            var scope = this;
+            var onLoad = function () {
+                console.log( 'Loading complete!' );
 
-                materials.preload();
-                scope.setMaterials( materials );
+                self.postMessage({
+                    cmd: 'complete'
+                });
 
-                var onLoad = function () {
-                    console.log( 'Loading complete!' );
+                scope.dispose();
+            };
 
-                    self.postMessage({
-                        cmd: 'complete'
-                    });
+            var onProgress = function ( xhr ) {
+                if ( xhr.lengthComputable ) {
+                    var percentComplete = xhr.loaded / xhr.total * 100;
+                    console.log( Math.round(percentComplete, 2) + '% downloaded' );
+                }
+            };
 
-                    scope.dispose();
-                };
+            var onError = function ( xhr ) {
+                console.error( xhr );
+            };
 
-                var onProgress = function ( xhr ) {
-                    if ( xhr.lengthComputable ) {
-                        var percentComplete = xhr.loaded / xhr.total * 100;
-                        console.log( Math.round(percentComplete, 2) + '% downloaded' );
-                    }
-                };
+            this.load( this.objFile, onLoad, onProgress, onError );
 
-                var onError = function ( xhr ) {
-                    console.error( xhr );
-                };
-
-                scope.load( scope.objFile, onLoad, onProgress, onError );
-            });
         }
     };
 
@@ -212,8 +196,12 @@ KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
             KSX.apps.tools.loaders.wwobj.static.implRef.init( payload );
 
             break;
+        case 'initMaterials':
+            KSX.apps.tools.loaders.wwobj.static.implRef.initMaterials( payload );
+
+            break;
         case 'run':
-            KSX.apps.tools.loaders.wwobj.static.implRef.run( payload );
+            KSX.apps.tools.loaders.wwobj.static.implRef.run();
 
             break;
         default:

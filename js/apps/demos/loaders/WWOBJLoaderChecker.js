@@ -35,6 +35,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         this.lights = null;
         this.controls = null;
 
+        this.useZip = true;
         this.zipTools = new KSX.apps.tools.ZipTools( '../../resource/models/' );
     }
 
@@ -74,29 +75,38 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
-
         var scope = this;
-        var objAsArrayBuffer = null;
-        var mtlAsString = null;
 
-        var setObjAsArrayBuffer = function( data ) {
-            objAsArrayBuffer = data;
+        if ( this.useZip ) {
 
-//            scope.wwFrontEnd.postInitWithFiles( '../../../../resource/models/', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
-            scope.wwFrontEnd.postInitWithData( '../../../../resource/models/', objAsArrayBuffer, mtlAsString );
-            scope.wwFrontEnd.postRun();
+            var objAsArrayBuffer = null;
+            var mtlAsString = null;
 
-        };
-        var setMtlAsString = function( data ) {
-            mtlAsString = data;
-            scope.zipTools.unpackAsUint8Array( 'PTV1.obj', setObjAsArrayBuffer );
-        };
+            var setObjAsArrayBuffer = function( data ) {
+                objAsArrayBuffer = data;
 
-        var doneUnzipping = function() {
-            scope.zipTools.unpackAsString( 'PTV1.mtl', setMtlAsString );
+                scope.wwFrontEnd.initWithData( '../../../../resource/models/', objAsArrayBuffer, mtlAsString );
+                scope.wwFrontEnd.run();
 
-        };
-        scope.zipTools.load( 'PTV1.zip', doneUnzipping  );
+            };
+            var setMtlAsString = function( data ) {
+                mtlAsString = data;
+                scope.zipTools.unpackAsUint8Array( 'PTV1.obj', setObjAsArrayBuffer );
+            };
+
+            var doneUnzipping = function() {
+                scope.zipTools.unpackAsString( 'PTV1.mtl', setMtlAsString );
+
+            };
+            scope.zipTools.load( 'PTV1.zip', doneUnzipping  );
+
+        }
+        else {
+
+            scope.wwFrontEnd.initWithFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
+            scope.wwFrontEnd.run();
+
+        }
 
         return true;
     };

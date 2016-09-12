@@ -664,12 +664,12 @@ THREE.OBJLoader.prototype = {
 
 			for ( var code, currentPos = 0, length = view.length; currentPos < length; currentPos++ ) {
 				code = view[currentPos];
-				if ( code === 13  ) {
+				if ( code === 10  ) {
 					processLine( line );
 					line = '';
 				}
 				else {
-					if ( code !== 10 ) {
+					if ( code !== 13 ) {
 						line += String.fromCharCode( code );
 					}
 				}

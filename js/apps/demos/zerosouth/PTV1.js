@@ -415,8 +415,8 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var setObjAsArrayBuffer = function( data ) {
             objAsArrayBuffer = data;
 
-            scope.wwObjFrontEnd.postInitWithData( scope.pathToObj, objAsArrayBuffer, mtlAsString );
-            scope.wwObjFrontEnd.postRun();
+            scope.wwObjFrontEnd.initWithData( scope.pathToObj, objAsArrayBuffer, mtlAsString );
+            scope.wwObjFrontEnd.run();
 
         };
         var setMtlAsString = function( data ) {
