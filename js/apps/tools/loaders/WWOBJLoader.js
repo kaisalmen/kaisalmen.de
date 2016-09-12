@@ -146,23 +146,28 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
     WWOBJLoader.prototype.run = function () {
         this.cmdState = 'run';
+        var scope = this;
 
-        if ( this.dataAvailable ) {
+        var complete = function () {
+            console.log( 'OBJ loading complete!' );
 
-            this.parse( this.objAsArrayBuffer );
+            self.postMessage({
+                cmd: 'complete'
+            });
 
+            scope.dispose();
+        };
+
+        if ( scope.dataAvailable ) {
+
+            scope.parse( scope.objAsArrayBuffer );
+
+            complete();
         }
         else {
 
-            var scope = this;
             var onLoad = function () {
-                console.log( 'Loading complete!' );
-
-                self.postMessage({
-                    cmd: 'complete'
-                });
-
-                scope.dispose();
+                complete();
             };
 
             var onProgress = function ( xhr ) {
@@ -176,7 +181,7 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
                 console.error( xhr );
             };
 
-            this.load( this.objFile, onLoad, onProgress, onError );
+            scope.load( scope.objFile, onLoad, onProgress, onError );
 
         }
     };

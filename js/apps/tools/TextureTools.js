@@ -20,14 +20,14 @@ KSX.apps.tools.TextureTools = (function () {
 
             var onSuccess = function (texture) {
                 var src = texture.image !== null ? texture.image.src : imageUrl;
-                console.log("Loading of texture was completed successfully: " + src);
+                console.log( 'Loading of texture was completed successfully: ' + src);
                 resolve(texture);
             };
 
             var onProgress = function (event) {
                 if (event.lengthComputable) {
                     var percentComplete = event.loaded / event.total * 100;
-                    var output = Math.round(percentComplete, 2) + '% downloaded';
+                    var output = 'Download of "' + imageUrl + '": ' + Math.round( percentComplete, 2 ) + '%';
                     console.log(output);
                 }
             };

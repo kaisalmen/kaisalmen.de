@@ -415,7 +415,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var setObjAsArrayBuffer = function( data ) {
             objAsArrayBuffer = data;
 
-            scope.wwObjFrontEnd.initWithData( scope.pathToObj, objAsArrayBuffer, mtlAsString );
+            scope.wwObjFrontEnd.initWithData( objAsArrayBuffer, mtlAsString, scope.pathToObj );
             scope.wwObjFrontEnd.run();
 
         };
@@ -426,9 +426,11 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
 
         var doneUnzipping = function() {
             scope.zipTools.unpackAsString( scope.fileMtl, setMtlAsString );
-
         };
-        scope.zipTools.load( scope.fileZip, doneUnzipping  );
+        var reportProgress = function( text ) {
+            scope.uiTools.announceFeedback( text );
+        };
+        scope.zipTools.load( scope.fileZip, doneUnzipping, reportProgress );
 
         return true;
     };

@@ -7,7 +7,6 @@
 <body>
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
     <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
-    <link href="../../resource/css/WWOBJLoaderChecker.css" type="text/css" rel="stylesheet"/>
 
     <div id="master">
         <div id="DivGLFull">
@@ -22,7 +21,7 @@
         </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">
-                Beware the model is 150MB! It takes a little while to load. Check the console if you are impatient.
+                Beware packed model size is 27MB (150MB uncompressed)! It takes a little while to load...
             </div>
         </div>
     </div>
@@ -36,6 +35,7 @@
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../js/apps/tools/FileTools.js"></script>
+    <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/tools/loaders/WWOBJLoaderFrontEnd.js"></script>
     <script src="../../js/apps/demos/loaders/WWOBJLoaderChecker.js"></script>
 
@@ -43,6 +43,7 @@
         if (KSX.globals.preChecksOk) {
             var implementations = new Array();
             var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
+            wwOBJLoaderChecker.setZipFiles( '../../resource/models/', 'PTV1.zip', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
             implementations.push( wwOBJLoaderChecker );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run( true );

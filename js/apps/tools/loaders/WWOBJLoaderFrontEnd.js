@@ -118,7 +118,7 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         console.time( 'WWOBJLoaderFrontEnd' );
     };
 
-    WWOBJLoaderFrontEnd.prototype.initWithData = function ( texturePath, objAsArrayBuffer, mtlAsString ) {
+    WWOBJLoaderFrontEnd.prototype.initWithData = function ( objAsArrayBuffer, mtlAsString, texturePath ) {
         this.dataAvailable = true;
 
         this.worker.postMessage({
@@ -131,6 +131,8 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         }, [objAsArrayBuffer.buffer] );
 
         this.mtlAsString = mtlAsString;
+        this.texturePath = texturePath;
+        this.mtlLoader.setPath( this.texturePath );
 
         console.time( 'WWOBJLoaderFrontEnd' );
     };
@@ -141,45 +143,47 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         var processMaterials = function( materialsOrg ) {
 
             var matInfoOrg = materialsOrg.materialsInfo;
-            // simple, not elegant, but sufficient way to clone the mtl input material objects
-            var matInfoMod = JSON.parse( JSON.stringify( matInfoOrg ) );
-            var materialsMod = new THREE.MTLLoader.MaterialCreator( materialsOrg.baseUrl, materialsOrg.options );
 
-            var name;
-            for ( name in matInfoMod ) {
-                if ( matInfoMod.hasOwnProperty( name ) ) {
-                    var mat = matInfoMod[name];
+            // Clone mtl input material objects
+            var matInfoMod = {};
+            var name, matOrg, matMod;
+            for ( name in matInfoOrg ) {
+                if ( matInfoOrg.hasOwnProperty( name ) ) {
 
-                    if ( mat.hasOwnProperty( 'map_kd' ) ) {
-                        delete mat['map_kd'];
+                    matOrg = matInfoOrg[name];
+                    matMod = Object.assign( {}, matOrg );
+
+                    if ( matMod.hasOwnProperty( 'map_kd' ) ) {
+                        delete matMod['map_kd'];
                     }
-                    if ( mat.hasOwnProperty( 'map_ks' ) ) {
-                        delete mat['map_ks'];
+                    if ( matMod.hasOwnProperty( 'map_ks' ) ) {
+                        delete matMod['map_ks'];
                     }
-                    if ( mat.hasOwnProperty( 'map_bump' ) ) {
-                        delete mat['map_bump'];
+                    if ( matMod.hasOwnProperty( 'map_bump' ) ) {
+                        delete matMod['map_bump'];
                     }
-                    if ( mat.hasOwnProperty( 'bump' ) ) {
-                        delete mat['bump'];
+                    if ( matMod.hasOwnProperty( 'bump' ) ) {
+                        delete matMod['bump'];
                     }
+
+                    matInfoMod[ name ] = matMod;
                 }
             }
+            var materialsMod = new THREE.MTLLoader.MaterialCreator( materialsOrg.baseUrl, materialsOrg.options );
             materialsMod.setMaterials( matInfoMod );
             materialsMod.preload();
 
             // set 'castrated' materials in associated materials array
-            matInfoMod = materialsMod.materials;
-            for ( name in matInfoMod ) {
-                if ( matInfoMod.hasOwnProperty( name ) ) {
+            for ( name in materialsMod.materials ) {
+                if ( materialsMod.materials.hasOwnProperty( name ) ) {
                     scope.materials[ name ] = materialsMod.materials[ name ];
                 }
             }
 
             // pass 'castrated' materials to web worker
-            var matInfoModJSON = JSON.stringify( matInfoMod );
             scope.worker.postMessage({
                 cmd: 'initMaterials',
-                materials: matInfoModJSON,
+                materials: JSON.stringify( matInfoMod ),
                 baseUrl: materialsMod.baseUrl,
                 options: materialsMod.options
             });
@@ -190,43 +194,26 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
             });
 
 
-            // wrap texture loading in Promise
-            var promises = [];
-            var promise = function ( resolve ) {
-                console.time( 'promise textures' );
-                materialsOrg.preload();
-                resolve( materialsOrg );
-            };
+            console.time( 'Loading MTL textures' );
+            materialsOrg.preload();
 
-            promises.push( new Promise(promise) );
+            // update stored materials with texture mapping information (= fully restoration)
+            var matWithTextures = materialsOrg.materials;
+            var intermediate;
+            var updated;
+            for ( name in scope.materials ) {
+                if ( scope.materials.hasOwnProperty( name ) && matWithTextures.hasOwnProperty( name ) ) {
+                    intermediate = scope.materials[name];
+                    updated = matWithTextures[name];
 
-            Promise.all( promises ).then(
-                function ( results ) {
-                    console.timeEnd( 'promise textures' );
-
-
-                    var matWithTextures = results[0].materials;
-                    var intermediate;
-                    var updated;
-                    for ( name in scope.materials ) {
-                        intermediate = scope.materials[name];
-                        updated = matWithTextures[name];
-
-                        // update stored materials with texture mapping information (= fully restoration)
-                        if ( updated !== undefined ) {
-                            intermediate.setValues( updated );
-                        }
-                    }
-
-                    if ( scope.callbackMaterialsLoaded !== null ) {
-                        scope.materials = scope.callbackMaterialsLoaded( scope.materials );
-                    }
+                    intermediate.setValues( updated );
                 }
-            ).catch(
-                function (error) {
-                    console.log('The following error occurred: ', error);
-                }
-            );
+            }
+
+            if ( scope.callbackMaterialsLoaded !== null ) {
+                scope.materials = scope.callbackMaterialsLoaded( scope.materials );
+            }
+            console.timeEnd( 'Loading MTL textures' );
         };
 
         if ( this.dataAvailable ) {
@@ -251,15 +238,15 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
                 this.counter++;
                 var bufferGeometry = new THREE.BufferGeometry();
 
-                bufferGeometry.addAttribute( "position", new THREE.BufferAttribute( new Float32Array( payload.vertices ), 3 ) );
+                bufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( payload.vertices ), 3 ) );
                 if ( payload.normals !== undefined ) {
-                    bufferGeometry.addAttribute( "normal", new THREE.BufferAttribute( new Float32Array( payload.normals ), 3 ) );
+                    bufferGeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( payload.normals ), 3 ) );
                 }
                 else {
                     bufferGeometry.computeVertexNormals();
                 }
                 if (payload.uvs !== undefined) {
-                    bufferGeometry.addAttribute( "uv", new THREE.BufferAttribute( new Float32Array( payload.uvs ), 2 ) );
+                    bufferGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( payload.uvs ), 2 ) );
                 }
 
                 if ( payload.multiMaterial ) {
@@ -304,12 +291,14 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
 
                 this.objGroup.add( mesh );
 
-                var output = "(" + this.counter + "): " + payload.meshName;
-                this.announceProgress( "Adding mesh", output );
+                var output = '(' + this.counter + '): ' + payload.meshName;
+                this.announceProgress( 'Adding mesh', output );
 
                 break;
             case 'complete':
                 console.timeEnd( 'WWOBJLoaderFrontEnd' );
+
+                this.announceProgress();
 
                 if ( this.callbackCompletedLoading !== null ) {
                     this.callbackCompletedLoading();

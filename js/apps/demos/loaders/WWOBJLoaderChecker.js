@@ -29,15 +29,54 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             useScenePerspective : true
         });
 
-        this.wwFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
-        this.wwFrontEnd.setDebug( true );
+        this.wwObjFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
+        this.wwObjFrontEnd.setDebug( true );
 
         this.lights = null;
         this.controls = null;
 
-        this.useZip = true;
-        this.zipTools = new KSX.apps.tools.ZipTools( '../../resource/models/' );
+        this.zipTools = null;
+        this.zipFiles = null;
+        this.files = null;
+
+        var uiToolsConfig = {
+            useUil: false,
+            useStats: false
+        };
+        this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
+
+    WWOBJLoaderChecker.prototype.setZipFiles = function ( pathBase, fileZip, fileObj, fileMtl, pathTexture ) {
+        this.useZip = true;
+        this.zipFiles = {
+            pathBase: pathBase,
+            fileZip: fileZip,
+            fileObj: fileObj,
+            fileMtl: fileMtl,
+            pathTexture: pathTexture
+        };
+        this.zipTools = new KSX.apps.tools.ZipTools( this.zipFiles.pathBase );
+    };
+
+    WWOBJLoaderChecker.prototype.setFiles = function ( pathBase, fileObj, fileMtl, pathTexture ) {
+        this.useZip = false;
+        this.files = {
+            pathBase: pathBase,
+            fileObj: fileObj,
+            fileMtl: fileMtl,
+            pathTexture: pathTexture
+        };
+    };
+
+    WWOBJLoaderChecker.prototype.initPreGL = function () {
+        this.uiTools.createFeedbackAreaDynamic();
+
+        var scope = this;
+        var announceFeedback = function ( text ) {
+            scope.uiTools.announceFeedback( text );
+        };
+        this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
+    };
 
     WWOBJLoaderChecker.prototype.initGL = function () {
         this.renderer.setClearColor(0x303030);
@@ -71,40 +110,42 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
-        this.wwFrontEnd.setObjGroup( this.scenePerspective.scene );
+        this.wwObjFrontEnd.setObjGroup( this.scenePerspective.scene );
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
-        var scope = this;
 
         if ( this.useZip ) {
 
+            var scope = this;
             var objAsArrayBuffer = null;
             var mtlAsString = null;
 
             var setObjAsArrayBuffer = function( data ) {
                 objAsArrayBuffer = data;
 
-                scope.wwFrontEnd.initWithData( '../../../../resource/models/', objAsArrayBuffer, mtlAsString );
-                scope.wwFrontEnd.run();
+                scope.wwObjFrontEnd.initWithData( objAsArrayBuffer, mtlAsString, scope.zipFiles.pathTexture );
+                scope.wwObjFrontEnd.run();
 
             };
             var setMtlAsString = function( data ) {
                 mtlAsString = data;
-                scope.zipTools.unpackAsUint8Array( 'PTV1.obj', setObjAsArrayBuffer );
+                scope.zipTools.unpackAsUint8Array( scope.zipFiles.fileObj, setObjAsArrayBuffer );
             };
 
             var doneUnzipping = function() {
-                scope.zipTools.unpackAsString( 'PTV1.mtl', setMtlAsString );
-
+                scope.zipTools.unpackAsString( scope.zipFiles.fileMtl, setMtlAsString );
             };
-            scope.zipTools.load( 'PTV1.zip', doneUnzipping  );
+            var reportProgress = function( text ) {
+                scope.uiTools.announceFeedback( text );
+            };
+            scope.zipTools.load( scope.zipFiles.fileZip, doneUnzipping, reportProgress  );
 
         }
         else {
 
-            scope.wwFrontEnd.initWithFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
-            scope.wwFrontEnd.run();
+            this.wwObjFrontEnd.initWithFiles( this.files.pathBase, this.files.fileObj, this.files.fileMtl, this.files.pathTexture );
+            this.wwObjFrontEnd.run();
 
         }
 
