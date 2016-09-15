@@ -46,7 +46,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.fileObj = 'PTV1.obj';
         this.fileZip = 'PTV1.zip';
         this.fileMtl = 'PTV1.mtl';
-        this.wwObjFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
+        this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
 
         this.objGroup = null;
 

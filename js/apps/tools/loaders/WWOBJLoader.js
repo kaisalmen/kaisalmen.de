@@ -8,22 +8,15 @@ importScripts( '../../../lib/threejs/three.min.js' );
 importScripts( '../../../lib/threejs/MTLLoader.js' );
 importScripts( '../../../lib/threejs/OBJLoader.js' );
 
-var KSX = {
-    apps: {
-        tools: {
-            loaders: {
-                wwobj: {
-                    static: {
-                        runner: null,
-                        implRef: null
-                    }
-                }
-            }
-        }
-    }
-};
+if ( THREE.WebWorker === undefined ) {
 
-KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
+    THREE.WebWorker = {
+
+    }
+
+}
+
+THREE.WebWorker.WWOBJLoader = (function () {
 
     WWOBJLoader.prototype = Object.create( THREE.OBJLoader.prototype, {
         constructor: {
@@ -151,8 +144,9 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
         var complete = function () {
             console.log( 'OBJ loading complete!' );
 
+            scope.cmdState = 'complete';
             self.postMessage({
-                cmd: 'complete'
+                cmd: scope.cmdState
             });
 
             scope.dispose();
@@ -160,11 +154,10 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
 
         if ( scope.dataAvailable ) {
 
-            scope.parse( scope.objAsArrayBuffer );
-
+            scope.parseArrayBuffer( scope.objAsArrayBuffer );
             complete();
-        }
-        else {
+
+        } else {
 
             var onLoad = function () {
                 complete();
@@ -189,24 +182,24 @@ KSX.apps.tools.loaders.wwobj.WWOBJLoader = (function () {
     return WWOBJLoader;
 })();
 
-KSX.apps.tools.loaders.wwobj.static.implRef = new KSX.apps.tools.loaders.wwobj.WWOBJLoader( this );
+var implRef = new THREE.WebWorker.WWOBJLoader( this );
 
-KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
+var runner = function ( event ) {
     var payload = event.data;
 
-    console.log( 'Command state before: ' + KSX.apps.tools.loaders.wwobj.static.implRef.cmdState );
+    console.log( 'Command state before: ' + implRef.cmdState );
 
     switch ( payload.cmd ) {
         case 'init':
-            KSX.apps.tools.loaders.wwobj.static.implRef.init( payload );
+            implRef.init( payload );
 
             break;
         case 'initMaterials':
-            KSX.apps.tools.loaders.wwobj.static.implRef.initMaterials( payload );
+            implRef.initMaterials( payload );
 
             break;
         case 'run':
-            KSX.apps.tools.loaders.wwobj.static.implRef.run();
+            implRef.run();
 
             break;
         default:
@@ -215,7 +208,7 @@ KSX.apps.tools.loaders.wwobj.static.runner = function ( event ) {
             break;
     }
 
-    console.log( 'Command state after: ' + KSX.apps.tools.loaders.wwobj.static.implRef.cmdState );
+    console.log( 'Command state after: ' + implRef.cmdState );
 };
 
-self.addEventListener( 'message', KSX.apps.tools.loaders.wwobj.static.runner, false );
+self.addEventListener( 'message', runner, false );

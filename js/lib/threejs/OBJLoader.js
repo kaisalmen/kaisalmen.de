@@ -40,6 +40,15 @@ THREE.OBJLoader = function ( manager ) {
 
 	this.state = null;
 	this.container = new THREE.Group();
+
+	// Faster to just trim left side of the line. Use if available.
+	var trimLeft = function ( line ) {
+		return line.trimLeft();
+	};
+	var trimNormal = function ( line ) {
+		return line.trim();
+	};
+	this.trimFunction = typeof ''.trimLeft === 'function' ?  trimLeft : trimNormal;
 };
 
 THREE.OBJLoader.prototype = {
@@ -55,7 +64,15 @@ THREE.OBJLoader.prototype = {
 		loader.setResponseType( this.loadAsArrayBuffer ? 'arraybuffer' : 'text' );
 		loader.load( url, function ( loadedContent ) {
 
-			onLoad( scope.parse( loadedContent ) );
+			if ( scope.loadAsArrayBuffer ) {
+
+				onLoad( scope.parseArrayBuffer( loadedContent ) );
+
+			} else {
+
+				onLoad( scope.parseText( loadedContent ) );
+
+			}
 
 		}, onProgress, onError );
 
@@ -74,7 +91,8 @@ THREE.OBJLoader.prototype = {
 	},
 
 	/**
-	 * When this is set the ResponseType of the XHRLoader is set to arraybuffer.
+	 * When this is set the ResponseType of the XHRLoader is set to arraybuffer
+	 * and parseArrayBuffer is used.
 	 * @param loadAsArrayBuffer
 	 */
 	setLoadAsArrayBuffer: function ( loadAsArrayBuffer ) {
@@ -83,14 +101,14 @@ THREE.OBJLoader.prototype = {
 
 	/**
 	 * When this is set the objects array within the state is not filled and the mesh is created
-	 * once the object is done
+	 * once the object is ready.
 	 * @param workInline
 	 */
 	setWorkInline: function ( workInline ) {
 		this.workInline = workInline;
 	},
 
-	_createParserState : function ( scope ) {
+	_createParserState : function ( workInline, workInlineCallback ) {
 
 		var state = {
 			objects  : [],
@@ -218,18 +236,10 @@ THREE.OBJLoader.prototype = {
 							});
 						}
 
-						if ( scope.workInline ) {
+						if ( workInline ) {
 
-							var material = scope.prepareSingleMeshMaterials( scope.materials, this.materials, this.geometry.type );
-							if ( material !== null ) {
+							workInlineCallback( this );
 
-								var mesh = scope.buildSingleMesh( this, material );
-								if ( mesh !== null ) {
-
-									scope.container.add( mesh );
-
-								}
-							}
 						}
 
 						return lastMultiMaterial;
@@ -251,7 +261,7 @@ THREE.OBJLoader.prototype = {
 
 				}
 
-				if ( ! scope.workInline ) {
+				if ( ! workInline ) {
 
 					this.objects.push( this.object );
 				}
@@ -456,279 +466,304 @@ THREE.OBJLoader.prototype = {
 		return state;
 	},
 
-	parse: function ( input ) {
+	/**
+	 * Processing is approx. 20 percent slower then text parsing,
+	 * but the input is no longer doubled removing the memory spike
+	 * @param arrayBuffer
+	 */
+	parseArrayBuffer: function ( arrayBuffer ) {
 
-		console.time( 'OBJLoader' );
+		this.prepareParsing();
 
-		var scope = this;
-		scope.state = scope._createParserState( scope );
+		var view = new Uint8Array( arrayBuffer );
+		var line = '';
 
+		for ( var code, currentPos = 0, length = view.length; currentPos < length; currentPos++ ) {
 
-		// Faster to just trim left side of the line. Use if available.
-		var trimLeft = function ( line ) {
-			return line.trimLeft();
-		};
-		var trimNormal = function ( line ) {
-			return line.trim();
-		};
-		var trimFunction = typeof ''.trimLeft === 'function' ?  trimLeft : trimNormal;
+			code = view[currentPos];
+			if ( code === 10  ) {
 
-		var processLine = function ( line ) {
-			var result = [];
-
-			line = trimFunction( line );
-
-			if ( line.length === 0 ) return;
-			var lineFirstChar = line.charAt( 0 );
-
-			// @todo invoke passed in handler if any
-			if ( lineFirstChar === '#' ) return;
-
-			if ( lineFirstChar === 'v' ) {
-
-				var lineSecondChar = line.charAt( 1 );
-
-				if ( lineSecondChar === ' ' && ( result = scope.regexp.vertex_pattern.exec( line ) ) !== null ) {
-
-					// 0                  1      2      3
-					// ["v 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
-
-					scope.state.vertices.push(
-						parseFloat( result[ 1 ] ),
-						parseFloat( result[ 2 ] ),
-						parseFloat( result[ 3 ] )
-					);
-
-				} else if ( lineSecondChar === 'n' && ( result = scope.regexp.normal_pattern.exec( line ) ) !== null ) {
-
-					// 0                   1      2      3
-					// ["vn 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
-
-					scope.state.normals.push(
-						parseFloat( result[ 1 ] ),
-						parseFloat( result[ 2 ] ),
-						parseFloat( result[ 3 ] )
-					);
-
-				} else if ( lineSecondChar === 't' && ( result = scope.regexp.uv_pattern.exec( line ) ) !== null ) {
-
-					// 0               1      2
-					// ["vt 0.1 0.2", "0.1", "0.2"]
-
-					scope.state.uvs.push(
-						parseFloat( result[ 1 ] ),
-						parseFloat( result[ 2 ] )
-					);
-
-				} else {
-
-					throw new Error( "Unexpected vertex/normal/uv line: '" + line  + "'" );
-
-				}
-
-			} else if ( lineFirstChar === "f" ) {
-
-				if ( ( result = scope.regexp.face_vertex_uv_normal.exec( line ) ) !== null ) {
-
-					// f vertex/uv/normal vertex/uv/normal vertex/uv/normal
-					// 0                        1    2    3    4    5    6    7    8    9   10         11         12
-					// ["f 1/1/1 2/2/2 3/3/3", "1", "1", "1", "2", "2", "2", "3", "3", "3", undefined, undefined, undefined]
-
-					scope.state.addFace(
-						result[ 1 ], result[ 4 ], result[ 7 ], result[ 10 ],
-						result[ 2 ], result[ 5 ], result[ 8 ], result[ 11 ],
-						result[ 3 ], result[ 6 ], result[ 9 ], result[ 12 ]
-					);
-
-				} else if ( ( result = scope.regexp.face_vertex_uv.exec( line ) ) !== null ) {
-
-					// f vertex/uv vertex/uv vertex/uv
-					// 0                  1    2    3    4    5    6   7          8
-					// ["f 1/1 2/2 3/3", "1", "1", "2", "2", "3", "3", undefined, undefined]
-
-					scope.state.addFace(
-						result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
-						result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
-					);
-
-				} else if ( ( result = scope.regexp.face_vertex_normal.exec( line ) ) !== null ) {
-
-					// f vertex//normal vertex//normal vertex//normal
-					// 0                     1    2    3    4    5    6   7          8
-					// ["f 1//1 2//2 3//3", "1", "1", "2", "2", "3", "3", undefined, undefined]
-
-					scope.state.addFace(
-						result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
-						undefined, undefined, undefined, undefined,
-						result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
-					);
-
-				} else if ( ( result = scope.regexp.face_vertex.exec( line ) ) !== null ) {
-
-					// f vertex vertex vertex
-					// 0            1    2    3   4
-					// ["f 1 2 3", "1", "2", "3", undefined]
-
-					scope.state.addFace(
-						result[ 1 ], result[ 2 ], result[ 3 ], result[ 4 ]
-					);
-
-				} else {
-
-					throw new Error( "Unexpected face line: '" + line  + "'" );
-
-				}
-
-			} else if ( lineFirstChar === "l" ) {
-
-				var lineParts = line.substring( 1 ).trim().split( " " );
-				var lineVertices = [], lineUVs = [];
-
-				if ( line.indexOf( "/" ) === - 1 ) {
-
-					lineVertices = lineParts;
-
-				} else {
-
-					for ( var li = 0, llen = lineParts.length; li < llen; li ++ ) {
-
-						var parts = lineParts[ li ].split( "/" );
-
-						if ( parts[ 0 ] !== "" ) lineVertices.push( parts[ 0 ] );
-						if ( parts[ 1 ] !== "" ) lineUVs.push( parts[ 1 ] );
-
-					}
-
-				}
-				scope.state.addLineGeometry( lineVertices, lineUVs );
-
-			} else if ( ( result = scope.regexp.object_pattern.exec( line ) ) !== null ) {
-
-				// o object_name
-				// or
-				// g group_name
-
-				// WORKAROUND: https://bugs.chromium.org/p/v8/issues/detail?id=2869
-				// var name = result[ 0 ].substr( 1 ).trim();
-				var name = ( " " + result[ 0 ].substr( 1 ).trim() ).substr( 1 );
-
-				scope.state.startObject( name );
-
-			} else if ( scope.regexp.material_use_pattern.test( line ) ) {
-
-				// material
-
-				scope.state.object.startMaterial( line.substring( 7 ).trim(), scope.state.materialLibraries );
-
-			} else if ( scope.regexp.material_library_pattern.test( line ) ) {
-
-				// mtl file
-
-				scope.state.materialLibraries.push( line.substring( 7 ).trim() );
-
-			} else if ( ( result = scope.regexp.smoothing_pattern.exec( line ) ) !== null ) {
-
-				// smooth shading
-
-				// @todo Handle files that have varying smooth values for a set of faces inside one geometry,
-				// but does not define a usemtl for each face set.
-				// This should be detected and a dummy material created (later MultiMaterial and geometry groups).
-				// This requires some care to not create extra material on each smooth value for "normal" obj files.
-				// where explicit usemtl defines geometry groups.
-				// Example asset: examples/models/obj/cerberus/Cerberus.obj
-
-				var value = result[ 1 ].trim().toLowerCase();
-				scope.state.object.smooth = ( value !== '0' || value === 'on' );
-
-				var material = scope.state.object.currentMaterial();
-				if ( material ) {
-
-					material.smooth = scope.state.object.smooth;
-
-				}
+				this.processLine( line );
+				line = '';
 
 			} else {
 
-				// Handle null terminated files without exception
-				if ( line === '\0' ) return;
+				if ( code !== 13 ) {
 
-				throw new Error( "Unexpected line: '" + line  + "'" );
+					line += String.fromCharCode( code );
 
+				}
+
+			}
+		}
+
+		return this.finalizeParsing();
+	},
+
+	parseText: function ( text ) {
+
+		this.prepareParsing();
+
+		if ( text.indexOf( '\r\n' ) !== - 1 ) {
+
+			// This is faster than String.split with regex that splits on both
+			text = text.replace( /\r\n/g, '\n' );
+
+		}
+
+		if ( text.indexOf( '\\\n' ) !== - 1) {
+
+			// join lines separated by a line continuation character (\)
+			text = text.replace( /\\\n/g, '' );
+
+		}
+
+		var lines = text.split( '\n' );
+		for ( var i = 0, l = lines.length; i < l; i ++ ) {
+
+			this.processLine( lines[i] );
+
+		}
+
+		return this.finalizeParsing();
+	},
+
+	prepareParsing: function () {
+
+		console.time( 'OBJLoader' );
+		var scope = this;
+
+		var workInlineCallback = function ( object ) {
+
+			var material = scope.prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
+			if ( material !== null ) {
+
+				var mesh = scope.buildSingleMesh( object, material );
+				if ( mesh !== null ) {
+
+					scope.container.add( mesh );
+
+				}
 			}
 		};
 
+		this.state = this._createParserState( this.workInline, workInlineCallback );
+	},
 
-		// Processing is approx. 20 percent slower then previous implementation,
-		// but the input is no longer doubled removing the memory spike
-		if ( scope.loadAsArrayBuffer ) {
+	processLine: function ( line ) {
+		var result = [];
 
-			var view = new Uint8Array( input );
-			var line = '';
+		line = this.trimFunction( line );
 
-			for ( var code, currentPos = 0, length = view.length; currentPos < length; currentPos++ ) {
-				code = view[currentPos];
-				if ( code === 10  ) {
-					processLine( line );
-					line = '';
+		if ( line.length === 0 ) return;
+		var lineFirstChar = line.charAt( 0 );
+
+		// @todo invoke passed in handler if any
+		if ( lineFirstChar === '#' ) return;
+
+		if ( lineFirstChar === 'v' ) {
+
+			var lineSecondChar = line.charAt( 1 );
+
+			if ( lineSecondChar === ' ' && ( result = this.regexp.vertex_pattern.exec( line ) ) !== null ) {
+
+				// 0                  1      2      3
+				// ["v 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
+
+				this.state.vertices.push(
+					parseFloat( result[ 1 ] ),
+					parseFloat( result[ 2 ] ),
+					parseFloat( result[ 3 ] )
+				);
+
+			} else if ( lineSecondChar === 'n' && ( result = this.regexp.normal_pattern.exec( line ) ) !== null ) {
+
+				// 0                   1      2      3
+				// ["vn 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
+
+				this.state.normals.push(
+					parseFloat( result[ 1 ] ),
+					parseFloat( result[ 2 ] ),
+					parseFloat( result[ 3 ] )
+				);
+
+			} else if ( lineSecondChar === 't' && ( result = this.regexp.uv_pattern.exec( line ) ) !== null ) {
+
+				// 0               1      2
+				// ["vt 0.1 0.2", "0.1", "0.2"]
+
+				this.state.uvs.push(
+					parseFloat( result[ 1 ] ),
+					parseFloat( result[ 2 ] )
+				);
+
+			} else {
+
+				throw new Error( "Unexpected vertex/normal/uv line: '" + line  + "'" );
+
+			}
+
+		} else if ( lineFirstChar === "f" ) {
+
+			if ( ( result = this.regexp.face_vertex_uv_normal.exec( line ) ) !== null ) {
+
+				// f vertex/uv/normal vertex/uv/normal vertex/uv/normal
+				// 0                        1    2    3    4    5    6    7    8    9   10         11         12
+				// ["f 1/1/1 2/2/2 3/3/3", "1", "1", "1", "2", "2", "2", "3", "3", "3", undefined, undefined, undefined]
+
+				this.state.addFace(
+					result[ 1 ], result[ 4 ], result[ 7 ], result[ 10 ],
+					result[ 2 ], result[ 5 ], result[ 8 ], result[ 11 ],
+					result[ 3 ], result[ 6 ], result[ 9 ], result[ 12 ]
+				);
+
+			} else if ( ( result = this.regexp.face_vertex_uv.exec( line ) ) !== null ) {
+
+				// f vertex/uv vertex/uv vertex/uv
+				// 0                  1    2    3    4    5    6   7          8
+				// ["f 1/1 2/2 3/3", "1", "1", "2", "2", "3", "3", undefined, undefined]
+
+				this.state.addFace(
+					result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
+					result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
+				);
+
+			} else if ( ( result = this.regexp.face_vertex_normal.exec( line ) ) !== null ) {
+
+				// f vertex//normal vertex//normal vertex//normal
+				// 0                     1    2    3    4    5    6   7          8
+				// ["f 1//1 2//2 3//3", "1", "1", "2", "2", "3", "3", undefined, undefined]
+
+				this.state.addFace(
+					result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
+					undefined, undefined, undefined, undefined,
+					result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
+				);
+
+			} else if ( ( result = this.regexp.face_vertex.exec( line ) ) !== null ) {
+
+				// f vertex vertex vertex
+				// 0            1    2    3   4
+				// ["f 1 2 3", "1", "2", "3", undefined]
+
+				this.state.addFace(
+					result[ 1 ], result[ 2 ], result[ 3 ], result[ 4 ]
+				);
+
+			} else {
+
+				throw new Error( "Unexpected face line: '" + line  + "'" );
+
+			}
+
+		} else if ( lineFirstChar === "l" ) {
+
+			var lineParts = line.substring( 1 ).trim().split( " " );
+			var lineVertices = [], lineUVs = [];
+
+			if ( line.indexOf( "/" ) === - 1 ) {
+
+				lineVertices = lineParts;
+
+			} else {
+
+				for ( var li = 0, llen = lineParts.length; li < llen; li ++ ) {
+
+					var parts = lineParts[ li ].split( "/" );
+
+					if ( parts[ 0 ] !== "" ) lineVertices.push( parts[ 0 ] );
+					if ( parts[ 1 ] !== "" ) lineUVs.push( parts[ 1 ] );
+
 				}
-				else {
-					if ( code !== 13 ) {
-						line += String.fromCharCode( code );
-					}
-				}
+
 			}
+			this.state.addLineGeometry( lineVertices, lineUVs );
+
+		} else if ( ( result = this.regexp.object_pattern.exec( line ) ) !== null ) {
+
+			// o object_name
+			// or
+			// g group_name
+
+			// WORKAROUND: https://bugs.chromium.org/p/v8/issues/detail?id=2869
+			// var name = result[ 0 ].substr( 1 ).trim();
+			var name = ( " " + result[ 0 ].substr( 1 ).trim() ).substr( 1 );
+
+			this.state.startObject( name );
+
+		} else if ( this.regexp.material_use_pattern.test( line ) ) {
+
+			// material
+
+			this.state.object.startMaterial( line.substring( 7 ).trim(), this.state.materialLibraries );
+
+		} else if ( this.regexp.material_library_pattern.test( line ) ) {
+
+			// mtl file
+
+			this.state.materialLibraries.push( line.substring( 7 ).trim() );
+
+		} else if ( ( result = this.regexp.smoothing_pattern.exec( line ) ) !== null ) {
+
+			// smooth shading
+
+			// @todo Handle files that have varying smooth values for a set of faces inside one geometry,
+			// but does not define a usemtl for each face set.
+			// This should be detected and a dummy material created (later MultiMaterial and geometry groups).
+			// This requires some care to not create extra material on each smooth value for "normal" obj files.
+			// where explicit usemtl defines geometry groups.
+			// Example asset: examples/models/obj/cerberus/Cerberus.obj
+
+			var value = result[ 1 ].trim().toLowerCase();
+			this.state.object.smooth = ( value !== '0' || value === 'on' );
+
+			var material = this.state.object.currentMaterial();
+			if ( material ) {
+
+				material.smooth = this.state.object.smooth;
+
+			}
+
+		} else {
+
+			// Handle null terminated files without exception
+			if ( line === '\0' ) return;
+
+			throw new Error( "Unexpected line: '" + line  + "'" );
+
 		}
-		else {
-			var text = input;
+	},
 
-			if ( text.indexOf( '\r\n' ) !== - 1 ) {
+	finalizeParsing: function () {
 
-				// This is faster than String.split with regex that splits on both
-				text = text.replace( /\r\n/g, '\n' );
+		this.state.finalize();
 
-			}
+		this.container.materialLibraries = [].concat( this.state.materialLibraries );
 
-			if ( text.indexOf( '\\\n' ) !== - 1) {
+		if ( ! this.workInline ) {
 
-				// join lines separated by a line continuation character (\)
-				text = text.replace( /\\\n/g, '' );
+			for (var i = 0, l = this.state.objects.length; i < l; i++) {
 
-			}
+				var object = this.state.objects[i];
+				var material = this.prepareSingleMeshMaterials( this.materials, object.materials, object.geometry.type );
+				if ( material !== null ) {
 
-			var lines = text.split( '\n' );
+					var mesh = this.buildSingleMesh( object, material );
 
-			for ( var i = 0, l = lines.length; i < l; i ++ ) {
-				processLine( lines[i] );
-			}
-		}
-
-		scope.state.finalize();
-
-		scope.container.materialLibraries = [].concat( scope.state.materialLibraries );
-
-		if ( ! scope.workInline ) {
-
-			for (var i = 0, l = scope.state.objects.length; i < l; i++) {
-
-				var object = scope.state.objects[i];
-				var material = scope.prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
- 				if ( material !== null ) {
-
-					var mesh = scope.buildSingleMesh( object, material );
 					if ( mesh !== null ) {
 
-						scope.container.add(mesh);
+						this.container.add(mesh);
 
 					}
 				}
 			}
 		}
+
+		this.state = null;
 
 		console.timeEnd( 'OBJLoader' );
 
-		scope.state = null;
-
-		return scope.container;
+		return this.container;
 	},
 
 	prepareSingleMeshMaterials: function ( allMaterials, objectMaterials, geometryType ) {

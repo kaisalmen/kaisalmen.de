@@ -29,7 +29,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             useScenePerspective : true
         });
 
-        this.wwObjFrontEnd = new KSX.apps.tools.loaders.WWOBJLoaderFrontEnd( KSX.globals.basedir );
+        this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
         this.wwObjFrontEnd.setDebug( true );
 
         this.lights = null;

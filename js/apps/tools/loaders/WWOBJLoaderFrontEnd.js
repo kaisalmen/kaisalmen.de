@@ -7,7 +7,15 @@
 
 'use strict';
 
-KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
+if ( THREE.WebWorker === undefined ) {
+
+    THREE.WebWorker = {
+
+    }
+
+}
+
+THREE.WebWorker.WWOBJLoaderFrontEnd = (function () {
 
     function WWOBJLoaderFrontEnd( basedir ) {
         this.worker = new Worker(basedir + "/js/apps/tools/loaders/WWOBJLoader.js");
@@ -98,6 +106,8 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
     };
 
     WWOBJLoaderFrontEnd.prototype.initWithFiles = function ( basePath, objFile, mtlFile, texturePath ) {
+
+        console.time( 'WWOBJLoaderFrontEnd' );
         this.dataAvailable = false;
 
         this.worker.postMessage({
@@ -114,11 +124,11 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         this.mtlFile = mtlFile;
         this.texturePath = texturePath;
         this.mtlLoader.setPath( this.texturePath );
-
-        console.time( 'WWOBJLoaderFrontEnd' );
     };
 
     WWOBJLoaderFrontEnd.prototype.initWithData = function ( objAsArrayBuffer, mtlAsString, texturePath ) {
+
+        console.time( 'WWOBJLoaderFrontEnd' );
         this.dataAvailable = true;
 
         this.worker.postMessage({
@@ -133,8 +143,6 @@ KSX.apps.tools.loaders.WWOBJLoaderFrontEnd = (function () {
         this.mtlAsString = mtlAsString;
         this.texturePath = texturePath;
         this.mtlLoader.setPath( this.texturePath );
-
-        console.time( 'WWOBJLoaderFrontEnd' );
     };
 
     WWOBJLoaderFrontEnd.prototype.run = function () {
