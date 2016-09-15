@@ -608,7 +608,10 @@ THREE.OBJLoader.prototype = {
 				// or
 				// g group_name
 
-				var name = result[ 0 ].substr( 1 ).trim();
+				// WORKAROUND: https://bugs.chromium.org/p/v8/issues/detail?id=2869
+				// var name = result[ 0 ].substr( 1 ).trim();
+				var name = ( " " + result[ 0 ].substr( 1 ).trim() ).substr( 1 );
+
 				scope.state.startObject( name );
 
 			} else if ( scope.regexp.material_use_pattern.test( line ) ) {
