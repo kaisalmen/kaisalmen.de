@@ -38,7 +38,6 @@ THREE.OBJLoader = function ( manager ) {
 	this.loadAsArrayBuffer = false;
 	this.workInline = false;
 
-	this.state = null;
 	this.container = new THREE.Group();
 
 	// Faster to just trim left side of the line. Use if available.
@@ -96,7 +95,9 @@ THREE.OBJLoader.prototype = {
 	 * @param loadAsArrayBuffer
 	 */
 	setLoadAsArrayBuffer: function ( loadAsArrayBuffer ) {
+
 		this.loadAsArrayBuffer = loadAsArrayBuffer;
+
 	},
 
 	/**
@@ -105,7 +106,9 @@ THREE.OBJLoader.prototype = {
 	 * @param workInline
 	 */
 	setWorkInline: function ( workInline ) {
+
 		this.workInline = workInline;
+
 	},
 
 	_createParserState : function ( workInline, workInlineCallback ) {
@@ -473,7 +476,7 @@ THREE.OBJLoader.prototype = {
 	 */
 	parseArrayBuffer: function ( arrayBuffer ) {
 
-		this.prepareParsing();
+		var state = this._prepareParsing();
 
 		var view = new Uint8Array( arrayBuffer );
 		var line = '';
@@ -483,7 +486,7 @@ THREE.OBJLoader.prototype = {
 			code = view[currentPos];
 			if ( code === 10  ) {
 
-				this.processLine( line );
+				this._processLine( state, line );
 				line = '';
 
 			} else {
@@ -497,12 +500,12 @@ THREE.OBJLoader.prototype = {
 			}
 		}
 
-		return this.finalizeParsing();
+		return this._finalizeParsing( state );
 	},
 
 	parseText: function ( text ) {
 
-		this.prepareParsing();
+		var state = this._prepareParsing();
 
 		if ( text.indexOf( '\r\n' ) !== - 1 ) {
 
@@ -521,36 +524,44 @@ THREE.OBJLoader.prototype = {
 		var lines = text.split( '\n' );
 		for ( var i = 0, l = lines.length; i < l; i ++ ) {
 
-			this.processLine( lines[i] );
+			this._processLine( state, lines[i] );
 
 		}
 
-		return this.finalizeParsing();
+		return this._finalizeParsing( state );
 	},
 
-	prepareParsing: function () {
+	_prepareParsing: function () {
 
 		console.time( 'OBJLoader' );
-		var scope = this;
 
-		var workInlineCallback = function ( object ) {
+		if ( this.workInline ) {
+			var scope = this;
 
-			var material = scope.prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
-			if ( material !== null ) {
+			var workInlineCallback = function ( object ) {
 
-				var mesh = scope.buildSingleMesh( object, material );
-				if ( mesh !== null ) {
+				var material = scope._prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
+				if ( material !== null ) {
 
-					scope.container.add( mesh );
+					var mesh = scope._buildSingleMesh( object, material );
+					if ( mesh !== null ) {
 
+						scope.container.add( mesh );
+
+					}
 				}
-			}
-		};
+			};
 
-		this.state = this._createParserState( this.workInline, workInlineCallback );
+			return this._createParserState( this.workInline, workInlineCallback );
+
+		} else {
+
+			return this._createParserState( false, null );
+
+		}
 	},
 
-	processLine: function ( line ) {
+	_processLine: function ( state, line ) {
 		var result = [];
 
 		line = this.trimFunction( line );
@@ -570,7 +581,7 @@ THREE.OBJLoader.prototype = {
 				// 0                  1      2      3
 				// ["v 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
 
-				this.state.vertices.push(
+				state.vertices.push(
 					parseFloat( result[ 1 ] ),
 					parseFloat( result[ 2 ] ),
 					parseFloat( result[ 3 ] )
@@ -581,7 +592,7 @@ THREE.OBJLoader.prototype = {
 				// 0                   1      2      3
 				// ["vn 1.0 2.0 3.0", "1.0", "2.0", "3.0"]
 
-				this.state.normals.push(
+				state.normals.push(
 					parseFloat( result[ 1 ] ),
 					parseFloat( result[ 2 ] ),
 					parseFloat( result[ 3 ] )
@@ -592,7 +603,7 @@ THREE.OBJLoader.prototype = {
 				// 0               1      2
 				// ["vt 0.1 0.2", "0.1", "0.2"]
 
-				this.state.uvs.push(
+				state.uvs.push(
 					parseFloat( result[ 1 ] ),
 					parseFloat( result[ 2 ] )
 				);
@@ -611,7 +622,7 @@ THREE.OBJLoader.prototype = {
 				// 0                        1    2    3    4    5    6    7    8    9   10         11         12
 				// ["f 1/1/1 2/2/2 3/3/3", "1", "1", "1", "2", "2", "2", "3", "3", "3", undefined, undefined, undefined]
 
-				this.state.addFace(
+				state.addFace(
 					result[ 1 ], result[ 4 ], result[ 7 ], result[ 10 ],
 					result[ 2 ], result[ 5 ], result[ 8 ], result[ 11 ],
 					result[ 3 ], result[ 6 ], result[ 9 ], result[ 12 ]
@@ -623,7 +634,7 @@ THREE.OBJLoader.prototype = {
 				// 0                  1    2    3    4    5    6   7          8
 				// ["f 1/1 2/2 3/3", "1", "1", "2", "2", "3", "3", undefined, undefined]
 
-				this.state.addFace(
+				state.addFace(
 					result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
 					result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
 				);
@@ -634,7 +645,7 @@ THREE.OBJLoader.prototype = {
 				// 0                     1    2    3    4    5    6   7          8
 				// ["f 1//1 2//2 3//3", "1", "1", "2", "2", "3", "3", undefined, undefined]
 
-				this.state.addFace(
+				state.addFace(
 					result[ 1 ], result[ 3 ], result[ 5 ], result[ 7 ],
 					undefined, undefined, undefined, undefined,
 					result[ 2 ], result[ 4 ], result[ 6 ], result[ 8 ]
@@ -646,7 +657,7 @@ THREE.OBJLoader.prototype = {
 				// 0            1    2    3   4
 				// ["f 1 2 3", "1", "2", "3", undefined]
 
-				this.state.addFace(
+				state.addFace(
 					result[ 1 ], result[ 2 ], result[ 3 ], result[ 4 ]
 				);
 
@@ -677,7 +688,7 @@ THREE.OBJLoader.prototype = {
 				}
 
 			}
-			this.state.addLineGeometry( lineVertices, lineUVs );
+			state.addLineGeometry( lineVertices, lineUVs );
 
 		} else if ( ( result = this.regexp.object_pattern.exec( line ) ) !== null ) {
 
@@ -689,19 +700,19 @@ THREE.OBJLoader.prototype = {
 			// var name = result[ 0 ].substr( 1 ).trim();
 			var name = ( " " + result[ 0 ].substr( 1 ).trim() ).substr( 1 );
 
-			this.state.startObject( name );
+			state.startObject( name );
 
 		} else if ( this.regexp.material_use_pattern.test( line ) ) {
 
 			// material
 
-			this.state.object.startMaterial( line.substring( 7 ).trim(), this.state.materialLibraries );
+			state.object.startMaterial( line.substring( 7 ).trim(), state.materialLibraries );
 
 		} else if ( this.regexp.material_library_pattern.test( line ) ) {
 
 			// mtl file
 
-			this.state.materialLibraries.push( line.substring( 7 ).trim() );
+			state.materialLibraries.push( line.substring( 7 ).trim() );
 
 		} else if ( ( result = this.regexp.smoothing_pattern.exec( line ) ) !== null ) {
 
@@ -715,12 +726,12 @@ THREE.OBJLoader.prototype = {
 			// Example asset: examples/models/obj/cerberus/Cerberus.obj
 
 			var value = result[ 1 ].trim().toLowerCase();
-			this.state.object.smooth = ( value !== '0' || value === 'on' );
+			state.object.smooth = ( value !== '0' || value === 'on' );
 
-			var material = this.state.object.currentMaterial();
+			var material = state.object.currentMaterial();
 			if ( material ) {
 
-				material.smooth = this.state.object.smooth;
+				material.smooth = state.object.smooth;
 
 			}
 
@@ -734,21 +745,21 @@ THREE.OBJLoader.prototype = {
 		}
 	},
 
-	finalizeParsing: function () {
+	_finalizeParsing: function ( state ) {
 
-		this.state.finalize();
+		state.finalize();
 
-		this.container.materialLibraries = [].concat( this.state.materialLibraries );
+		this.container.materialLibraries = [].concat( state.materialLibraries );
 
 		if ( ! this.workInline ) {
 
-			for (var i = 0, l = this.state.objects.length; i < l; i++) {
+			for (var i = 0, l = state.objects.length; i < l; i++) {
 
-				var object = this.state.objects[i];
-				var material = this.prepareSingleMeshMaterials( this.materials, object.materials, object.geometry.type );
+				var object = state.objects[i];
+				var material = this._prepareSingleMeshMaterials( this.materials, object.materials, object.geometry.type );
 				if ( material !== null ) {
 
-					var mesh = this.buildSingleMesh( object, material );
+					var mesh = this._buildSingleMesh( object, material );
 
 					if ( mesh !== null ) {
 
@@ -759,14 +770,12 @@ THREE.OBJLoader.prototype = {
 			}
 		}
 
-		this.state = null;
-
 		console.timeEnd( 'OBJLoader' );
 
 		return this.container;
 	},
 
-	prepareSingleMeshMaterials: function ( allMaterials, objectMaterials, geometryType ) {
+	_prepareSingleMeshMaterials: function ( allMaterials, objectMaterials, geometryType ) {
 		// fast-fail if object has no materials
 		if ( objectMaterials.length === 0) return null;
 
@@ -813,7 +822,7 @@ THREE.OBJLoader.prototype = {
 		return outputMaterial;
 	},
 
-	buildSingleMesh: function ( object, material ) {
+	_buildSingleMesh: function ( object, material ) {
 		// Fast-Fail: Skip o/g line declarations that did not follow with any faces
 		if ( object.geometry.vertices.length === 0 ) return null;
 
@@ -822,11 +831,11 @@ THREE.OBJLoader.prototype = {
 		var isLine = ( geometry.type === 'Line' );
 		var bufferGeometry = new THREE.BufferGeometry();
 
-		bufferGeometry.addAttribute('position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3) );
+		bufferGeometry.addAttribute( 'position', new THREE.BufferAttribute( new Float32Array( geometry.vertices ), 3 ) );
 
 		if ( geometry.normals.length > 0 ) {
 
-			bufferGeometry.addAttribute('normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3) );
+			bufferGeometry.addAttribute( 'normal', new THREE.BufferAttribute( new Float32Array( geometry.normals ), 3 ) );
 
 		} else {
 
@@ -834,26 +843,31 @@ THREE.OBJLoader.prototype = {
 
 		}
 
-		if (geometry.uvs.length > 0) {
-			bufferGeometry.addAttribute('uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2));
+		if ( geometry.uvs.length > 0 ) {
+
+			bufferGeometry.addAttribute( 'uv', new THREE.BufferAttribute( new Float32Array( geometry.uvs ), 2 ) );
+
 		}
 
 		if ( material instanceof THREE.MultiMaterial ) {
+
 			for ( var objectMaterial, i = 0, length = objectMaterials.length; i < length; i++ ) {
+
 				objectMaterial = objectMaterials[i];
 				bufferGeometry.addGroup( objectMaterial.groupStart, objectMaterial.groupCount, i );
+
 			}
+
 		}
 
 		// Create mesh
-		var mesh = !isLine ? new THREE.Mesh(bufferGeometry, material) : new THREE.LineSegments(bufferGeometry, material);
+		var mesh = !isLine ? new THREE.Mesh( bufferGeometry, material ) : new THREE.LineSegments( bufferGeometry, material );
 		mesh.name = object.name;
 
 		return mesh;
 	},
 
 	dispose: function () {
-		this.state = null;
 		this.materials = null;
 		this.container = null;
 	}

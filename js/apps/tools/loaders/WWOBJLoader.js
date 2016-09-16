@@ -43,7 +43,7 @@ THREE.WebWorker.WWOBJLoader = (function () {
         this.counter = 0;
     }
 
-    WWOBJLoader.prototype.buildSingleMesh = function ( object, material ) {
+    WWOBJLoader.prototype._buildSingleMesh = function ( object, material ) {
         // Fast-Fail: Skip o/g line declarations that did not follow with any faces
         if ( object.geometry.vertices.length === 0 ) return null;
 
