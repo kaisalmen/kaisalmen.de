@@ -120,19 +120,31 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		var msg = null;
 
 		var verifyVersion = function ( allowedVersions ) {
-			var versionCheck = false;
+			var noVersion = bowser.version === undefined;
+			var versionCheck = !noVersion;
 
-			for ( var name in allowedVersions ) {
-				if ( name !== 'all' && bowser.hasOwnProperty( name ) ) {
+			if ( noVersion ) {
+				console.error( 'Unable to aidentify a version for ' + bowser.name );
+			}
 
-					versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[name] );
+			if ( ! versionCheck ) {
+
+				for ( var name in allowedVersions ) {
+					if ( name !== 'all' && bowser.hasOwnProperty( name ) ) {
+
+						versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[ name ] );
+					}
+
 					if ( versionCheck ) {
 						break;
 					}
 				}
 			}
+
 			if ( ! versionCheck && allowedVersions.hasOwnProperty( 'all' ) ) {
+
 				versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[ 'all' ] );
+
 			}
 
 			return versionCheck;
