@@ -63,15 +63,7 @@ THREE.OBJLoader.prototype = {
 		loader.setResponseType( this.loadAsArrayBuffer ? 'arraybuffer' : 'text' );
 		loader.load( url, function ( loadedContent ) {
 
-			if ( scope.loadAsArrayBuffer ) {
-
-				onLoad( scope.parseArrayBuffer( loadedContent ) );
-
-			} else {
-
-				onLoad( scope.parseText( loadedContent ) );
-
-			}
+			onLoad( scope.parse( loadedContent ) );
 
 		}, onProgress, onError );
 
@@ -467,6 +459,19 @@ THREE.OBJLoader.prototype = {
 		state.startObject( '', false );
 
 		return state;
+	},
+
+	parse: function ( loadedContent ) {
+		if ( this.loadAsArrayBuffer ) {
+
+			this.parseArrayBuffer( loadedContent );
+
+		}
+		else {
+
+			this.parseText( loadedContent );
+
+		}
 	},
 
 	/**
