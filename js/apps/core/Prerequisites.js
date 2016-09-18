@@ -57,7 +57,7 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 				supported: true,
 				minVersion: { all: '38.0' },
 				mobileSupported: true,
-				mobileMinVersion: { all: '38.0', iosdevice: '1.0' },
+				mobileMinVersion: { all: '38.0', ios: '1.0' },
 				mobileWarning: null
 			},
 			msie: {
@@ -121,17 +121,17 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 
 		var verifyVersion = function ( allowedVersions ) {
 			var noVersion = bowser.version === undefined;
-			var versionCheck = !noVersion;
+			var versionCheck = false;
 
 			if ( noVersion ) {
-				console.error( 'Unable to aidentify a version for ' + bowser.name );
+				console.error( 'Unable to identify a version for ' + bowser.name );
+				versionCheck = true;
 			}
-
-			if ( ! versionCheck ) {
+			else {
 
 				for ( var name in allowedVersions ) {
-					if ( name !== 'all' && bowser.hasOwnProperty( name ) ) {
 
+					if ( name !== 'all' && bowser.hasOwnProperty( name ) ) {
 						versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[ name ] );
 					}
 
@@ -139,12 +139,10 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 						break;
 					}
 				}
-			}
 
-			if ( ! versionCheck && allowedVersions.hasOwnProperty( 'all' ) ) {
-
-				versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[ 'all' ] );
-
+				if ( ! versionCheck && allowedVersions.hasOwnProperty( 'all' ) ) {
+					versionCheck = parseFloat( bowser.version ) >= parseFloat( allowedVersions[ 'all' ] );
+				}
 			}
 
 			return versionCheck;
@@ -189,9 +187,10 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 
 			msg = selectedBrowser.name + ' is generally not supported!\n' + this.printSupportedBrowsers( bowser.mobile );
 			if ( msg != null ) {
-				this.platformVerification.showDivNotSupported( msg );
-			}
 
+				this.platformVerification.showDivNotSupported( msg );
+
+			}
 		}
 
 		return haveGo;
