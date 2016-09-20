@@ -74,8 +74,10 @@ THREE.WebWorker.WWOBJLoader = (function () {
                 materialGroups.push( group );
             }
 
-            for ( var multiMaterial of material.materials ) {
-                materialNames.push( multiMaterial.name );
+            var mMaterial;
+            for ( var key in material.materials ) {
+                mMaterial = material.materials[key];
+                materialNames.push( mMaterial.name );
             }
             multiMaterial = true;
         }

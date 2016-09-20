@@ -9,7 +9,7 @@ KSX.apps.tools.UiTools = (function () {
     function UiTools( uiToolsConfig ) {
         if ( uiToolsConfig.useUil ) {
             UIL.BUTTON = '#FF4040';
-            
+
             if ( uiToolsConfig.uilParams.size === undefined && uiToolsConfig.uilParams.width !== undefined ) {
                 uiToolsConfig.uilParams.size = uiToolsConfig.uilParams.width;
             }
@@ -88,7 +88,9 @@ KSX.apps.tools.UiTools = (function () {
         }
 
         var children = divFeedbackArea.childNodes;
-        for ( var child of children ) {
+        var child;
+        for ( var key in children ) {
+            child = children[key];
             if ( child['className'] === 'dynamicFeedback' ) {
                 this.divDynamic = child;
             }

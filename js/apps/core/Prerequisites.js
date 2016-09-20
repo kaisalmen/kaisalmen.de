@@ -39,30 +39,30 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 			chrome: {
 				name: 'Google Chrome',
 				supported: true,
-				minVersion: { all: '38.0' },
+				minVersion: { all: '9.0' },
 				mobileSupported: true,
-				mobileMinVersion: { all: '38.0' },
+				mobileMinVersion: { all: '9.0' },
 				mobileWarning: null
 			},
 			opera: {
 				name: 'Opera',
 				supported: true,
-				minVersion: { all: '25.0' },
+				minVersion: { all: '12.0' },
 				mobileSupported: true,
-				mobileMinVersion: { all: '25.0' },
+				mobileMinVersion: { all: '12.0' },
 				mobileWarning: null
 			},
 			firefox: {
 				name: 'Firefox',
 				supported: true,
-				minVersion: { all: '38.0' },
+				minVersion: { all: '4.0' },
 				mobileSupported: true,
-				mobileMinVersion: { all: '38.0', ios: '1.0' },
+				mobileMinVersion: { all: '4.0', ios: '1.0' },
 				mobileWarning: null
 			},
 			msie: {
 				name: 'Microsoft Internet Explorer',
-				supported: false,
+				supported: true,
 				minVersion: { all: '11.0' },
 				mobileSupported: false,
 				mobileMinVersion: { all: '11.0' },
@@ -79,9 +79,9 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 			safari: {
 				name: 'Apple Safari',
 				supported: true,
-				minVersion: { all: '9.0' },
+				minVersion: { all: '5.1' },
 				mobileSupported: true,
-				mobileMinVersion: { all: '9.0' },
+				mobileMinVersion: { all: '5.1' },
 				mobileWarning: null
 			}
 		};
@@ -232,7 +232,8 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 			var output = '(';
 
 			for ( var name in allowedVersions ) {
-				output += name + ': ' + allowedVersions[name] + '; ';
+				output += name === 'all' ? '' : name + ': ';
+				output += allowedVersions[name] + '; ';
 			}
 			output = output.substring( 0, output.length - 2 );
 			output += ')';
@@ -261,6 +262,22 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		supportedBrowsers = supportedBrowsers.trim();
 		supportedBrowsers = supportedBrowsers.substr( 0, supportedBrowsers.length - 1 );
 		return supportedBrowsers;
+	};
+
+	BrowserSupport.prototype.checkPolyfillSupport = function () {
+		var head = document.getElementsByTagName('head')[0];
+		var polyfillScript = document.createElement('script');
+
+		polyfillScript.type = 'text/javascript';
+
+		if ( typeof Promise === "undefined" || Promise.toString().indexOf( "[native code]" ) === -1 ) {
+			console.log( 'Native Promise is not available! Loading polyfill instead.' );
+			polyfillScript.src = "../../js/lib/ext/es6-promise.min.js";
+		}
+		else {
+			console.log( 'Native Promise is available!' );
+		}
+		head.appendChild( polyfillScript );
 	};
 
 	return BrowserSupport;
@@ -328,13 +345,14 @@ KSX.apps.core.prerequisites.PlatformVerification = (function () {
 
 	PlatformVerification.prototype.showDivNotSupported = function ( errorText, issueAlert ) {
 		var divNotSupported = document.getElementById('DivNotSupported');
+
 		if ( divNotSupported === undefined || divNotSupported === null ) {
 
 			divNotSupported = document.createElement("div");
 			divNotSupported.id = 'DivNotSupported';
 
 			var body = document.body;
-			body.insertBefore( divNotSupported, body.childNodes[body.childNodes.length] );
+			body.insertBefore( divNotSupported, body.childNodes[0] );
 			console.log( 'Div "DivNotSupported" was added to body' );
 		}
 		divNotSupported.style.display = "";
@@ -349,8 +367,9 @@ KSX.apps.core.prerequisites.PlatformVerification = (function () {
 
 })();
 
-var webGLCap = new KSX.apps.core.prerequisites.PlatformVerification();
-webGLCap.checkWebGLCapability();
+var platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+platformVerification.checkWebGLCapability();
 
 var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport( browserVersions );
+browserSupport.checkPolyfillSupport();
 browserSupport.checkSupport();

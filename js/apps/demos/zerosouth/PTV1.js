@@ -321,20 +321,22 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.wwObjFrontEnd.registerHookMeshLoaded( callbackMeshLoaded );
 
         var callbackCompletedLoading = function () {
-            if (scope.exportMeshInfos) {
+            if ( scope.exportMeshInfos ) {
                 var exportString = '';
 
-                if (scope.meshInfos.length > 0) {
-                    for (var meshInfo of scope.meshInfos) {
-                        exportString += JSON.stringify(meshInfo);
+                if ( scope.meshInfos.length > 0 ) {
+                    var meshInfo;
+                    for ( var key in scope.meshInfos ) {
+                        meshInfo = scope.meshInfos[ key ];
+                        exportString += JSON.stringify( meshInfo );
                         exportString += '\n';
                     }
 
-                    var blob = new Blob([exportString], {type: 'text/plain;charset=utf-8'});
-                    saveAs(blob, 'meshInfos.json');
+                    var blob = new Blob( [ exportString ], { type: 'text/plain;charset=utf-8' } );
+                    saveAs( blob, 'meshInfos.json' );
                 }
                 else {
-                    alert('Unable to export MeshInfo data as the datastructure is empty!');
+                    alert( 'Unable to export MeshInfo data as the datastructure is empty!' );
                 }
             }
         };
@@ -371,8 +373,10 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             var transparent = value < 1.0;
             var side = value < 1.0 ? THREE.DoubleSide : THREE.FrontSide;
             var maxOpacity = 1.0;
+            var meshInfo;
 
-            for (var meshInfo of scope.meshInfos) {
+            for ( var key in scope.meshInfos ) {
+                meshInfo = scope.meshInfos[key];
                 mesh = scope.scenePerspective.scene.getObjectByName(meshInfo.meshName);
                 dontAlter = scope.dontAlterOpacity[meshInfo.meshName];
 

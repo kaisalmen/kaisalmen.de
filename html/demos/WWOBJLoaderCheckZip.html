@@ -26,6 +26,13 @@
         </div>
     </div>
     <script src="../../js/lib/ext/bowser.min.js"></script>
+    <script>
+        var browserVersions = {
+            msie : {
+                supported : false
+            }
+        };
+    </script>
     <script src="../../js/apps/core/Prerequisites.js"></script>
 
     <script src="../../js/lib/threejs/three.min.js"></script>
@@ -41,7 +48,7 @@
 
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
+            var implementations = [];
             var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
             wwOBJLoaderChecker.setZipFiles( '../../resource/models/', 'PTV1.zip', 'PTV1.obj', 'PTV1.mtl', '../../../../resource/models/' );
             implementations.push( wwOBJLoaderChecker );

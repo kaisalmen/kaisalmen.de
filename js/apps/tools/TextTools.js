@@ -48,7 +48,9 @@ KSX.apps.tools.text.Text = (function () {
 
         Promise.all( promises ).then(
             function ( results ) {
-                for ( var result of results ) {
+                var result;
+                for ( var key in results ) {
+                    result = results[key];
                     scope.fonts[result.name] = result.text;
                 }
 
@@ -96,7 +98,8 @@ KSX.apps.tools.text.FontLoader = (function () {
 
             var onSuccess = function(text) {
                 console.log("Loading of font was completed successfully from: " + path);
-                resolve({name, text});
+                var success = { name: name, text: text };
+                resolve( success );
             };
 
             var onProgress = function (event) {

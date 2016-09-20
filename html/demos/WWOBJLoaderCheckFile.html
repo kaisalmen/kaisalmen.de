@@ -40,7 +40,7 @@
 
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
+            var implementations = [];
             var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
             wwOBJLoaderChecker.setFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
             implementations.push( wwOBJLoaderChecker );

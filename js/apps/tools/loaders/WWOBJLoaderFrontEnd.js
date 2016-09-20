@@ -261,7 +261,9 @@ THREE.WebWorker.WWOBJLoaderFrontEnd = (function () {
 
                     var materialNames = JSON.parse( payload.materialName );
                     var multiMaterials = [];
-                    for ( var name of materialNames ) {
+                    var name;
+                    for ( var key in materialNames ) {
+                        name = materialNames[key];
                         multiMaterials.push( this.materials[name] );
                     }
 
