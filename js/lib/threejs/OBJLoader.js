@@ -36,16 +36,22 @@ THREE.OBJLoader = function ( manager ) {
 	};
 
 	this.loadAsArrayBuffer = false;
-	this.workInline = false;
 
+	// in-line processing needs to know container on instance level
+	this.workInline = false;
 	this.container = new THREE.Group();
 
+	// Define trim function to use once
 	// Faster to just trim left side of the line. Use if available.
 	var trimLeft = function ( line ) {
+
 		return line.trimLeft();
+
 	};
 	var trimNormal = function ( line ) {
+
 		return line.trim();
+
 	};
 	this.trimFunction = typeof ''.trimLeft === 'function' ?  trimLeft : trimNormal;
 };
@@ -489,18 +495,17 @@ THREE.OBJLoader.prototype = {
 		for ( var code, currentPos = 0, length = view.length; currentPos < length; currentPos++ ) {
 
 			code = view[currentPos];
+			// process line on occurrence of LF
 			if ( code === 10  ) {
 
 				this._processLine( state, line );
 				line = '';
 
-			} else {
+			// only attach characters if not CR
+			} else if ( code !== 13 ) {
 
-				if ( code !== 13 ) {
 
-					line += String.fromCharCode( code );
-
-				}
+				line += String.fromCharCode( code );
 
 			}
 		}
@@ -541,8 +546,8 @@ THREE.OBJLoader.prototype = {
 		console.time( 'OBJLoader' );
 
 		if ( this.workInline ) {
-			var scope = this;
 
+			var scope = this;
 			var workInlineCallback = function ( object ) {
 
 				var material = scope._prepareSingleMeshMaterials( scope.materials, object.materials, object.geometry.type );
@@ -803,12 +808,15 @@ THREE.OBJLoader.prototype = {
 					var materialLine = new THREE.LineBasicMaterial();
 					materialLine.copy( createdMaterial );
 					createdMaterial = materialLine;
+
 				}
 			}
 
 			if ( ! createdMaterial ) {
+
 				createdMaterial = ( ! isLine ? new THREE.MeshPhongMaterial() : new THREE.LineBasicMaterial() );
 				createdMaterial.name = objectMaterial.name;
+
 			}
 			createdMaterial.shading = objectMaterial.smooth ? THREE.SmoothShading : THREE.FlatShading;
 
@@ -818,10 +826,13 @@ THREE.OBJLoader.prototype = {
 
 		var outputMaterial = null;
 		if ( createdMaterials.length > 1 ) {
+
 			outputMaterial = new THREE.MultiMaterial( createdMaterials );
-		}
-		else if ( createdMaterials.length === 1 ) {
+
+		} else if ( createdMaterials.length === 1 ) {
+
 			outputMaterial = createdMaterials[0];
+
 		}
 
 		return outputMaterial;
@@ -862,7 +873,6 @@ THREE.OBJLoader.prototype = {
 				bufferGeometry.addGroup( objectMaterial.groupStart, objectMaterial.groupCount, i );
 
 			}
-
 		}
 
 		// Create mesh

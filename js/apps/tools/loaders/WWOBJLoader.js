@@ -4,213 +4,217 @@
 
 'use strict';
 
-importScripts( '../../../lib/threejs/three.min.js' );
-importScripts( '../../../lib/threejs/MTLLoader.js' );
-importScripts( '../../../lib/threejs/OBJLoader.js' );
-
-if ( THREE.WebWorker === undefined ) {
-
-    THREE.WebWorker = {
-
-    }
-
-}
+importScripts( './WWCommons.js' );
+importScripts( THREE.WebWorker.Commons.paths.threejsPath );
+importScripts( THREE.WebWorker.Commons.paths.objLoaderPath );
+importScripts( THREE.WebWorker.Commons.paths.mtlLoaderPath );
 
 THREE.WebWorker.WWOBJLoader = (function () {
 
-    WWOBJLoader.prototype = Object.create( THREE.OBJLoader.prototype, {
-        constructor: {
-            configurable: true,
-            enumerable: true,
-            value: WWOBJLoader,
-            writable: true
-        }
-    });
+	WWOBJLoader.prototype = Object.create( THREE.OBJLoader.prototype, {
+		constructor: {
+			configurable: true,
+			enumerable: true,
+			value: WWOBJLoader,
+			writable: true
+		}
+	} );
 
-    function WWOBJLoader() {
-        THREE.OBJLoader.call( this );
-        this.cmdState = 'created';
-        this.debug = false;
+	function WWOBJLoader() {
+		THREE.OBJLoader.call( this );
+		this.cmdState = 'created';
+		this.debug = false;
 
-        this.basePath = '';
-        this.objFile = '';
-        this.dataAvailable = false;
-        this.objAsArrayBuffer = null;
+		this.basePath = '';
+		this.objFile = '';
+		this.dataAvailable = false;
+		this.objAsArrayBuffer = null;
 
-        this.setLoadAsArrayBuffer( true );
-        this.setWorkInline( true );
+		this.setLoadAsArrayBuffer( true );
+		this.setWorkInline( true );
 
-        this.counter = 0;
-    }
+		this.counter = 0;
+	}
 
-    WWOBJLoader.prototype._buildSingleMesh = function ( object, material ) {
-        // Fast-Fail: Skip o/g line declarations that did not follow with any faces
-        if ( object.geometry.vertices.length === 0 ) return null;
+	WWOBJLoader.prototype._buildSingleMesh = function ( object, material ) {
+		// Fast-Fail: Skip o/g line declarations that did not follow with any faces
+		if ( object.geometry.vertices.length === 0 ) return null;
 
-        this.counter++;
+		this.counter ++;
 
-        var geometry = object.geometry;
-        var objectMaterials = object.materials;
+		var geometry = object.geometry;
+		var objectMaterials = object.materials;
 
-        var verticesOut = new Float32Array( geometry.vertices );
-        var normalsOut = null;
-        if ( geometry.normals.length > 0 ) {
-            normalsOut = new Float32Array( geometry.normals );
-        }
-        var uvsOut = new Float32Array( geometry.uvs );
+		var verticesOut = new Float32Array( geometry.vertices );
+		var normalsOut = null;
+		if ( geometry.normals.length > 0 ) {
 
+			normalsOut = new Float32Array( geometry.normals );
 
-        var materialGroups = [];
-        var materialNames =  [];
-        var multiMaterial = false;
-        if ( material instanceof  THREE.MultiMaterial ) {
-            for ( var objectMaterial, group, i = 0, length = objectMaterials.length; i < length; i++ ) {
-                objectMaterial = objectMaterials[i];
-                group = {
-                    start: objectMaterial.groupStart,
-                    count: objectMaterial.groupCount,
-                    index: i
-                };
-                materialGroups.push( group );
-            }
-
-            var mMaterial;
-            for ( var key in material.materials ) {
-                mMaterial = material.materials[key];
-                materialNames.push( mMaterial.name );
-            }
-            multiMaterial = true;
-        }
+		}
+		var uvsOut = new Float32Array( geometry.uvs );
 
 
-        self.postMessage({
-            cmd: 'objData',
-            meshName: object.name,
-            multiMaterial: multiMaterial,
-            materialName: multiMaterial ? JSON.stringify( materialNames ) : material.name,
-            materialGroups: multiMaterial ? JSON.stringify( materialGroups ) : null,
-            vertices: verticesOut,
-            normals: normalsOut,
-            uvs: uvsOut,
-        }, [verticesOut.buffer], [normalsOut.buffer], [uvsOut.buffer]);
+		var materialGroups = [];
+		var materialNames = [];
+		var multiMaterial = false;
+		if ( material instanceof THREE.MultiMaterial ) {
 
-        return null;
-    };
+			for ( var objectMaterial, group, i = 0, length = objectMaterials.length; i < length; i ++ ) {
+
+				objectMaterial = objectMaterials[ i ];
+				group = {
+					start: objectMaterial.groupStart,
+					count: objectMaterial.groupCount,
+					index: i
+				};
+				materialGroups.push( group );
+
+			}
+
+			var mMaterial;
+			for ( var key in material.materials ) {
+
+				mMaterial = material.materials[ key ];
+				materialNames.push( mMaterial.name );
+
+			}
+			multiMaterial = true;
+		}
 
 
-    WWOBJLoader.prototype.init = function ( payload ) {
-        this.cmdState = 'init';
+		self.postMessage( {
+			cmd: 'objData',
+			meshName: object.name,
+			multiMaterial: multiMaterial,
+			materialName: multiMaterial ? JSON.stringify( materialNames ) : material.name,
+			materialGroups: multiMaterial ? JSON.stringify( materialGroups ) : null,
+			vertices: verticesOut,
+			normals: normalsOut,
+			uvs: uvsOut,
+		}, [ verticesOut.buffer ], [ normalsOut.buffer ], [ uvsOut.buffer ] );
 
-        this.debug = payload.debug;
-        this.dataAvailable = payload.dataAvailable;
-        this.basePath = payload.basePath === null ? '' : payload.basePath;
-        this.objFile = payload.objFile === null ? '' : payload.objFile;
+		return null;
+	};
 
-        // configure OBJLoader
-        if ( payload.loadAsArrayBuffer !== undefined ) {
 
-            this.setLoadAsArrayBuffer( payload.loadAsArrayBuffer );
+	WWOBJLoader.prototype.init = function ( payload ) {
+		this.cmdState = 'init';
 
-        }
-        if ( payload.workInline !== undefined ) {
+		this.debug = payload.debug;
+		this.dataAvailable = payload.dataAvailable;
+		this.basePath = payload.basePath === null ? '' : payload.basePath;
+		this.objFile = payload.objFile === null ? '' : payload.objFile;
 
-            this.setWorkInline( payload.workInline ) ;
+		// configure OBJLoader
+		if ( payload.loadAsArrayBuffer !== undefined ) {
 
-        }
-        this.setPath( this.basePath );
+			this.setLoadAsArrayBuffer( payload.loadAsArrayBuffer );
 
-        if ( this.dataAvailable ) {
+		}
+		if ( payload.workInline !== undefined ) {
 
-            // this must be the case, otherwise loading will fail
-            this.setLoadAsArrayBuffer( true );
-            this.objAsArrayBuffer = payload.objAsArrayBuffer;
-        }
+			this.setWorkInline( payload.workInline );
 
-    };
+		}
+		this.setPath( this.basePath );
 
-    WWOBJLoader.prototype.initMaterials = function ( payload ) {
-        this.cmdState = 'initMaterials';
+		if ( this.dataAvailable ) {
 
-        var materialsJSON = JSON.parse( payload.materials );
-        var materialCreator = new THREE.MTLLoader.MaterialCreator( payload.baseUrl, payload.options );
-        materialCreator.setMaterials( materialsJSON );
-        materialCreator.preload();
+			// this must be the case, otherwise loading will fail
+			this.setLoadAsArrayBuffer( true );
+			this.objAsArrayBuffer = payload.objAsArrayBuffer;
 
-        this.setMaterials( materialCreator );
-    };
+		}
+	};
 
-    WWOBJLoader.prototype.run = function () {
-        this.cmdState = 'run';
-        var scope = this;
+	WWOBJLoader.prototype.initMaterials = function ( payload ) {
+		this.cmdState = 'initMaterials';
 
-        var complete = function () {
-            console.log( 'OBJ loading complete!' );
+		var materialsJSON = JSON.parse( payload.materials );
+		var materialCreator = new THREE.MTLLoader.MaterialCreator( payload.baseUrl, payload.options );
+		materialCreator.setMaterials( materialsJSON );
+		materialCreator.preload();
 
-            scope.cmdState = 'complete';
-            self.postMessage({
-                cmd: scope.cmdState
-            });
+		this.setMaterials( materialCreator );
+	};
 
-            scope.dispose();
-        };
+	WWOBJLoader.prototype.run = function () {
+		this.cmdState = 'run';
+		var scope = this;
 
-        if ( scope.dataAvailable ) {
+		var complete = function () {
+			console.log( 'OBJ loading complete!' );
 
-            scope.parseArrayBuffer( scope.objAsArrayBuffer );
-            complete();
+			scope.cmdState = 'complete';
+			self.postMessage( {
+				cmd: scope.cmdState
+			} );
 
-        } else {
+			scope.dispose();
+		};
 
-            var onLoad = function () {
-                complete();
-            };
+		if ( scope.dataAvailable ) {
 
-            var onProgress = function ( xhr ) {
-                if ( xhr.lengthComputable ) {
-                    var percentComplete = xhr.loaded / xhr.total * 100;
-                    console.log( Math.round(percentComplete, 2) + '% downloaded' );
-                }
-            };
+			scope.parseArrayBuffer( scope.objAsArrayBuffer );
+			complete();
 
-            var onError = function ( xhr ) {
-                console.error( xhr );
-            };
+		} else {
 
-            scope.load( scope.objFile, onLoad, onProgress, onError );
+			var onLoad = function () {
+				complete();
+			};
 
-        }
-    };
+			var onProgress = function ( xhr ) {
+				if ( xhr.lengthComputable ) {
+					var percentComplete = xhr.loaded / xhr.total * 100;
+					console.log( Math.round( percentComplete, 2 ) + '% downloaded' );
+				}
+			};
 
-    return WWOBJLoader;
+			var onError = function ( xhr ) {
+				console.error( xhr );
+			};
+
+			scope.load( scope.objFile, onLoad, onProgress, onError );
+
+		}
+	};
+
+	return WWOBJLoader;
 })();
 
 var implRef = new THREE.WebWorker.WWOBJLoader( this );
 
 var runner = function ( event ) {
-    var payload = event.data;
+	var payload = event.data;
 
-    console.log( 'Command state before: ' + implRef.cmdState );
+	console.log( 'Command state before: ' + implRef.cmdState );
 
-    switch ( payload.cmd ) {
-        case 'init':
-            implRef.init( payload );
+	switch ( payload.cmd ) {
+		case 'init':
 
-            break;
-        case 'initMaterials':
-            implRef.initMaterials( payload );
+			implRef.init( payload );
+			break;
 
-            break;
-        case 'run':
-            implRef.run();
+		case 'initMaterials':
 
-            break;
-        default:
-            console.error( 'WWOBJLoader: Received unknown command: ' + payload.cmd );
+			implRef.initMaterials( payload );
+			break;
 
-            break;
-    }
+		case 'run':
 
-    console.log( 'Command state after: ' + implRef.cmdState );
+			implRef.run();
+			break;
+
+		default:
+
+			console.error( 'WWOBJLoader: Received unknown command: ' + payload.cmd );
+			break;
+
+	}
+
+	console.log( 'Command state after: ' + implRef.cmdState );
 };
 
 self.addEventListener( 'message', runner, false );

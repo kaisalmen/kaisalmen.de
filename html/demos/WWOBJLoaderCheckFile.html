@@ -26,6 +26,16 @@
         </div>
     </div>
     <script src="../../js/lib/ext/bowser.min.js"></script>
+    <script>
+        var browserVersions = {
+            firefox : {
+                mobileWarning: 'Mobile Firefox is considered unstable, but it may work!'
+            },
+            safari : {
+                mobileWarning: 'Mobile Safari has memory issues and is considered unstable, but it may work!'
+            }
+        };
+    </script>
     <script src="../../js/apps/core/Prerequisites.js"></script>
 
     <script src="../../js/lib/threejs/three.min.js"></script>
@@ -35,6 +45,7 @@
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
     <script src="../../js/apps/tools/FileTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
+    <script src="../../js/apps/tools/loaders/WWCommons.js"></script>
     <script src="../../js/apps/tools/loaders/WWOBJLoaderFrontEnd.js"></script>
     <script src="../../js/apps/demos/loaders/WWOBJLoaderChecker.js"></script>
 
