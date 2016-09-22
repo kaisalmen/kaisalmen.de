@@ -54,6 +54,7 @@
             var implementations = [];
             var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
             wwOBJLoaderChecker.setFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
+            //wwOBJLoaderChecker.setFiles( '../../../../resource/models/cerberus/', 'Cerberus.obj', null, null );
             implementations.push( wwOBJLoaderChecker );
             KSX.globals.appRunner.addImplementations( implementations );
             KSX.globals.appRunner.run( true );

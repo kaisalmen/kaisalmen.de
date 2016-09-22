@@ -470,12 +470,12 @@ THREE.OBJLoader.prototype = {
 	parse: function ( loadedContent ) {
 		if ( this.loadAsArrayBuffer ) {
 
-			this.parseArrayBuffer( loadedContent );
+			return this.parseArrayBuffer( loadedContent );
 
 		}
 		else {
 
-			this.parseText( loadedContent );
+			return this.parseText( loadedContent );
 
 		}
 	},

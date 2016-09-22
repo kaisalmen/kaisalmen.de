@@ -152,6 +152,26 @@ THREE.WebWorker.WWOBJLoaderFrontEnd = (function () {
 	WWOBJLoaderFrontEnd.prototype.run = function () {
 		var scope = this;
 
+		var kickRun = function () {
+			scope.worker.postMessage({
+				cmd: 'run',
+			});
+		};
+
+		// fast-exec in case of no mtl file or data
+		if ( this.dataAvailable && ( scope.mtlAsString === undefined || scope.mtlAsString === null ) ) {
+
+			kickRun();
+			return;
+
+		}
+		else if ( ! this.dataAvailable && ( scope.mtlFile === undefined || scope.mtlFile === null ) ) {
+
+			kickRun();
+			return;
+
+		}
+
 		var processMaterials = function ( materialsOrg ) {
 
 			var matInfoOrg = materialsOrg.materialsInfo;
@@ -213,9 +233,7 @@ THREE.WebWorker.WWOBJLoaderFrontEnd = (function () {
 			} );
 
 			// process obj immediately
-			scope.worker.postMessage( {
-				cmd: 'run',
-			} );
+			kickRun();
 
 
 			console.time( 'Loading MTL textures' );
@@ -248,7 +266,7 @@ THREE.WebWorker.WWOBJLoaderFrontEnd = (function () {
 
 			processMaterials( scope.mtlLoader.parse( scope.mtlAsString ) );
 
-		}  else {
+		} else {
 
 			scope.mtlLoader.load( scope.mtlFile, processMaterials );
 
