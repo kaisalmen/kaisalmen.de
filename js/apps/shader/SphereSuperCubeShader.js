@@ -22,9 +22,9 @@ KSX.apps.shader.SphereSuperCubeShader = (function () {
     SphereSuperCubeShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(3);
-        promises[0] = this.shaderTools.loadShader( this.baseDir + 'js/apps/shader/instanceSimplest.glsl', false, 'VS: Instance Rendering Simple' );
-        promises[1] = this.shaderTools.loadShader( this.baseDir + 'js/apps/shader/colorOnly.glsl', false,  'FS: Texture Only' );
+        var promises = [];
+        promises.push( this.shaderTools.loadShader( this.baseDir + 'js/apps/shader/instanceSimplest.glsl', false, 'VS: Instance Rendering Simple' ) );
+        promises.push( this.shaderTools.loadShader( this.baseDir + 'js/apps/shader/colorOnly.glsl', false,  'FS: Texture Only' ) );
 
         Promise.all( promises ).then(
             function (results) {

@@ -21,7 +21,7 @@
     <script src="../../js/apps/learn/GLCheck.js"></script>
     <script>
         if (KSX.globals.preChecksOk) {
-            var implementations = new Array();
+            var implementations = [];
             implementations.push(new KSX.apps.learn.GLCheck(document.getElementById("DivGLFullCanvas")));
             KSX.globals.appRunner.addImplementations(implementations);
             KSX.globals.appRunner.run(true);

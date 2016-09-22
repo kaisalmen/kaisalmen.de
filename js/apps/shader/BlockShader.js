@@ -53,24 +53,24 @@ KSX.apps.shader.BlockShader = (function () {
     BlockShader.prototype.loadResources = function ( intermediate, callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(5);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', false, 'VS: Deform Geometry according Texture');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/textureOnly.glsl', false, 'FS: Texture Only');
+        var promises = [];
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/instancePosition.glsl', false, 'VS: Deform Geometry according Texture') );
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/textureOnly.glsl', false, 'FS: Texture Only') );
         if ( intermediate ) {
-            promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtest.png');
+            promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtest.png') );
         }
         else {
-            promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PTV1Link.jpg');
-            promises[3] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtestLink.png');
-            promises[4] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/teaserLink.jpg');
-            promises[5] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/ProjectionSpace.jpg');
+            promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/PTV1Link.jpg') );
+            promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/PixelProtestLink.png') );
+            promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/teaserLink.jpg') );
+            promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/ProjectionSpace.jpg') );
         }
 
         Promise.all( promises ).then(
             function (results) {
                 scope.vertexShader = results[0];
 
-                var shaders = Array(2);
+                var shaders = [];
                 shaders['common'] = { name: 'common', value: THREE.ShaderChunk["common"] };
                 shaders['texture'] = { name: 'texture', value: results[1] };
                 scope.fragmentShader = scope.shaderTools.combineShader(shaders, false);

@@ -46,9 +46,9 @@ KSX.apps.shader.PixelProtestShader = (function () {
     PixelProtestShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(2);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise');
+        var promises = [];
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', false, 'VS: Pass Through') );
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/pureNoise.glsl', false, 'FS: Pure Noise') );
 
         Promise.all( promises ).then(
             function (results) {

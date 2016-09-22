@@ -26,10 +26,10 @@ KSX.apps.shader.SimpleTextureShader = (function () {
     SimpleTextureShader.prototype.loadResources = function (callbackOnSuccess) {
         var scope = this;
 
-        var promises = new Array(3);
-        promises[0] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', true, 'VS: Pass Through');
-        promises[1] = this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture');
-        promises[2] = this.textureTools.loadTexture(this.baseDir + 'resource/textures/Wald.jpg');
+        var promises = [];
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/passThrough.glsl', true, 'VS: Pass Through') );
+        promises.push( this.shaderTools.loadShader(this.baseDir + 'js/apps/shader/simpleTextureEffect.glsl', true, 'FS: Simple Texture') );
+        promises.push( this.textureTools.loadTexture(this.baseDir + 'resource/textures/Wald.jpg') );
 
         Promise.all( promises ).then(
             function (results) {

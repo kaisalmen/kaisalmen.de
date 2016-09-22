@@ -91,10 +91,10 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
     PTV1Loader.prototype.initAsyncContent = function () {
         var scope = this;
 
-        var promises = new Array(1);
+        var promises = [];
         var cubeBasePath = '../../resource/textures/skybox';
         var imageFileNames = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
-        promises[0] = this.textureTools.loadTextureCube(cubeBasePath, imageFileNames);
+        promises.push( this.textureTools.loadTextureCube( cubeBasePath, imageFileNames ) );
 
         Promise.all(promises).then(
             function (results) {
