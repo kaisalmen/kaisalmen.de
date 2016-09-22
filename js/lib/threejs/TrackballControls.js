@@ -472,7 +472,6 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		event.preventDefault();
 		event.stopPropagation();
-
 		var delta = 0;
 
 		if ( event.wheelDelta ) {
@@ -490,6 +489,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 		}
 
 		_zoomStart.y += delta * 0.01;
+
 		_this.dispatchEvent( startEvent );
 		_this.dispatchEvent( endEvent );
 
@@ -585,8 +585,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 		this.domElement.removeEventListener( 'contextmenu', contextmenu, false );
 		this.domElement.removeEventListener( 'mousedown', mousedown, false );
-		this.domElement.removeEventListener( 'mousewheel', mousewheel, false );
-		this.domElement.removeEventListener( 'MozMousePixelScroll', mousewheel, false ); // firefox
+		this.domElement.removeEventListener( 'wheel', mousewheel, false );
 
 		this.domElement.removeEventListener( 'touchstart', touchstart, false );
 		this.domElement.removeEventListener( 'touchend', touchend, false );
@@ -602,8 +601,7 @@ THREE.TrackballControls = function ( object, domElement ) {
 
 	this.domElement.addEventListener( 'contextmenu', contextmenu, false );
 	this.domElement.addEventListener( 'mousedown', mousedown, false );
-	this.domElement.addEventListener( 'mousewheel', mousewheel, false );
-	this.domElement.addEventListener( 'MozMousePixelScroll', mousewheel, false ); // firefox
+	this.domElement.addEventListener( 'wheel', mousewheel, false );
 
 	this.domElement.addEventListener( 'touchstart', touchstart, false );
 	this.domElement.addEventListener( 'touchend', touchend, false );

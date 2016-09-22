@@ -39,15 +39,16 @@ KSX.apps.demos.SpinningCube = (function () {
     };
 
     SpinningCube.prototype.initGL = function () {
-        var camera = this.scenePerspective.camera;
-        camera.position.set( 0, 0, 250 );
+        var cameraDefaults = {
+            posCamera: new THREE.Vector3( 0.0, 0.0, 25.0 ),
+        };
+        this.scenePerspective.setCameraDefaults( cameraDefaults );
 
         var geometry = new THREE.BoxGeometry(10, 10, 10);
         var material = this.shader.buildShaderMaterial();
         this.mesh =  new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
-        this.scenePerspective.camera.position.z = 25;
     };
 
     SpinningCube.prototype.renderPre = function () {

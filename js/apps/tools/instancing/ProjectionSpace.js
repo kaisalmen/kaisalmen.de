@@ -31,7 +31,9 @@ KSX.apps.demos.ProjectionSpace = (function () {
     ProjectionSpace.prototype.initGL = function () {
         var projectionSpaceMaterial = this.shader.buildShaderMaterial();
 
-        for ( var dimension of this.dimensions ) {
+        var dimension;
+        for ( var key in this.dimensions ) {
+            dimension = this.dimensions[key];
             this.pixelBoxesGenerator.buildInstanceBoxes( dimension, projectionSpaceMaterial );
         }
 
@@ -91,7 +93,9 @@ KSX.apps.demos.ProjectionSpace = (function () {
 
         if ( this.dimensions.length > 0) {
             // remove all possible and add correct index
-            for ( var dimension of this.dimensions ) {
+            var dimension;
+            for ( var key in this.dimensions ) {
+                dimension = this.dimensions[key];
                 this.pivot.remove( dimension.mesh );
             }
             this.pivot.add( this.dimensions[this.index].mesh );

@@ -29,8 +29,10 @@ KSX.apps.demos.HelloOOSimple = (function () {
     }
 
     HelloOOSimple.prototype.initGL = function () {
-        this.scenePerspective.camera.position.set( 0, 0, 250 );
-        this.scenePerspective.camera.position.z = 5;
+        var cameraDefaults = {
+            posCamera: new THREE.Vector3( 0.0, 0.0, 5.0 ),
+        };
+        this.scenePerspective.setCameraDefaults( cameraDefaults );
 
         var geometry = new THREE.SphereGeometry(1, 32, 32);
         var material = new THREE.MeshNormalMaterial();

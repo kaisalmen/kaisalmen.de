@@ -42,24 +42,21 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         });
         this.controls = null;
 
-        var pathToObj = '../../resource/models/';
-        var fileObj = 'PTV1.obj';
-        var fileZip = 'PTV1.zip';
-        var fileMtl = 'PTV1.mtl';
-        var loadDirectly = false;
-        this.objLoaderWW = new KSX.apps.tools.ObjLoaderWW(pathToObj, fileObj, fileMtl, !loadDirectly, fileZip);
-
-        // disables dynamic counting of objects in file
-        this.objLoaderWW.setOverallObjectCount(1585);
+        this.pathToObj = '../../resource/models/';
+        this.fileObj = 'PTV1.obj';
+        this.fileZip = 'PTV1.zip';
+        this.fileMtl = 'PTV1.mtl';
+        this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
 
         this.objGroup = null;
 
-        this.meshInfos = new Array();
+        this.meshInfos = [];
         this.exportMeshInfos = false;
 
-        this.replaceMaterials = new Array();
-        this.replaceObjectMaterials = new Array();
-        this.alterMaterials = new Array();
+        this.replaceMaterials = [];
+        this.replaceObjectMaterials = [];
+        this.dontAlterOpacity = [];
+        this.alterMaterials = [];
 
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
@@ -78,15 +75,17 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             },
             paramsDimension: {
                 desktop : {
-                    slidesWidth : 100
+                    slidesWidth : 384
                 },
                 mobile : {
-                    slidesWidth : 100,
+                    slidesWidth : 384
                 }
             },
             useStats: true
         };
         this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
+
+        this.zipTools = new KSX.apps.tools.ZipTools( this.pathToObj );
     }
 
     PTV1Loader.prototype.initAsyncContent = function () {
@@ -116,7 +115,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var announceFeedback = function ( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        this.objLoaderWW.registerProgressCallback( announceFeedback );
+        this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
 
         this.uiTools.enableStats();
     };
@@ -201,7 +200,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             side : THREE.DoubleSide,
             opacity: 0.45
         });
-        this.objLoaderWW.addMaterial('glass', glass);
+        this.wwObjFrontEnd.addMaterial('glass', glass);
 
         var glassProps = {
             name: 'glass',
@@ -212,6 +211,8 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.replaceObjectMaterials['WindshieldGlass'] = glassProps;
         this.replaceObjectMaterials['DoorRGlass'] = glassProps;
         this.replaceObjectMaterials['DoorLGlass'] = glassProps;
+
+        this.dontAlterOpacity = this.replaceObjectMaterials;
 
         this.alterMaterials['Blue_Paint'] = {
             envMap: scope.textureCubeLoader,
@@ -224,9 +225,9 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.objGroup = new THREE.Group();
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
-        this.scenePerspective.scene.add(this.objGroup);
+        this.scenePerspective.scene.add( this.objGroup );
 
-        this.objLoaderWW.setObjGroup(this.objGroup);
+        this.wwObjFrontEnd.setObjGroup( this.objGroup );
 
 
         // Skybox
@@ -244,8 +245,8 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.skybox = new THREE.Mesh(box, materialCube);
         this.scenePerspective.sceneCube.add( this.skybox );
 
-        var callbackMaterialsLoaded = function (materials) {
-            if (materials !== null) {
+        var callbackMaterialsLoaded = function ( materials ) {
+            if ( materials !== null ) {
                 var alter;
                 var matName;
                 var material;
@@ -253,76 +254,93 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 var materialCount = 0;
 
                 for ( matName in materials ) {
-                    if (scope.alterMaterials.hasOwnProperty(matName) && materials.hasOwnProperty(matName)) {
-                        alter = scope.alterMaterials[matName];
-                        material =  materials[matName];
+                    if ( ! materials.hasOwnProperty( matName ) ) {
+                        continue;
+                    }
+                    materialCount++;
+                    material = materials[ matName ];
+
+                    var msm = new THREE.MeshStandardMaterial();
+                    msm.copy( material );
+
+                    if ( material.hasOwnProperty( 'shininess' ) ) {
+                        msm.metalness = [ 0.0, material.shininess / 100.0, 1.0 ].sort()[ 1 ];
+                    }
+                    if ( material.hasOwnProperty( 'specular' ) ) {
+                        var s = material.specular;
+                        msm.roughness = [ 0.0, ( 3.0 - s.r - s.g - s.b ) / 3.0, 1.0 ].sort()[ 1 ];
+                    }
+
+                    if ( scope.alterMaterials.hasOwnProperty( matName ) ) {
+                        alter = scope.alterMaterials[ matName ];
 
                         for ( prop in alter ) {
-                            if (material.hasOwnProperty(prop) && alter.hasOwnProperty(prop)) {
-                                material[prop] = alter[prop];
+                            if ( msm.hasOwnProperty( prop ) && alter.hasOwnProperty( prop ) ) {
+                                msm[ prop ] = alter[ prop ];
                             }
                         }
                     }
-                    materialCount++;
+                    materials[ matName ] = msm;
                 }
-                console.log('Overall number of materials: ' + materialCount);
+                console.log( 'Overall number of materials: ' + materialCount );
             }
+            return materials;
         };
-        this.objLoaderWW.registerHookMaterialsLoaded(callbackMaterialsLoaded);
+        this.wwObjFrontEnd.registerHookMaterialsLoaded( callbackMaterialsLoaded );
 
-        var callbackMeshLoaded = function (meshName, material) {
+        var callbackMeshLoaded = function ( meshName, material ) {
             var replacedMaterial = null;
-            var perObjectMaterial = scope.replaceObjectMaterials[meshName];
+            var perObjectMaterial = scope.replaceObjectMaterials[ meshName ];
             var perObjectMaterialName = null;
-            if (perObjectMaterial !== undefined && perObjectMaterial !== null) {
-                perObjectMaterialName = perObjectMaterial['name'];
+            if ( perObjectMaterial !== undefined && perObjectMaterial !== null ) {
+                perObjectMaterialName = perObjectMaterial[ 'name' ];
             }
 
-            if (perObjectMaterialName !== null && perObjectMaterialName !== undefined) {
-                replacedMaterial = scope.objLoaderWW.getMaterial(perObjectMaterialName);
+            if ( perObjectMaterialName !== null && perObjectMaterialName !== undefined ) {
+                replacedMaterial = scope.wwObjFrontEnd.getMaterial( perObjectMaterialName );
             }
             else {
-                var replacedMaterialName = scope.replaceMaterials[material.name];
-                if (replacedMaterialName !== null && replacedMaterialName !== undefined) {
-                    replacedMaterial = scope.objLoaderWW.getMaterial(replacedMaterialName);
+                var replacedMaterialName = scope.replaceMaterials[ material.name ];
+                if ( replacedMaterialName !== null && replacedMaterialName !== undefined ) {
+                    replacedMaterial = scope.wwObjFrontEnd.getMaterial( replacedMaterialName );
                 }
             }
 
             var meshInfo;
-            if (replacedMaterial !== null) {
-                meshInfo = new KSX.apps.tools.MeshInfo(meshName, replacedMaterial.name);
+            if ( replacedMaterial !== null ) {
+                meshInfo = new KSX.apps.tools.MeshInfo( meshName, replacedMaterial.name );
             }
             else {
-                meshInfo = new KSX.apps.tools.MeshInfo(meshName, material.name);
+                meshInfo = new KSX.apps.tools.MeshInfo( meshName, material.name );
             }
 
-            scope.meshInfos.push(meshInfo);
+            scope.meshInfos.push( meshInfo );
 
             return replacedMaterial;
         };
-        this.objLoaderWW.registerHookMeshLoaded(callbackMeshLoaded);
+        this.wwObjFrontEnd.registerHookMeshLoaded( callbackMeshLoaded );
 
         var callbackCompletedLoading = function () {
-            if (scope.exportMeshInfos) {
+            if ( scope.exportMeshInfos ) {
                 var exportString = '';
 
-                if (scope.meshInfos.length > 0) {
-                    for (var meshInfo of scope.meshInfos) {
-                        exportString += JSON.stringify(meshInfo);
+                if ( scope.meshInfos.length > 0 ) {
+                    var meshInfo;
+                    for ( var key in scope.meshInfos ) {
+                        meshInfo = scope.meshInfos[ key ];
+                        exportString += JSON.stringify( meshInfo );
                         exportString += '\n';
                     }
 
-                    var blob = new Blob([exportString], {type: 'text/plain;charset=utf-8'});
-                    saveAs(blob, 'meshInfos.json');
+                    var blob = new Blob( [ exportString ], { type: 'text/plain;charset=utf-8' } );
+                    saveAs( blob, 'meshInfos.json' );
                 }
                 else {
-                    alert('Unable to export MeshInfo data as the datastructure is empty!');
+                    alert( 'Unable to export MeshInfo data as the datastructure is empty!' );
                 }
             }
         };
-        this.objLoaderWW.registerHookCompletedLoading(callbackCompletedLoading);
-
-        this.objLoaderWW.load();
+        this.wwObjFrontEnd.registerHookCompletedLoading( callbackCompletedLoading );
     };
 
     PTV1Loader.prototype.initPostGL = function() {
@@ -355,10 +373,12 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             var transparent = value < 1.0;
             var side = value < 1.0 ? THREE.DoubleSide : THREE.FrontSide;
             var maxOpacity = 1.0;
+            var meshInfo;
 
-            for (var meshInfo of scope.meshInfos) {
+            for ( var key in scope.meshInfos ) {
+                meshInfo = scope.meshInfos[key];
                 mesh = scope.scenePerspective.scene.getObjectByName(meshInfo.meshName);
-                dontAlter = scope.replaceObjectMaterials[meshInfo.meshName];
+                dontAlter = scope.dontAlterOpacity[meshInfo.meshName];
 
                 if (dontAlter === undefined && mesh !== undefined) {
                     mesh.material.transparent = transparent;
@@ -392,6 +412,29 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             height: scope.uiTools.paramsDimension.slidesHeight,
             stype: scope.uiTools.paramsDimension.sliderType
         });
+
+        var objAsArrayBuffer = null;
+        var mtlAsString = null;
+
+        var setObjAsArrayBuffer = function( data ) {
+            objAsArrayBuffer = data;
+
+            scope.wwObjFrontEnd.initWithData( objAsArrayBuffer, mtlAsString, scope.pathToObj );
+            scope.wwObjFrontEnd.run();
+
+        };
+        var setMtlAsString = function( data ) {
+            mtlAsString = data;
+            scope.zipTools.unpackAsUint8Array( scope.fileObj, setObjAsArrayBuffer );
+        };
+
+        var doneUnzipping = function() {
+            scope.zipTools.unpackAsString( scope.fileMtl, setMtlAsString );
+        };
+        var reportProgress = function( text ) {
+            scope.uiTools.announceFeedback( text );
+        };
+        scope.zipTools.load( scope.fileZip, doneUnzipping, reportProgress );
 
         return true;
     };

@@ -62,12 +62,15 @@ KSX.apps.tools.ShaderTools = (function () {
     };
 
     ShaderTools.prototype.changeLines = function ( shaderAsArray, regexAndLines, printOverallResult ) {
+        var line;
+
         for ( var key in regexAndLines ) {
             if ( regexAndLines.hasOwnProperty(key) ) {
 
                 var regexAndLine = regexAndLines[key];
                 var i = 0;
-                for ( var line of shaderAsArray ) {
+                for ( var key in shaderAsArray ) {
+                    line = shaderAsArray[key];
                     if ( line.match( regexAndLine.regex ) ) {
                         break;
                     }
@@ -88,7 +91,8 @@ KSX.apps.tools.ShaderTools = (function () {
         }
 
         var updatedShader = '';
-        for ( var line of shaderAsArray ) {
+        for ( var key in shaderAsArray ) {
+            line = shaderAsArray[key];
             updatedShader = updatedShader.concat( line, '\n' );
         }
 

@@ -594,8 +594,8 @@ KSX.apps.core.AppRunner = (function () {
 
         Promise.all( promises ).then(
             function ( results ) {
-                for ( var result of results ) {
-                    console.log( 'AppRunner: Successfully initialised app: ' + result );
+                for ( var key in results ) {
+                    console.log( 'AppRunner: Successfully initialised app: ' + results[key] );
                 }
             }
         ).catch(
