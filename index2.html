@@ -18,6 +18,7 @@
     <script src="js/lib/threejs/TrackballControls.js"></script>
 
     <script src="js/apps/core/ThreeJsApp.js"></script>
+    <script src="js/apps/core/AppRunner.js"></script>
     <script src="js/apps/tools/ShaderTools.js"></script>
     <script src="js/apps/tools/TextTools.js"></script>
     <script src="js/apps/tools/TextureTools.js"></script>
@@ -28,12 +29,12 @@
     <script src="js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
     <script src="js/apps/demos/Home/Intermediate.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            var simple = new KSX.apps.demos.home.Intermediate(document.getElementById("DivGLFullCanvas"));
-            implementations.push(simple);
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.apps.demos.home.Intermediate( document.getElementById( 'DivGLFullCanvas' ) );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
+
         }
     </script>
 </body>

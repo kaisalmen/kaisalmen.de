@@ -65,6 +65,7 @@
     <script src="../../js/lib/ext/uil.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/TextTools.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
@@ -81,19 +82,16 @@
     <script src="../../js/apps/demos/Home/HomeUi.js"></script>
     <script src="../../js/apps/demos/Home/Home.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
+        if ( KSX.globals.preChecksOk ) {
 
-            var home = new KSX.apps.demos.home.Main(
-                    document.getElementById( "DivGLFullCanvas" ),
-                    document.getElementById( "DivGLFullVideo" ),
-                    document.getElementById( "DivGLFullVideoBuffer" ),
+            var app = new KSX.apps.demos.home.Main(
+                    document.getElementById( 'DivGLFullCanvas' ),
+                    document.getElementById( 'DivGLFullVideo' ),
+                    document.getElementById( 'DivGLFullVideoBuffer' ),
                     bowser.mobile
             );
-            implementations.push(home);
-
-            KSX.globals.appRunner.addImplementations( implementations );
-            KSX.globals.appRunner.run(true);
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
 
             var clicksHelpArea = 0;
             var enableHelpArea = function () {

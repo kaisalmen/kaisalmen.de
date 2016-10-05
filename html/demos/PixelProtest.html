@@ -43,6 +43,7 @@
     <script src="../../js/lib/ext/FileSaver.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/DataTools.js"></script>
@@ -51,12 +52,11 @@
     <script src="../../js/apps/shader/PixelProtestShader.js"></script>
     <script src="../../js/apps/demos/PixelProtest.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            var pixelProtest = new KSX.apps.demos.PixelProtest( document.getElementById("DivGLFullCanvas"), bowser.mobile );
-            implementations.push(pixelProtest);
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.apps.demos.PixelProtest( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
 
             var clicksHelpArea = 0;
             var enableHelpArea = function () {

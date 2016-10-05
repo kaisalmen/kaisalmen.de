@@ -32,8 +32,8 @@ KSX.apps.tools.ZipTools = (function () {
 				var percentComplete = event.loaded / event.total * 100;
 				var output = 'Download of "' + filename + '": ' + Math.round( percentComplete, 2 ) + '%';
 				console.log( output );
-				if ( callbackProgress !== null || callbackProgress !== undefined ) {
-					callbackProgress( output);
+				if ( callbackProgress !== null && callbackProgress !== undefined ) {
+					callbackProgress( output );
 				}
 			}
 		};

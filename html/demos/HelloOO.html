@@ -2,7 +2,7 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>HelloOO: Single renderer</title>
+    <title>Hello single renderer</title>
 </head>
 <body>
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
@@ -16,18 +16,19 @@
     <script src="../../js/lib/threejs/three.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/ShaderTools.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/SpinningCubeShader.js"></script>
     <script src="../../js/apps/demos/HelloOO/SpinningCube.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            var helloOOSimple = new KSX.apps.demos.SpinningCube(document.getElementById("DivGLFullCanvas"), false);
-            implementations.push(helloOOSimple);
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            var helloOOSimple = new KSX.apps.demos.SpinningCube( document.getElementById( 'DivGLFullCanvas' ), false );
+            var appRunner = new KSX.apps.core.AppRunner( helloOOSimple );
+            appRunner.run( true );
+
         }
     </script>
 

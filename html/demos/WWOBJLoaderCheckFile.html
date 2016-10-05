@@ -43,6 +43,7 @@
     <script src="../../js/lib/threejs/MTLLoader.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/FileTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/tools/loaders/WWCommons.js"></script>
@@ -50,14 +51,14 @@
     <script src="../../js/apps/demos/loaders/WWOBJLoaderChecker.js"></script>
 
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            var wwOBJLoaderChecker = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById("DivGLFullCanvas") );
-            wwOBJLoaderChecker.setFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
-            //wwOBJLoaderChecker.setFiles( '../../../../resource/models/cerberus/', 'Cerberus.obj', null, null );
-            implementations.push( wwOBJLoaderChecker );
-            KSX.globals.appRunner.addImplementations( implementations );
-            KSX.globals.appRunner.run( true );
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById( 'DivGLFullCanvas' ) );
+            app.setFiles( '../../../../resource/models/male02/', 'male02.obj', 'male02.mtl', '../../../../resource/models/male02/' );
+            //app.setFiles( '../../../../resource/models/cerberus/', 'Cerberus.obj', null, null );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
+
         }
     </script>
 </body>

@@ -18,15 +18,17 @@
     <script src="../../js/lib/threejs/TrackballControls.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/demos/SkyboxCubeMap.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            implementations.push(new KSX.apps.demos.SkyboxCubeMap(document.getElementById("DivGLFullCanvas")));
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            app = new KSX.apps.demos.SkyboxCubeMap( document.getElementById( 'DivGLFullCanvas' ) );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
+
         }
     </script>
 

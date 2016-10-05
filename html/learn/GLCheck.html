@@ -18,13 +18,15 @@
     <script src="../../js/lib/threejs/dev/three.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/learn/GLCheck.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            implementations.push(new KSX.apps.learn.GLCheck(document.getElementById("DivGLFullCanvas")));
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.apps.learn.GLCheck( document.getElementById( 'DivGLFullCanvas' ) );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
+
         }
     </script>
 </body>

@@ -67,6 +67,7 @@
     <script src="../../js/lib/ext/jszip.min.js"></script>
 
     <script src="../../js/apps/core/ThreeJsApp.js"></script>
+    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/TextureTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/tools/FileTools.js"></script>
@@ -74,12 +75,11 @@
     <script src="../../js/apps/tools/loaders/WWOBJLoaderFrontEnd.js"></script>
     <script src="../../js/apps/demos/zeroSouth/PTV1.js"></script>
     <script>
-        if (KSX.globals.preChecksOk) {
-            var implementations = [];
-            var zeroSouth = new KSX.apps.zerosouth.PTV1Loader( document.getElementById("DivGLFullCanvas"), bowser.mobile );
-            implementations.push(zeroSouth);
-            KSX.globals.appRunner.addImplementations(implementations);
-            KSX.globals.appRunner.run(true);
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.apps.zerosouth.PTV1Loader( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile );
+            var appRunner = new KSX.apps.core.AppRunner( app );
+            appRunner.run( true );
 
             var clicksHelpArea = 0;
             var enableHelpArea = function () {
