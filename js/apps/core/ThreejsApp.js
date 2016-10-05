@@ -13,8 +13,6 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.initOk = true;
 
         this.asyncDone = false;
-
-        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
     }
 
     ThreeJsApp.prototype.configure = function (userDefinition) {
