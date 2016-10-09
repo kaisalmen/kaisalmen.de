@@ -19,10 +19,9 @@ KSX.apps.demos.HelloOOSimple = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         var userDefinition = {
-            user : this,
-            name : 'HelloOOSimple',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
+            name: 'HelloOOSimple',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
             loader: loader
         };
         this.configure(userDefinition);

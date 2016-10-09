@@ -30,18 +30,18 @@ KSX.apps.demos.home.Main = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'Home',
-            htmlCanvas : elementToBindTo,
-            renderers : {
-                regular : {
-                    canvas : elementToBindTo,
-                    antialias : true
+            name: 'Home',
+            htmlCanvas: elementToBindTo,
+            renderers: {
+                regular: {
+                    canvas: elementToBindTo,
+                    antialias: true
                 }
             },
-            useScenePerspective : true,
-            useCube : true
+            useScenePerspective: true,
+            useCube: true
         });
+        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
         this.mobileDevice = mobileDevice;
 
         this.video = elementNameVideo;

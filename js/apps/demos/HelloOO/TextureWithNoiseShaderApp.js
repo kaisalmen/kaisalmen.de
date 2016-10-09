@@ -19,10 +19,9 @@ KSX.apps.demos.TextureWithNoiseShader = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'TextureWithNoiseShader',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            name: 'TextureWithNoiseShader',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true
         });
 
         this.shader = new KSX.apps.shader.TextureWithNoiseShader();

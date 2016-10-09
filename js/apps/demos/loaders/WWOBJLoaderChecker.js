@@ -23,10 +23,9 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'WWOBJLoaderChecker',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            name: 'WWOBJLoaderChecker',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true
         });
 
         this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
@@ -118,13 +117,10 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         if ( this.useZip ) {
 
             var scope = this;
-            var objAsArrayBuffer = null;
             var mtlAsString = null;
 
             var setObjAsArrayBuffer = function( data ) {
-                objAsArrayBuffer = data;
-
-                scope.wwObjFrontEnd.initWithData( objAsArrayBuffer, mtlAsString, scope.zipFiles.pathTexture );
+                scope.wwObjFrontEnd.initWithData( data, mtlAsString, scope.zipFiles.pathTexture );
                 scope.wwObjFrontEnd.run();
 
             };
@@ -134,7 +130,15 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             };
 
             var doneUnzipping = function() {
-                scope.zipTools.unpackAsString( scope.zipFiles.fileMtl, setMtlAsString );
+                if ( scope.zipFiles.fileMtl !== null ) {
+
+                    this.zipTools.unpackAsString( scope.zipFiles.fileMtl, setMtlAsString );
+
+                } else {
+
+                    setMtlAsString( null );
+
+                }
             };
             var reportProgress = function( text ) {
                 scope.uiTools.announceFeedback( text );

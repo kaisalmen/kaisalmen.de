@@ -19,11 +19,10 @@ KSX.apps.demos.PixelProtest = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'PixelProtest',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : false,
-            useSceneOrtho : true
+            name: 'PixelProtest',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: false,
+            useSceneOrtho: true
         });
 
         this.shader = new KSX.apps.shader.PixelProtestShader( this.canvas.getWidth(), this.canvas.getHeight() );
@@ -56,7 +55,7 @@ KSX.apps.demos.PixelProtest = (function () {
 
         this.uiElemWidth = null;
         this.uiElemHeight = null;
-        
+
         this.animateNoise = true;
         this.animationRate = 10;
 

@@ -23,7 +23,6 @@ KSX.apps.learn.ObjLoaderTestbed = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         var userDefinition = {
-            user: this,
             name: 'ObjLoaderTestbed',
             htmlCanvas: elementToBindTo,
             useScenePerspective: true,

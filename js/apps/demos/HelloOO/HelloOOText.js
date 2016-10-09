@@ -19,10 +19,9 @@ KSX.apps.demos.HelloOOText = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'HelloOOText',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            name: 'HelloOOText',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true
         });
 
         this.textStorage = new KSX.apps.tools.text.Text();

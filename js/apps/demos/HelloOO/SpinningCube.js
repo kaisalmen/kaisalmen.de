@@ -19,10 +19,9 @@ KSX.apps.demos.SpinningCube = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'SpinningCube',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
+            name: 'SpinningCube',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
             loader: loader
         });
 

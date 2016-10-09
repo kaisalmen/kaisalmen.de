@@ -41,12 +41,12 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
 
         this.configure({
-            user : this,
-            name : 'SphereSuperCube',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
+            name: 'SphereSuperCube',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
             loader: this.globals.loader
         });
+        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
 
         this.controls = null;
         this.shader = new KSX.apps.shader.SphereSuperCubeShader();

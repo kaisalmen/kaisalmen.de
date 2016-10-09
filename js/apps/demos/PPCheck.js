@@ -19,10 +19,9 @@ KSX.apps.demos.PPCheck = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'PPCheck',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
+            name: 'PPCheck',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
             loader: loader
         });
 

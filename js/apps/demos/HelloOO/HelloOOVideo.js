@@ -19,10 +19,9 @@ KSX.apps.demos.HelloOOVideo = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'HelloOOVideo',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            name: 'HelloOOVideo',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true
         });
 
         this.video = document.getElementById(elementNameVideo);

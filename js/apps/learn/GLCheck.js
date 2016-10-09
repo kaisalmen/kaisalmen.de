@@ -23,11 +23,11 @@ KSX.apps.learn.GLCheck = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'GLCheckApp',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true
+            name: 'GLCheckApp',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true
         });
+        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
     }
 
     GLCheck.prototype.initGL = function () {

@@ -34,11 +34,10 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'PTV1Loader',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
-            useCube : true
+            name: 'PTV1Loader',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
+            useCube: true
         });
         this.controls = null;
 

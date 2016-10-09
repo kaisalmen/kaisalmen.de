@@ -19,11 +19,10 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
         KSX.apps.core.ThreeJsApp.call(this);
 
         this.configure({
-            user : this,
-            name : 'SkyboxCubeMap',
-            htmlCanvas : elementToBindTo,
-            useScenePerspective : true,
-            useCube : true
+            name: 'SkyboxCubeMap',
+            htmlCanvas: elementToBindTo,
+            useScenePerspective: true,
+            useCube: true
         });
 
         this.textureTools = new KSX.apps.tools.TextureTools();
