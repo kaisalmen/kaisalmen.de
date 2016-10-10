@@ -68,18 +68,16 @@ KSX.apps.demos.PixelProtest = (function () {
         this.dataTools = new KSX.apps.tools.DataTools();
     }
 
-    PixelProtest.prototype.initAsyncContent = function() {
+    PixelProtest.prototype.initPreGL = function () {
         var scope = this;
+
+        scope.initUI();
+        scope.uiTools.enableStats();
 
         var callbackOnSuccess = function () {
             scope.asyncDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
-    };
-
-    PixelProtest.prototype.initPreGL = function () {
-        this.initUI();
-        this.uiTools.enableStats();
     };
 
     PixelProtest.prototype.initUI = function () {

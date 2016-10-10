@@ -27,7 +27,7 @@ KSX.apps.demos.TextureWithNoiseShader = (function () {
         this.shader = new KSX.apps.shader.TextureWithNoiseShader();
     }
 
-    TextureWithNoiseShader.prototype.initAsyncContent = function() {
+    TextureWithNoiseShader.prototype.initPreGL = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {

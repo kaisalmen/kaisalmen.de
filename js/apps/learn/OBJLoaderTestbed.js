@@ -39,6 +39,7 @@ KSX.apps.learn.ObjLoaderTestbed = (function () {
 
     ObjLoaderTestbed.prototype.initPreGL = function () {
         this.uiTools.enableStats();
+        this.asyncDone = true;
     };
 
     ObjLoaderTestbed.prototype.initGL = function () {

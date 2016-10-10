@@ -35,8 +35,10 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
         this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
-    SkyboxCubeMap.prototype.initAsyncContent = function () {
+    SkyboxCubeMap.prototype.initPreGL = function () {
         var scope = this;
+
+        scope.uiTools.enableStats();
 
         var promises = [];
         var cubeBasePath = '../../resource/textures/skybox';
@@ -53,10 +55,6 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
                 console.log('The following error occurred: ', error);
             }
         );
-    };
-
-    SkyboxCubeMap.prototype.initPreGL = function () {
-        this.uiTools.enableStats();
     };
 
     SkyboxCubeMap.prototype.initGL = function () {

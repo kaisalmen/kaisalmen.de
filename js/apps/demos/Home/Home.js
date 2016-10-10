@@ -85,8 +85,10 @@ KSX.apps.demos.home.Main = (function () {
         };
     }
 
-    Home.prototype.initAsyncContent = function() {
+    Home.prototype.initPreGL = function() {
         var scope = this;
+
+        scope.homeUi.initPreGL();
 
         var callbackOnTextSuccess = function () {
             var promises = [];
@@ -113,10 +115,6 @@ KSX.apps.demos.home.Main = (function () {
         };
 
         scope.projectionSpace.loadAsyncResources( callbackOnShaderSuccess );
-    };
-
-    Home.prototype.initPreGL = function () {
-        this.homeUi.initPreGL();
     };
 
     Home.prototype.initGL = function () {
@@ -273,22 +271,15 @@ KSX.apps.demos.home.Main = (function () {
     };
 
     Home.prototype.initPostGL = function () {
-        this.homeUi.buildUi();
+        var scope = this;
+        scope.homeUi.buildUi();
 
-        if ( this.mobileDevice ) {
+        if ( scope.mobileDevice ) {
+
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
+
         }
         return true;
-    };
-
-    Home.prototype.addEventHandlers = function () {
-        var scope = this;
-
-        var eatComplete =  function ( event ) {
-            console.log( 'Received event "complete"!' );
-            scope.renderingEnabled = true;
-        };
-        document.addEventListener( 'complete', eatComplete, false );
     };
 
     Home.prototype.resizeDisplayGL = function () {

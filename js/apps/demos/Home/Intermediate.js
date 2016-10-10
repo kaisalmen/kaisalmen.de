@@ -48,8 +48,10 @@ KSX.apps.demos.home.Intermediate = (function () {
         this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
-    Intermediate.prototype.initAsyncContent = function() {
+    Intermediate.prototype.initPreGL = function() {
         var scope = this;
+
+        scope.uiTools.enableStats();
 
         var callbackOnShaderSuccess = function () {
             var listOfFonts = [];
@@ -62,10 +64,6 @@ KSX.apps.demos.home.Intermediate = (function () {
         };
 
         scope.shader.loadResources( true, callbackOnShaderSuccess );
-    };
-
-    Intermediate.prototype.initPreGL = function () {
-        this.uiTools.enableStats();
     };
 
     Intermediate.prototype.initGL = function () {

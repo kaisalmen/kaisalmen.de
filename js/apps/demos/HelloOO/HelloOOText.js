@@ -27,7 +27,7 @@ KSX.apps.demos.HelloOOText = (function () {
         this.textStorage = new KSX.apps.tools.text.Text();
     }
 
-    HelloOOText.prototype.initAsyncContent = function() {
+    HelloOOText.prototype.initPreGL = function() {
         var scope = this;
         var listOfFonts = [];
         listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';

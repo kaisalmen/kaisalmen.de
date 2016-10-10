@@ -87,8 +87,17 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.zipTools = new KSX.apps.tools.ZipTools( this.pathToObj );
     }
 
-    PTV1Loader.prototype.initAsyncContent = function () {
+    PTV1Loader.prototype.initPreGL = function () {
         var scope = this;
+
+        scope.uiTools.createFeedbackAreaDynamic();
+
+        var announceFeedback = function ( text ) {
+            scope.uiTools.announceFeedback( text );
+        };
+        scope.wwObjFrontEnd.registerProgressCallback( announceFeedback );
+
+        this.uiTools.enableStats();
 
         var promises = [];
         var cubeBasePath = '../../resource/textures/skybox';
@@ -105,18 +114,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 console.log('The following error occurred: ', error);
             }
         );
-    };
-
-    PTV1Loader.prototype.initPreGL = function () {
-        this.uiTools.createFeedbackAreaDynamic();
-
-        var scope = this;
-        var announceFeedback = function ( text ) {
-            scope.uiTools.announceFeedback( text );
-        };
-        this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
-
-        this.uiTools.enableStats();
     };
 
     PTV1Loader.prototype.initGL = function () {

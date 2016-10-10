@@ -75,6 +75,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             scope.uiTools.announceFeedback( text );
         };
         this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
+
+        this.asyncDone = true;
     };
 
     WWOBJLoaderChecker.prototype.initGL = function () {
@@ -113,10 +115,10 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
+        var scope = this;
 
-        if ( this.useZip ) {
+        if ( scope.useZip ) {
 
-            var scope = this;
             var mtlAsString = null;
 
             var setObjAsArrayBuffer = function( data ) {
@@ -132,7 +134,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             var doneUnzipping = function() {
                 if ( scope.zipFiles.fileMtl !== null ) {
 
-                    this.zipTools.unpackAsString( scope.zipFiles.fileMtl, setMtlAsString );
+                    scope.zipTools.unpackAsString( scope.zipFiles.fileMtl, setMtlAsString );
 
                 } else {
 
@@ -148,8 +150,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         }
         else {
 
-            this.wwObjFrontEnd.initWithFiles( this.files.pathBase, this.files.fileObj, this.files.fileMtl, this.files.pathTexture );
-            this.wwObjFrontEnd.run();
+            scope.wwObjFrontEnd.initWithFiles( scope.files.pathBase, scope.files.fileObj, scope.files.fileMtl, scope.files.pathTexture );
+            scope.wwObjFrontEnd.run();
 
         }
 

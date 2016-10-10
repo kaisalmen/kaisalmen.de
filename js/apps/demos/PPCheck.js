@@ -38,7 +38,7 @@ KSX.apps.demos.PPCheck = (function () {
         };
     }
 
-    PPCheck.prototype.initAsyncContent = function() {
+    PPCheck.prototype.initPreGL = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {

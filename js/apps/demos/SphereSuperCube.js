@@ -65,19 +65,17 @@ KSX.apps.demos.SphereSuperCube = (function () {
         this.projectionSpace = null;
     }
 
-    SphereSuperCube.prototype.initAsyncContent = function() {
+    SphereSuperCube.prototype.initPreGL = function() {
         var scope = this;
+
+        if ( !scope.definition.loader ) {
+            scope.uiTools.enableStats();
+        }
 
         var callbackOnSuccess = function () {
             scope.asyncDone = true;
         };
         this.shader.loadResources( callbackOnSuccess );
-    };
-
-    SphereSuperCube.prototype.initPreGL = function () {
-        if ( !this.definition.loader ) {
-            this.uiTools.enableStats();
-        }
     };
 
     SphereSuperCube.prototype.initGL = function () {

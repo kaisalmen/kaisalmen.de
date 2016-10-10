@@ -28,7 +28,7 @@ KSX.apps.demos.SpinningCube = (function () {
         this.shader = new KSX.apps.shader.SpinningCubeShader();
     }
 
-    SpinningCube.prototype.initAsyncContent = function() {
+    SpinningCube.prototype.initPreGL = function() {
         var scope = this;
 
         var callbackOnSuccess = function () {
