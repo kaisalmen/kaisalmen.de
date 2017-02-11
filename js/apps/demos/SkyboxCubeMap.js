@@ -48,7 +48,7 @@ KSX.apps.demos.SkyboxCubeMap = (function () {
         Promise.all(promises).then(
             function (results) {
                 scope.textureCube = results[0];
-                scope.asyncDone = true;
+                scope.preloadDone = true;
             }
         ).catch(
             function (error) {

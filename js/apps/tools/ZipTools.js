@@ -6,68 +6,87 @@
 
 KSX.apps.tools.ZipTools = (function () {
 
-	function ZipTools( path ) {
-		this.zip = new JSZip();
+    function ZipTools( path ) {
+        this.zip = new JSZip();
 
-		this.xhrLoader = new THREE.XHRLoader();
-		this.xhrLoader.setPath( path );
-		this.xhrLoader.setResponseType( 'arraybuffer' );
+        this.fileLoader = new THREE.FileLoader();
+        this.fileLoader.setPath( path );
+        this.fileLoader.setResponseType( 'arraybuffer' );
 
-		this.zipContent = null;
-	}
+        this.zipContent = null;
+    }
 
-	ZipTools.prototype.load = function ( filename, callbackFinish, callbackProgress ) {
-		var scope = this;
+    ZipTools.prototype.load = function ( filename, callbacks ) {
+        var scope = this;
 
-		var onSuccess = function ( zipDataFromXHR ) {
-			scope.zip.loadAsync( zipDataFromXHR )
-			.then( function ( zip ) {
-				scope.zipContent = zip;
-				callbackFinish();
-			} );
-		};
+        var onSuccess = function ( zipDataFromFileLoader ) {
+            scope.zip.loadAsync( zipDataFromFileLoader )
+            .then( function ( zip ) {
 
-		var onProgress = function ( event ) {
-			if ( event.lengthComputable ) {
-				var percentComplete = event.loaded / event.total * 100;
-				var output = 'Download of "' + filename + '": ' + Math.round( percentComplete, 2 ) + '%';
-				console.log( output );
-				if ( callbackProgress !== null && callbackProgress !== undefined ) {
-					callbackProgress( output );
-				}
-			}
-		};
+                scope.zipContent = zip;
+                callbacks.success();
 
-		var onError = function ( event ) {
-			console.error( 'Error of type "' + event.type + '" occurred when trying to load: ' + event.src );
-		};
+            } );
+        };
 
-		console.log( 'Starting download: ' + filename );
-		this.xhrLoader.load( filename, onSuccess, onProgress, onError );
-	};
+        var refPercentComplete = 0;
+        var percentComplete = 0;
+        var output;
+        var onProgress = function ( event ) {
+            if ( ! event.lengthComputable ) return;
 
-	ZipTools.prototype.unpackAsUint8Array = function ( filename, callback ) {
+            percentComplete = Math.round( event.loaded / event.total * 100 );
+            if ( percentComplete > refPercentComplete ) {
 
-		if ( JSZip.support.uint8array ) {
-			this.zipContent.file( filename ).async( 'uint8array' )
-			.then( function ( dataAsUint8Array ) {
-				callback( dataAsUint8Array );
-			} );
-		}
-		else {
-			this.zipContent.file( filename ).async( 'base64' )
-			.then( function ( data64 ) {
-				callback( new TextEncoder( 'utf-8' ).encode( data64 ) );
-			} );
-		}
-	};
+                refPercentComplete = percentComplete;
+                output = 'Download of "' + filename + '": ' + percentComplete + '%';
+                console.log( output );
+                if ( callbacks.progress !== null && callbacks.progress !== undefined ) callbacks.progress( output );
 
-	ZipTools.prototype.unpackAsString = function ( filename, callback ) {
-		this.zipContent.file( filename ).async( 'string' )
-		.then( function ( dataAsString ) {
-			callback( dataAsString );
-		} );
-	};
+            }
+        };
 
-	return ZipTools;
+        var onError = function ( event ) {
+            var output = 'Error of type "' + event.type + '" occurred when trying to load: ' + filename;
+            console.error( output );
+            callbacks.error( output );
+        };
+
+        console.log( 'Starting download: ' + filename );
+        this.fileLoader.load( filename, onSuccess, onProgress, onError );
+    };
+
+    ZipTools.prototype.unpackAsUint8Array = function ( filename, callback ) {
+
+        if ( JSZip.support.uint8array ) {
+
+            this.zipContent.file( filename ).async( 'uint8array' )
+            .then( function ( dataAsUint8Array ) {
+
+                callback( dataAsUint8Array );
+
+            } );
+
+        } else {
+
+            this.zipContent.file( filename ).async( 'base64' )
+            .then( function ( data64 ) {
+
+                callback( new TextEncoder( 'utf-8' ).encode( data64 ) );
+
+            } );
+
+        }
+    };
+
+    ZipTools.prototype.unpackAsString = function ( filename, callback ) {
+        this.zipContent.file( filename ).async( 'string' )
+        .then( function ( dataAsString ) {
+
+            callback( dataAsString );
+
+        } );
+    };
+
+    return ZipTools;
 })();

@@ -75,7 +75,7 @@ KSX.apps.demos.PixelProtest = (function () {
         scope.uiTools.enableStats();
 
         var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+            scope.preloadDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
     };

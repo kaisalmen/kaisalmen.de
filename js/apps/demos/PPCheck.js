@@ -42,7 +42,7 @@ KSX.apps.demos.PPCheck = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+            scope.preloadDone = true;
         };
         scope.projectionSpace.loadAsyncResources( callbackOnSuccess );
     };

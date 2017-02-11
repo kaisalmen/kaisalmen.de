@@ -107,7 +107,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         Promise.all(promises).then(
             function (results) {
                 scope.textureCubeLoader = results[0];
-                scope.asyncDone = true;
+                scope.preloadDone = true;
             }
         ).catch(
             function (error) {

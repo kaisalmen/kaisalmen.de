@@ -32,7 +32,7 @@ KSX.apps.demos.SpinningCube = (function () {
         var scope = this;
 
         var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+            scope.preloadDone = true;
         };
         this.shader.loadResources(callbackOnSuccess);
     };

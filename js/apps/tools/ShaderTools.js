@@ -7,7 +7,7 @@
 KSX.apps.tools.ShaderTools = (function () {
 
     function ShaderTools() {
-        this.loader = new THREE.XHRLoader();
+        this.loader = new THREE.FileLoader();
     }
 
     ShaderTools.prototype.loadShader = function (path, printShader, shaderName) {

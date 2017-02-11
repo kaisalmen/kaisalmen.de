@@ -73,7 +73,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
         }
 
         var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+            scope.preloadDone = true;
         };
         this.shader.loadResources( callbackOnSuccess );
     };

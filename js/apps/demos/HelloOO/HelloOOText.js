@@ -34,7 +34,7 @@ KSX.apps.demos.HelloOOText = (function () {
         listOfFonts['droid_sans_mono_regular'] = 'resource/fonts/droid_sans_mono_regular.typeface.json';
 
         var callbackOnSuccess = function () {
-            scope.asyncDone = true;
+            scope.preloadDone = true;
         };
         scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
     };

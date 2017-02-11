@@ -58,7 +58,7 @@ KSX.apps.demos.home.Intermediate = (function () {
             listOfFonts['ubuntu_mono_regular'] = 'resource/fonts/ubuntu_mono_regular.json';
 
             var callbackOnSuccess = function () {
-                scope.asyncDone = true;
+                scope.preloadDone = true;
             };
             scope.textStorage.loadListOfFonts(KSX.globals.basedir, listOfFonts, callbackOnSuccess);
         };

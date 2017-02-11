@@ -2,7 +2,7 @@
  * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 if ( KSX.apps === undefined ) {
     KSX.apps = {};
@@ -31,7 +31,6 @@ KSX.apps.core.ThreeJsAppDefaultDefinition = {
  *   - resizeDisplayGLBase/resizeDisplayGL
  *   - initPostGL
  * - render (called by AppRunner)
- * - dispose (currently only important for loaders)
  */
 KSX.apps.core.ThreeJsApp = (function () {
 
@@ -40,7 +39,7 @@ KSX.apps.core.ThreeJsApp = (function () {
         this.frameNumber = 0;
 
         this.initOk = true;
-        this.asyncDone = false;
+        this.preloadDone = false;
 
         this.definition = KSX.apps.core.ThreeJsAppDefaultDefinition;
         this.scenePerspective = null;
@@ -92,7 +91,7 @@ KSX.apps.core.ThreeJsApp = (function () {
 
         for ( var user in defUser ) {
 
-            if ( ! defPredefined.hasOwnProperty( user ) ) {
+            if ( defUser.hasOwnProperty( user ) && ! defPredefined.hasOwnProperty( user ) ) {
 
                 delete defUser[user];
             }
@@ -141,13 +140,13 @@ KSX.apps.core.ThreeJsApp = (function () {
         var interval = 10;
         var count = 0;
         var divider = 50;
-        var checkAsyncStatus = setInterval( checkAsyncStatusTimer, interval );
+        var checkPreloadDone = setInterval( checkPreloadDoneTimer, interval );
 
-        function checkAsyncStatusTimer() {
-            if ( scope.asyncDone ) {
+        function checkPreloadDoneTimer() {
+            if ( scope.preloadDone ) {
 
-                clearInterval(checkAsyncStatus);
-                console.log( 'Async loading took approx. ' + interval * count  + 'ms.' );
+                clearInterval( checkPreloadDone );
+                console.log( 'Pre-loading took approx. ' + interval * count  + 'ms.' );
                 if ( scope.initOk ) {
 
                     initSync();
@@ -157,7 +156,7 @@ KSX.apps.core.ThreeJsApp = (function () {
             else {
                 if ( count % divider === 0 ) {
 
-                    console.log( 'Waiting for initPreGL to complete (' + interval * count  + 'ms)' );
+                    console.log( 'Waiting for pre-loading (initPreGL) to complete (' + interval * count  + 'ms)' );
 
                 }
                 count++;
@@ -178,11 +177,11 @@ KSX.apps.core.ThreeJsApp = (function () {
 
     /**
      * Handle any init not related to WebGL (e.g. file loading) incl. async content that need to be completed
-     * before the rest of the initialisation takes part. Once complete asyncDone needs to be set to true.
+     * before the rest of the initialisation takes part. Once complete preloadDone needs to be set to true.
      * Override if needed.
      */
     ThreeJsApp.prototype.initPreGL = function () {
-        this.asyncDone = true;
+        this.preloadDone = true;
     };
 
     /**
@@ -289,14 +288,6 @@ KSX.apps.core.ThreeJsApp = (function () {
             console.log( 'ThreeJsApp DEFAULT (' + this.definition.name + '): renderPost' );
 
         }
-    };
-
-    /**
-     * Dispose is currently only called for "loaders"
-     * Override if needed.
-     */
-    ThreeJsApp.prototype.dispose = function () {
-
     };
 
     return ThreeJsApp;

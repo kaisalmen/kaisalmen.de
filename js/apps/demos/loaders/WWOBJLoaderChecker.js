@@ -76,7 +76,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         };
         this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
 
-        this.asyncDone = true;
+        this.preloadDone = true;
     };
 
     WWOBJLoaderChecker.prototype.initGL = function () {

@@ -2,7 +2,7 @@
  * @author Kai Salmen / www.kaisalmen.de
  */
 
-"use strict";
+'use strict';
 
 KSX.apps.core.MultiAppRunner = (function () {
 

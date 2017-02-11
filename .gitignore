@@ -1,9 +1,6 @@
 .project
 .idea
-/js/lib/ext/dev
-/js/lib/ext/legacy
-/js/lib/threejs/dev
-/js/lib/threejs/legacy
+_backup
 /node_modules
 /resource/fonts/*.ttf
 /resource/fonts/*.zip
@@ -14,4 +11,3 @@
 /resource/textures/meadow
 /resource/textures/skybox
 /resource/textures/*.zip
-/redirect
