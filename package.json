@@ -26,7 +26,8 @@
     "jszip": "^3.1.3",
     "bowser": "^1.6.0",
     "uil": "^1.0.0",
-    "es6-promise": "^4.0.5"
+    "es6-promise": "^4.0.5",
+    "wwobjloader": "^1.0.5"
   },
   "devDependencies": {
     "del": "^2.2.2",

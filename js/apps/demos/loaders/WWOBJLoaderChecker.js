@@ -10,17 +10,11 @@ if (KSX.apps.demos.loaders === undefined) {
 
 KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
 
-    WWOBJLoaderChecker.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
-        constructor: {
-            configurable: true,
-            enumerable: true,
-            value: WWOBJLoaderChecker,
-            writable: true
-        }
-    });
+    WWOBJLoaderChecker.prototype = Object.create( KSX.apps.core.ThreeJsApp.prototype );
+    WWOBJLoaderChecker.prototype.constructor = WWOBJLoaderChecker;
 
     function WWOBJLoaderChecker( elementToBindTo ) {
-        KSX.apps.core.ThreeJsApp.call(this);
+        KSX.apps.core.ThreeJsApp.call( this );
 
         this.configure({
             name: 'WWOBJLoaderChecker',
@@ -28,8 +22,8 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             useScenePerspective: true
         });
 
-        this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
-        this.wwObjFrontEnd.setDebug( true );
+        this.wwObjLoader2 = new THREE.OBJLoader2.WWOBJLoader2();
+        this.wwObjLoader2.setCrossOrigin( 'anonymous' );
 
         this.lights = null;
         this.controls = null;
@@ -45,25 +39,25 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         this.uiTools = new KSX.apps.tools.UiTools( uiToolsConfig );
     }
 
-    WWOBJLoaderChecker.prototype.setZipFiles = function ( pathBase, fileZip, fileObj, fileMtl, pathTexture ) {
+    WWOBJLoaderChecker.prototype.setZipFiles = function ( pathBase, fileZip, fileObj, pathTexture, fileMtl  ) {
         this.useZip = true;
         this.zipFiles = {
             pathBase: pathBase,
             fileZip: fileZip,
             fileObj: fileObj,
-            fileMtl: fileMtl,
-            pathTexture: pathTexture
+            pathTexture: pathTexture,
+            fileMtl: fileMtl
         };
         this.zipTools = new KSX.apps.tools.ZipTools( this.zipFiles.pathBase );
     };
 
-    WWOBJLoaderChecker.prototype.setFiles = function ( pathBase, fileObj, fileMtl, pathTexture ) {
+    WWOBJLoaderChecker.prototype.setFiles = function ( pathBase, fileObj, pathTexture, fileMtl ) {
         this.useZip = false;
         this.files = {
             pathBase: pathBase,
             fileObj: fileObj,
-            fileMtl: fileMtl,
-            pathTexture: pathTexture
+            pathTexture: pathTexture,
+            fileMtl: fileMtl
         };
     };
 
@@ -74,7 +68,7 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         var announceFeedback = function ( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        this.wwObjFrontEnd.registerProgressCallback( announceFeedback );
+        this.wwObjLoader2.registerCallbackProgress( announceFeedback );
 
         this.preloadDone = true;
     };
@@ -111,7 +105,6 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
         this.mesh = new THREE.Mesh(geometry, material);
 
         this.scenePerspective.scene.add(this.mesh);
-        this.wwObjFrontEnd.setObjGroup( this.scenePerspective.scene );
     };
 
     WWOBJLoaderChecker.prototype.initPostGL = function () {
@@ -122,8 +115,11 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             var mtlAsString = null;
 
             var setObjAsArrayBuffer = function( data ) {
-                scope.wwObjFrontEnd.initWithData( data, mtlAsString, scope.zipFiles.pathTexture );
-                scope.wwObjFrontEnd.run();
+                var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
+                    'OBJ-Zip', data, scope.zipFiles.pathTexture, mtlAsString, scope.scenePerspective.scene
+                );
+                scope.wwObjLoader2.prepareRun( prepData );
+                scope.wwObjLoader2.run();
 
             };
             var setMtlAsString = function( data ) {
@@ -145,13 +141,16 @@ KSX.apps.demos.loaders.WWOBJLoaderChecker = (function () {
             var reportProgress = function( text ) {
                 scope.uiTools.announceFeedback( text );
             };
-            scope.zipTools.load( scope.zipFiles.fileZip, doneUnzipping, reportProgress  );
+            scope.zipTools.load( scope.zipFiles.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
 
         }
         else {
 
-            scope.wwObjFrontEnd.initWithFiles( scope.files.pathBase, scope.files.fileObj, scope.files.fileMtl, scope.files.pathTexture );
-            scope.wwObjFrontEnd.run();
+            var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataFile(
+                'OBJ-File', scope.files.pathBase, scope.files.fileObj, scope.files.pathTexture, scope.files.fileMtl, scope.scenePerspective.scene
+            );
+            scope.wwObjLoader2.prepareRun( prepData );
+            scope.wwObjLoader2.run();
 
         }
 

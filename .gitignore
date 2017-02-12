@@ -1,7 +1,9 @@
 .project
 .idea
-_backup
+
+/_backup
 /node_modules
+
 /resource/fonts/*.ttf
 /resource/fonts/*.zip
 /resource/video
@@ -11,3 +13,6 @@ _backup
 /resource/textures/meadow
 /resource/textures/skybox
 /resource/textures/*.zip
+
+/*.log
+/*.tgz
