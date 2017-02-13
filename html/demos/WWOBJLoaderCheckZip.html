@@ -36,31 +36,91 @@
     <script src="../../js/apps/core/Prerequisites.js"></script>
 
     <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
     <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
     <script src="../../node_modules/three/examples/js/loaders/MTLLoader.js"></script>
     <script src="../../node_modules/jszip/dist/jszip.min.js"></script>
     <script src="../../node_modules/wwobjloader/build/OBJLoader2.js"></script>
     <script src="../../node_modules/wwobjloader/build/WWOBJLoader2.js"></script>
+    <script src="../../node_modules/wwobjloader/test/wwobjloader2/WWOBJLoader2Example.js"></script>
 
-    <script src="../../js/apps/core/ThreeJsApp.js"></script>
-    <script src="../../js/apps/core/AppRunner.js"></script>
     <script src="../../js/apps/tools/ZipTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
-    <script src="../../js/apps/demos/loaders/WWOBJLoaderChecker.js"></script>
 
     <script>
         if ( KSX.globals.preChecksOk ) {
 
-            var app = new KSX.apps.demos.loaders.WWOBJLoaderChecker( document.getElementById( 'DivGLFullCanvas' ) );
-            app.setZipFiles(
-                '../../resource/models/',
-                'PTV1.zip',
-                'PTV1.obj',
-                '../../../../resource/models/',
-                'PTV1.mtl'
-            );
-            var appRunner = new KSX.apps.core.AppRunner( app );
-            appRunner.run( true );
+            var app = new WWOBJLoader2Example( document.getElementById( 'DivGLFullCanvas' ) );
+
+            var uiTools = new KSX.apps.tools.UiTools({
+                useStats: true
+            });
+
+            var zipFiles = {
+                pathBase: '../../resource/models/',
+                fileZip: 'PTV1.zip',
+                fileObj: 'PTV1.obj',
+                pathTexture: '../../../../resource/models/',
+                fileMtl: 'PTV1.mtl'
+            };
+            var zipTools = new KSX.apps.tools.ZipTools( zipFiles.pathBase );
+
+
+            // init three.js example application
+            var resizeWindow = function () {
+                app.resizeDisplayGL();
+            };
+
+            var render = function () {
+                requestAnimationFrame( render );
+                app.render();
+                uiTools.updateStats();
+            };
+
+            window.addEventListener( 'resize', resizeWindow, false );
+
+            console.log( 'Starting initialisation phase...' );
+            uiTools.createFeedbackAreaDynamic();
+            uiTools.announceFeedback( 'Initializing' );
+            uiTools.enableStats();
+
+            app.initGL();
+            app.pivot.position.set( 0, 20, 240 );
+            app.resizeDisplayGL();
+            app.initPostGL();
+
+
+            var mtlAsString = null;
+            var setObjAsArrayBuffer = function( data ) {
+                var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
+                    'OBJ-Zip', data, zipFiles.pathTexture, mtlAsString
+                );
+                app.loadFiles( prepData );
+            };
+            var setMtlAsString = function( data ) {
+                mtlAsString = data;
+                zipTools.unpackAsUint8Array( zipFiles.fileObj, setObjAsArrayBuffer );
+            };
+
+            var doneUnzipping = function() {
+                if ( zipFiles.fileMtl !== null ) {
+
+                    zipTools.unpackAsString( zipFiles.fileMtl, setMtlAsString );
+
+                } else {
+
+                    setMtlAsString( null );
+
+                }
+            };
+            var reportProgress = function( text ) {
+                uiTools.announceFeedback( text );
+            };
+            zipTools.load( zipFiles.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
+
+
+            // kick render loop
+            render();
 
         }
     </script>

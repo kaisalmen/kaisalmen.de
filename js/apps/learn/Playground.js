@@ -73,7 +73,7 @@ function run() {
         jsZipTest.unpackAsString( 'PTV1.mtl', printContent );
         jsZipTest.unpackAsUint8Array( 'PTV1.obj', logLength );
     };
-    jsZipTest.load( 'PTV1.zip', done  );
+    jsZipTest.load( 'PTV1.zip', { success: done } );
 
 
 }
