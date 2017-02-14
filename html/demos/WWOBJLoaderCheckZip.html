@@ -89,6 +89,10 @@
             app.resizeDisplayGL();
             app.initPostGL();
 
+            var reportProgress = function( text ) {
+                uiTools.announceFeedback( text );
+            };
+            app.wwObjLoader2.registerCallbackProgress( reportProgress );
 
             var mtlAsString = null;
             var setObjAsArrayBuffer = function( data ) {
@@ -112,9 +116,6 @@
                     setMtlAsString( null );
 
                 }
-            };
-            var reportProgress = function( text ) {
-                uiTools.announceFeedback( text );
             };
             zipTools.load( zipFiles.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
 

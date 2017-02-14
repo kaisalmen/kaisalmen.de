@@ -45,14 +45,14 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.fileObj = 'PTV1.obj';
         this.fileZip = 'PTV1.zip';
         this.fileMtl = 'PTV1.mtl';
-        this.wwObjFrontEnd = new THREE.WebWorker.WWOBJLoaderFrontEnd( KSX.globals.basedir );
+        this.wwObjLoader2 = new THREE.OBJLoader2.WWOBJLoader2();
+        this.wwObjLoader2.setCrossOrigin( 'anonymous' );
 
         this.objGroup = null;
 
         this.meshInfos = [];
         this.exportMeshInfos = false;
 
-        this.replaceMaterials = [];
         this.replaceObjectMaterials = [];
         this.dontAlterOpacity = [];
         this.alterMaterials = [];
@@ -60,7 +60,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.textureTools = new KSX.apps.tools.TextureTools();
         this.textureCubeLoader = null;
         this.skybox = null;
-        this.ground = null;
 
         var uiToolsConfig = {
             mobileDevice: mobileDevice,
@@ -95,7 +94,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var announceFeedback = function ( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        scope.wwObjFrontEnd.registerProgressCallback( announceFeedback );
+        scope.wwObjLoader2.registerCallbackProgress( announceFeedback );
 
         this.uiTools.enableStats();
 
@@ -178,31 +177,16 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var helper = new THREE.GridHelper( 2400, 100, 0xFF4444, 0x404040 );
         this.scenePerspective.scene.add(helper);
 
-        var groundGeometry = new THREE.CircleGeometry( 5000, 64 );
-        var groundMaterial = new THREE.MeshStandardMaterial( {side: THREE.DoubleSide} );
-        this.ground = new THREE.Mesh(groundGeometry, groundMaterial);
-        this.ground.rotateX( Math.PI / 2.0) ;
-        this.ground.position.set( 0.0, -1.0, 0.0 );
-        this.ground.receiveShadow = true;
-        this.ground.castShadow = true;
-
-        this.scenePerspective.scene.add(this.ground);
-
-
-        // material adjustemnts
-        var glass = new THREE.MeshStandardMaterial( {
-            color: '#555555',
-            transparent: true,
-            side : THREE.DoubleSide,
-            opacity: 0.45
-        });
-        this.wwObjFrontEnd.addMaterial('glass', glass);
 
         var glassProps = {
             name: 'glass',
             maxOpacity: 0.45,
-            materialAdjustments : {
-            }
+            material: new THREE.MeshStandardMaterial({
+                color: '#555555',
+                transparent: true,
+                side : THREE.DoubleSide,
+                opacity: 0.45
+            })
         };
         this.replaceObjectMaterials['WindshieldGlass'] = glassProps;
         this.replaceObjectMaterials['DoorRGlass'] = glassProps;
@@ -222,8 +206,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         this.objGroup.position.y = 20;
         this.objGroup.position.z = 250;
         this.scenePerspective.scene.add( this.objGroup );
-
-        this.wwObjFrontEnd.setObjGroup( this.objGroup );
 
 
         // Skybox
@@ -278,43 +260,37 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                     }
                     materials[ matName ] = msm;
                 }
+
                 console.log( 'Overall number of materials: ' + materialCount );
             }
             return materials;
         };
-        this.wwObjFrontEnd.registerHookMaterialsLoaded( callbackMaterialsLoaded );
+        this.wwObjLoader2.registerCallbackMaterialsLoaded( callbackMaterialsLoaded );
 
         var callbackMeshLoaded = function ( meshName, material ) {
             var replacedMaterial = null;
-            var perObjectMaterial = scope.replaceObjectMaterials[ meshName ];
-            var perObjectMaterialName = null;
-            if ( perObjectMaterial !== undefined && perObjectMaterial !== null ) {
-                perObjectMaterialName = perObjectMaterial[ 'name' ];
-            }
+            var matProperties = scope.replaceObjectMaterials[ meshName ];
+            if ( matProperties != null ) {
 
-            if ( perObjectMaterialName !== null && perObjectMaterialName !== undefined ) {
-                replacedMaterial = scope.wwObjFrontEnd.getMaterial( perObjectMaterialName );
-            }
-            else {
-                var replacedMaterialName = scope.replaceMaterials[ material.name ];
-                if ( replacedMaterialName !== null && replacedMaterialName !== undefined ) {
-                    replacedMaterial = scope.wwObjFrontEnd.getMaterial( replacedMaterialName );
-                }
+                replacedMaterial = matProperties.material;
+
             }
 
             var meshInfo;
-            if ( replacedMaterial !== null ) {
-                meshInfo = new KSX.apps.tools.MeshInfo( meshName, replacedMaterial.name );
-            }
-            else {
-                meshInfo = new KSX.apps.tools.MeshInfo( meshName, material.name );
-            }
+            if ( replacedMaterial != null ) {
 
+                meshInfo = new KSX.apps.tools.MeshInfo( meshName, replacedMaterial.name );
+
+            } else {
+
+                meshInfo = new KSX.apps.tools.MeshInfo( meshName, material.name );
+
+            }
             scope.meshInfos.push( meshInfo );
 
             return replacedMaterial;
         };
-        this.wwObjFrontEnd.registerHookMeshLoaded( callbackMeshLoaded );
+        this.wwObjLoader2.registerCallbackMeshLoaded( callbackMeshLoaded );
 
         var callbackCompletedLoading = function () {
             if ( scope.exportMeshInfos ) {
@@ -336,7 +312,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                 }
             }
         };
-        this.wwObjFrontEnd.registerHookCompletedLoading( callbackCompletedLoading );
+        this.wwObjLoader2.registerCallbackCompletedLoading( callbackCompletedLoading );
     };
 
     PTV1Loader.prototype.initPostGL = function() {
@@ -352,16 +328,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             callback: enableSkybox,
             height: scope.uiTools.paramsDimension.boolHeight
         });
-        var enableGround = function (enabled) {
-            scope.ground.visible = enabled;
-        };
-        ui.add('bool', {
-            name: 'Enable Ground',
-            value: true,
-            callback: enableGround,
-            height: scope.uiTools.paramsDimension.boolHeight
-        });
-
 
         var adjustOpacity = function (value) {
             var mesh;
@@ -389,10 +355,6 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
                     else {
                         mesh.material.opacity = value;
                     }
-
-                    for ( var prop in dontAlter['materialAdjustments'] ) {
-                        mesh.material[prop] = dontAlter[prop];
-                    }
                 }
             }
         };
@@ -409,18 +371,19 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
             stype: scope.uiTools.paramsDimension.sliderType
         });
 
-        var objAsArrayBuffer = null;
-        var mtlAsString = null;
+
+        var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
+            'PTV12', null, this.pathToObj, null, this.objGroup
+        );
 
         var setObjAsArrayBuffer = function( data ) {
-            objAsArrayBuffer = data;
-
-            scope.wwObjFrontEnd.initWithData( objAsArrayBuffer, mtlAsString, scope.pathToObj );
-            scope.wwObjFrontEnd.run();
+            prepData.objAsArrayBuffer = data;
+            scope.wwObjLoader2.prepareRun( prepData );
+            scope.wwObjLoader2.run();
 
         };
         var setMtlAsString = function( data ) {
-            mtlAsString = data;
+            prepData.mtlAsString = data;
             scope.zipTools.unpackAsUint8Array( scope.fileObj, setObjAsArrayBuffer );
         };
 
@@ -430,7 +393,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         var reportProgress = function( text ) {
             scope.uiTools.announceFeedback( text );
         };
-        scope.zipTools.load( scope.fileZip, doneUnzipping, reportProgress );
+        scope.zipTools.load( scope.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
 
         return true;
     };

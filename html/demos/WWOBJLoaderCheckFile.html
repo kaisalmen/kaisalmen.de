@@ -79,6 +79,12 @@
             app.resizeDisplayGL();
             app.initPostGL();
 
+            var reportProgress = function( text ) {
+                uiTools.announceFeedback( text );
+            };
+            app.wwObjLoader2.registerCallbackProgress( reportProgress );
+
+
             var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataFile(
                 'male02',
                 '../../resource/models/male02/',
