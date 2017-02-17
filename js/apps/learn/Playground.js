@@ -42,38 +42,73 @@ var KSPG = {
 };
 
 
-function run() {
-    var polygonA = new KSPG.Polygon();
-    var polygonB = new KSPG.Polygon(800, 600);
-    var polygonC = new KSPG.Polygon(null, null);
+function OOTest1( name ) {
 
-    console.log(polygonA.printDimensions());
-    console.log(polygonB.printDimensions());
-    console.log(polygonC.printDimensions());
+	OOTest1.prototype.getName = function () {
+		return this.name;
+	};
 
-    var pointA = new KSPG.Point();
-    var pointB = new KSPG.Point(-200, 124);
+	OOTest1.prototype.getHiddenName = function () {
+		return hiddenName;
+	};
 
-    console.log(pointA.printCoordinates());
-    console.log(pointB.printCoordinates());
+	OOTest1.prototype.print = function () {
+		console.log( this.name + ': Hello' );
+	};
 
-    var shaderTools = new KSX.apps.tools.ShaderTools();
-    var hexColorValue = "#FF00FF";
-    var rgbColorValue = shaderTools.hexToRGB(hexColorValue, false);
-    console.log(hexColorValue + " = " + rgbColorValue);
+	this.name = name;
+	var hiddenName = 'hiddenName1';
+	this.print();
+};
 
-    var jsZipTest = new KSX.apps.tools.ZipTools( '../../resource/models/' );
-    var done = function() {
-        var printContent = function( fileAsString ) {
-            console.log( fileAsString );
-        };
-        var logLength = function( fileAsUint8Array ) {
-            console.log( fileAsUint8Array.length );
-        };
-        jsZipTest.unpackAsString( 'PTV1.mtl', printContent );
-        jsZipTest.unpackAsUint8Array( 'PTV1.obj', logLength );
-    };
-    jsZipTest.load( 'PTV1.zip', { success: done } );
+OOTest1.prototype = Object.create( OOTest1.prototype );
+OOTest1.prototype.constructor = OOTest1;
 
 
-}
+function OOTest2( name ) {
+	this.name = name;
+	var hiddenName = 'hiddenName2';
+	this.print();
+
+	OOTest2.prototype.getHiddenName = function () {
+		return hiddenName;
+	};
+};
+
+OOTest2.prototype.getName = function () {
+	return this.name;
+};
+
+OOTest2.prototype.print = function () {
+	console.log( this.name + ': Hello' );
+};
+
+OOTest2.prototype = Object.create( OOTest2.prototype );
+OOTest2.prototype.constructor = OOTest2;
+
+
+var polygonA = new KSPG.Polygon();
+var polygonB = new KSPG.Polygon(800, 600);
+var polygonC = new KSPG.Polygon(null, null);
+
+console.log(polygonA.printDimensions());
+console.log(polygonB.printDimensions());
+console.log(polygonC.printDimensions());
+
+var pointA = new KSPG.Point();
+var pointB = new KSPG.Point(-200, 124);
+
+console.log(pointA.printCoordinates());
+console.log(pointB.printCoordinates());
+
+
+var ooTest1 = new OOTest1( 'one' );
+console.log( ooTest1.getName() );
+console.log( ooTest1.getHiddenName() );
+
+
+
+var ooTest2 = new OOTest2( 'two' );
+console.log( ooTest2.getName() );
+console.log( ooTest2.getHiddenName() );
+

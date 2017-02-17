@@ -27,7 +27,7 @@
     "bowser": "^1.6.0",
     "uil": "^1.0.0",
     "es6-promise": "^4.0.5",
-    "wwobjloader": "^1.0.5"
+    "wwobjloader2": "^1.0.6"
   },
   "devDependencies": {
     "del": "^2.2.2",
