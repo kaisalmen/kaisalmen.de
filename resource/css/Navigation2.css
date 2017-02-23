@@ -1,0 +1,133 @@
+* {
+    font-family: Arial;
+}
+
+body {
+    margin: 0px 0px 0px 0px;
+    padding: 0px 0px 0px 0px;
+    border: none;
+}
+
+#master {
+    margin: inherit;
+    padding: inherit;
+
+    width: 100%;
+    height: 100vh;
+
+    min-width: 1024px;
+    min-height: 576px;
+
+    position: relative;
+}
+
+.navMenuButton,
+.navHomeButton,
+.navContact {
+    position: absolute;
+    width: 64px;
+    height: 44px;
+    margin: 2px 2px 2px 2px;
+    border-radius: 6px;
+    border: 3px solid;
+    color: firebrick;
+    cursor: pointer;
+}
+.navHomeButton {
+    right: 0px;
+}
+.navHomeButtonBars {
+    border: 2px solid;
+    margin: 8px 4px 0px 4px;
+}
+.navContact {
+    top: 52px;
+    color: blue;
+}
+
+.navMenu {
+    position: absolute;
+    left: 20%;
+    top: 5%;
+    width: 60%;
+    height: 90%;
+    min-width: 480px;
+    min-height: 576px;
+    border-radius: 12px;
+    border: 3px solid;
+    color: firebrick;
+    display: none;
+    text-align: center;
+    background-color: black;
+    opacity: 0.9;
+}
+
+.navHomeButtonTriangle {
+    width: 0;
+    height: 0;
+    margin: 2px 4px 2px 4px;
+    border-top: 20px solid transparent;
+    border-right: 56px solid firebrick;
+    border-bottom: 20px solid transparent;
+}
+
+.navContactButton {
+    position: absolute;
+    margin: 6px 0px 6px 0px;
+    width: 32px;
+    right: 15px;
+    cursor: pointer;
+    font-size: 32px;
+    font-weight: bold;
+    text-align: center;
+    color: blue;
+}
+.navContactArea {
+    display: none;
+    position: absolute;
+    top: 25%;
+    right: 64px;
+    padding: 6px 6px 6px 6px;
+    border: solid blue;
+    color: rgba(80, 255, 80, 0.9);
+    background-color: black;
+    opacity: 0.9;
+}
+
+.navContactArea a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+.navContactArea a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+.navContactArea a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
+
+#DivGLFull {
+    position: absolute;
+    min-width: 640px;
+    min-height: 640px;
+    overflow: hidden;
+}
+#DivGLFull,
+#DivGLFullCanvas,
+#DivGLFullCanvasLoad {
+    margin: inherit;
+    padding: inherit;
+    width: 100%;
+    height: 100%;
+    top: 0px;
+    left: 0px;
+    background-color: #222222;
+}
+#DivGLFullCanvasLoad {
+    position: absolute;
+    z-index: 20;
+}
