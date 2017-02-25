@@ -46,7 +46,7 @@ KSX.apps.demos.SphereSuperCube = (function () {
             useScenePerspective: true,
             loader: this.globals.loader
         });
-        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+        this.platformVerification = new KSX.apps.core.PlatformVerification();
 
         this.controls = null;
         this.shader = new KSX.apps.shader.SphereSuperCubeShader();

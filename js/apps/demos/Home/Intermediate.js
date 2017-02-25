@@ -29,7 +29,7 @@ KSX.apps.demos.home.Intermediate = (function () {
             htmlCanvas: elementToBindTo,
             useScenePerspective: true,
         });
-        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+        this.platformVerification = new KSX.apps.core.PlatformVerification();
 
         this.textStorage = new KSX.apps.tools.text.Text();
         this.shader = new KSX.apps.shader.BlockShader();

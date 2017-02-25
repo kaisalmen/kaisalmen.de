@@ -41,7 +41,7 @@ KSX.apps.demos.home.Main = (function () {
             useScenePerspective: true,
             useCube: true
         });
-        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+        this.platformVerification = new KSX.apps.core.PlatformVerification();
         this.mobileDevice = mobileDevice;
 
         this.video = elementNameVideo;

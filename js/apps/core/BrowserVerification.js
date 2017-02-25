@@ -8,32 +8,10 @@ if ( browserVersions === undefined) {
 	var browserVersions = null;
 }
 
-var KSX = {
-	apps: {
-		core: {
-			prerequisites: {
+KSX.apps.core.BrowserVerification = (function () {
 
-			}
-		},
-		tools: {
-			loaders: {
-
-			}
-		},
-		demos: {
-
-		}
-	},
-	globals: {
-		basedir: '../../',
-		preChecksOk: true
-	}
-};
-
-KSX.apps.core.prerequisites.BrowserSupport = (function () {
-
-	function BrowserSupport( userVersions ) {
-		this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+	function BrowserVerification( userVersions ) {
+		this.platformVerification = new KSX.apps.core.PlatformVerification();
 
 		this.versions = {
 			chrome: {
@@ -115,7 +93,7 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		}
 	};
 
-	BrowserSupport.prototype.verifySupport = function ( selectedBrowser ) {
+	BrowserVerification.prototype.verifySupport = function ( selectedBrowser ) {
 		var haveGo = false;
 		var msg = null;
 
@@ -196,7 +174,7 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		return haveGo;
 	};
 
-	BrowserSupport.prototype.checkSupport = function () {
+	BrowserVerification.prototype.checkPlatformSupport = function () {
 		var haveGo = false;
 		if ( bowser.chrome ) {
 			haveGo = this.verifySupport( this.versions.chrome );
@@ -225,7 +203,7 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		return haveGo;
 	};
 
-	BrowserSupport.prototype.printSupportedBrowsers = function ( haveMobile ) {
+	BrowserVerification.prototype.printSupportedBrowsers = function ( haveMobile ) {
 		var supportedBrowsers = (haveMobile ? 'Supported mobile browsers' : 'Supported browsers')+ ' with minimum versions are:\n';
 
 		var listVersions = function ( allowedVersions ) {
@@ -264,112 +242,10 @@ KSX.apps.core.prerequisites.BrowserSupport = (function () {
 		return supportedBrowsers;
 	};
 
-	BrowserSupport.prototype.checkPolyfillSupport = function () {
-		var head = document.getElementsByTagName('head')[0];
-		var polyfillScript = document.createElement('script');
-
-		polyfillScript.type = 'text/javascript';
-
-		if ( typeof Promise === "undefined" || Promise.toString().indexOf( "[native code]" ) === -1 ) {
-			console.log( 'Native Promise is not available! Loading polyfill instead.' );
-			polyfillScript.src = "../../js/lib/ext/es6-promise.min.js";
-		}
-		else {
-			console.log( 'Native Promise is available!' );
-		}
-		head.appendChild( polyfillScript );
-	};
-
-	return BrowserSupport;
+	return BrowserVerification;
 
 })();
 
-KSX.apps.core.prerequisites.PlatformVerification = (function () {
 
-	function PlatformVerification() {
-	}
-
-	PlatformVerification.prototype.checkWebGLCapability = function () {
-		var success = true;
-		try {
-			var canvas = document.createElement('canvas');
-			success = !!( window.WebGLRenderingContext && ( canvas.getContext('webgl') || canvas.getContext('experimental-webgl') ) );
-		}
-		catch (e) {
-			success = false;
-		}
-
-		if ( !success ) {
-			this.showDivNotSupported( 'WebGL is not or not fully supported by your browser or graphics card.' );
-		}
-
-		return success;
-	};
-
-	PlatformVerification.prototype.verifyHwInstancingSupport = function ( renderer, highlightError ) {
-		var supported = true;
-
-		var resInstancedArrays = renderer.extensions.get( 'ANGLE_instanced_arrays' );
-		if ( resInstancedArrays === undefined || resInstancedArrays === null ) {
-			supported = false;
-			console.error( 'Sorry, your graphics card or browser does not support hardware instancing.' );
-			if ( highlightError ) {
-				this.showDivNotSupported('Sorry, your graphics card or browser does not support hardware instancing.');
-			}
-		}
-		else {
-			console.log( 'Superb, your graphics card and browser supports hardware instancing.' );
-		}
-
-		return supported;
-	};
-
-	PlatformVerification.prototype.verifyVertexShaderTextureAccess = function ( renderer, highlightError ) {
-		var gl = renderer.getContext();
-		var result = gl.getParameter(gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS);
-		var supported = true;
-
-		if (result != 0) {
-			console.log( 'Vertex shader is able to read textures.\nTechnical details:\ngl.MAX_VERTEX_TEXTURE_IMAGE_UNITS= ' + result );
-			}
-		else {
-			supported = false;
-			console.error( 'Vertex shader is unable to read textures.\nTechnical details:\ngl.MAX_VERTEX_TEXTURE_IMAGE_UNITS= ' + result );
-			if ( highlightError ) {
-				this.showDivNotSupported('Vertex shader is unable to read textures.<br>Technical details:<br>gl.MAX_VERTEX_TEXTURE_IMAGE_UNITS= ' + result);
-			}
-		}
-
-		return supported;
-	};
-
-	PlatformVerification.prototype.showDivNotSupported = function ( errorText, issueAlert ) {
-		var divNotSupported = document.getElementById('DivNotSupported');
-
-		if ( divNotSupported === undefined || divNotSupported === null ) {
-
-			divNotSupported = document.createElement("div");
-			divNotSupported.id = 'DivNotSupported';
-
-			var body = document.body;
-			body.insertBefore( divNotSupported, body.childNodes[0] );
-			console.log( 'Div "DivNotSupported" was added to body' );
-		}
-		divNotSupported.style.display = "";
-		divNotSupported.innerHTML = errorText;
-
-		if ( issueAlert ) {
-			alert( errorText );
-		}
-	};
-
-	return PlatformVerification;
-
-})();
-
-var platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
-platformVerification.checkWebGLCapability();
-
-var browserSupport = new KSX.apps.core.prerequisites.BrowserSupport( browserVersions );
-browserSupport.checkPolyfillSupport();
-browserSupport.checkSupport();
+var browserSupport = new KSX.apps.core.BrowserVerification( browserVersions );
+browserSupport.checkPlatformSupport();

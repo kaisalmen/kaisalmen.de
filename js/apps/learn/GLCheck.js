@@ -27,7 +27,7 @@ KSX.apps.learn.GLCheck = (function () {
             htmlCanvas: elementToBindTo,
             useScenePerspective: true
         });
-        this.platformVerification = new KSX.apps.core.prerequisites.PlatformVerification();
+        this.platformVerification = new KSX.apps.core.PlatformVerification();
     }
 
     GLCheck.prototype.initGL = function () {

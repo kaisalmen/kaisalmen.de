@@ -1,24 +1,13 @@
-* {
-    font-family: Arial;
-}
-
-body {
-    margin: 0px 0px 0px 0px;
+h1 {
+    font-size: 32px;
+    margin: 6px 0px 6px 0px;
     padding: 0px 0px 0px 0px;
-    border: none;
 }
 
-#master {
-    margin: inherit;
-    padding: inherit;
-
-    width: 100%;
-    height: 100vh;
-
-    min-width: 1024px;
-    min-height: 576px;
-
-    position: relative;
+h2 {
+    font-size: 24px;
+    margin: 3px 0px 3px 0px;
+    padding: 0px 0px 0px 0px;
 }
 
 .navMenuButton,
@@ -62,20 +51,10 @@ body {
     opacity: 0.9;
 }
 
-.navHomeButtonTriangle {
-    width: 0;
-    height: 0;
-    margin: 2px 4px 2px 4px;
-    border-top: 20px solid transparent;
-    border-right: 56px solid firebrick;
-    border-bottom: 20px solid transparent;
-}
-
 .navContactButton {
     position: absolute;
-    margin: 6px 0px 6px 0px;
+    margin: 4px 2px 4px 2px;
     width: 32px;
-    right: 15px;
     cursor: pointer;
     font-size: 32px;
     font-weight: bold;
@@ -109,25 +88,42 @@ body {
     text-decoration: underline;
 }
 
-
-#DivGLFull {
+div.navMenuMain {
     position: absolute;
-    min-width: 640px;
-    min-height: 640px;
-    overflow: hidden;
-}
-#DivGLFull,
-#DivGLFullCanvas,
-#DivGLFullCanvasLoad {
-    margin: inherit;
-    padding: inherit;
     width: 100%;
-    height: 100%;
+    text-align: center;
     top: 0px;
-    left: 0px;
-    background-color: #222222;
+    padding: 4px 0px 0px 0px;
 }
-#DivGLFullCanvasLoad {
+
+div.navHeader {
+    color: white;
+}
+
+div.navLink {
+    padding: 3px 3px 3px 3px;
+    cursor: pointer;
+}
+
+div.navLink a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+div.navLink a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+div.navLink a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
+div.navMenuHome {
     position: absolute;
-    z-index: 20;
+    width: 100%;
+    text-align: center;
+    bottom: 0px;
+    padding: 0px 0px 4px 0px;
 }

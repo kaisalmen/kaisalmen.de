@@ -1,0 +1,80 @@
+<div id="navMenuButton" class="navMenuButton" onclick="toggleNavMenu( true, false );">
+    <div class="navHomeButtonBars"></div>
+    <div class="navHomeButtonBars"></div>
+    <div class="navHomeButtonBars"></div>
+</div>
+<div class="navContact" id="navContact" onclick="toggleNavMenu( false, true );">
+    <span class="navContactButton">info</span>
+</div>
+<div class="navContactArea" id="navContactArea" onclick="toggleNavMenu( false, false );">
+    <h4>Welcome to Kai's website!</h4>
+    My site focuses on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.<br><br>
+    I work as a software engineer, but the content shown here was completely realised during my spare time.<br><br>
+    <h4>You have any further questions, comments then...</h4>
+    contact me via e-mail:<br>
+    <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
+    or contact or follow me on Twitter:<br>
+    <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
+</div>
+<div id="navMenu" class="navMenu" onclick="toggleNavMenu( false, false );">
+    <div class="navMenuMain">
+        <div class="navLink navHeader">
+            <h1>Demos</h1>
+        </div>
+        <div class="navLink" >
+            <h1>
+                <a onclick="location.href = KSX.globals.basedir + '/html/demos/ProjectionSpace.html'">Projection Space</a>
+            </h1>
+        </div>
+        <div class="navLink">
+            <h1>
+                <a onclick="location.href = KSX.globals.basedir + '/html/demos/PixelProtest.html'">Pixel Protest</a>
+            </h1>
+        </div>
+        <div class="navLink">
+            <h1>
+                <a onclick="location.href = KSX.globals.basedir + '/html/zeroSouth/PTV1.html'">ZeroSouth PTV1</a>
+            </h1>
+        </div>
+        <div class="navLink">
+            <h1>
+                <a onclick="location.href = KSX.globals.basedir + 'html/demos/Teaser.html'">Website Teaser</a>
+            </h1>
+        </div>
+        <br>
+        <div class="navLink navHeader">
+            <h1>Experiments</h1>
+        </div>
+        <div class="navLink">
+            <h2>
+                <a onclick="location.href = KSX.globals.basedir + 'html/demos/SphereSuperCube.html'">50k spheres (physical shader)</a>
+            </h2>
+        </div>
+        <div class="navLink">
+            <h2>
+                <a onclick="location.href = KSX.globals.basedir + 'html/demos/SphereSuperCubeWire.html'">50k spheres (wireframe)</a>
+            </h2>
+        </div>
+        <div class="navLink">
+            <h2>
+                <a onclick="location.href = KSX.globals.basedir + 'proto/test/objloader2/main.html'">OBJLoader2 Test</a>
+            </h2>
+        </div>
+        <div class="navLink">
+            <h2>
+                <a onclick="location.href = KSX.globals.basedir + 'proto/test/wwobjloader2complex/main.html'">WWOBJLoader2 Demo</a>
+            </h2>
+        </div>
+        <div class="navLink">
+            <h2>
+                <a onclick="location.href = KSX.globals.basedir + 'proto/test/wwparallels/main.html'">Parallels Demo</a>
+            </h2>
+        </div>
+
+    </div>
+    <div class="navMenuHome">
+        <div class="navLink" onclick="location.href='../../index.html';">
+            <a>Home</a>
+        </div>
+    </div>
+</div>

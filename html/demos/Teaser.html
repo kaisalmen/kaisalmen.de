@@ -8,28 +8,19 @@
     <meta name="author" content="Kai Salmen">
 
     <link href="../../resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
-    <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
-    <link href="../../resource/css/Teaser.css" type="text/css" rel="stylesheet"/>
+    <link href="../../resource/css/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
 </head>
 <body>
-    <div id="DivGLFull">
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
-        <div class="navFrame">
-            <div class="home">
-                <h1>
-                    <a href="../../index.html">Home</a>
-                </h1>
-            </div>
-        </div>
         <div class="feedback" id="FeedbackArea">
             <div class="copyrightArea" id="CopyrightArea">
                 Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
             </div>
         </div>
     </div>
-    <script src="../../node_modules/bowser/bowser.min.js"></script>
-    <script src="../../js/apps/core/Prerequisites.js"></script>
-
+    <script src="../../js/apps/core/PlatformVerification.js"></script>
     <script src="../../node_modules/three/build/three.min.js"></script>
     <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
     <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
@@ -45,8 +36,19 @@
     <script src="../../js/apps/tools/instancing/BoxCreator.js"></script>
     <script src="../../js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
     <script src="../../js/apps/demos/Home/Intermediate.js"></script>
+    <script src="../../js/apps/nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {
+
+			var importedNavMenu = document.querySelector( 'link[rel="import"]' ).import;
+			var menuContent = importedNavMenu.cloneNode( true );
+
+			// bind variables imported from NavMenu.js
+			divNavMenu = menuContent.getElementById( 'navMenu' );
+			divNavMenuButton = menuContent.getElementById( 'navMenuButton' );
+
+			document.body.appendChild( divNavMenu );
+			document.body.appendChild( divNavMenuButton );
 
             var app = new KSX.apps.demos.home.Intermediate( document.getElementById( 'DivGLFullCanvas' ) );
             var appRunner = new KSX.apps.core.AppRunner( app );
