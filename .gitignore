@@ -2,6 +2,7 @@
 .idea
 
 /_backup
+/build
 /node_modules
 
 /resource/fonts/*.ttf
@@ -9,10 +10,13 @@
 /resource/video
 /resource/images
 /resource/models
+/resource/obj
 /resource/textures/notPublic
 /resource/textures/meadow
 /resource/textures/skybox
 /resource/textures/*.zip
+
+/wwobjloader2
 
 /*.log
 /*.tgz

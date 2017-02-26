@@ -2,26 +2,20 @@
 <html>
 <head lang="en">
     <meta charset="UTF-8">
-    <title>Sphere Super Cube Testbed</title>
+    <title>Sphere Super Cube Wireframe</title>
 
     <meta name="description" content="Instanced sphere rendered with three.js's physical shader">
     <meta name="keywords" content="WebGL, three.js, instancing, shader programming, javascript">
     <meta name="author" content="Kai Salmen">
 
     <link href="../common/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
-    <link href="../../resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
+    <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
 </head>
 <body>
-    <div id="DivGLFull">
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <div id="Loading">Loading...</div>
         <canvas id="DivGLFullCanvas"></canvas>
-        <div class="navFrame">
-            <div class="home">
-                <h1>
-                    <a href="../../index.html">Home</a>
-                </h1>
-            </div>
-        </div>
     </div>
     <script src="../../js/apps/core/PlatformVerification.js"></script>
     <script src="../../node_modules/three/build/three.min.js"></script>
@@ -35,18 +29,31 @@
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/shader/ShaderBase.js"></script>
     <script src="../../js/apps/shader/BlockShader.js"></script>
-    <script src="../../js/apps/tools/instancing/BoxCreator.js"></script>
-    <script src="../../js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
-    <script src="../../js/apps/tools/instancing/ProjectionSpace.js"></script>
-    <script src="../../js/apps/shader/SphereSuperCubeShader.js"></script>
-    <script src="../../js/apps/demos/SphereSuperCube.js"></script>
+    <script src="../../js/apps/instancing/BoxCreator.js"></script>
+    <script src="../../js/apps/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../js/apps/instancing/ProjectionSpace.js"></script>
+    <script src="SphereSuperCubeShader.js"></script>
+    <script src="SphereSuperCube.js"></script>
+    <script src="../nav/NavMenu.js"></script>
     <script>
-        if ( KSX.globals.preChecksOk ) {
+		if ( KSX.globals.preChecksOk ) {
+
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
+
+				// bind variables imported from NavMenu.js
+				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+
+				document.body.appendChild( divNavMenu );
+				document.body.appendChild( divNavMenuButton );
+			};
+			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
             var app = new KSX.apps.demos.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), false, {
                 loader: false,
                 animate: true,
-                physicalLighting: true,
+                physicalLighting: false,
                 enableOverlay: false,
                 rotationSpeed: 0.00425,
                 objCount: 50000,

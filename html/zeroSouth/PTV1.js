@@ -41,7 +41,7 @@ KSX.apps.zerosouth.PTV1Loader = (function () {
         });
         this.controls = null;
 
-        this.pathToObj = '../../resource/models/';
+        this.pathToObj = '../../resource/obj/PTV1/';
         this.fileObj = 'PTV1.obj';
         this.fileZip = 'PTV1.zip';
         this.fileMtl = 'PTV1.mtl';

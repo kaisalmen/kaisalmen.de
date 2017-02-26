@@ -15,12 +15,6 @@
             height: 192px;
             top: 55px;
         }
-
-        span.helpButton {
-            color: red;
-            background-color: black;
-        }
-
         div.navFeedbackArea {
             color: #FFFFFF;
             height: 32px;
@@ -31,16 +25,6 @@
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
-        <div class="navFrame">
-            <div class="homeAlt">
-                <h1>
-                    <a href="../../index.html">Home</a>
-                 </h1>
-            </div>
-            <div class="home" onclick="enableHelpArea()">
-                <span class="helpButton">?</span>
-            </div>
-        </div>
     </div>
     <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
         <h1>The Pixels are on Protest!</h1>
@@ -65,8 +49,8 @@
     <script src="../../js/apps/tools/DataTools.js"></script>
     <script src="../../js/apps/tools/UiTools.js"></script>
     <script src="../../js/apps/shader/ShaderBase.js"></script>
-    <script src="../../js/apps/shader/PixelProtestShader.js"></script>
-    <script src="../../js/apps/demos/PixelProtest.js"></script>
+    <script src="PixelProtestShader.js"></script>
+    <script src="PixelProtest.js"></script>
     <script src="../nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {

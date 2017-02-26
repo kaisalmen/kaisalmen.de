@@ -10,8 +10,6 @@ if (KSX.apps.demos.home === undefined) {
 
 KSX.apps.demos.home.Intermediate = (function () {
 
-    var TWO_TIMES_PI = 2 * Math.PI;
-
     Intermediate.prototype = Object.create(KSX.apps.core.ThreeJsApp.prototype, {
         constructor: {
             configurable: true,

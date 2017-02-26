@@ -17,58 +17,42 @@
             width: 1920px;
             height: 804px;
         }
-
-        div.helpArea {
-            width: 640px;
-            height: 544px;
-            top: 55px;
-        }
     </style>
     <link rel="import" href="../nav/NavMenu.html" />
 </head>
 <body>
-    <div id="DivGLFull">
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
             <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
-        <div class="navFrame">
-            <div class="home">
-                <h1>
-                    <a href="../../index.html">Home</a>
-                </h1>
-            </div>
-            <div class="home" onclick="enableHelpArea()">
-                <span class="helpButton">?</span>
-            </div>
-        </div>
-        <div class="helpArea" id="HelpArea">
-            <h1>What do I see here? Please explain!</h1>
-            You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
-            Every single box of the Projection Space is used to render either one of the three:<br>
-            - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
-            - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
-            - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
+    </div>
+    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+        <h1>What do I see here? Please explain!</h1>
+        You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
+        Every single box of the Projection Space is used to render either one of the three:<br>
+        - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
+        - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
+        - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
 
-            Each box receives color information (via texture UV coordinates) from the textures. The color is used to transform the box. The brighter the pixel, the higher the box.
-            Slider "Extrusion" enhances the effect. The transformation can be inverted (dark=high; bright=low) via "Invert Ext.".
-            Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br><br>
-            The box instance count is adjustable on five levels. The count is 24.000, 217.440, 686.080, 1.543.680, 6.174.720 respectively.
-            The last two levels require fast GPUs (mobile is no fun here).<br><br>
-            If the texture is animated (RTT) or plays a video then this playback is paused or continued via "Animate/Play". Video needs to be enabled via "Enable Video".<br><br>
-            Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
-            The "Instance Count" defines how many instantiated boxes are being sent to the GPU including adjusted texture coordinates.
-            Attribute arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
-        </div>
-        <div class="feedback" id="FeedbackArea">
-            <div class="copyrightArea" id="CopyrightArea">
-                Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
-                <span class="tab"></span>
-                Video by (CC) Blender Foundation | <a href="http://gooseberry.blender.org">gooseberry.blender.org</a>
-                <span class="tab"></span>
-                Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
-            </div>
+        Each box receives color information (via texture UV coordinates) from the textures. The color is used to transform the box. The brighter the pixel, the higher the box.
+        Slider "Extrusion" enhances the effect. The transformation can be inverted (dark=high; bright=low) via "Invert Ext.".
+        Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br><br>
+        The box instance count is adjustable on five levels. The count is 24.000, 217.440, 686.080, 1.543.680, 6.174.720 respectively.
+        The last two levels require fast GPUs (mobile is no fun here).<br><br>
+        If the texture is animated (RTT) or plays a video then this playback is paused or continued via "Animate/Play". Video needs to be enabled via "Enable Video".<br><br>
+        Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
+        The "Instance Count" defines how many instantiated boxes are being sent to the GPU including adjusted texture coordinates.
+        Attribute arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
+    </div>
+    <div class="navFeedbackArea" id="navFeedbackArea">
+        <div class="navCopyrightArea" id="navCopyrightArea">
+            Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
+            <span class="tab"></span>
+            Video by (CC) Blender Foundation | <a href="http://gooseberry.blender.org">gooseberry.blender.org</a>
+            <span class="tab"></span>
+            Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
         </div>
     </div>
     <script src="../../js/apps/core/PlatformVerification.js"></script>
@@ -86,15 +70,15 @@
     <script src="../../js/apps/tools/UiTools.js"></script>
 
     <script src="../../js/apps/shader/ShaderBase.js"></script>
-    <script src="../../js/apps/shader/SphereSuperCubeShader.js"></script>
-    <script src="../../js/apps/demos/SphereSuperCube.js"></script>
+    <script src="../supercube/SphereSuperCubeShader.js"></script>
+    <script src="../supercube/SphereSuperCube.js"></script>
 
-    <script src="../../js/apps/tools/instancing/BoxCreator.js"></script>
-    <script src="../../js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../js/apps/instancing/BoxCreator.js"></script>
+    <script src="../../js/apps/instancing/PixelBoxesGenerator.js"></script>
     <script src="../../js/apps/shader/BlockShader.js"></script>
-    <script src="../../js/apps/tools/instancing/ProjectionSpace.js"></script>
-    <script src="../../js/apps/demos/Home/HomeUi.js"></script>
-    <script src="../../js/apps/demos/Home/Home.js"></script>
+    <script src="../../js/apps/instancing/ProjectionSpace.js"></script>
+    <script src="ProjectionSpaceAppUi.js"></script>
+    <script src="ProjectionSpaceApp.js"></script>
     <script src="../nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {
@@ -105,9 +89,12 @@
 				// bind variables imported from NavMenu.js
 				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.getElementById( 'navHelpArea' );
 
 				document.body.appendChild( divNavMenu );
 				document.body.appendChild( divNavMenuButton );
+				document.body.appendChild( divNavHelpButton );
 			};
 			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
