@@ -7,11 +7,11 @@
 var allowNavMenuToggle = false;
 var divNavMenu = null;
 var divNavMenuButton = null;
-var divNavContact = null;
-var divNavContactArea = null;
+var divNavHelpButton = null;
+var divNavHelpArea = null;
 
-var toggleNavMenu = function ( menu, contact ) {
-	if ( menu ||contact ) allowNavMenuToggle = true;
+var toggleNavMenu = function ( menu, help ) {
+	if ( menu || help ) allowNavMenuToggle = true;
 	if ( allowNavMenuToggle ) {
 
 		if ( menu ) {
@@ -20,32 +20,32 @@ var toggleNavMenu = function ( menu, contact ) {
 			divNavMenu.style.display = 'none';
 		}
 
-		if ( divNavContactArea != null ) {
-			if ( contact ) {
-				divNavContactArea.style.display = 'inline';
+		if ( divNavHelpArea != null ) {
+			if ( help ) {
+				divNavHelpArea.style.display = 'inline';
 			} else {
-				divNavContactArea.style.display = 'none';
+				divNavHelpArea.style.display = 'none';
 			}
 		}
 
-		if ( menu || contact ) {
+		if ( menu || help ) {
 			hideNavButtons();
 		} else {
 			showNavButtons();
 		}
 	}
 
-	if ( ! ( menu || contact ) && allowNavMenuToggle ) {
+	if ( ! ( menu || help ) && allowNavMenuToggle ) {
 		allowNavMenuToggle = false;
 	}
 };
 
 var hideNavButtons = function () {
 	divNavMenuButton.style.display = 'none';
-	if ( divNavContact != null ) divNavContact.style.display = 'none';
+	if ( divNavHelpButton != null ) divNavHelpButton.style.display = 'none';
 };
 
 var showNavButtons = function () {
 	divNavMenuButton.style.display = 'inline';
-	if ( divNavContact != null ) divNavContact.style.display = 'inline';
+	if ( divNavHelpButton != null ) divNavHelpButton.style.display = 'inline';
 };

@@ -21,6 +21,10 @@ body {
     position: relative;
 }
 
+div.navFeedbackArea {
+    position: absolute;
+}
+
 #DivGL1,
 #DivGL2,
 #DivGL3,

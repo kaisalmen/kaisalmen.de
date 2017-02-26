@@ -14,8 +14,16 @@
     <meta name="twitter:title" content="Kai Salmen's website" />
     <meta name="twitter:description" content="Kai Salmen's WegGL projects realised with help three.js and other Javascript libraries" />
 
-    <link href="resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
-    <link href="resource/css/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link href="html/common/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="html/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <style>
+        h4 {
+            margin: 2px 0px 8px 0px;
+        }
+        div.feedback {
+            height: 32px;
+        }
+    </style>
     <link rel="import" href="html/nav/NavMenu.html" />
 </head>
 <body>
@@ -27,6 +35,16 @@
                 Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
             </div>
         </div>
+    </div>
+    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+        <h4>Welcome to Kai's website!</h4>
+        My site focuses on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.<br><br>
+        I work as a software engineer, but the content shown here was completely realised during my spare time.<br><br>
+        <h4>You have any further questions, comments then...</h4>
+        contact me via e-mail:<br>
+        <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
+        or contact or follow me on Twitter:<br>
+        <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
     </div>
     <script>
 		var KSX = {
@@ -55,7 +73,7 @@
     <script src="js/apps/tools/instancing/ProjectionSpace.js"></script>
     <script src="js/apps/shader/SphereSuperCubeShader.js"></script>
     <script src="js/apps/demos/SphereSuperCube.js"></script>
-    <script src="js/apps/nav/NavMenu.js"></script>
+    <script src="html/nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {
 
@@ -65,13 +83,12 @@
 				// bind variables imported from NavMenu.js
 				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
-				divNavContact = document.importNode( menuContent.getElementById( 'navContact' ), true );
-				divNavContactArea = document.importNode( menuContent.getElementById( 'navContactArea' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.getElementById( 'navHelpArea' );
 
 				document.body.appendChild( divNavMenu );
 				document.body.appendChild( divNavMenuButton );
-				document.body.appendChild( divNavContact );
-				document.body.appendChild( divNavContactArea );
+				document.body.appendChild( divNavHelpButton );
 			};
         	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
