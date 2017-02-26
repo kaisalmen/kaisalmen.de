@@ -9,6 +9,9 @@ if ( KSX === undefined ) var KSX = {};
 if ( KSX.globals === undefined ) KSX.globals = {};
 if ( KSX.globals.basedir === undefined ) KSX.globals.basedir = '../../';
 if ( KSX.globals.preChecksOk === undefined ) KSX.globals.preChecksOk = true;
+if ( KSX.globals.polyfillWebComponents === undefined ) KSX.globals.polyfillWebComponents = false;
+if ( KSX.globals.polyfillPromise === undefined ) KSX.globals.polyfillPromise = false;
+if ( KSX.globals.intergrateMenu === undefined ) KSX.globals.intergrateMenu = null;
 
 if ( KSX.apps === undefined ) KSX.apps = {};
 if ( KSX.apps.core === undefined ) KSX.apps.core = {};
@@ -100,10 +103,11 @@ KSX.apps.core.PlatformVerification = (function () {
 
 		if ( typeof Promise === 'undefined' || Promise.toString().indexOf( '[native code]' ) === -1 ) {
 
+			KSX.globals.polyfillPromise = true;
 			console.log( 'Native Promise is not available! Loading polyfill instead.' );
 			var promisePolyfillScript = document.createElement( 'script' );
 			promisePolyfillScript.type = 'text/javascript';
-			promisePolyfillScript.src = KSX.globals.basedir + '/node_modules/es6-promise/dist/es6-promise.min.js';
+			promisePolyfillScript.src = KSX.globals.basedir + '/node_modules/es6-promise/dist/es6-promise.auto.min.js';
 			body.appendChild( promisePolyfillScript );
 
 		} else {
@@ -119,11 +123,30 @@ KSX.apps.core.PlatformVerification = (function () {
 
 		} else {
 
+			KSX.globals.polyfillWebComponents = true;
 			console.log( 'Native support for WebComponent registerElement, import and content is not available! Loading polyfill instead.' );
 			var webComponentPolyfillScript = document.createElement( 'script' );
 			webComponentPolyfillScript.type = 'text/javascript';
 			webComponentPolyfillScript.src = KSX.globals.basedir + '/node_modules/webcomponents.js/webcomponents-lite.min.js';
 			body.appendChild( webComponentPolyfillScript );
+
+			window.addEventListener( 'HTMLImportsLoaded', function ( e ) {
+				console.log( 'WebComponentsPolyfill: Received: ' + e.type );
+
+				if ( KSX.globals.intergrateMenu != null ) {
+
+					KSX.globals.intergrateMenu();
+
+				} else {
+
+					alert( 'No menu intergration found!' );
+
+				}
+			} );
+
+			window.addEventListener( 'WebComponentsReady', function ( e ) {
+				console.log( 'WebComponentsPolyfill: Received: ' + e.type );
+			} );
 
 		}
 	};
