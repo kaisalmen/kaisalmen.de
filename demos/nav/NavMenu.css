@@ -1,11 +1,11 @@
 h1 {
-    font-size: 32px;
+    font-size: 24px;
     margin: 6px 0px 6px 0px;
     padding: 0px 0px 0px 0px;
 }
 
 h2 {
-    font-size: 24px;
+    font-size: 20px;
     margin: 3px 0px 3px 0px;
     padding: 0px 0px 0px 0px;
 }
@@ -93,7 +93,7 @@ div.navMenuMain {
 }
 
 div.navMenuHeader {
-    color: white;
+    color: #cccccc;
 }
 
 div.navMenuLink {
@@ -102,17 +102,17 @@ div.navMenuLink {
 }
 
 div.navMenuLink a {
-    color: #00ccff;
+    color: darkorange;
     text-decoration: none;
 }
 
 div.navMenuLink a:visited {
-    color: #0099cc;
+    color: #a03800;
     text-decoration: none;
 }
 
 div.navMenuLink a:hover {
-    color: #00ccff;
+    color: #ffc757;
     text-decoration: underline;
 }
 
