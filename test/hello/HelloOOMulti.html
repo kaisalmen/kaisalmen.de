@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Hello multiple renderers</title>
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="master">
+        <div id="DivGL1">
+            <canvas id="DivGL1Canvas"></canvas>
+        </div>
+        <div id="DivGL2">
+            <canvas id="DivGL2Canvas"></canvas>
+        </div>
+        <div id="DivGL3">
+            <canvas id="DivGL3Canvas"></canvas>
+            <video id="DivGL3Video" loop autoplay muted>
+                <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
+                <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.ogv" type='video/ogg; codecs="theora, vorbis"'>
+            </video>
+            <canvas id="DivGL3VideoBuffer"></canvas>
+        </div>
+        <div id="DivGL4">
+            <canvas id="DivGL4Canvas"></canvas>
+        </div>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/MultiAppRunner.js"></script>
+    <script src="../../src/tools/TextTools.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/TextureWithNoiseShader.js"></script>
+    <script src="../../src/shader/SimpleTextureShader.js"></script>
+    <script src="HelloOOSimple.js"></script>
+    <script src="TextureWithNoiseShaderApp.js"></script>
+    <script src="HelloOOVideo.js"></script>
+    <script src="HelloOOText.js"></script>
+    <script>
+        console.log( 'Starting multiple applications...' );
+        if ( KSX.globals.preChecksOk ) {
+
+            var multiAppRunner = new KSX.core.MultiAppRunner();
+
+            var implementations = [];
+            implementations.push( new KSX.test.hello.HelloOOSimple( document.getElementById( 'DivGL1Canvas' ), false ) );
+            implementations.push( new KSX.test.hello.TextureWithNoiseShader( document.getElementById( 'DivGL2Canvas' ) ) );
+            implementations.push( new KSX.test.hello.HelloOOVideo( document.getElementById( 'DivGL3Canvas' ), 'DivGL3Video', 'DivGL3VideoBuffer' ) );
+            implementations.push( new KSX.test.hello.HelloOOText( document.getElementById( 'DivGL4Canvas' ) ) );
+
+            multiAppRunner.addImplementations( implementations );
+            multiAppRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>

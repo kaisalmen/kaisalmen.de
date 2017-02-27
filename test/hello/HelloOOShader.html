@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Hello Shader</title>
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/TextureWithNoiseShader.js"></script>
+    <script src="TextureWithNoiseShaderApp.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.test.hello.TextureWithNoiseShader( document.getElementById( 'DivGLFullCanvas' ) );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+
+</body>
+</html>

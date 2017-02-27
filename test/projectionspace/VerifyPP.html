@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Projection Space Implementation Check</title>
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/BlockShader.js"></script>
+    <script src="../../src/instancing/BoxCreator.js"></script>
+    <script src="../../src/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../src/instancing/ProjectionSpace.js"></script>
+    <script src="VerifyPP.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+            var app = new KSX.test.projectionspace.VerifyPP( document.getElementById( 'DivGLFullCanvas' ), false );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+
+</body>
+</html>

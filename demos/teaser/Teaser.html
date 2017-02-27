@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Teaser: kaisalmen.de under reconstruction</title>
+
+    <meta name="description" content="Teaser for Kai Salmen's new website">
+    <meta name="keywords" content="WebGL, three.js, shader programming, instancing, javascript">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
+    <style>
+        div.feedback {
+            height: 32px;
+        }
+    </style>
+</head>
+<body>
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+        <canvas id="DivGLFullCanvas"></canvas>
+        <div class="feedback" id="FeedbackArea">
+            <div class="copyrightArea" id="CopyrightArea">
+                Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
+            </div>
+        </div>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/tools/UiTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/BlockShader.js"></script>
+    <script src="../../src/instancing/BoxCreator.js"></script>
+    <script src="../../src/instancing/PixelBoxesGenerator.js"></script>
+    <script src="Intermediate.js"></script>
+    <script src="../nav/NavMenu.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
+
+				// bind variables imported from NavMenu.src
+				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+
+				document.body.appendChild( divNavMenu );
+				document.body.appendChild( divNavMenuButton );
+			};
+			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
+
+
+            var app = new KSX.demos.home.Intermediate( document.getElementById( 'DivGLFullCanvas' ) );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>

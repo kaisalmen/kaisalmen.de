@@ -14,8 +14,8 @@
     <meta name="twitter:title" content="Kai Salmen's website" />
     <meta name="twitter:description" content="Kai Salmen's WegGL projects realised with help three.js and other Javascript libraries" />
 
-    <link href="html/common/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
-    <link href="html/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link href="src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
     <style>
         h4 {
             margin: 2px 0px 8px 0px;
@@ -24,7 +24,7 @@
             height: 32px;
         }
     </style>
-    <link rel="import" href="html/nav/NavMenu.html" />
+    <link rel="import" href="demos/nav/NavMenu.html" />
 </head>
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
@@ -53,34 +53,30 @@
 			}
 		}
     </script>
-    <script src="../../js/apps/core/PlatformVerification.js"></script>
-    <script src="../../node_modules/bowser/bowser.min.js"></script>
-    <script src="../../node_modules/three/build/three.min.js"></script>
-    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
-    <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
+    <script src="src/core/PlatformVerification.js"></script>
+    <script src="node_modules/bowser/bowser.min.js"></script>
+    <script src="node_modules/three/build/three.min.js"></script>
+    <script src="node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="node_modules/three/examples/js/controls/TrackballControls.js"></script>
 
-    <script src="js/apps/core/ThreeJsApp.js"></script>
-    <script src="js/apps/core/AppRunner.js"></script>
-    <script src="js/apps/tools/TextTools.js"></script>
-    <script src="js/apps/tools/ShaderTools.js"></script>
-    <script src="js/apps/tools/TextureTools.js"></script>
-    <script src="js/apps/tools/UiTools.js"></script>
+    <script src="src/core/ThreeJsApp.js"></script>
+    <script src="src/core/AppRunner.js"></script>
+    <script src="src/tools/TextTools.js"></script>
+    <script src="src/tools/ShaderTools.js"></script>
+    <script src="src/tools/TextureTools.js"></script>
+    <script src="src/tools/UiTools.js"></script>
 
-    <script src="js/apps/shader/ShaderBase.js"></script>
-    <script src="js/apps/shader/BlockShader.js"></script>
-    <script src="js/apps/instancing/BoxCreator.js"></script>
-    <script src="js/apps/instancing/PixelBoxesGenerator.js"></script>
-    <script src="js/apps/instancing/ProjectionSpace.js"></script>
-    <script src="html/supercube/SphereSuperCubeShader.js"></script>
-    <script src="html/supercube/SphereSuperCube.js"></script>
-    <script src="html/nav/NavMenu.js"></script>
+    <script src="src/shader/ShaderBase.js"></script>
+    <script src="demos/supercube/SphereSuperCubeShader.js"></script>
+    <script src="demos/supercube/SphereSuperCube.js"></script>
+    <script src="demos/nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {
 
 			KSX.globals.intergrateMenu = function () {
 				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
-				// bind variables imported from NavMenu.js
+				// bind variables imported from NavMenu.src
 				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
@@ -93,11 +89,10 @@
         	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
 
-			var app = new KSX.apps.demos.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile, {
+			var app = new KSX.demos.supercube.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile, {
 				loader: false,
 				animate: true,
 				physicalLighting: true,
-				enableOverlay: true,
 				rotationSpeed: 0.00425,
 				objCount: bowser.mobile ? 2500 : 7500,
 				cubeEdgeLength: bowser.mobile ? 20 : 75,
@@ -107,7 +102,7 @@
 				},
 				pppScale: 0.15
 			});
-			var appRunner = new KSX.apps.core.AppRunner( app );
+			var appRunner = new KSX.core.AppRunner( app );
 			appRunner.run( true );
         }
     </script>
