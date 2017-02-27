@@ -21,41 +21,6 @@ body {
     position: relative;
 }
 
-div.navFeedbackArea {
-    position: absolute;
-}
-
-#DivGL1,
-#DivGL2,
-#DivGL3,
-#DivGL4 {
-    width: 50%;
-    height: 50%;
-    position: absolute;
-    min-width: 320px;
-    min-height: 240px;
-    overflow: hidden;
-}
-#DivGL1,
-#DivGL2,
-#DivGL3,
-#DivGL4,
-#DivGL1Canvas,
-#DivGL2Canvas,
-#DivGL3Canvas,
-#DivGL4Canvas,
-#DIVFeedbackAreaStatic,
-#DIVFeedbackAreaDynamic {
-    margin: inherit;
-    padding: inherit;
-}
-#DivGL1Canvas,
-#DivGL2Canvas,
-#DivGL3Canvas,
-#DivGL4Canvas {
-    width: 100%;
-    height: 100%;
-}
 #DivGLFull {
     position: absolute;
     min-width: 320px;
@@ -63,8 +28,7 @@ div.navFeedbackArea {
     overflow: hidden;
 }
 #DivGLFull,
-#DivGLFullCanvas,
-#DivGLFullCanvasLoad {
+#DivGLFullCanvas {
     margin: inherit;
     padding: inherit;
     width: 100%;
@@ -73,63 +37,84 @@ div.navFeedbackArea {
     left: 0px;
     background-color: #222222;
 }
-#DivGLFullCanvasLoad {
-    position: absolute;
-    z-index: 20;
-}
-#DivGL1 {
-    background-color: #ff0000;
-    top: 0px;
-    left: 0px;
-}
-#DivGL1Canvas {
-    background-color: #666666;
-    top: 0px;
-    left: 0px;
-}
-#DivGL2 {
-    background-color: #0000ff;
-    top: 0px;
-    right: 0px;
-}
-#DivGL2Canvas {
-    background-color: #666666;
-    top: 0px;
-    right: 0px;
-}
-#DivGL3 {
-    background-color: #00ff00;
-    bottom: 0px;
-    left: 0px;
-}
-#DivGL3Canvas {
-    background-color: #666666;
-    bottom: 0px;
-    left: 0px;
-}
 #DivGLFullVideo,
-#DivGLFullVideoBuffer,
-#DivGL3Video,
-#DivGL3VideoBuffer {
+#DivGLFullVideoBuffer {
     background-color: #FFFFFF;
     display: none;
     width: 1920px;
     height: 1080px;
 }
-#DivGL4 {
-    background-color: #fff600;
+
+
+div.navFeedbackArea {
+    position: absolute;
+    width: 100%;
+    height: 50px;
     bottom: 0px;
-    right: 0px;
-}
-#DivGL4Canvas {
-    background-color: #666666;
-    bottom: 0px;
-    right: 0px;
+    z-index: 10;
+    text-align: center;
+    font-size: 18px;
 }
 
-#DivVideoBg {
-    background-color: #000000;
+div.navDynamicFeedbackArea,
+div.navCopyrightArea {
+    padding: 2px 0px 2px 0px;
+    min-height: 18px;
+}
+
+div.navDynamicFeedbackArea {
+    color: darkorange;
+    background-color: rgba(255, 255, 255, 0.0);
+    bottom: 25px;
+}
+
+div.navCopyrightArea {
+    color: #AAAAAA;
+    bottom: 0px;
+}
+
+div.navCopyrightArea a {
+    color: #00ccff;
+    text-decoration: none;
+}
+
+div.navCopyrightArea a:visited {
+    color: #0099cc;
+    text-decoration: none;
+}
+
+div.navCopyrightArea a:hover {
+    color: #00ccff;
+    text-decoration: underline;
+}
+
+span.tab {
+    padding: 0px 20px 0px 20px;
+}
+
+#DivNotSupported {
+    position: absolute;
+    color: rgba(80, 255, 80, 0.8);
+    width: 50%;
+    right: 25%;
+    left: 25%;
+    text-align: center;
+    margin-top: 100px;
+    border: 2px red solid;
+    padding: 10px;
+}
+
+#Loading {
+    position: absolute;
     width: 100%;
     height: 100%;
-    z-index: 0;
+    top: 50%;
+    left: 0px;
+    z-index: 30;
+    color: rgba(225, 225, 225, 0.8);
+    font-size: 100px;
+    text-align: center;
+    display: block;
+    top: 50%;
+    line-height: 0;
 }

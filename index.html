@@ -20,9 +20,6 @@
         h4 {
             margin: 2px 0px 8px 0px;
         }
-        div.feedback {
-            height: 32px;
-        }
     </style>
     <link rel="import" href="demos/nav/NavMenu.html" />
 </head>
@@ -30,11 +27,6 @@
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <div id="Loading">Loading...</div>
         <canvas id="DivGLFullCanvas"></canvas>
-        <div class="feedback" id="FeedbackArea">
-            <div class="copyrightArea" id="CopyrightArea">
-                Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
-            </div>
-        </div>
     </div>
     <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
         <h4>Welcome to Kai's website!</h4>
@@ -45,6 +37,11 @@
         <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
         or contact or follow me on Twitter:<br>
         <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
+    </div>
+    <div class="navFeedbackArea" id="navFeedbackArea">
+        <div class="navCopyrightArea" id="navCopyrightArea">
+            Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
+        </div>
     </div>
     <script>
 		var KSX = {
@@ -77,14 +74,15 @@
 				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
 				// bind variables imported from NavMenu.src
-				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
 				divNavHelpArea = document.getElementById( 'navHelpArea' );
 
-				document.body.appendChild( divNavMenu );
-				document.body.appendChild( divNavMenuButton );
-				document.body.appendChild( divNavHelpButton );
+				var parent = document.body;
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
 			};
         	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 

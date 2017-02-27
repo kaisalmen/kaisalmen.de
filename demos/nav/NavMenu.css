@@ -1,18 +1,17 @@
 h1 {
-    font-size: 24px;
+    font-size: 100%;
     margin: 6px 0px 6px 0px;
     padding: 0px 0px 0px 0px;
 }
 
 h2 {
-    font-size: 20px;
+    font-size: 100%;
     margin: 3px 0px 3px 0px;
     padding: 0px 0px 0px 0px;
 }
 
-div.navMenu,
+div.navMenuArea,
 div.navMenuButton,
-div.navHomeButton,
 div.navHelpButton,
 div.navHelpArea {
     position: absolute;
@@ -49,7 +48,7 @@ div.navHelpText {
     padding: 3px 0px 0px 0px;
 }
 
-div.navMenu,
+div.navMenuArea,
 div.navHelpArea {
     top: 5%;
     right: 20%;
@@ -57,10 +56,11 @@ div.navHelpArea {
     left: 20%;
     width: 60%;
     height: 90%;
-    min-width: 480px;
-    min-height: 576px;
+    min-width: 320px;
+    min-height: 480px;
     border-radius: 12px;
     display: none;
+    z-index: 1000;
 }
 
 div.navHelpArea {
@@ -87,6 +87,7 @@ div.navHelpArea a:hover {
 div.navMenuMain {
     position: absolute;
     width: 100%;
+    height: 90%;
     text-align: center;
     top: 0px;
     padding: 4px 0px 0px 0px;
@@ -119,6 +120,7 @@ div.navMenuLink a:hover {
 div.navMenuHome {
     position: absolute;
     width: 100%;
+    height: 10%;
     text-align: center;
     bottom: 0px;
     padding: 0px 0px 4px 0px;

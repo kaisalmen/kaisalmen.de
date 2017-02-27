@@ -5,7 +5,7 @@
 'use strict';
 
 var allowNavMenuToggle = false;
-var divNavMenu = null;
+var divNavMenuArea = null;
 var divNavMenuButton = null;
 var divNavHelpButton = null;
 var divNavHelpArea = null;
@@ -15,9 +15,9 @@ var toggleNavMenu = function ( menu, help ) {
 	if ( allowNavMenuToggle ) {
 
 		if ( menu ) {
-			divNavMenu.style.display = 'inline';
+			divNavMenuArea.style.display = 'inline';
 		} else {
-			divNavMenu.style.display = 'none';
+			divNavMenuArea.style.display = 'none';
 		}
 
 		if ( divNavHelpArea != null ) {

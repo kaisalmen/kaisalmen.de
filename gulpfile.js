@@ -28,6 +28,7 @@ gulp.task( 'bundle-wwobjloader2-examples', function () {
 
 gulp.task( 'bundle-site', function () {
 	del.sync( DIR.SITE );
+	// three and helpers
 	gulp.src( [ 'node_modules/three/build/three.min.js' ] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/three/build/' ) );
 	gulp.src( [ 'node_modules/three/examples/js/loaders/MTLLoader.js' ] )
@@ -41,6 +42,8 @@ gulp.task( 'bundle-site', function () {
 			'node_modules/three/examples/js/libs/dat.gui.min.js'
 		] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/three/examples/js/libs' ) );
+
+	// uil, bowser, jszip and file-saver
 	gulp.src( [ 'node_modules/uil/build/uil.min.js' ] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/uil/build/' ) );
 	gulp.src( [ 'node_modules/bowser/bowser.min.js' ] )
@@ -50,6 +53,13 @@ gulp.task( 'bundle-site', function () {
 	gulp.src( [ 'node_modules/file-saver/FileSaver.min.js' ] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/file-saver' ) );
 
+	// polyfills
+	gulp.src( [ 'node_modules/webcomponents.js/webcomponents-lite.min.js' ] )
+		.pipe( gulp.dest( DIR.SITE + 'node_modules/webcomponents.js' ) );
+	gulp.src( [ 'node_modules/es6-promise/dist/es6-promise.auto.min.js' ] )
+	.pipe( gulp.dest( DIR.SITE + 'node_modules/es6-promise/dist' ) );
+
+	// wwobjloader2
 	gulp.src( [ 'build/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'build/') );
 	gulp.src( [ 'wwobjloader2/**/*' ] )
@@ -60,6 +70,7 @@ gulp.task( 'bundle-site', function () {
 	gulp.src( [ 'src/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'src/' ) );
 
+	// resources
 	gulp.src( [ 'resource/obj/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'resource/obj' ) );
 	gulp.src( [ 'resource/fonts/**/*' ] )

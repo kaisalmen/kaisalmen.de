@@ -10,11 +10,6 @@
     <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
     <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
     <style>
-        div.navHelpArea {
-            width: 640px;
-            height: 192px;
-            top: 55px;
-        }
         div.navFeedbackArea {
             color: #FFFFFF;
             height: 32px;
@@ -58,15 +53,16 @@
 			KSX.globals.intergrateMenu = function () {
 				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
-				// bind variables imported from NavMenu.src
-				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
 				divNavHelpArea = document.getElementById( 'navHelpArea' );
 
-				document.body.appendChild( divNavMenu );
-				document.body.appendChild( divNavMenuButton );
-				document.body.appendChild( divNavHelpButton );
+				var parent = document.body;
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
 			};
 			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 

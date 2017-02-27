@@ -11,19 +11,14 @@
     <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
     <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
     <link rel="import" href="../nav/NavMenu.html" />
-    <style>
-        div.feedback {
-            height: 32px;
-        }
-    </style>
 </head>
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
-        <div class="feedback" id="FeedbackArea">
-            <div class="copyrightArea" id="CopyrightArea">
-                Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
-            </div>
+    </div>
+    <div class="navFeedbackArea" id="navFeedbackArea">
+        <div class="navCopyrightArea" id="navCopyrightArea">
+            Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
         </div>
     </div>
     <script src="../../src/core/PlatformVerification.js"></script>
@@ -49,13 +44,14 @@
 			KSX.globals.intergrateMenu = function () {
 				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
-				// bind variables imported from NavMenu.src
-				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 
-				document.body.appendChild( divNavMenu );
-				document.body.appendChild( divNavMenuButton );
-			};
+				var parent = document.body;
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
+            };
 			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
 

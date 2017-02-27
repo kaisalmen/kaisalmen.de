@@ -109,7 +109,7 @@ KSX.core.PlatformVerification = (function () {
 			console.log( 'Native Promise is not available! Loading polyfill instead.' );
 			var promisePolyfillScript = document.createElement( 'script' );
 			promisePolyfillScript.type = 'text/javascript';
-			promisePolyfillScript.src = KSX.globals.basedir + '/node_modules/es6-promise/dist/es6-promise.auto.min.src';
+			promisePolyfillScript.src = KSX.globals.basedir + '/node_modules/es6-promise/dist/es6-promise.auto.min.js';
 			body.appendChild( promisePolyfillScript );
 
 		} else {
@@ -129,7 +129,7 @@ KSX.core.PlatformVerification = (function () {
 			console.log( 'Native support for WebComponent registerElement, import and content is not available! Loading polyfill instead.' );
 			var webComponentPolyfillScript = document.createElement( 'script' );
 			webComponentPolyfillScript.type = 'text/javascript';
-			webComponentPolyfillScript.src = KSX.globals.basedir + '/node_modules/webcomponents.src/webcomponents-lite.min.src';
+			webComponentPolyfillScript.src = KSX.globals.basedir + '/node_modules/webcomponents.js/webcomponents-lite.min.js';
 			body.appendChild( webComponentPolyfillScript );
 
 			window.addEventListener( 'HTMLImportsLoaded', function ( e ) {

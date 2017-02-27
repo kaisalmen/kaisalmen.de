@@ -41,12 +41,13 @@
 			KSX.globals.intergrateMenu = function () {
 				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
-				// bind variables imported from NavMenu.src
-				divNavMenu = document.importNode( menuContent.getElementById( 'navMenu' ), true );
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 
-				document.body.appendChild( divNavMenu );
-				document.body.appendChild( divNavMenuButton );
+				var parent = document.body;
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
 			};
 			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 

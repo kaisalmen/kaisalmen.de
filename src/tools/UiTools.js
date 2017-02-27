@@ -91,24 +91,24 @@ KSX.tools.UiTools = (function () {
         var child;
         for ( var key in children ) {
             child = children[key];
-            if ( child['className'] === 'dynamicFeedback' ) {
-                this.divNavDynamicFeedback = child;
+            if ( child['className'] === 'navDynamicFeedbackArea' ) {
+                this.divNavDynamicFeedbackArea = child;
             }
         }
 
-        if ( this.divNavDynamicFeedback === undefined || this.divDynamic === null ) {
-            this.divNavDynamicFeedback = document.createElement( 'div' );
-            this.divNavDynamicFeedback.id = 'navDynamicFeedback';
-            this.divNavDynamicFeedback.className = 'navDynamicFeedback';
+        if ( this.divNavDynamicFeedbackArea === undefined || this.divDynamic === null ) {
+            this.divNavDynamicFeedbackArea = document.createElement( 'div' );
+            this.divNavDynamicFeedbackArea.id = 'navDynamicFeedbackArea';
+            this.divNavDynamicFeedbackArea.className = 'navDynamicFeedbackArea';
 
-            divFeedbackArea.insertBefore( this.divNavDynamicFeedback,  divFeedbackArea.childNodes[0] );
+            divFeedbackArea.insertBefore( this.divNavDynamicFeedbackArea,  divFeedbackArea.childNodes[0] );
             console.log( 'Div "dynamicFeedback" was added to div FeedbackArea' );
         }
     };
 
     UiTools.prototype.announceFeedback = function ( text ) {
-        if ( this.divNavDynamicFeedback !== null ) {
-            this.divNavDynamicFeedback.innerHTML = text;
+        if ( this.divNavDynamicFeedbackArea !== null ) {
+            this.divNavDynamicFeedbackArea.innerHTML = text;
         }
     };
 
