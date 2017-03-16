@@ -16,32 +16,12 @@
 
     <link href="src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
     <link href="demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
-    <style>
-        h4 {
-            margin: 2px 0px 8px 0px;
-        }
-    </style>
     <link rel="import" href="demos/nav/NavMenu.html" />
 </head>
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <div id="Loading">Loading...</div>
         <canvas id="DivGLFullCanvas"></canvas>
-    </div>
-    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
-        <h4>Welcome to Kai's website!</h4>
-        My site focuses on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.<br><br>
-        I work as a software engineer, but the content shown here was completely realised during my spare time.<br><br>
-        <h4>You have any further questions, comments then...</h4>
-        contact me via e-mail:<br>
-        <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
-        or contact or follow me on Twitter:<br>
-        <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
-    </div>
-    <div class="navFeedbackArea" id="navFeedbackArea">
-        <div class="navCopyrightArea" id="navCopyrightArea">
-            Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
-        </div>
     </div>
     <script>
 		var KSX = {
@@ -77,26 +57,27 @@
 				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
 				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
 				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
-				divNavHelpArea = document.getElementById( 'navHelpArea' );
+				divNavHelpArea = document.importNode( menuContent.getElementById( 'navHelpArea' ), true );
 
 				var parent = document.body;
+				parent.insertBefore( divNavHelpArea, parent.children[ 1 ] );
 				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
 				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
 				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
 			};
         	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
-
-			var app = new KSX.demos.supercube.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile, {
+            var mobileDevice = bowser.mobile;
+			var app = new KSX.demos.supercube.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), mobileDevice, {
 				loader: false,
 				animate: true,
 				physicalLighting: true,
 				rotationSpeed: 0.00425,
-				objCount: bowser.mobile ? 2500 : 7500,
-				cubeEdgeLength: bowser.mobile ? 20 : 75,
+				objCount: mobileDevice ? 2500 : 7500,
+				cubeEdgeLength: mobileDevice ? 20 : 75,
 				sphere: {
-					segments: bowser.mobile ? 24 : 32,
-					radius: bowser.mobile ? 0.075 : 0.15
+					segments: mobileDevice ? 24 : 32,
+					radius: mobileDevice ? 0.075 : 0.15
 				},
 				pppScale: 0.15
 			});

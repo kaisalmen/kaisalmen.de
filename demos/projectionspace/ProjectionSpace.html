@@ -9,6 +9,7 @@
 
     <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
     <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
     <style>
         #DivGLFullVideo,
         #DivGLFullVideoBuffer {
@@ -17,8 +18,10 @@
             width: 1920px;
             height: 804px;
         }
+        div.navHelpArea {
+            font-size: 14px;
+        }
     </style>
-    <link rel="import" href="../nav/NavMenu.html" />
 </head>
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
@@ -29,7 +32,7 @@
         <canvas id="DivGLFullVideoBuffer"></canvas>
     </div>
     <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
-        <h1>What do I see here? Please explain!</h1>
+        <h3>What do I see here? Please explain!</h3>
         You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
         Every single box of the Projection Space is used to render either one of the three:<br>
         - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
@@ -51,8 +54,6 @@
             Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
             <span class="tab"></span>
             Video by (CC) Blender Foundation | <a href="http://gooseberry.blender.org">gooseberry.blender.org</a>
-            <span class="tab"></span>
-            Thanks to <a href="http://threejs.org">three.js</a>, <a href="https://github.com/lo-th/uil">uil.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
         </div>
     </div>
     <script src="../../src/core/PlatformVerification.js"></script>

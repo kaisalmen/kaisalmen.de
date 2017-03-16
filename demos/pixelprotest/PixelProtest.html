@@ -9,20 +9,23 @@
 
     <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
     <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
     <style>
         div.navFeedbackArea {
             color: #FFFFFF;
             height: 32px;
         }
+        div.navHelpArea {
+            font-size: 16px;
+        }
     </style>
-    <link rel="import" href="../nav/NavMenu.html" />
 </head>
 <body>
     <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
     </div>
     <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
-        <h1>The Pixels are on Protest!</h1>
+        <h2>The Pixels are on Protest!</h2>
         The pixels think there is too much junk posted throughout the web. If you agree with them, create an image you like, save it and share it! :-)
     </div>
     <div class="navFeedbackArea" id="navFeedbackArea">
