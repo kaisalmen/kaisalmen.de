@@ -31,8 +31,6 @@ KSX.tools.UiTools = (function () {
             }
         }
 
-        this.divDynamic = null;
-
         this.stats = null;
         if ( uiToolsConfig.useStats ) {
             this.stats = new Stats();
@@ -75,8 +73,8 @@ KSX.tools.UiTools = (function () {
     };
 
     UiTools.prototype.createFeedbackAreaDynamic = function ( ) {
-        var divFeedbackArea = document.getElementById( 'FeedbackArea' );
-        if ( divFeedbackArea === undefined || divFeedbackArea === null ) {
+        var divFeedbackArea = document.getElementById( 'navFeedbackArea' );
+        if ( divFeedbackArea == null ) {
 
             divFeedbackArea = document.createElement( 'div' );
             divFeedbackArea.id = 'navFeedbackArea';
@@ -84,25 +82,25 @@ KSX.tools.UiTools = (function () {
 
             var body = document.body;
             body.insertBefore( divFeedbackArea, body.childNodes[0] );
-            console.log( 'Div "FeedbackArea" was added to body' );
+            console.log( 'Div "navFeedbackArea" was added to body.' );
         }
 
         var children = divFeedbackArea.childNodes;
         var child;
         for ( var key in children ) {
             child = children[key];
-            if ( child['className'] === 'navDynamicFeedbackArea' ) {
+            if ( child['className'] === 'navFeedbackAreaDynamic' ) {
                 this.divNavDynamicFeedbackArea = child;
             }
         }
 
-        if ( this.divNavDynamicFeedbackArea === undefined || this.divDynamic === null ) {
+        if ( this.divNavDynamicFeedbackArea == null ) {
             this.divNavDynamicFeedbackArea = document.createElement( 'div' );
-            this.divNavDynamicFeedbackArea.id = 'navDynamicFeedbackArea';
-            this.divNavDynamicFeedbackArea.className = 'navDynamicFeedbackArea';
+            this.divNavDynamicFeedbackArea.id = 'navFeedbackAreaDynamic';
+            this.divNavDynamicFeedbackArea.className = 'navFeedbackAreaDynamic';
 
             divFeedbackArea.insertBefore( this.divNavDynamicFeedbackArea,  divFeedbackArea.childNodes[0] );
-            console.log( 'Div "dynamicFeedback" was added to div FeedbackArea' );
+            console.log( 'Div "navFeedbackAreaDynamic" was added to div "navFeedbackArea".' );
         }
     };
 

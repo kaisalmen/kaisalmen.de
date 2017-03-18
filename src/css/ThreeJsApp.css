@@ -3,8 +3,8 @@
 }
 
 body {
-    margin: 0px 0px 0px 0px;
-    padding: 0px 0px 0px 0px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
     border: none;
 }
 
@@ -20,8 +20,8 @@ body {
     padding: inherit;
     width: 100%;
     height: 100%;
-    top: 0px;
-    left: 0px;
+    top: 0;
+    left: 0;
     background-color: #222222;
 }
 #DivGLFullVideo,
@@ -36,46 +36,50 @@ div.navFeedbackArea {
     position: absolute;
     width: 100%;
     height: 50px;
-    bottom: 0px;
+    bottom: 0;
     z-index: 10;
     text-align: center;
     font-size: 18px;
 }
 
-div.navDynamicFeedbackArea,
-div.navCopyrightArea {
-    padding: 2px 0px 2px 0px;
+div.navFeedbackAreaDynamic,
+div.navFeedbackAreaCopyright {
+    position: absolute;
+    width: 100%;
+    padding: 2px 0 2px 0;
     min-height: 18px;
 }
 
-div.navDynamicFeedbackArea {
+
+div.navFeedbackAreaCopyright {
+    color: #AAAAAA;
+    bottom: 0;
+}
+
+div.navFeedbackAreaCopyright a {
+    color: red;
+    text-decoration: none;
+}
+
+div.navFeedbackAreaCopyright a:visited {
+    color: darkred;
+    text-decoration: none;
+}
+
+div.navFeedbackAreaCopyright a:hover {
+    color: #ff4536;
+    text-decoration: underline;
+}
+
+div.navFeedbackAreaDynamic {
+    top: 0;
     color: darkorange;
     background-color: rgba(255, 255, 255, 0.0);
     bottom: 25px;
 }
 
-div.navCopyrightArea {
-    color: #AAAAAA;
-    bottom: 0px;
-}
-
-div.navCopyrightArea a {
-    color: #00ccff;
-    text-decoration: none;
-}
-
-div.navCopyrightArea a:visited {
-    color: #0099cc;
-    text-decoration: none;
-}
-
-div.navCopyrightArea a:hover {
-    color: #00ccff;
-    text-decoration: underline;
-}
-
 span.tab {
-    padding: 0px 20px 0px 20px;
+    padding: 0 20px 0 20px;
 }
 
 #DivNotSupported {
@@ -95,7 +99,7 @@ span.tab {
     width: 100%;
     height: 100%;
     top: 50%;
-    left: 0px;
+    left: 0;
     z-index: 30;
     color: rgba(225, 225, 225, 0.8);
     font-size: 100px;
