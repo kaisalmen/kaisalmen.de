@@ -1,0 +1,115 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Projection Space</title>
+
+    <meta name="description" content="Projection Space: Instanced geometry used as projection for textures (still, video, render target)">
+    <meta name="keywords" content="WebGL, three.js, shader programming, instancing, javascript">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
+    <style>
+        #DivGLFullVideo,
+        #DivGLFullVideoBuffer {
+            background-color: #FFFFFF;
+            display: none;
+            width: 1920px;
+            height: 804px;
+        }
+        div.navHelpArea {
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+        <canvas id="DivGLFullCanvas"></canvas>
+        <video id="DivGLFullVideo" loop muted controls>
+            <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
+        </video>
+        <canvas id="DivGLFullVideoBuffer"></canvas>
+    </div>
+    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+        <h3>What do I see here? Please explain!</h3>
+        You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
+        Every single box of the Projection Space is used to render either one of the three:<br>
+        - Render Target Texture (RTT): The default scene you see once the page is loaded<br>
+        - Video Texture: Blender Foundations's Cosmos Laundromat is shown<br>
+        - Static Texture: A static preview image of the demo links is shown on mouse-over<br><br>
+
+        Each box receives color information (via texture UV coordinates) from the textures. The color is used to transform the box. The brighter the pixel, the higher the box.
+        Slider "Extrusion" enhances the effect. The transformation can be inverted (dark=high; bright=low) via "Invert Ext.".
+        Each box can be scaled ('Box Scale') and the distance from each other can be changed ('Box Spacing').<br><br>
+        The box instance count is adjustable on five levels. The count is 24.000, 217.440, 686.080, 1.543.680, 6.174.720 respectively.
+        The last two levels require fast GPUs (mobile is no fun here).<br><br>
+        If the texture is animated (RTT) or plays a video then this playback is paused or continued via "Animate/Play". Video needs to be enabled via "Enable Video".<br><br>
+        Parameters "Extrusion", "Invert Ext.", "Box Scale", "Box Spacing" are used by the Vertex Shader and are processed directly on the GPU.
+        The "Instance Count" defines how many instantiated boxes are being sent to the GPU including adjusted texture coordinates.
+        Attribute arrays for all levels are generated when the website is loaded and the Javascript code is interpreted.
+    </div>
+    <div class="navFeedbackArea" id="navFeedbackArea">
+        <div class="navFeedbackAreaCopyright" id="navFeedbackAreaCopyright">
+            Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
+            <span class="tab"></span>
+            Video by (CC) Blender Foundation | <a href="http://gooseberry.blender.org">gooseberry.blender.org</a>
+        </div>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/bowser/bowser.min.js"></script>
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
+    <script src="../../node_modules/uil/build/uil.min.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/TextTools.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/tools/UiTools.js"></script>
+
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../supercube/SphereSuperCubeShader.js"></script>
+    <script src="../supercube/SphereSuperCube.js"></script>
+
+    <script src="../../src/instancing/BoxCreator.js"></script>
+    <script src="../../src/instancing/PixelBoxesGenerator.js"></script>
+    <script src="../../src/shader/BlockShader.js"></script>
+    <script src="../../src/instancing/ProjectionSpace.js"></script>
+    <script src="ProjectionSpaceAppUi.js"></script>
+    <script src="ProjectionSpaceApp.js"></script>
+    <script src="../nav/NavMenu.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
+
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.getElementById( 'navHelpArea' );
+
+				var parent = document.body;
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
+			};
+			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
+
+            var app = new KSX.demos.projectionspace.Main(
+                    document.getElementById( 'DivGLFullCanvas' ),
+                    document.getElementById( 'DivGLFullVideo' ),
+                    document.getElementById( 'DivGLFullVideoBuffer' ),
+                    bowser.mobile
+            );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>

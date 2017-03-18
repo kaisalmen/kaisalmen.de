@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Hello single renderer</title>
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+    <div id="DivGLFull">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/SpinningCubeShader.js"></script>
+    <script src="SpinningCube.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+            var helloOOSimple = new KSX.test.hello.SpinningCube( document.getElementById( 'DivGLFullCanvas' ), false );
+            var appRunner = new KSX.core.AppRunner( helloOOSimple );
+            appRunner.run( true );
+
+        }
+    </script>
+
+</body>
+</html>

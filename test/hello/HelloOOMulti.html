@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>Hello multiple renderers</title>
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <style>
+        #master {
+            margin: inherit;
+            padding: inherit;
+
+            width: 100%;
+            height: 100vh;
+
+            min-width: 1024px;
+            min-height: 576px;
+
+            position: relative;
+        }
+        #DivGL1,
+        #DivGL2,
+        #DivGL3,
+        #DivGL4 {
+            width: 50%;
+            height: 50%;
+            position: absolute;
+            min-width: 320px;
+            min-height: 240px;
+            overflow: hidden;
+        }
+        #DivGL1,
+        #DivGL2,
+        #DivGL3,
+        #DivGL4,
+        #DivGL1Canvas,
+        #DivGL2Canvas,
+        #DivGL3Canvas,
+        #DivGL4Canvas {
+            margin: inherit;
+            padding: inherit;
+        }
+        #DivGL1Canvas,
+        #DivGL2Canvas,
+        #DivGL3Canvas,
+        #DivGL4Canvas {
+            width: 100%;
+            height: 100%;
+        }
+        #DivGL1 {
+            background-color: #ff0000;
+            top: 0px;
+            left: 0px;
+        }
+        #DivGL1Canvas {
+            background-color: #666666;
+            top: 0px;
+            left: 0px;
+        }
+        #DivGL2 {
+            background-color: #0000ff;
+            top: 0px;
+            right: 0px;
+        }
+        #DivGL2Canvas {
+            background-color: #666666;
+            top: 0px;
+            right: 0px;
+        }
+        #DivGL3 {
+            background-color: #00ff00;
+            bottom: 0px;
+            left: 0px;
+        }
+        #DivGL3Canvas {
+            background-color: #666666;
+            bottom: 0px;
+            left: 0px;
+        }
+        #DivGL3Video,
+        #DivGL3VideoBuffer {
+            background-color: #FFFFFF;
+            display: none;
+            width: 1920px;
+            height: 1080px;
+        }
+        #DivGL4 {
+            background-color: #fff600;
+            bottom: 0px;
+            right: 0px;
+        }
+        #DivGL4Canvas {
+            background-color: #666666;
+            bottom: 0px;
+            right: 0px;
+        }
+    </style>
+</head>
+<body>
+    <div id="master">
+        <div id="DivGL1">
+            <canvas id="DivGL1Canvas"></canvas>
+        </div>
+        <div id="DivGL2">
+            <canvas id="DivGL2Canvas"></canvas>
+        </div>
+        <div id="DivGL3">
+            <canvas id="DivGL3Canvas"></canvas>
+            <video id="DivGL3Video" loop autoplay muted>
+                <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
+                <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.ogv" type='video/ogg; codecs="theora, vorbis"'>
+            </video>
+            <canvas id="DivGL3VideoBuffer"></canvas>
+        </div>
+        <div id="DivGL4">
+            <canvas id="DivGL4Canvas"></canvas>
+        </div>
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/three/build/three.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/MultiAppRunner.js"></script>
+    <script src="../../src/tools/TextTools.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="../../src/shader/TextureWithNoiseShader.js"></script>
+    <script src="../../src/shader/SimpleTextureShader.js"></script>
+    <script src="HelloOOSimple.js"></script>
+    <script src="TextureWithNoiseShaderApp.js"></script>
+    <script src="HelloOOVideo.js"></script>
+    <script src="HelloOOText.js"></script>
+    <script>
+        console.log( 'Starting multiple applications...' );
+        if ( KSX.globals.preChecksOk ) {
+
+            var multiAppRunner = new KSX.core.MultiAppRunner();
+
+            var implementations = [];
+            implementations.push( new KSX.test.hello.HelloOOSimple( document.getElementById( 'DivGL1Canvas' ), false ) );
+            implementations.push( new KSX.test.hello.TextureWithNoiseShader( document.getElementById( 'DivGL2Canvas' ) ) );
+            implementations.push( new KSX.test.hello.HelloOOVideo( document.getElementById( 'DivGL3Canvas' ), 'DivGL3Video', 'DivGL3VideoBuffer' ) );
+            implementations.push( new KSX.test.hello.HelloOOText( document.getElementById( 'DivGL4Canvas' ) ) );
+
+            multiAppRunner.addImplementations( implementations );
+            multiAppRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>

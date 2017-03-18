@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
     <meta charset="UTF-8">
@@ -13,145 +14,75 @@
     <meta name="twitter:title" content="Kai Salmen's website" />
     <meta name="twitter:description" content="Kai Salmen's WegGL projects realised with help three.js and other Javascript libraries" />
 
-    <link href="resource/css/AppLifecyle.css" type="text/css" rel="stylesheet"/>
-    <link href="resource/css/Navigation.css" type="text/css" rel="stylesheet"/>
-    <link href="resource/css/Index.css" type="text/css" rel="stylesheet"/>
+    <link href="src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="demos/nav/NavMenu.html" />
 </head>
 <body>
-    <div id="DivGLFull">
-        <div class="homeFixed" onclick="toggleContactArea()" >
-            <span class="contactButton">!</span>
-        </div>
-        <canvas id="DivGLFullCanvas"></canvas>
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
         <div id="Loading">Loading...</div>
-        <div class="navFrame">
-            <div class="home" id="ExperimentsHeader">
-                <h1>Demos</h1>
-            </div>
-            <div class="home" onmouseenter="exchangeTexture('linkProjectionSpace')" onmouseleave="exchangeImageDefault()">
-                <h1>
-                    <a href="html/demos/ProjectionSpace.html">Projection Space</a>
-                </h1>
-            </div>
-            <div class="home" onmouseenter="exchangeTexture('linkPixelProtest')" onmouseleave="exchangeImageDefault()">
-                <h1>
-                    <a href="./html/demos/PixelProtest.html">Pixel Protest</a>
-                </h1>
-            </div>
-            <div class="home" onmouseenter="exchangeTexture('linkPTV1')" onmouseleave="exchangeImageDefault()">
-                <h1>
-                    <a href="./html/zeroSouth/PTV1.html">ZeroSouth PTV1</a>
-                </h1>
-            </div>
-            <div class="home" onmouseenter="exchangeTexture('linkTeaser')" onmouseleave="exchangeImageDefault()">
-                <h1>
-                    <a href="html/demos/Teaser.html">Website Teaser</a>
-                </h1>
-            </div>
-            <br>
-            <div class="home" id="DemosHeader">
-                <h1>Experiments</h1>
-            </div>
-            <div class="home">
-                <h2>
-                    <a href="html/demos/SphereSuperCube.html">50k spheres (physical shader)</a>
-                </h2>
-            </div>
-            <div class="home">
-                <h2>
-                    <a href="html/demos/SphereSuperCubeWire.html">50k spheres (wireframe)</a>
-                </h2>
-            </div>
-            <div class="home">
-                <h2>
-                    <a href="proto/test/objloader2/main.html">OBJLoader2 Test</a>
-                </h2>
-            </div>
-            <div class="home">
-                <h2>
-                    <a href="proto/test/wwobjloader2complex/main.html">WWOBJLoader2 Demo</a>
-                </h2>
-            </div>
-			<div class="home">
-                <h2>
-                    <a href="proto/test/wwparallels/main.html">Parallels Demo</a>
-                </h2>
-            </div>
-        </div>
-        <div class="contactArea" id="ContactArea">
-            <h4>Welcome to Kai's website!</h4>
-            My site focuses on WegGL projects I realised with the help of three.js and other helpful Javascript libraries.<br><br>
-            I work as a software engineer, but the content shown here was completely realised during my spare time.<br><br>
-            <h4>You have any further questions, comments then...</h4>
-            contact me via e-mail:<br>
-            <a href="mailto:feedback@&lt;replaceWithNameOfThisDomain&gt;">feedback@&lt;replaceWithNameOfThisDomain&gt;</a><br><br>
-            or contact or follow me on Twitter:<br>
-            <a href="https://twitter.com/kai_salmen">https://twitter.com/kai_salmen</a>
-        </div>
-        <div class="feedback" id="FeedbackArea">
-            <div class="copyrightArea" id="CopyrightArea">
-                Thanks to <a href="http://threejs.org">three.js</a> and <a href="https://github.com/ded/bowser">bowser.js</a>!
-            </div>
-        </div>
+        <canvas id="DivGLFullCanvas"></canvas>
     </div>
-    <script src="js/lib/ext/bowser.min.js"></script>
-    <script src="js/apps/core/Prerequisites.js"></script>
     <script>
-        KSX.globals.basedir = './';
+		var KSX = {
+			globals: {
+				basedir: './'
+			}
+		}
     </script>
+    <script src="src/core/PlatformVerification.js"></script>
+    <script src="node_modules/bowser/bowser.min.js"></script>
+    <script src="node_modules/three/build/three.min.js"></script>
+    <script src="node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="node_modules/three/examples/js/controls/TrackballControls.js"></script>
 
-    <script src="js/lib/threejs/three.min.js"></script>
-    <script src="js/lib/threejs/stats.min.js"></script>
-    <script src="js/lib/threejs/TrackballControls.js"></script>
+    <script src="src/core/ThreeJsApp.js"></script>
+    <script src="src/core/AppRunner.js"></script>
+    <script src="src/tools/TextTools.js"></script>
+    <script src="src/tools/ShaderTools.js"></script>
+    <script src="src/tools/TextureTools.js"></script>
+    <script src="src/tools/UiTools.js"></script>
 
-    <script src="js/apps/core/ThreeJsApp.js"></script>
-    <script src="js/apps/core/AppRunner.js"></script>
-    <script src="js/apps/tools/TextTools.js"></script>
-    <script src="js/apps/tools/ShaderTools.js"></script>
-    <script src="js/apps/tools/TextureTools.js"></script>
-    <script src="js/apps/tools/UiTools.js"></script>
-
-    <script src="js/apps/shader/ShaderBase.js"></script>
-    <script src="js/apps/shader/BlockShader.js"></script>
-    <script src="js/apps/tools/instancing/BoxCreator.js"></script>
-    <script src="js/apps/tools/instancing/PixelBoxesGenerator.js"></script>
-    <script src="js/apps/tools/instancing/ProjectionSpace.js"></script>
-    <script src="js/apps/shader/SphereSuperCubeShader.js"></script>
-    <script src="js/apps/demos/SphereSuperCube.js"></script>
+    <script src="src/shader/ShaderBase.js"></script>
+    <script src="demos/supercube/SphereSuperCubeShader.js"></script>
+    <script src="demos/supercube/SphereSuperCube.js"></script>
+    <script src="demos/nav/NavMenu.js"></script>
     <script>
         if ( KSX.globals.preChecksOk ) {
 
-            var app = new KSX.apps.demos.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile, {
-                loader: false,
-                animate: true,
-                physicalLighting: true,
-                enableOverlay: true,
-                rotationSpeed: 0.00425,
-                objCount: bowser.mobile ? 2500 : 7500,
-                cubeEdgeLength: bowser.mobile ? 20 : 75,
-                sphere: {
-                    segments: bowser.mobile ? 24 : 32,
-                    radius: bowser.mobile ? 0.075 : 0.15
-                },
-                pppScale: 0.15
-            });
-            var appRunner = new KSX.apps.core.AppRunner( app );
-            appRunner.run( true );
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
 
-            var exchangeTexture = function ( textureName ) {
-                app.enableLinkImage( true, textureName );
-            };
+				// bind variables imported from NavMenu.src
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.importNode( menuContent.getElementById( 'navHelpArea' ), true );
 
-            var exchangeImageDefault = function () {
-                app.enableLinkImage( false );
-            };
+				var parent = document.body;
+				parent.insertBefore( divNavHelpArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
+			};
+        	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
 
-            var clicksContactArea = 0;
-            var toggleContactArea = function () {
-                var divHelpArea = document.getElementById( 'ContactArea' );
-                divHelpArea.style.display = clicksContactArea % 2 === 0 ? 'inline' : 'none';
-                clicksContactArea++;
-            };
+            var mobileDevice = bowser.mobile;
+			var app = new KSX.demos.supercube.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), mobileDevice, {
+				loader: false,
+				animate: true,
+				physicalLighting: true,
+				rotationSpeed: 0.00425,
+				objCount: mobileDevice ? 2500 : 7500,
+				cubeEdgeLength: mobileDevice ? 20 : 75,
+				sphere: {
+					segments: mobileDevice ? 24 : 32,
+					radius: mobileDevice ? 0.075 : 0.15
+				},
+				pppScale: 0.15
+			});
+			var appRunner = new KSX.core.AppRunner( app );
+			appRunner.run( true );
         }
     </script>
 </body>

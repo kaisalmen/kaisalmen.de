@@ -1,0 +1,144 @@
+h1 {
+    font-size: 24px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+    color: #cccccc;
+}
+
+h2 {
+    font-size: 20px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+h3 {
+    font-size: 14px;
+    margin: 0 0 0 0;
+    padding: 0 0 0 0;
+}
+
+/*
+ * Main foreground areas
+ */
+div.navMenuArea,
+div.navHelpArea {
+    position: absolute;
+    top: 5%;
+    right: 20%;
+    bottom: 5%;
+    left: 20%;
+    width: 60%;
+    height: 90%;
+    min-width: 480px;
+    min-height: 540px;
+    text-align: center;
+    border: 3px solid red;
+    border-radius: 12px;
+    display: none;
+    z-index: 1000;
+    background-color: black;
+    opacity: 0.8;
+}
+
+div.navMenuMain {
+    position: absolute;
+    width: 96%;
+    left: 2%;
+    top: 4px;
+    text-align: center;
+}
+
+div.navMenuLink {
+    padding: 1px 3px 1px 3px;
+    cursor: pointer;
+}
+
+div.navMenuLink {
+    color: #AAAAAA;
+}
+
+div.navMenuLink a {
+    color: darkorange;
+    text-decoration: none;
+}
+
+div.navMenuLink a:visited {
+    color: #a03800;
+    text-decoration: none;
+}
+
+div.navMenuLink a:hover {
+    color: #ffc757;
+    text-decoration: underline;
+}
+
+div.navMenuHome {
+    position: absolute;
+    width: 96%;
+    bottom: 4px;
+    left: 2%;
+    min-height: 30px;
+    text-align: center;
+}
+
+/*
+ * Separate help area
+ */
+
+div.navHelpArea {
+    border: 3px solid darkorange;
+    color: #cccccc;
+    font-size: 16pt;
+    padding: 4px 0 0 0;
+}
+
+div.navHelpArea a {
+    color: red;
+    text-decoration: none;
+}
+
+div.navHelpArea a:visited {
+    color: darkred;
+    text-decoration: none;
+}
+
+div.navHelpArea a:hover {
+    color: #ff4536;
+    text-decoration: underline;
+}
+
+/*
+ *  Buttons
+ */
+div.navMenuButton,
+div.navHelpButton {
+    position: absolute;
+    right: 0;
+    width: 44px;
+    height: 44px;
+    margin: 2px 2px 2px 2px;
+    border-radius: 6px;
+    border: 3px solid red;
+    text-align: center;
+    background-color: black;
+    opacity: 0.8;
+    cursor: pointer;
+    display: table-cell;
+    vertical-align: middle;
+    font-size: 32px;
+    font-weight: bolder;
+}
+div.navHomeButtonBars {
+    border: 2px solid red;
+    border-radius: 2px;
+    margin: 8px 4px 0 4px;
+}
+div.navHelpButton {
+    top: 52px;
+    color: darkorange;
+    border: 3px solid darkorange;
+}
+
+div.navHelpText {
+    padding: 3px 0 0 0;
+}

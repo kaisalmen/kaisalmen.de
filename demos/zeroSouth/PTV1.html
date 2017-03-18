@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head lang="en">
+    <meta charset="UTF-8">
+    <title>ZeroSouth PTV 1 Virtual Tour</title>
+
+    <meta name="description" content="Virtual tour of ZeroSouth's PTV 1 using web worker based OBJ Loader">
+    <meta name="keywords" content="WebGL, three.js, OBJ Loader, javascript, web worker, ZeroSouth">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <style>
+        div.offsite {
+            position: absolute;
+            padding: 0px 0px 0px 0px;
+            bottom: 0%;
+            left: 0%;
+            top: auto;
+            right: auto;
+            width: 220px;
+            height: 78px;
+            z-index: 20;
+        }
+        a.offsiteLink {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+        div.navFeedbackAreaCopyright {
+            color: #222222;
+        }
+        div.navHelpArea {
+            font-size: 16px;
+        }
+    </style>
+    <link rel="import" href="../nav/NavMenu.html" />
+</head>
+<body>
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+        <h2>PTV 1 Loader</h2>
+        The model of ZERO SOUTH's Polar Traverse Vehicle 1 (PTV 1) is loaded from a zip compressed OBJ file (uncompressed file size is 150 MB).<br>
+        The decompression and the processing of the OBJ data is handled by web workers.
+        The integration of new objects into the scene is done whenever a new object has been processed from the input file.
+        It ensures interactivity is always given while new pieces of the overall vehicle appear.<br>
+        The web worker code is currently based on a fork three.js's OBJLoader (Feb. 2016).
+    </div>
+    <div class="offsite">
+        <a class="offsiteLink" href="http://www.zerosouth.com">
+            <img alt="ZeroSouth.com" src="../../resource/textures/ZeroSouthLogo.png">
+        </a>
+    </div>
+    <div class="navFeedbackArea" id="navFeedbackArea">
+        <div class="navFeedbackAreaCopyright" id="navFeedbackAreaCopyright">
+            Cubemap by <a href="http://www.humus.name/index.php?page=Textures">Humus</a>
+        </div>
+    </div>
+
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/bowser/bowser.min.js"></script>
+    <script>
+        var browserVersions = {
+            firefox : {
+                mobileWarning: 'Mobile Firefox is considered unstable, but it may work!'
+            },
+            safari : {
+                mobileWarning: 'Mobile Safari has memory issues and is considered unstable, but it may work!'
+            }
+        };
+    </script>
+    <script src="../../src/core/BrowserVerification.js"></script>
+
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
+    <script src="../../node_modules/three/examples/js/loaders/MTLLoader.js"></script>
+    <script src="../../node_modules/uil/build/uil.min.js"></script>
+    <script src="../../node_modules/jszip/dist/jszip.min.js"></script>
+    <script src="../../build/OBJLoader2.min.js"></script>
+    <script src="../../build/WWOBJLoader2.min.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/tools/UiTools.js"></script>
+    <script src="../../src/tools/ZipTools.js"></script>
+    <script src="PTV1.js"></script>
+    <script src="../nav/NavMenu.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
+
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.getElementById( 'navHelpArea' );
+
+				var parent = document.body;
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
+			};
+			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu()
+
+            var app = new KSX.zerosouth.PTV1Loader( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>

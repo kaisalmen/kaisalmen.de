@@ -1,0 +1,74 @@
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Pixel Protest</title>
+
+    <meta name="description" content="The Pixels are on protest. Noise image generator using GLSL and three.js noise generator">
+    <meta name="keywords" content="WebGL, three.js, shader programming, noise, javascript">
+    <meta name="author" content="Kai Salmen">
+
+    <link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
+    <link href="../nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+    <link rel="import" href="../nav/NavMenu.html" />
+    <style>
+        div.navFeedbackArea {
+            color: #FFFFFF;
+            height: 32px;
+        }
+        div.navHelpArea {
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+        <canvas id="DivGLFullCanvas"></canvas>
+    </div>
+    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+        <h2>The Pixels are on Protest!</h2>
+        The pixels think there is too much junk posted throughout the web. If you agree with them, create an image you like, save it and share it! :-)
+    </div>
+    <script src="../../src/core/PlatformVerification.js"></script>
+    <script src="../../node_modules/bowser/bowser.min.js"></script>
+    <script src="../../node_modules/three/build/three.min.js"></script>
+    <script src="../../node_modules/three/examples/js/libs/stats.min.js"></script>
+    <script src="../../node_modules/uil/build/uil.min.js"></script>
+    <script src="../../node_modules/file-saver/FileSaver.min.js"></script>
+
+    <script src="../../src/core/ThreeJsApp.js"></script>
+    <script src="../../src/core/AppRunner.js"></script>
+    <script src="../../src/tools/ShaderTools.js"></script>
+    <script src="../../src/tools/TextureTools.js"></script>
+    <script src="../../src/tools/DataTools.js"></script>
+    <script src="../../src/tools/UiTools.js"></script>
+    <script src="../../src/shader/ShaderBase.js"></script>
+    <script src="PixelProtestShader.js"></script>
+    <script src="PixelProtest.js"></script>
+    <script src="../nav/NavMenu.js"></script>
+    <script>
+        if ( KSX.globals.preChecksOk ) {
+
+			KSX.globals.intergrateMenu = function () {
+				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
+
+				// bind variables imported from NavMenu.js
+				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
+				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
+				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
+				divNavHelpArea = document.getElementById( 'navHelpArea' );
+
+				var parent = document.body;
+				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
+				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
+			};
+			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
+
+            var app = new KSX.demos.pixelprotest.PixelProtest( document.getElementById( 'DivGLFullCanvas' ), bowser.mobile );
+            var appRunner = new KSX.core.AppRunner( app );
+            appRunner.run( true );
+
+        }
+    </script>
+</body>
+</html>
