@@ -8,11 +8,8 @@ KSX.tools.UiTools = (function () {
 
     function UiTools( uiToolsConfig ) {
         if ( uiToolsConfig.useUil ) {
-            UIL.BUTTON = '#FF4040';
+   			checkToolsColorsProperties( uiToolsConfig.uilParams.colors, UIL.Tools.colors );
 
-            if ( uiToolsConfig.uilParams.size === undefined && uiToolsConfig.uilParams.width !== undefined ) {
-                uiToolsConfig.uilParams.size = uiToolsConfig.uilParams.width;
-            }
             this.ui = new UIL.Gui( uiToolsConfig.uilParams );
 
             if ( uiToolsConfig.mobileDevice ) {
@@ -46,6 +43,16 @@ KSX.tools.UiTools = (function () {
             addStatStyles( this.stats.domElement.style, uiToolsConfig.statsParams );
         }
     }
+
+    var checkToolsColorsProperties = function ( source, target ) {
+		if ( source != null && target != null ) {
+			for ( var key in source ) {
+				if ( target.hasOwnProperty( key ) ) {
+					target[ key ] = source[ key ];
+				}
+			}
+		}
+    };
 
     var addStatStyles = function ( statStyles, userStyleProps ) {
         if ( userStyleProps === null || userStyleProps === undefined ) {

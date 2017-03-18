@@ -16,10 +16,12 @@ KSX.demos.projectionspace.Ui = (function () {
             useUil: true,
             uilParams: {
                 css: 'top: 0px; left: 0px;',
-                width: 384,
-                center: false,
-                color: 'rgba(224, 224, 224, 1.0)',
-                bg: 'rgba(40, 40, 40, 0.66)'
+				w: 384,
+                colors: {
+                    button: '#FF4040',
+                    background: 'rgba(40, 40, 40, 0.66)',
+                    text: '#E0E0E0'
+                }
             },
             paramsDimension: {
                 desktop: {
