@@ -71,8 +71,20 @@ gulp.task( 'bundle-site', function () {
 		.pipe( gulp.dest( DIR.SITE + 'src/' ) );
 
 	// resources
-	gulp.src( [ 'resource/obj/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'resource/obj' ) );
+	gulp.src( [ 'resource/obj/cerberus/*.obj' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/cerberus' ) );
+	gulp.src( [ 'resource/obj/female02/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/female02' ) );
+	gulp.src( [ 'resource/obj/male02/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/male02' ) );
+	gulp.src( [ 'resource/obj/PTV1/*.zip' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/PTV1' ) );
+	gulp.src( [	'resource/obj/vive-controller/*.obj' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/vive-controller' ) );
+	gulp.src( [ 'resource/obj/walt/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/walt' ) );
+	gulp.src( [ 'resource/obj/zomax/*.zip' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/obj/zomax' ) );
 	gulp.src( [ 'resource/fonts/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'resource/fonts' ) );
 	gulp.src( [ 'resource/video/**/*' ] )
