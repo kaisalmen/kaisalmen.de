@@ -57,15 +57,18 @@ gulp.task( 'bundle-site', function () {
 	.pipe( gulp.dest( DIR.SITE + 'node_modules/es6-promise/dist' ) );
 
 	// wwobjloader2
-	gulp.src( [ 'node_modules/wwobjloader2/build/OBJLoader2.min.js' ] )
-		.pipe( gulp.dest( DIR.SITE + 'build' ) );
-	gulp.src( [ 'node_modules/wwobjloader2/build/WWOBJLoader2.min.js' ] )
-		.pipe( gulp.dest( DIR.SITE + 'build') );
+	gulp.src( [ 'node_modules/wwobjloader2/build/**/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build/' ) );
 
 	gulp.src( [ 'demos/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'demos/') );
 	gulp.src( [ 'src/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'src/' ) );
+		.pipe( gulp.dest( DIR.SITE + 'src/' ) )
+		.on( 'end', function() {
+			del.sync( DIR.SITE + 'src/wwobjloader2' );
+		} );
+	gulp.src( [ 'src/wwobjloader2/**/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'wwobjloader2/' ) );
 
 	// resources
 	gulp.src( [ 'resource/obj/cerberus/*.obj' ] )

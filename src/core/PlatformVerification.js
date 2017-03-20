@@ -11,7 +11,8 @@ if ( KSX.globals.basedir === undefined ) KSX.globals.basedir = '../../';
 if ( KSX.globals.preChecksOk === undefined ) KSX.globals.preChecksOk = true;
 if ( KSX.globals.polyfillWebComponents === undefined ) KSX.globals.polyfillWebComponents = false;
 if ( KSX.globals.polyfillPromise === undefined ) KSX.globals.polyfillPromise = false;
-if ( KSX.globals.intergrateMenu === undefined ) KSX.globals.intergrateMenu = null;
+
+if ( KSX.nav === undefined ) KSX.nav = {};
 
 if ( KSX.core === undefined ) KSX.core = {};
 if ( KSX.demos === undefined ) KSX.demos = {};
@@ -135,13 +136,13 @@ KSX.core.PlatformVerification = (function () {
 			window.addEventListener( 'HTMLImportsLoaded', function ( e ) {
 				console.log( 'WebComponentsPolyfill: Received: ' + e.type );
 
-				if ( KSX.globals.intergrateMenu != null ) {
+				if ( KSX.nav.intergrateMenu != null ) {
 
-					KSX.globals.intergrateMenu();
+					KSX.nav.intergrateMenu();
 
 				} else {
 
-					alert( 'No menu intergration found!' );
+					alert( 'No menu integration found!' );
 
 				}
 			} );

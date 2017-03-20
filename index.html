@@ -19,7 +19,7 @@
     <link rel="import" href="demos/nav/NavMenu.html" />
 </head>
 <body>
-    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+    <div id="DivGLFull" onclick="KSX.nav.toggleNavMenu( false, false );">
         <div id="Loading">Loading...</div>
         <canvas id="DivGLFullCanvas"></canvas>
     </div>
@@ -50,22 +50,7 @@
     <script>
         if ( KSX.globals.preChecksOk ) {
 
-			KSX.globals.intergrateMenu = function () {
-				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
-
-				// bind variables imported from NavMenu.src
-				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
-				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
-				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
-				divNavHelpArea = document.importNode( menuContent.getElementById( 'navHelpArea' ), true );
-
-				var parent = document.body;
-				parent.insertBefore( divNavHelpArea, parent.children[ 1 ] );
-				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
-				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
-				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
-			};
-        	if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
+			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
             var mobileDevice = bowser.mobile;
 			var app = new KSX.demos.supercube.SphereSuperCube( document.getElementById( 'DivGLFullCanvas' ), mobileDevice, {

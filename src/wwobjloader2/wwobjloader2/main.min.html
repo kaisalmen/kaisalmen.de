@@ -6,9 +6,14 @@
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
 		<link href="../common/Common.css" type="text/css" rel="stylesheet"/>
+		<link href="../../demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
+		<link rel="import" href="../../demos/nav/NavMenu.html" />
 	</head>
 
 	<body>
+		<div id="glFullscreen" onclick="KSX.nav.toggleNavMenu( false, false );">
+			<canvas id="example"></canvas>
+		</div>
 		<div id="dat">
 
 		</div>
@@ -16,21 +21,22 @@
 			<a href="http://threejs.org" target="_blank">three.js</a> - OBJLoader2 direct loader test
 			<div id="feedback"></div>
 		</div>
-		<div id="glFullscreen">
-			<canvas id="example"></canvas>
-		</div>
 		<input id="fileUploadInput" type="file" name="files[]" multiple accept=".obj,.mtl" />
 
-		<script src="../../node_modules/three/examples/js/Detector.js"></script>
+		<script src="../../src/core/PlatformVerification.js"></script>
 		<script src="../../node_modules/three/build/three.min.js"></script>
 		<script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
 		<script src="../../node_modules/three/examples/js/loaders/MTLLoader.js"></script>
 		<script src="../../node_modules/three/examples/js/libs/dat.gui.min.js"></script>
+		<script src="../../node_modules/wwobjloader2/build/OBJLoader2.min.js"></script>
+		<script src="../../node_modules/wwobjloader2/build/WWOBJLoader2.min.js"></script>
 
-		<script src="../../build/OBJLoader2.min.js"></script>
-		<script src="../../build/WWOBJLoader2.min.js"></script>
 		<script src="./WWOBJLoader2Example.js"></script>
+		<script src="../../demos/nav/NavMenu.js"></script>
 		<script>
+
+			KSX.nav.help.show = false;
+			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
 			var app = new WWOBJLoader2Example( document.getElementById( 'example' ) );
 
@@ -95,8 +101,6 @@
 
 			}
 			folderOptions.open();
-
-
 
 			// init three.js example application
 			var resizeWindow = function () {

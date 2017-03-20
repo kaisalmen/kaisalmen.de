@@ -24,14 +24,14 @@
     </style>
 </head>
 <body>
-    <div id="DivGLFull" onclick="toggleNavMenu( false, false );">
+    <div id="DivGLFull" onclick="KSX.nav.toggleNavMenu( false, false );">
         <canvas id="DivGLFullCanvas"></canvas>
         <video id="DivGLFullVideo" loop muted controls>
             <source src="../../resource/video/CosmosLaundromat_FirstCycle_1080p.mp4" type="video/mp4">
         </video>
         <canvas id="DivGLFullVideoBuffer"></canvas>
     </div>
-    <div id="navHelpArea" class="navHelpArea" onclick="toggleNavMenu( false, false );">
+    <div id="navHelpArea" class="navHelpArea" onclick="KSX.nav.toggleNavMenu( false, false );">
         <h3>What do I see here? Please explain!</h3>
         You see a two dimensional array of instantiated box meshes. I call it the "Projection Space".
         Every single box of the Projection Space is used to render either one of the three:<br>
@@ -84,21 +84,8 @@
     <script>
         if ( KSX.globals.preChecksOk ) {
 
-			KSX.globals.intergrateMenu = function () {
-				var menuContent = document.querySelector( 'link[rel="import"]' ).import;
-
-				// bind variables imported from NavMenu.js
-				divNavMenuArea = document.importNode( menuContent.getElementById( 'navMenuArea' ), true );
-				divNavMenuButton = document.importNode( menuContent.getElementById( 'navMenuButton' ), true );
-				divNavHelpButton = document.importNode( menuContent.getElementById( 'navHelpButton' ), true );
-				divNavHelpArea = document.getElementById( 'navHelpArea' );
-
-				var parent = document.body;
-				parent.insertBefore( divNavHelpButton, parent.children[ 1 ] );
-				parent.insertBefore( divNavMenuArea, parent.children[ 1 ] );
-				parent.insertBefore( divNavMenuButton, parent.children[ 1 ] );
-			};
-			if ( !KSX.globals.polyfillWebComponents ) KSX.globals.intergrateMenu();
+			KSX.nav.help.ownText = true;
+			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
             var app = new KSX.demos.projectionspace.Main(
                     document.getElementById( 'DivGLFullCanvas' ),

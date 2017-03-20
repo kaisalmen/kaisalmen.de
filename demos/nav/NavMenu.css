@@ -22,6 +22,7 @@ h3 {
  */
 div.navMenuArea,
 div.navHelpArea {
+    font-family: Arial;
     position: absolute;
     top: 5%;
     right: 20%;
@@ -113,6 +114,7 @@ div.navHelpArea a:hover {
 div.navMenuButton,
 div.navHelpButton {
     position: absolute;
+    top: 0;
     right: 0;
     width: 44px;
     height: 44px;
