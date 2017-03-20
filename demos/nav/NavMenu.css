@@ -129,6 +129,7 @@ div.navHelpButton {
     vertical-align: middle;
     font-size: 32px;
     font-weight: bolder;
+    z-index: 1000;
 }
 div.navHomeButtonBars {
     border: 2px solid red;

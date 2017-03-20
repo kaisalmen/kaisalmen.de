@@ -3,8 +3,8 @@
 	<head>
 		<title>WWOBJLoader Testbed</title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
+		<link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
 		<link href="../common/Common.css" type="text/css" rel="stylesheet"/>
 		<link href="./main.css" type="text/css" rel="stylesheet"/>
 		<link href="../../demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
@@ -12,7 +12,7 @@
 	</head>
 
 	<body>
-		<div id="glFullscreen" onclick="KSX.nav.toggleNavMenu( false, false );">
+		<div id="DivGLFull" onclick="KSX.nav.toggleNavMenu( false, false );">
 			<div id="menu">
 				<h1>Select OBJ files:</h1>
 				<p>
@@ -49,7 +49,7 @@
 				<br><br>
 				<p class="clear" onclick="app.clearAllAssests();">Clear all assets</p>
 			</div>
-			<canvas id="example"></canvas>
+			<canvas id="DivGLFullCanvas"></canvas>
 		</div>
 		<div id="info">
 			<a href="http://threejs.org" target="_blank">three.js</a> - WWOBJLoader
@@ -71,7 +71,7 @@
 			KSX.nav.help.show = false;
 			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
-			var app = new WWOBJLoader2Stage( document.getElementById( 'example' ) );
+			var app = new WWOBJLoader2Stage( document.getElementById( 'DivGLFullCanvas' ) );
 			app.updateAssets( objsFemaleMale );
 
 			var loadAssets = function ( assets ) {

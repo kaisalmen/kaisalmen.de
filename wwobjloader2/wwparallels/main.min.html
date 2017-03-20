@@ -3,8 +3,8 @@
 	<head>
 		<title>three.js webgl - Web Worker Parallel Demo</title>
 		<meta charset="utf-8">
-		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 
+		<link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
 		<link href="../common/Common.css" type="text/css" rel="stylesheet"/>
 		<link href="./main.css" type="text/css" rel="stylesheet"/>
 		<link href="../../demos/nav/NavMenu.css" type="text/css" rel="stylesheet"/>
@@ -12,8 +12,8 @@
 	</head>
 
 	<body>
-		<div id="glFullscreen">
-			<canvas id="example"></canvas>
+		<div id="DivGLFull">
+			<canvas id="DivGLFullCanvas"></canvas>
 		</div>
 		<div id="dat">
 
@@ -40,7 +40,7 @@
 			KSX.nav.help.show = false;
 			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
-			var app = new WWParallels( document.getElementById( 'example' ) );
+			var app = new WWParallels( document.getElementById( 'DivGLFullCanvas' ) );
 
 			var WWParallelsControl = function() {
 				this.queueLength = 128;
