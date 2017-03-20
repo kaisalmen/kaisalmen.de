@@ -192,6 +192,7 @@ KSX.core.ThreeJsApp = (function () {
      * Override if needed.
      */
     ThreeJsApp.prototype.initPostGL = function () {
+		this.removeLoading();
         return true;
     };
 
@@ -284,6 +285,13 @@ KSX.core.ThreeJsApp = (function () {
 
         }
     };
+
+	ThreeJsApp.prototype.removeLoading = function () {
+		var divLoading = document.getElementById( 'Loading' );
+		if ( divLoading != null ) {
+			divLoading.style.display = 'none';
+		}
+	};
 
     return ThreeJsApp;
 })();

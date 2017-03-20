@@ -397,6 +397,7 @@ KSX.zerosouth.PTV1Loader = (function () {
         };
         scope.zipTools.load( scope.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
 
+		this.removeLoading();
         return true;
     };
 

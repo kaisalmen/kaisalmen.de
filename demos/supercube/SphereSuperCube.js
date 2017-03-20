@@ -208,11 +208,6 @@ KSX.demos.supercube.SphereSuperCube = (function () {
 
     };
 
-    SphereSuperCube.prototype.initPostGL = function () {
-        removeLoading();
-        return true;
-    };
-
     var createOffsetsArray = function ( objectCount, factor ) {
         var offsets = new THREE.InstancedBufferAttribute( new Float32Array( objectCount * 3 ), 3, 1 );
 
@@ -269,14 +264,7 @@ KSX.demos.supercube.SphereSuperCube = (function () {
         if ( this.definition.loader ) {
             this.definition.htmlCanvas.style.display  = 'none';
         }
-        removeLoading();
-    };
-
-    var removeLoading = function () {
-        var divLoading = document.getElementById('Loading');
-        if (divLoading !== null && divLoading !== undefined) {
-            divLoading.style.display = 'none';
-        }
+		this.removeLoading();
     };
 
     return SphereSuperCube;

@@ -44,7 +44,7 @@ KSX.demos.projectionspace.Main = (function () {
 
         this.video = elementNameVideo;
         this.videoBuffer = elementNameVideoBuffer;
-        this.videoBufferContext = this.videoBuffer.getContext("2d");
+		this.videoBufferContext = this.videoBuffer.getContext( '2d' );
         this.videoTexture = null;
 
         this.controls = null;
@@ -132,9 +132,9 @@ KSX.demos.projectionspace.Main = (function () {
         this.videoBuffer.width = 1920;
         this.videoBuffer.height = 804;
         this.videoBufferContext.fillStyle = "#000000";
-        this.videoBufferContext.fillRect(0, 0, 1920, 804);
+        this.videoBufferContext.fillRect( 0, 0, 1920, 804 );
 
-        this.videoTexture = new THREE.Texture(this.videoBuffer);
+        this.videoTexture = new THREE.Texture( this.videoBuffer );
         this.videoTexture.minFilter = THREE.LinearFilter;
         this.videoTexture.magFilter = THREE.LinearFilter;
         this.videoTexture.format = THREE.RGBFormat;
@@ -277,6 +277,7 @@ KSX.demos.projectionspace.Main = (function () {
             alert( 'Performance of mobile GPUs is likely not adequate for this site!' );
 
         }
+		this.removeLoading();
         return true;
     };
 
@@ -345,7 +346,6 @@ KSX.demos.projectionspace.Main = (function () {
                 this.video.pause();
             }
         }
-//        this.projectionSpace.flipTexture( 'linkPixelProtest' );
     };
 
     Home.prototype.resizeProjectionSpace = function ( index, force ) {
