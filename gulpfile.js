@@ -6,25 +6,22 @@ var gulp = require( 'gulp' );
 var del = require( 'del' );
 
 var DIR = {
-	BUILD: 'build/',
-	WWOBJLOADER_EXAMPLES: 'wwobjloader2/',
+	WWOBJLOADER_EXAMPLES: 'src/wwobjloader2/',
 	SITE: '2017_1_0/'
 };
 
-gulp.task( 'clean', function () {
-	del.sync( DIR.BUILD );
+gulp.task( 'bundle-wwobjloader2', function () {
 	del.sync( DIR.WWOBJLOADER_EXAMPLES );
-});
 
-gulp.task( 'bundle-wwobjloader2-examples', function () {
-	gulp.src( [ 'node_modules/wwobjloader2/build/OBJLoader2.min.js' ] )
-		.pipe( gulp.dest( DIR.BUILD ) );
-	gulp.src( [ 'node_modules/wwobjloader2/build/WWOBJLoader2.min.js' ] )
-		.pipe( gulp.dest( DIR.BUILD ) );
 	gulp.src( [ 'node_modules/wwobjloader2/test/**/*' ] )
-		.pipe( gulp.dest( DIR.WWOBJLOADER_EXAMPLES ) );
+		.pipe( gulp.dest( DIR.WWOBJLOADER_EXAMPLES ) )
+		.on( 'end', function() {
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'objloader2/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2stage/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwparallels/main.html' );
+		} );
 } );
-
 
 gulp.task( 'bundle-site', function () {
 	del.sync( DIR.SITE );
@@ -60,10 +57,10 @@ gulp.task( 'bundle-site', function () {
 	.pipe( gulp.dest( DIR.SITE + 'node_modules/es6-promise/dist' ) );
 
 	// wwobjloader2
-	gulp.src( [ 'build/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'build/') );
-	gulp.src( [ 'wwobjloader2/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'wwobjloader2/' ) );
+	gulp.src( [ 'node_modules/wwobjloader2/build/OBJLoader2.min.js' ] )
+		.pipe( gulp.dest( DIR.SITE + 'build' ) );
+	gulp.src( [ 'node_modules/wwobjloader2/build/WWOBJLoader2.min.js' ] )
+		.pipe( gulp.dest( DIR.SITE + 'build') );
 
 	gulp.src( [ 'demos/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'demos/') );
@@ -108,9 +105,10 @@ gulp.task( 'bundle-site', function () {
 } );
 
 gulp.task(
-	'default',
-	[
-		'clean',
-		'bundle-wwobjloader2-examples'
-	]
+	'default', function () {
+		console.log( 'Use "bundle-wwobjloader2" to bundle the examples from wwobjloader2.' );
+		console.log( 'Use "bundle-site" to bundle the complete site to the configured directory.' );
+	}
 );
+
+
