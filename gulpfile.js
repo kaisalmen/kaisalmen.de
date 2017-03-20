@@ -65,11 +65,8 @@ gulp.task( 'bundle-site', function () {
 	gulp.src( [ 'demos/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'demos/') );
 	gulp.src( [ 'src/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'src/' ) )
-		.on( 'end', function() {
-			del.sync( DIR.SITE + 'src/wwobjloader2' );
-		} );
-	gulp.src( [ 'src/wwobjloader2/**/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'src/' ) );
+	gulp.src( [ 'wwobjloader2/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'wwobjloader2/' ) );
 
 	// resources
@@ -87,8 +84,8 @@ gulp.task( 'bundle-site', function () {
 		.pipe( gulp.dest( DIR.SITE + 'resource/obj/walt' ) );
 	gulp.src( [ 'resource/obj/zomax/*.zip' ] )
 		.pipe( gulp.dest( DIR.SITE + 'resource/obj/zomax' ) );
-	gulp.src( [ 'resource/fonts/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'resource/fonts' ) );
+	gulp.src( [ 'resource/fonts/*.json' ] )
+		.pipe( gulp.dest( DIR.SITE + 'resource/fonts/' ) );
 	gulp.src( [ 'resource/video/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'resource/video' ) );
 	gulp.src( [ 'resource/textures/meadow/**/*' ] )
