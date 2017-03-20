@@ -16,5 +16,7 @@
 /resource/textures/skybox
 /resource/textures/*.zip
 
+/screenshots
+
 /*.log
 /*.tgz
