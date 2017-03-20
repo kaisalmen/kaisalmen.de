@@ -102,6 +102,12 @@ gulp.task( 'bundle-site', function () {
 		] )
 		.pipe( gulp.dest( DIR.SITE + 'resource/textures' ) );
 
+	// legacy links
+	gulp.src( [ 'html/**/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'html' ) );
+	gulp.src( [ 'proto/**/*' ] )
+		.pipe( gulp.dest( DIR.SITE + 'proto' ) );
+
 	gulp.src( [ 'index.html' ] )
 		.pipe( gulp.dest( DIR.SITE ) );
 } );
