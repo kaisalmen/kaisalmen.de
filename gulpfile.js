@@ -57,8 +57,10 @@ gulp.task( 'bundle-site', function () {
 	.pipe( gulp.dest( DIR.SITE + 'node_modules/es6-promise/dist' ) );
 
 	// wwobjloader2
-	gulp.src( [ 'node_modules/wwobjloader2/build/**/*' ] )
-		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build/' ) );
+	gulp.src( [ 'node_modules/wwobjloader2/build/OBJLoader2.min.js' ] )
+		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build' ) );
+	gulp.src( [ 'node_modules/wwobjloader2/build/WWOBJLoader2.min.js' ] )
+		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build' ) );
 
 	gulp.src( [ 'demos/**/*' ] )
 		.pipe( gulp.dest( DIR.SITE + 'demos/') );
