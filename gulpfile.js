@@ -6,7 +6,7 @@ var gulp = require( 'gulp' );
 var del = require( 'del' );
 
 var DIR = {
-	WWOBJLOADER_EXAMPLES: 'src/wwobjloader2/',
+	WWOBJLOADER_EXAMPLES: 'wwobjloader2/',
 	SITE: '2017_1_0/'
 };
 

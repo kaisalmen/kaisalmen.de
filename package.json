@@ -1,6 +1,6 @@
 {
   "name": "kaisalmen.de",
-  "version": "2017.1.0",
+  "version": "2017.1.1",
   "description": "All that is kaisalmen.de",
   "main": "build/kaisalmen_de.js",
   "author": "kaisalmen",
@@ -27,7 +27,8 @@
     "bowser": "^1.6.0",
     "uil": "^1.0.0",
     "es6-promise": "^4.0.5",
-    "webcomponents.js": "0.7.24"
+    "webcomponents.js": "^0.7.24",
+    "wwobjloader2": "^1.0.7"
   },
   "devDependencies": {
     "del": "^2.2.2",
