@@ -1,8 +1,8 @@
 .project
 .idea
 
-/2017_1_0
 /_backup
+/build
 /node_modules
 
 /resource/fonts/*.ttf

@@ -7,7 +7,7 @@ var del = require( 'del' );
 
 var DIR = {
 	WWOBJLOADER_EXAMPLES: 'wwobjloader2/',
-	SITE: '2017_1_0/'
+	SITE: 'build/'
 };
 
 gulp.task( 'bundle-wwobjloader2', function () {
