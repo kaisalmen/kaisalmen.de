@@ -112,3 +112,10 @@ var ooTest2 = new OOTest2( 'two' );
 console.log( ooTest2.getName() );
 console.log( ooTest2.getHiddenName() );
 
+
+// Boolean
+console.log( Boolean( undefined ) );
+console.log( Boolean( null ) );
+console.log( Boolean( false ) );
+console.log( Boolean( true ) );
+console.log( Boolean( new Object() ) );
