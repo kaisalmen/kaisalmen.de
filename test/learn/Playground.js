@@ -119,3 +119,66 @@ console.log( Boolean( null ) );
 console.log( Boolean( false ) );
 console.log( Boolean( true ) );
 console.log( Boolean( new Object() ) );
+
+
+var Helper = {
+	/**
+	 * Only evaluate input in case it really is boolean (true or false). Otherwise return defaultValue as forced boolean
+	 * @param {Object} input If not true or false defaultValue is returned
+	 * @param {boolean} defaultValue Will be forced to boolean if not boolean
+	 * @returns {boolean}
+	 */
+	verifyBoolean: function( input, defaultValue ) {
+		return ( input === true || input === false ) ? input : ( defaultValue === true );
+	},
+	/**
+	 * If given input is null or undefined, false is returned otherwise true.
+	 *
+	 * @param input Anything
+	 * @returns {boolean}
+	 */
+	isValid: function( input ) {
+		return ( input !== null && input !== undefined );
+	},
+	/**
+	 * If given input is null or undefined, the defaultValue is returned otherwise the given input.
+	 *
+	 * @param input Anything
+	 * @param defaultValue Anything
+	 * @returns {*}
+	 */
+	verifyInput: function( input, defaultValue ) {
+		return ( input === null || input === undefined ) ? defaultValue : input;
+	}
+};
+
+console.log( '\nverifyBooleanDefaultFalse');
+console.log( 'undefined, false -> false: ' + Helper.verifyBoolean( undefined, false ));
+console.log( 'null, false -> false: ' + Helper.verifyBoolean( null, false ));
+console.log( 'false, false -> false: ' + Helper.verifyBoolean( false, false ));
+console.log( 'true, false -> true: ' + Helper.verifyBoolean( true, false ));
+console.log( '"FALSE", false -> false: ' + Helper.verifyBoolean( "FALSE", false ));
+console.log( '"TRUE", false -> false: ' + Helper.verifyBoolean( "TRUE", false ));
+console.log( 'new Object(), false -> false: ' + Helper.verifyBoolean( new Object(), false ));
+
+console.log( '\nverifyBooleanDefaultTrue');
+console.log( 'undefined, true -> true: ' + Helper.verifyBoolean( undefined, true ));
+console.log( 'null, true -> true: ' + Helper.verifyBoolean( null, true ));
+console.log( 'false, true -> false: ' + Helper.verifyBoolean( false, true ));
+console.log( 'true, true -> true: ' + Helper.verifyBoolean( true, true ));
+console.log( '"FALSE", true -> true: ' + Helper.verifyBoolean( "FALSE", true ));
+console.log( '"TRUE", true -> true: ' + Helper.verifyBoolean( "TRUE", true ));
+console.log( 'new Object(), true -> true: ' + Helper.verifyBoolean( new Object(), true ));
+
+console.log( '\nverifyValid with defaultValue="Tester"');
+console.log( 'undefined, "Tester" -> "Tester": ' + Helper.verifyInput( undefined, "Tester" ));
+console.log( 'null, "Tester" -> "Tester": ' + Helper.verifyInput( null, "Tester" ));
+console.log( '"Hello", "Tester" -> "Hello": ' + Helper.verifyInput( "Hello", "Tester" ));
+console.log( 'new Object(), "Tester" -> [object Object]: ' + Helper.verifyInput( new Object(), "Tester" ));
+
+console.log( '\nisValid: ');
+console.log( 'undefined -> false: ' + Helper.isValid( undefined ));
+console.log( 'null -> false: ' + Helper.isValid( null ));
+console.log( '"Hello" -> true: ' + Helper.isValid( "Hello" ));
+console.log( 'new Object() -> true: ' + Helper.isValid( new Object() ));
+
