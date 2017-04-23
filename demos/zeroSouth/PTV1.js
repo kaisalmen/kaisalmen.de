@@ -21,6 +21,8 @@ KSX.tools.MeshInfo = (function () {
 
 KSX.zerosouth.PTV1Loader = (function () {
 
+	var Validator = THREE.OBJLoader2.prototype._getValidator();
+
     PTV1Loader.prototype = Object.create(KSX.core.ThreeJsApp.prototype, {
         constructor: {
             configurable: true,
@@ -270,18 +272,14 @@ KSX.zerosouth.PTV1Loader = (function () {
         this.wwObjLoader2.registerCallbackMaterialsLoaded( callbackMaterialsLoaded );
 
         var callbackMeshLoaded = function ( meshName, material ) {
-            var replacedMaterial = null;
+            var materialOverride;
             var matProperties = scope.replaceObjectMaterials[ meshName ];
-            if ( matProperties != null ) {
-
-                replacedMaterial = matProperties.material;
-
-            }
+            if ( Validator.isValid( matProperties ) ) materialOverride = matProperties.material;
 
             var meshInfo;
-            if ( replacedMaterial != null ) {
+            if ( Validator.isValid( materialOverride ) ) {
 
-                meshInfo = new KSX.tools.MeshInfo( meshName, replacedMaterial.name );
+                meshInfo = new KSX.tools.MeshInfo( meshName, materialOverride.name );
 
             } else {
 
@@ -290,7 +288,7 @@ KSX.zerosouth.PTV1Loader = (function () {
             }
             scope.meshInfos.push( meshInfo );
 
-            return replacedMaterial;
+			return new THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride( false, undefined, materialOverride );
         };
         this.wwObjLoader2.registerCallbackMeshLoaded( callbackMeshLoaded );
 
