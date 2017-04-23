@@ -6,6 +6,8 @@
 
 var WWOBJLoader2Example = (function () {
 
+	var Validator = THREE.OBJLoader2.prototype._getValidator();
+
 	function WWOBJLoader2Example( elementToBindTo ) {
 		this.renderer = null;
 		this.canvas = elementToBindTo;
@@ -97,12 +99,11 @@ var WWOBJLoader2Example = (function () {
 			console.log( 'Progress: ' + content );
 		};
 		var materialsLoaded = function ( materials ) {
-			var count = 0;
-			console.log( 'The following materials have been loaded:' );
-			for ( var mat in materials ) {
-				count++;
-			}
+			var count = Validator.isValid( materials ) ? materials.length : 0;
 			console.log( 'Loaded #' + count + ' materials.' );
+		};
+		var meshLoaded = function ( name, bufferGeometry, material ) {
+			console.log( 'Loaded mesh: ' + name + ' Material name: ' + material.name );
 		};
 		var completedLoading = function () {
 			console.log( 'Loading complete!' );
@@ -110,13 +111,14 @@ var WWOBJLoader2Example = (function () {
 		this.wwObjLoader2.registerCallbackProgress( reportProgress );
 		this.wwObjLoader2.registerCallbackCompletedLoading( completedLoading );
 		this.wwObjLoader2.registerCallbackMaterialsLoaded( materialsLoaded );
+		this.wwObjLoader2.registerCallbackMeshLoaded( meshLoaded );
 
 		return true;
 	};
 
 	WWOBJLoader2Example.prototype.loadFiles = function ( prepData ) {
-		prepData.sceneGraphBaseNode = this.pivot;
-		prepData.streamMeshes = this.streamMeshes;
+		prepData.setSceneGraphBaseNode( this.pivot );
+		prepData.setStreamMeshes( this.streamMeshes );
 		this.wwObjLoader2.prepareRun( prepData );
 		this.wwObjLoader2.run();
 	};
@@ -138,7 +140,7 @@ var WWOBJLoader2Example = (function () {
 
 		}
 
-		if ( fileObj == null ) {
+		if ( ! Validator.isValid( fileObj ) ) {
 			alert( 'Unable to load OBJ file from given files.' );
 		}
 
@@ -177,8 +179,10 @@ var WWOBJLoader2Example = (function () {
 
 	WWOBJLoader2Example.prototype.loadFilesUser = function ( objDef ) {
 		var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
-			objDef.name, objDef.objAsArrayBuffer, objDef.pathTexture, objDef.mtlAsString, this.pivot, this.streamMeshes
+			objDef.name, objDef.objAsArrayBuffer, objDef.pathTexture, objDef.mtlAsString
 		);
+		prepData.setSceneGraphBaseNode( this.pivot );
+		prepData.setStreamMeshes( this.streamMeshes );
 		this.wwObjLoader2.prepareRun( prepData );
 		this.wwObjLoader2.run();
 	};
@@ -256,9 +260,10 @@ var WWOBJLoader2Example = (function () {
 
 		if ( object3d.material instanceof THREE.MultiMaterial ) {
 
-			for ( var matName in object3d.material.materials ) {
+			var materials = object3d.material.materials;
+			for ( var name in materials ) {
 
-				this.traversalFunction( object3d.material.materials[ matName ] );
+				if ( materials.hasOwnProperty( name ) )	this.traversalFunction( materials[ name ] );
 
 			}
 
@@ -288,8 +293,11 @@ var WWOBJLoader2Example = (function () {
 				var mat = object3d.material;
 				if ( mat.hasOwnProperty( 'materials' ) ) {
 
-					for ( var mmat in mat.materials ) {
-						mat.materials[ mmat ].dispose();
+					var materials = mat.materials;
+					for ( var name in materials ) {
+
+						if ( materials.hasOwnProperty( name ) ) materials[ name ].dispose();
+
 					}
 				}
 			}

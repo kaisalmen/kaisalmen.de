@@ -375,8 +375,9 @@ KSX.zerosouth.PTV1Loader = (function () {
 
 
         var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
-            'PTV12', null, this.pathToObj, null, this.objGroup
+            'PTV12', null, this.pathToObj, null
         );
+        prepData.setSceneGraphBaseNode( this.objGroup );
 
         var setObjAsArrayBuffer = function( data ) {
             prepData.objAsArrayBuffer = data;

@@ -79,11 +79,7 @@ var WWOBJLoader2Stage = (function () {
 			scope.reloadAssets();
 		};
 		var materialsLoaded = function ( materials ) {
-			var count = 0;
-			console.log( 'The following materials have been loaded:' );
-			for ( var mat in materials ) {
-				count++;
-			}
+			var count = Boolean( materials ) ? materials.length : 0;
 			console.log( 'Loaded #' + count + ' materials.' );
 		};
 		var meshLoaded = function ( meshName ) {
@@ -145,32 +141,30 @@ var WWOBJLoader2Stage = (function () {
 		var scope = this;
 
 		for ( var asset in this.allAssets ) {
-			ref = this.allAssets[asset];
+			ref = this.allAssets[ asset ];
 
 			var remover = function ( object3d ) {
 
-				if ( object3d === ref.pivot ) {
-					return;
-				}
+				if ( object3d === ref.pivot ) return;
+
 				console.log( 'Removing ' + object3d.name );
 				scope.scene.remove( object3d );
 
-				if ( object3d.hasOwnProperty( 'geometry' ) ) {
-					object3d.geometry.dispose();
-				}
+				if ( object3d.hasOwnProperty( 'geometry' ) ) object3d.geometry.dispose();
 				if ( object3d.hasOwnProperty( 'material' ) ) {
 
 					var mat = object3d.material;
 					if ( mat.hasOwnProperty( 'materials' ) ) {
 
-						for ( var mmat in mat.materials ) {
-							mat.materials[mmat].dispose();
+						var materials = mat.materials;
+						for ( var name in materials ) {
+
+							if ( materials.hasOwnProperty( name ) ) materials[ name ].dispose();
+
 						}
 					}
 				}
-				if ( object3d.hasOwnProperty( 'texture' ) ) {
-					object3d.texture.dispose();
-				}
+				if ( object3d.hasOwnProperty( 'texture' ) )	object3d.texture.dispose();
 			};
 			scope.scene.remove( ref.pivot );
 			ref.pivot.traverse( remover );
@@ -185,7 +179,7 @@ var WWOBJLoader2Stage = (function () {
 		this.loadCounter = 0;
 		this.processing = true;
 
-		if ( objs !== undefined && objs !== null ) {
+		if ( Boolean( objs ) ) {
 
 			var obj2Load;
 			var pivot;
@@ -233,7 +227,7 @@ var WWOBJLoader2Stage = (function () {
 
 			scope.scene.add( obj2Load.pivot );
 
-			if ( obj2Load.fileZip !== null ) {
+			if ( Boolean( obj2Load.fileZip ) ) {
 
 				var zipTools = new ZipTools( obj2Load.pathBase );
 				var mtlAsString = null;
@@ -241,8 +235,9 @@ var WWOBJLoader2Stage = (function () {
 				var setObjAsArrayBuffer = function ( data ) {
 					scope.reportProgress( '' );
 					prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
-						obj2Load.name, data, obj2Load.pathTexture, mtlAsString, obj2Load.pivot, true
+						obj2Load.name, data, obj2Load.pathTexture, mtlAsString
 					);
+					prepData.setSceneGraphBaseNode( obj2Load.pivot );
 					scope.wwObjLoader2.prepareRun( prepData );
 					scope.wwObjLoader2.run();
 				};
@@ -254,7 +249,7 @@ var WWOBJLoader2Stage = (function () {
 				};
 
 				var doneUnzipping = function () {
-					if ( obj2Load.fileMtl !== null ) {
+					if ( Boolean( obj2Load.fileMtl ) ) {
 
 						zipTools.unpackAsString( obj2Load.fileMtl, setMtlAsString );
 
@@ -275,8 +270,9 @@ var WWOBJLoader2Stage = (function () {
 
 				scope.reportProgress( '' );
 				prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataFile(
-					obj2Load.name, obj2Load.pathBase, obj2Load.fileObj, obj2Load.pathTexture, obj2Load.fileMtl, obj2Load.pivot, true
+					obj2Load.name, obj2Load.pathBase, obj2Load.fileObj, obj2Load.pathTexture, obj2Load.fileMtl
 				);
+				prepData.setSceneGraphBaseNode( obj2Load.pivot );
 				scope.wwObjLoader2.prepareRun( prepData );
 				scope.wwObjLoader2.run();
 
@@ -329,7 +325,7 @@ var ZipTools = (function () {
 				refPercentComplete = percentComplete;
 				output = 'Download of "' + filename + '": ' + percentComplete + '%';
 				console.log( output );
-				if ( callbacks.progress !== null && callbacks.progress !== undefined ) callbacks.progress( output );
+				if ( Boolean( callbacks.progress ) ) callbacks.progress( output );
 
 			}
 		};
@@ -388,7 +384,7 @@ var WWOBJLoader2ObjDef = function ( name, pathBase, fileObj, fileMtl, pathTextur
 	this.pathTexture = pathTexture;
 	this.fileZip = fileZip;
 	this.pos = pos;
-	this.scale = scale == null ? 1.0 : scale;
+	this.scale = ! Boolean( scale ) ? 1.0 : scale;
 	this.pivot = null;
 };
 

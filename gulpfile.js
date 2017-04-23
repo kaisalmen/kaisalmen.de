@@ -17,9 +17,13 @@ gulp.task( 'bundle-wwobjloader2', function () {
 		.pipe( gulp.dest( DIR.WWOBJLOADER_EXAMPLES ) )
 		.on( 'end', function() {
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'objloader2/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'objloader2/main.src.html' );
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2/main.src.html' );
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2stage/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2stage/main.src.html' );
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwparallels/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwparallels/main.src.html' );
 		} );
 } );
 
