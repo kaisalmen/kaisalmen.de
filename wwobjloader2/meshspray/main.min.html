@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>OBJLoader2 basic usage</title>
+		<title>three.js webgl - Mesh Spray</title>
 		<meta charset="utf-8">
 
 		<link href="../../src/css/ThreeJsApp.css" type="text/css" rel="stylesheet"/>
@@ -18,27 +18,26 @@
 
 		</div>
 		<div id="info">
-			<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - OBJLoader2 basic usage
+			<a href="http://threejs.org" target="_blank">three.js</a> - Mesh Spray
 			<div id="feedback"></div>
 		</div>
 
 		<script src="../../src/core/PlatformVerification.js"></script>
 		<script src="../../node_modules/three/build/three.min.js"></script>
 		<script src="../../node_modules/three/examples/js/controls/TrackballControls.js"></script>
-		<script src="../../node_modules/three/examples/js/loaders/MTLLoader.js"></script>
 		<script src="../../node_modules/three/examples/js/libs/dat.gui.min.js"></script>
 
 		<script src="../../node_modules/wwobjloader2/build/LoaderSupport.min.js"></script>
-		<script src="../../node_modules/wwobjloader2/build/OBJLoader2.min.js"></script>
-		<script src="./OBJLoader2Example.js"></script>
+		<script src="./MeshSpray.js"></script>
 		<script src="../../demos/nav/NavMenu.js"></script>
 		<script>
 
 			KSX.nav.help.show = false;
 			if ( !KSX.globals.polyfillWebComponents ) KSX.nav.intergrateMenu();
 
-			var app = new OBJLoader2Example( document.getElementById( 'DivGLFullCanvas' ) );
+			var app = new MeshSprayApp( document.getElementById( 'DivGLFullCanvas' ) );
 
+			// init three.js example application
 			var resizeWindow = function () {
 				app.resizeDisplayGL();
 			};

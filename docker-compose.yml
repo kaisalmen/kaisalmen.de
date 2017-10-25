@@ -1,0 +1,11 @@
+version: '3.3'
+
+services:
+  kaisalmen:
+    image: nginx
+    ports:
+      - 8080:80
+    volumes:
+      - .:/usr/share/nginx/html:ro
+      - ./resource/nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+    container_name: kaisalmen
