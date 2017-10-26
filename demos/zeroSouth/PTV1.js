@@ -21,7 +21,7 @@ KSX.tools.MeshInfo = (function () {
 
 KSX.zerosouth.PTV1Loader = (function () {
 
-	var Validator = THREE.OBJLoader2.prototype._getValidator();
+    var Validator = THREE.LoaderSupport.Validator;
 
     PTV1Loader.prototype = Object.create(KSX.core.ThreeJsApp.prototype, {
         constructor: {
@@ -47,10 +47,6 @@ KSX.zerosouth.PTV1Loader = (function () {
         this.fileObj = 'PTV1.obj';
         this.fileZip = 'PTV1.zip';
         this.fileMtl = 'PTV1.mtl';
-        this.wwObjLoader2 = new THREE.OBJLoader2.WWOBJLoader2();
-        this.wwObjLoader2.setCrossOrigin( 'anonymous' );
-
-        this.objGroup = null;
 
         this.meshInfos = [];
         this.exportMeshInfos = false;
@@ -68,8 +64,8 @@ KSX.zerosouth.PTV1Loader = (function () {
             useUil: true,
             uilParams: {
                 css: 'top: 0px; left: 0px;',
-				w: 384,
-				colors: {
+                w: 384,
+                colors: {
                     button: '#FF4040',
                     background: 'rgba(40, 40, 40, 0.66)',
                     text: '#E0E0E0'
@@ -86,20 +82,10 @@ KSX.zerosouth.PTV1Loader = (function () {
             useStats: true
         };
         this.uiTools = new KSX.tools.UiTools( uiToolsConfig );
-
-        this.zipTools = new KSX.tools.ZipTools( this.pathToObj );
     }
 
     PTV1Loader.prototype.initPreGL = function () {
-        var scope = this;
-
-        scope.uiTools.createFeedbackAreaDynamic();
-
-        var announceFeedback = function ( text ) {
-            scope.uiTools.announceFeedback( text );
-        };
-        scope.wwObjLoader2.registerCallbackProgress( announceFeedback );
-
+        this.uiTools.createFeedbackAreaDynamic();
         this.uiTools.enableStats();
 
         var promises = [];
@@ -107,6 +93,7 @@ KSX.zerosouth.PTV1Loader = (function () {
         var imageFileNames = [ 'px.jpg', 'nx.jpg', 'py.jpg', 'ny.jpg', 'pz.jpg', 'nz.jpg' ];
         promises.push( this.textureTools.loadTextureCube( cubeBasePath, imageFileNames ) );
 
+        var scope = this;
         Promise.all(promises).then(
             function (results) {
                 scope.textureCubeLoader = results[0];
@@ -117,6 +104,12 @@ KSX.zerosouth.PTV1Loader = (function () {
                 console.log('The following error occurred: ', error);
             }
         );
+    };
+
+    PTV1Loader.prototype._reportProgress = function( event ) {
+        var output = Validator.verifyInput( event.detail.text, '' );
+        console.log( 'Progress: ' + output );
+        this.uiTools.announceFeedback( output );
     };
 
     PTV1Loader.prototype.initGL = function () {
@@ -205,13 +198,6 @@ KSX.zerosouth.PTV1Loader = (function () {
             color: new THREE.Color( 0x0221A5 )
         };
 
-
-        this.objGroup = new THREE.Group();
-        this.objGroup.position.y = 20;
-        this.objGroup.position.z = 250;
-        this.scenePerspective.scene.add( this.objGroup );
-
-
         // Skybox
         var shader = THREE.ShaderLib[ "cube" ];
         shader.uniforms[ "tCube" ].value = this.textureCubeLoader;
@@ -226,93 +212,6 @@ KSX.zerosouth.PTV1Loader = (function () {
         });
         this.skybox = new THREE.Mesh(box, materialCube);
         this.scenePerspective.sceneCube.add( this.skybox );
-
-        var callbackMaterialsLoaded = function ( materials ) {
-            if ( materials !== null ) {
-                var alter;
-                var matName;
-                var material;
-                var prop;
-                var materialCount = 0;
-
-                for ( matName in materials ) {
-                    if ( ! materials.hasOwnProperty( matName ) ) {
-                        continue;
-                    }
-                    materialCount++;
-                    material = materials[ matName ];
-
-                    var msm = new THREE.MeshStandardMaterial();
-                    msm.copy( material );
-
-                    if ( material.hasOwnProperty( 'shininess' ) ) {
-                        msm.metalness = [ 0.0, material.shininess / 100.0, 1.0 ].sort()[ 1 ];
-                    }
-                    if ( material.hasOwnProperty( 'specular' ) ) {
-                        var s = material.specular;
-                        msm.roughness = [ 0.0, ( 3.0 - s.r - s.g - s.b ) / 3.0, 1.0 ].sort()[ 1 ];
-                    }
-
-                    if ( scope.alterMaterials.hasOwnProperty( matName ) ) {
-                        alter = scope.alterMaterials[ matName ];
-
-                        for ( prop in alter ) {
-                            if ( msm.hasOwnProperty( prop ) && alter.hasOwnProperty( prop ) ) {
-                                msm[ prop ] = alter[ prop ];
-                            }
-                        }
-                    }
-                    materials[ matName ] = msm;
-                }
-
-                console.log( 'Overall number of materials: ' + materialCount );
-            }
-            return materials;
-        };
-        this.wwObjLoader2.registerCallbackMaterialsLoaded( callbackMaterialsLoaded );
-
-        var callbackMeshLoaded = function ( meshName, material ) {
-            var materialOverride;
-            var matProperties = scope.replaceObjectMaterials[ meshName ];
-            if ( Validator.isValid( matProperties ) ) materialOverride = matProperties.material;
-
-            var meshInfo;
-            if ( Validator.isValid( materialOverride ) ) {
-
-                meshInfo = new KSX.tools.MeshInfo( meshName, materialOverride.name );
-
-            } else {
-
-                meshInfo = new KSX.tools.MeshInfo( meshName, material.name );
-
-            }
-            scope.meshInfos.push( meshInfo );
-
-			return new THREE.OBJLoader2.WWOBJLoader2.LoadedMeshUserOverride( false, undefined, materialOverride );
-        };
-        this.wwObjLoader2.registerCallbackMeshLoaded( callbackMeshLoaded );
-
-        var callbackCompletedLoading = function () {
-            if ( scope.exportMeshInfos ) {
-                var exportString = '';
-
-                if ( scope.meshInfos.length > 0 ) {
-                    var meshInfo;
-                    for ( var key in scope.meshInfos ) {
-                        meshInfo = scope.meshInfos[ key ];
-                        exportString += JSON.stringify( meshInfo );
-                        exportString += '\n';
-                    }
-
-                    var blob = new Blob( [ exportString ], { type: 'text/plain;charset=utf-8' } );
-                    saveAs( blob, 'meshInfos.json' );
-                }
-                else {
-                    alert( 'Unable to export MeshInfo data as the datastructure is empty!' );
-                }
-            }
-        };
-        this.wwObjLoader2.registerCallbackCompletedLoading( callbackCompletedLoading );
     };
 
     PTV1Loader.prototype.initPostGL = function() {
@@ -371,32 +270,132 @@ KSX.zerosouth.PTV1Loader = (function () {
             stype: scope.uiTools.paramsDimension.sliderType
         });
 
+        var prepData = new THREE.LoaderSupport.PrepData( 'PTV1' );
+        var objGroup = new THREE.Group();
+        objGroup.position.y = 20;
+        objGroup.position.z = 250;
+        this.scenePerspective.scene.add( objGroup );
+        prepData.setStreamMeshesTo( objGroup );
+        prepData.setUseIndices( true );
+        prepData.setUseAsync( true );
+        prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.zip', 'ZIP' ) );
+        prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.obj', 'OBJ' ) );
+        prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.mtl', 'MTL' ) );
 
-        var prepData = new THREE.OBJLoader2.WWOBJLoader2.PrepDataArrayBuffer(
-            'PTV12', null, this.pathToObj, null
-        );
-        prepData.setSceneGraphBaseNode( this.objGroup );
+        var callbackMaterialsLoaded = function ( materials ) {
+            if ( materials !== null ) {
+                var alter;
+                var matName;
+                var material;
+                var prop;
+                var materialCount = 0;
 
-        var setObjAsArrayBuffer = function( data ) {
-            prepData.objAsArrayBuffer = data;
-            scope.wwObjLoader2.prepareRun( prepData );
-            scope.wwObjLoader2.run();
+                for ( matName in materials ) {
+                    if ( ! materials.hasOwnProperty( matName ) ) {
+                        continue;
+                    }
+                    materialCount++;
+                    material = materials[ matName ];
 
+                    var msm = new THREE.MeshStandardMaterial();
+                    msm.copy( material );
+
+                    if ( material.hasOwnProperty( 'shininess' ) ) {
+                        msm.metalness = [ 0.0, material.shininess / 100.0, 1.0 ].sort()[ 1 ];
+                    }
+                    if ( material.hasOwnProperty( 'specular' ) ) {
+                        var s = material.specular;
+                        msm.roughness = [ 0.0, ( 3.0 - s.r - s.g - s.b ) / 3.0, 1.0 ].sort()[ 1 ];
+                    }
+
+                    if ( scope.alterMaterials.hasOwnProperty( matName ) ) {
+                        alter = scope.alterMaterials[ matName ];
+
+                        for ( prop in alter ) {
+                            if ( msm.hasOwnProperty( prop ) && alter.hasOwnProperty( prop ) ) {
+                                msm[ prop ] = alter[ prop ];
+                            }
+                        }
+                    }
+                    materials[ matName ] = msm;
+                }
+
+                console.log( 'Overall number of materials: ' + materialCount );
+            }
+            return materials;
         };
-        var setMtlAsString = function( data ) {
-            prepData.mtlAsString = data;
-            scope.zipTools.unpackAsUint8Array( scope.fileObj, setObjAsArrayBuffer );
+
+        var callbackMeshLoaded = function ( event ) {
+            var meshName = event.detail.meshName;
+            var matProperties = scope.replaceObjectMaterials[ meshName ];
+            var material = Validator.isValid( matProperties ) ? matProperties.material : event.detail.material;
+
+            var override = new THREE.LoaderSupport.LoadedMeshUserOverride( false, true );
+            override.addMesh( new THREE.Mesh( event.detail.bufferGeometry, material ) );
+            scope.meshInfos.push( new KSX.tools.MeshInfo( meshName, material.name ) );
+
+            return override;
+        };
+        var callbackCompletedLoading = function ( event ) {
+            if ( ! Validator.isValid( prepData.streamMeshesTo ) ) scope.scenePerspective.scene.add( event.detail.loaderRootNode );
+            scope._reportProgress( { detail: { text: '' } } );
+
+            if ( scope.exportMeshInfos ) {
+                var exportString = '';
+
+                if ( scope.meshInfos.length > 0 ) {
+                    var meshInfo;
+                    for ( var key in scope.meshInfos ) {
+                        meshInfo = scope.meshInfos[ key ];
+                        exportString += JSON.stringify( meshInfo );
+                        exportString += '\n';
+                    }
+
+                    var blob = new Blob( [ exportString ], { type: 'text/plain;charset=utf-8' } );
+                    saveAs( blob, 'meshInfos.json' );
+                }
+                else {
+                    alert( 'Unable to export MeshInfo data as the datastructure is empty!' );
+                }
+            }
+        };
+        var scopedProgress = function( event ) {
+            scope._reportProgress( event )
+        };
+        var callbacks = prepData.getCallbacks();
+        callbacks.setCallbackOnProgress( scopedProgress );
+        callbacks.setCallbackOnMeshAlter( callbackMeshLoaded );
+        callbacks.setCallbackOnLoad( callbackCompletedLoading );
+        callbacks.setCallbackOnLoadMaterials( callbackMaterialsLoaded );
+
+        var resourceZip = prepData.resources[ 0 ];
+        var resourceObj = prepData.resources[ 1 ];
+        var resourceMtl = prepData.resources[ 2 ];
+        var zipTools = new KSX.tools.ZipTools( resourceZip.pathBase );
+        var setObjAsArrayBuffer = function ( data ) {
+            scope._reportProgress( { detail: { text: '' } } );
+            prepData.resources[ 1 ].content = data;
+            var objLoader2 = new THREE.OBJLoader2();
+            objLoader2.run( prepData );
         };
 
-        var doneUnzipping = function() {
-            scope.zipTools.unpackAsString( scope.fileMtl, setMtlAsString );
+        var setMtlAsString = function ( data ) {
+            if ( prepData.resources.length > 2 ) resourceMtl.content = data;
+            scope._reportProgress( { detail: { text: 'Unzipping: ' + resourceObj.name } } );
+            zipTools.unpackAsUint8Array( resourceObj.name, setObjAsArrayBuffer );
         };
-        var reportProgress = function( text ) {
-            scope.uiTools.announceFeedback( text );
-        };
-        scope.zipTools.load( scope.fileZip, { success: doneUnzipping, progress: reportProgress, error: reportProgress } );
 
-		this.removeLoading();
+        var doneUnzipping = function () {
+            zipTools.unpackAsString( Validator.isValid( resourceMtl ) ? resourceMtl.name : null, setMtlAsString );
+        };
+
+        var errorCase = function ( text ) {
+            scope._reportProgress( { detail: { text: text } } );
+            scope.processing = false;
+        };
+        zipTools.load( resourceZip.url, { success: doneUnzipping, progress: scopedProgress, error: errorCase } );
+
+        this.removeLoading();
         return true;
     };
 

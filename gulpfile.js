@@ -63,7 +63,7 @@ gulp.task( 'bundle-site', function () {
 	// wwobjloader2
 	gulp.src( [ 'node_modules/wwobjloader2/build/OBJLoader2.min.js' ] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build' ) );
-	gulp.src( [ 'node_modules/wwobjloader2/build/WWOBJLoader2.min.js' ] )
+	gulp.src( [ 'node_modules/wwobjloader2/build/LoaderSupport.min.js' ] )
 		.pipe( gulp.dest( DIR.SITE + 'node_modules/wwobjloader2/build' ) );
 
 	gulp.src( [ 'demos/**/*' ] )
