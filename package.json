@@ -28,7 +28,7 @@
     "uil": "^1.0.1",
     "es6-promise": "^4.1.1",
     "webcomponents.js": "^0.7.24",
-    "wwobjloader2": "^2.1.1"
+    "wwobjloader2": "^2.1.2"
   },
   "devDependencies": {
     "del": "^3.0.0",
