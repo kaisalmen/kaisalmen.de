@@ -27,7 +27,7 @@ var WWParallels = (function () {
 
 		this.logger = new THREE.LoaderSupport.ConsoleLogger();
 		this.logger.setEnabled( false );
-		this.workerDirector = new THREE.LoaderSupport.WorkerDirector( THREE.OBJLoader2, this.logger  );
+		this.workerDirector = new THREE.LoaderSupport.WorkerDirector( THREE.OBJLoader2, this.logger );
 		this.workerDirector.setCrossOrigin( 'anonymous' );
 
 		this.controls = null;
@@ -181,6 +181,7 @@ var WWParallels = (function () {
 				mesh.name = meshName;
 
 				override.addMesh( mesh );
+				override.alteredMesh = true;
 
 			}
 			return override;
@@ -248,7 +249,6 @@ var WWParallels = (function () {
 
 			this.workerDirector.enqueueForRun( modelPrepData );
 		}
-
 		this.workerDirector.processQueue();
 	};
 
@@ -293,7 +293,24 @@ var WWParallels = (function () {
 	};
 
 	WWParallels.prototype.terminateManager = function () {
-		this.workerDirector.deregister();
+		this.workerDirector.tearDown();
+		this.running = false;
+	};
+
+	WWParallels.prototype.terminateManagerAndClearScene = function () {
+		var scope = this;
+		var scopedClearAllAssests = function (){
+			scope.clearAllAssests();
+		};
+		if ( this.workerDirector.isRunning() ) {
+
+			this.workerDirector.tearDown( scopedClearAllAssests );
+
+		} else {
+
+			scopedClearAllAssests();
+		}
+
 		this.running = false;
 	};
 

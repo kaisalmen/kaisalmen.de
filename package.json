@@ -22,13 +22,13 @@
   "keywords": [],
   "homepage": "https://github.com/kaisalmen/kaisalmen.de#readme",
   "dependencies": {
-    "three": "^0.87.1",
-    "jszip": "^3.1.4",
-    "bowser": "^1.8.1",
+    "three": "^0.89.0",
+    "jszip": "^3.1.5",
+    "bowser": "^1.9.1",
     "uil": "^1.0.1",
-    "es6-promise": "^4.1.1",
+    "es6-promise": "^4.2.2",
     "webcomponents.js": "^0.7.24",
-    "wwobjloader2": "^2.1.2"
+    "wwobjloader2": "^2.2.1"
   },
   "devDependencies": {
     "del": "^3.0.0",
