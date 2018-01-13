@@ -30,6 +30,7 @@ body {
 }
 
 div.navFeedbackArea {
+    font-family: Arial;
     position: absolute;
     width: 100%;
     height: 50px;
