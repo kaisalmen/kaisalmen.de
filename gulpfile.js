@@ -24,6 +24,9 @@ gulp.task( 'bundle-wwobjloader2', function () {
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwobjloader2stage/main.src.html' );
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwparallels/main.html' );
 			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'wwparallels/main.src.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'meshspray/main.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'meshspray/main.src.html' );
+			del.sync( DIR.WWOBJLOADER_EXAMPLES + 'objverify/*' );
 		} );
 } );
 
