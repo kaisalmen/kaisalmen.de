@@ -275,9 +275,10 @@ KSX.zerosouth.PTV1Loader = (function () {
         objGroup.position.y = 20;
         objGroup.position.z = 250;
         this.scenePerspective.scene.add( objGroup );
-        prepData.setStreamMeshesTo( objGroup );
-        prepData.setUseIndices( true );
-        prepData.setUseAsync( true );
+        prepData.streamMeshesTo = objGroup;
+        prepData.useIndices = true;
+        prepData.useAsync = true;
+        prepData.materialOptions = { invertTrProperty: true };
         prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.zip', 'ZIP' ) );
         prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.obj', 'OBJ' ) );
         prepData.addResource( new THREE.LoaderSupport.ResourceDescriptor( '../../resource/obj/PTV1/PTV1.mtl', 'MTL' ) );

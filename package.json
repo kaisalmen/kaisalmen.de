@@ -22,9 +22,9 @@
   "keywords": [],
   "homepage": "https://github.com/kaisalmen/kaisalmen.de#readme",
   "dependencies": {
-    "three": "^0.90.0",
+    "three": "^0.91.0",
     "jszip": "^3.1.5",
-    "bowser": "^1.9.2",
+    "bowser": "^1.9.3",
     "uil": "^1.0.1",
     "es6-promise": "^4.2.4",
     "webcomponents.js": "^0.7.24",
